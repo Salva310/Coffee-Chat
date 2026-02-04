@@ -1,0 +1,16 @@
+{
+  "name": "coffee-chat",
+  "version": "1.0.0",
+  "description": "Professional networking platform for genuine connections",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in a browser'"
+  },
+  "keywords": [
+    "networking",
+    "professional",
+    "chat"
+  ],
+  "author": "",
+  "license": "MIT"
+}
