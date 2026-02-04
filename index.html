@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Chat - Professional Networking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6B5B95;
+            --primary-light: #8B7BB8;
+            --primary-dark: #4B3B75;
+            --accent: #D4A574;
+            --success: #4CAF50;
+            --danger: #FF6B6B;
+            --bg-dark: #1a1a1a;
+            --bg-light: #f5f3f0;
+            --text-dark: #2c2c2c;
+            --text-light: #f5f3f0;
+            --border: #e0dcd9;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            margin-bottom: 2rem;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid transparent;
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-item.active {
+            background: var(--accent);
+            color: var(--text-dark);
+        }
+
+        .sidebar-spacer {
+            flex: 1;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .content-view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Headers */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-4px);
+        }
+
+        .card.compact {
+            padding: 1rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+            background: #fafaf8;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(107, 91, 149, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: var(--text-dark);
+        }
+
+        .btn-accent:hover {
+            background: #c89b68;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e55555;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-icon {
+            padding: 10px 12px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            max-width: 500px;
+            margin: 4rem auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 2rem;
+            font-size: 14px;
+        }
+
+        .toggle-auth {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 14px;
+        }
+
+        .toggle-auth button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid.two-col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 28px;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Person Card */
+        .person-card {
+            text-align: center;
+        }
+
+        .person-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            margin: 0 auto 1rem;
+        }
+
+        .person-card h3 {
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .person-card .role {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        .person-card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background: var(--bg-light);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Calendar */
+        .calendar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-header button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 4px 8px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 12px;
+            padding: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: var(--bg-light);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .calendar-day:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calendar-day.today {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-event {
+            border: 2px solid var(--accent);
+            font-weight: 600;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        /* Time Slots */
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .time-slot {
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .time-slot:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .time-slot.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Video Call */
+        .call-container {
+            background: black;
+            border-radius: 16px;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .video-box {
+            background: #333;
+            border-radius: 12px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-box.local {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            aspect-ratio: 9 / 16;
+        }
+
+        .video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .avatar-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+        }
+
+        .call-info {
+            margin-bottom: 2rem;
+        }
+
+        .call-info h2 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .call-duration {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .call-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn.mic {
+            background: var(--primary);
+            color: white;
+        }
+
+        .control-btn.mic:hover {
+            background: var(--primary-dark);
+        }
+
+        .control-btn.video {
+            background: var(--primary);
+            color: white;
+        }
+
+        .control-btn.video:hover {
+            background: var(--primary-dark);
+        }
+
+        .control-btn.end {
+            background: var(--danger);
+            color: white;
+        }
+
+        .control-btn.end:hover {
+            background: #e55555;
+        }
+
+        .control-btn.muted {
+            background: #555;
+            color: #aaa;
+        }
+
+        /* Messages */
+        .messages-wrapper {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.5rem;
+            height: 600px;
+        }
+
+        .conversation-list {
+            background: white;
+            border-radius: 12px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .conversation-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .conversation-item:hover {
+            background: var(--bg-light);
+        }
+
+        .conversation-item.active {
+            background: linear-gradient(135deg, rgba(107, 91, 149, 0.1), rgba(212, 165, 116, 0.1));
+        }
+
+        .chat-window {
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+        }
+
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message.sent .message-content {
+            background: var(--primary);
+            color: white;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+        }
+
+        .search-bar select {
+            min-width: 180px;
+        }
+
+        /* Meeting Card */
+        .meeting-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .meeting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .meeting-time {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .meeting-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .meeting-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .meeting-status.confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .meeting-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+        }
+
+        /* Profile Detail */
+        .profile-detail {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .profile-header .person-avatar {
+            width: 120px;
+            height: 120px;
+            font-size: 48px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .profile-header .person-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-header .edit-profile-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .profile-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-info-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .profile-actions button {
+            flex: 1;
+        }
+
+        .profile-posts {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .post-card {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .post-content {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .post-action-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .post-action-btn:hover {
+            background: rgba(107, 91, 149, 0.1);
+        }
+
+        .resume-section {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .resume-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .resume-link:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .resume-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .file-upload-area.drag-over {
+            border-color: var(--accent);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .avatar-upload-preview {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            font-size: 60px;
+            font-weight: 700;
+        }
+
+        .avatar-upload-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .messages-wrapper {
+                grid-template-columns: 250px 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .grid.two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .sidebar nav {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .messages-wrapper {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .search-bar select {
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">☕ Coffee Chat</div>
+            <nav id="navMenu"></nav>
+            <div class="sidebar-spacer"></div>
+            <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Auth Screens -->
+            <div id="loginView" class="content-view active">
+                <div class="auth-container">
+                    <h1>Welcome Back</h1>
+                    <p class="auth-subtitle">Connect and grow with professionals in your industry</p>
+                    
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="handleLogin()" style="width: 100%;">Sign In</button>
+                    
+                    <div class="toggle-auth">
+                        New to Coffee Chat? <button onclick="switchView('signupView')">Create Account</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="signupView" class="content-view">
+                <div class="auth-container">
+                    <h1>Join Coffee Chat</h1>
+                    <p class="auth-subtitle">Start building genuine professional connections</p>
+                    
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="signupFirstName" placeholder="Jane">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="signupLastName" placeholder="Smith">
+                    </div>
+                    <div class="form-group">
+                        <label>Industry</label>
+                        <select id="signupIndustry">
+                            <option value="">Select your industry</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Design">Design</option>
+                            <option value="Education">Education</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Interests & Passions</label>
+                        <textarea id="signupInterests" placeholder="AI, Product Management, Startups..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Career Goals</label>
+                        <textarea id="signupGoals" placeholder="What are you looking to achieve?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="handleSignup()" style="width: 100%;">Create Account</button>
+                    
+                    <div class="toggle-auth">
+                        Already have an account? <button onclick="switchView('loginView')">Sign In</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboardView" class="content-view">
+                <h1>Welcome, <span id="userName"></span>!</h1>
+                <p style="color: #999; margin-bottom: 2rem;">Build genuine connections over real conversations</p>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3 id="statConnections">0</h3>
+                        <p>Connections</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="statGroups">0</h3>
+                        <p>Groups Joined</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="statMeetings">0</h3>
+                        <p>Meetings Scheduled</p>
+                    </div>
+                </div>
+
+                <h2>Quick Actions</h2>
+                <div class="grid">
+                    <div class="card person-card" onclick="editMyProfile()" style="cursor: pointer;">
+                        <div class="person-avatar">👤</div>
+                        <h3>Edit Profile</h3>
+                        <p style="font-size: 13px; color: #999;">Update your information</p>
+                    </div>
+                    <div class="card person-card" onclick="switchView('discoverView')" style="cursor: pointer;">
+                        <div class="person-avatar">🔍</div>
+                        <h3>Discover People</h3>
+                        <p style="font-size: 13px; color: #999;">Find genuine connections</p>
+                    </div>
+                    <div class="card person-card" onclick="switchView('groupsView')" style="cursor: pointer;">
+                        <div class="person-avatar">👥</div>
+                        <h3>Communities</h3>
+                        <p style="font-size: 13px; color: #999;">Join interest groups</p>
+                    </div>
+                    <div class="card person-card" onclick="switchView('calendarView')" style="cursor: pointer;">
+                        <div class="person-avatar">📅</div>
+                        <h3>Calendar</h3>
+                        <p style="font-size: 13px; color: #999;">View your schedule</p>
+                    </div>
+                    <div class="card person-card" onclick="switchView('messagesView')" style="cursor: pointer;">
+                        <div class="person-avatar">💬</div>
+                        <h3>Messages</h3>
+                        <p style="font-size: 13px; color: #999;">Chat with connections</p>
+                    </div>
+                    <div class="card person-card" onclick="createPost()" style="cursor: pointer;">
+                        <div class="person-avatar">✍️</div>
+                        <h3>Create Post</h3>
+                        <p style="font-size: 13px; color: #999;">Share your thoughts</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discover View -->
+            <div id="discoverView" class="content-view">
+                <h1>Discover People</h1>
+                <p style="color: #999; margin-bottom: 1.5rem;">Find professionals in your industry</p>
+
+                <div class="search-bar">
+                    <input type="text" id="searchName" placeholder="Search by name..." onkeyup="filterDiscovery()">
+                    <select id="filterIndustry" onchange="filterDiscovery()">
+                        <option value="">All Industries</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Design">Design</option>
+                    </select>
+                </div>
+
+                <div id="discoverGrid" class="grid"></div>
+            </div>
+
+            <!-- Profile Detail View -->
+            <div id="profileDetailView" class="content-view">
+                <button class="btn btn-secondary btn-sm" onclick="switchView('discoverView')" style="margin-bottom: 1.5rem;">← Back</button>
+                <div id="profileDetailContent" class="profile-detail"></div>
+            </div>
+
+            <!-- Edit Profile Modal -->
+            <div id="editProfileModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 style="margin: 0;">Edit Profile</h2>
+                        <button class="modal-close" onclick="closeModal('editProfileModal')">×</button>
+                    </div>
+
+                    <div class="avatar-upload-preview" id="avatarPreview">
+                        <span id="avatarInitials"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Picture</label>
+                        <div class="file-upload-area" onclick="document.getElementById('avatarInput').click()">
+                            <p>📷 Click or drag to upload profile picture</p>
+                            <p style="font-size: 12px; color: #999;">JPG, PNG (Max 5MB)</p>
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="editFirstName">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="editLastName">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Job Title</label>
+                        <input type="text" id="editRole" placeholder="e.g., Senior Product Manager">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="editCompany" placeholder="e.g., TechCorp">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="editLocation" placeholder="e.g., San Francisco, CA">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="editBio" placeholder="Tell others about yourself..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Industry</label>
+                        <select id="editIndustry">
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Design">Design</option>
+                            <option value="Education">Education</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interests & Passions (comma-separated)</label>
+                        <input type="text" id="editInterests" placeholder="AI, Product Management, Startups">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Career Goals</label>
+                        <textarea id="editGoals" placeholder="What are you looking to achieve?" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Resume</label>
+                        <div class="file-upload-area" onclick="document.getElementById('resumeInput').click()">
+                            <p>📄 Click or drag to upload resume</p>
+                            <p style="font-size: 12px; color: #999;">PDF (Max 10MB)</p>
+                        </div>
+                        <input type="file" id="resumeInput" accept=".pdf" style="display: none;" onchange="handleResumeUpload(event)">
+                        <div id="resumePreview"></div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-secondary" onclick="closeModal('editProfileModal')" style="flex: 1;">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveProfile()" style="flex: 1;">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Post Modal -->
+            <div id="createPostModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 style="margin: 0;">Create Post</h2>
+                        <button class="modal-close" onclick="closeModal('createPostModal')">×</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>What's on your mind?</label>
+                        <textarea id="postContent" placeholder="Share your thoughts, insights, or experiences..." rows="6"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-secondary" onclick="closeModal('createPostModal')" style="flex: 1;">Cancel</button>
+                        <button class="btn btn-primary" onclick="publishPost()" style="flex: 1;">Publish</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groups View -->
+            <div id="groupsView" class="content-view">
+                <h1>Communities & Groups</h1>
+                <p style="color: #999; margin-bottom: 2rem;">Join groups aligned with your industry and interests</p>
+
+                <h2 style="margin-top: 2rem;">Featured Groups</h2>
+                <div id="groupsList" class="grid"></div>
+
+                <h2 style="margin-top: 2rem;">Your Groups</h2>
+                <div id="myGroupsList"></div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendarView" class="content-view">
+                <h1>Your Schedule</h1>
+                <p style="color: #999; margin-bottom: 2rem;">View and manage your coffee chats</p>
+
+                <div class="grid two-col">
+                    <div>
+                        <h2 style="margin-bottom: 1rem;">Calendar</h2>
+                        <div class="calendar">
+                            <div class="calendar-header">
+                                <button onclick="previousMonth()">←</button>
+                                <h3 style="margin: 0;" id="currentMonth"></h3>
+                                <button onclick="nextMonth()">→</button>
+                            </div>
+                            <div class="calendar-grid" id="calendarGrid"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 style="margin-bottom: 1rem;">Upcoming Meetings</h2>
+                        <div id="meetingsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages View -->
+            <div id="messagesView" class="content-view">
+                <h1>Messages</h1>
+                <p style="color: #999; margin-bottom: 1.5rem;">Connect with your network</p>
+                <div class="messages-wrapper">
+                    <div id="conversationList" class="conversation-list"></div>
+                    <div id="chatWindow" class="chat-window">
+                        <div class="chat-header">
+                            <h3>Select a conversation</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Call View -->
+            <div id="callView" class="content-view">
+                <button class="btn btn-secondary btn-sm" onclick="endCall()" style="margin-bottom: 1.5rem;">← End Call</button>
+                <div class="call-container">
+                    <div class="video-box local">
+                        <div class="video-placeholder">
+                            <div class="avatar-large">👤</div>
+                        </div>
+                    </div>
+                    <div class="video-grid">
+                        <div class="video-box">
+                            <div class="video-placeholder">
+                                <div class="avatar-large" id="remoteName"></div>
+                                <p id="remotePerson"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="call-info">
+                        <h2 id="callPersonName"></h2>
+                        <p class="call-duration"><span id="callTimer">00:00</span></p>
+                    </div>
+                    <div class="call-controls">
+                        <button class="control-btn mic" id="micBtn" onclick="toggleMic()">🎤</button>
+                        <button class="control-btn video" id="videoBtn" onclick="toggleVideo()">📹</button>
+                        <button class="control-btn end" onclick="endCall()">☎️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Meeting View -->
+            <div id="scheduleView" class="content-view">
+                <button class="btn btn-secondary btn-sm" onclick="goBack()" style="margin-bottom: 1.5rem;">← Back</button>
+                <div class="profile-detail">
+                    <h1 style="text-align: center; margin-bottom: 2rem;">Schedule a Coffee Chat</h1>
+                    
+                    <div class="form-group">
+                        <label>With: <strong id="scheduleName"></strong></label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Date</label>
+                        <input type="date" id="scheduleDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Time</label>
+                        <div class="time-slots" id="timeSlots"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <select id="scheduleDuration">
+                            <option value="15">15 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="60">1 hour</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Topic/Purpose</label>
+                        <textarea id="scheduleTopic" placeholder="What would you like to discuss?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Meeting Type</label>
+                        <select id="scheduleType">
+                            <option value="video">Video Call</option>
+                            <option value="zoom">Zoom Meeting</option>
+                            <option value="facetime">FaceTime</option>
+                            <option value="phone">Phone Call</option>
+                            <option value="coffee">Coffee Chat (In-person)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="sendMeetingRequest()" style="width: 100%;">Send Meeting Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentUser = null;
+        let users = [];
+        let groups = [];
+        let messages = [];
+        let meetings = [];
+        let connections = [];
+        let selectedConversation = null;
+        let selectedPerson = null;
+        let previousView = 'dashboardView';
+        let callDuration = 0;
+        let callInterval = null;
+        let currentMonth = new Date();
+        let selectedTime = null;
+
+        const mockUsers = [
+            {
+                id: 2,
+                firstName: 'Sarah',
+                lastName: 'Chen',
+                industry: 'Technology',
+                interests: ['AI', 'Product Management', 'Startups'],
+                goals: 'Lead a high-impact product team',
+                email: 'sarah@example.com',
+                bio: 'Product leader with 8 years building AI-powered solutions. Previously at Google and two successful startups. Passionate about mentoring and building products that scale.',
+                role: 'Senior Product Manager',
+                company: 'TechCorp',
+                location: 'San Francisco, CA',
+                profilePicture: null,
+                resume: null,
+                posts: [
+                    { id: 1, content: 'Just launched our new AI feature! Excited to share what we learned about user onboarding.', date: '2 days ago', likes: 24 }
+                ]
+            },
+            {
+                id: 3,
+                firstName: 'Marcus',
+                lastName: 'Johnson',
+                industry: 'Finance',
+                interests: ['Fintech', 'Blockchain', 'Investing'],
+                goals: 'Build financial products for underserved markets',
+                email: 'marcus@example.com',
+                bio: 'Fintech entrepreneur focused on financial inclusion. Built two successful ventures in mobile payments. Looking to connect with fellow innovators.',
+                role: 'Founder & CEO',
+                company: 'FinanceForAll',
+                location: 'New York, NY',
+                profilePicture: null,
+                resume: null,
+                posts: [
+                    { id: 2, content: 'The future of banking is decentralized. Here\'s why traditional banks need to adapt...', date: '1 week ago', likes: 42 }
+                ]
+            },
+            {
+                id: 4,
+                firstName: 'Elena',
+                lastName: 'Rodriguez',
+                industry: 'Healthcare',
+                interests: ['Medical Tech', 'Startups', 'Research'],
+                goals: 'Innovate in patient care technology',
+                email: 'elena@example.com',
+                bio: 'Healthcare technologist bridging the gap between medicine and innovation. MD turned entrepreneur. Building tools that improve patient outcomes.',
+                role: 'Chief Medical Officer',
+                company: 'HealthTech Innovations',
+                location: 'Boston, MA',
+                profilePicture: null,
+                resume: null,
+                posts: []
+            },
+            {
+                id: 5,
+                firstName: 'David',
+                lastName: 'Kim',
+                industry: 'Technology',
+                interests: ['Backend Engineering', 'Scaling', 'Open Source'],
+                goals: 'Become a technical leader at scale',
+                email: 'david@example.com',
+                bio: 'Staff Engineer specializing in distributed systems. Love solving complex scaling challenges. Active open source contributor and technical writer.',
+                role: 'Staff Software Engineer',
+                company: 'CloudScale Inc',
+                location: 'Seattle, WA',
+                profilePicture: null,
+                resume: null,
+                posts: [
+                    { id: 3, content: 'Wrote a deep dive on database sharding strategies. Check it out if you\'re dealing with scaling challenges!', date: '3 days ago', likes: 67 }
+                ]
+            },
+            {
+                id: 6,
+                firstName: 'Priya',
+                lastName: 'Patel',
+                industry: 'Marketing',
+                interests: ['Growth Marketing', 'Content', 'Brand Strategy'],
+                goals: 'Lead marketing at a growth-stage startup',
+                email: 'priya@example.com',
+                bio: 'Growth marketer who loves data and creativity in equal measure. Scaled three startups from 0 to 1M users. Always excited to talk growth strategies.',
+                role: 'Head of Growth',
+                company: 'GrowthLabs',
+                location: 'Austin, TX',
+                profilePicture: null,
+                resume: null,
+                posts: []
+            }
+        ];
+
+        const mockGroups = [
+            {
+                id: 1,
+                name: 'Tech Leaders Collective',
+                industry: 'Technology',
+                description: 'For technology professionals looking to grow and mentor others',
+                members: 234,
+                posts: [
+                    { author: 'Sarah Chen', content: 'Anyone working on AI products? Would love to connect!' },
+                    { author: 'David Kim', content: 'Best practices for scaling backends - let\'s discuss!' }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Fintech Innovators',
+                industry: 'Finance',
+                description: 'Building the future of financial services',
+                members: 189,
+                posts: [
+                    { author: 'Marcus Johnson', content: 'New regulatory landscape - what\'s your take?' }
+                ]
+            },
+            {
+                id: 3,
+                name: 'Healthcare Tech Forum',
+                industry: 'Healthcare',
+                description: 'Healthcare professionals and technologists',
+                members: 156,
+                posts: [
+                    { author: 'Elena Rodriguez', content: 'Patient data privacy - best solutions?' }
+                ]
+            },
+            {
+                id: 4,
+                name: 'Marketing Masters',
+                industry: 'Marketing',
+                description: 'Growth, strategy, and brand discussions',
+                members: 201,
+                posts: [
+                    { author: 'Priya Patel', content: 'Growth hacking strategies for B2B startups' }
+                ]
+            }
+        ];
+
+        // Initialize
+        function init() {
+            users = [...mockUsers];
+            groups = [...mockGroups];
+            loadFromStorage();
+            renderNav();
+            renderCalendar();
+        }
+
+        function loadFromStorage() {
+            const stored = localStorage.getItem('coffeeChat');
+            if (stored) {
+                const data = JSON.parse(stored);
+                currentUser = data.currentUser;
+                connections = data.connections || [];
+                messages = data.messages || [];
+                meetings = data.meetings || [];
+            }
+        }
+
+        function saveToStorage() {
+            const data = { currentUser, connections, messages, meetings };
+            localStorage.setItem('coffeeChat', JSON.stringify(data));
+        }
+
+        // Auth
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            currentUser = {
+                id: 1,
+                firstName: 'You',
+                lastName: 'User',
+                email,
+                industry: 'Technology',
+                interests: ['Networking', 'Innovation'],
+                goals: 'Build meaningful professional relationships'
+            };
+
+            saveToStorage();
+            renderNav();
+            switchView('dashboardView');
+            updateDashboard();
+        }
+
+        function handleSignup() {
+            const firstName = document.getElementById('signupFirstName').value;
+            const lastName = document.getElementById('signupLastName').value;
+            const industry = document.getElementById('signupIndustry').value;
+            const interests = document.getElementById('signupInterests').value.split(',').map(i => i.trim()).filter(Boolean);
+            const goals = document.getElementById('signupGoals').value;
+            const email = document.getElementById('signupEmail').value;
+
+            if (!firstName || !lastName || !industry || !email || !goals) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            currentUser = {
+                id: 1,
+                firstName,
+                lastName,
+                industry,
+                interests,
+                goals,
+                email
+            };
+
+            saveToStorage();
+            renderNav();
+            switchView('dashboardView');
+            updateDashboard();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            connections = [];
+            messages = [];
+            meetings = [];
+            localStorage.removeItem('coffeeChat');
+            switchView('loginView');
+            renderNav();
+        }
+
+        // Navigation
+        function renderNav() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.innerHTML = '';
+
+            if (currentUser) {
+                const items = [
+                    { id: 'dashboardView', label: '🏠 Dashboard' },
+                    { id: 'discoverView', label: '🔍 Discover' },
+                    { id: 'groupsView', label: '👥 Communities' },
+                    { id: 'calendarView', label: '📅 Calendar' },
+                    { id: 'messagesView', label: '💬 Messages' }
+                ];
+
+                items.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-item';
+                    btn.textContent = item.label;
+                    btn.onclick = () => switchView(item.id);
+                    navMenu.appendChild(btn);
+                });
+            }
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.content-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            if (viewId === 'discoverView') renderDiscovery();
+            if (viewId === 'groupsView') renderGroups();
+            if (viewId === 'messagesView') renderMessages();
+            if (viewId === 'dashboardView') updateDashboard();
+            if (viewId === 'calendarView') renderCalendarView();
+
+            previousView = viewId;
+        }
+
+        function goBack() {
+            switchView(previousView);
+        }
+
+        // Dashboard
+        function updateDashboard() {
+            document.getElementById('userName').textContent = currentUser.firstName;
+            document.getElementById('statConnections').textContent = connections.length;
+            document.getElementById('statGroups').textContent = groups.filter(g => g.userJoined).length;
+            document.getElementById('statMeetings').textContent = meetings.filter(m => m.status !== 'completed').length;
+        }
+
+        // Discovery
+        function renderDiscovery() {
+            const searchName = document.getElementById('searchName').value.toLowerCase();
+            const filterIndustry = document.getElementById('filterIndustry').value;
+
+            let filtered = users.filter(u => {
+                const matchName = u.firstName.toLowerCase().includes(searchName) || u.lastName.toLowerCase().includes(searchName);
+                const matchIndustry = !filterIndustry || u.industry === filterIndustry;
+                return matchName && matchIndustry;
+            });
+
+            const grid = document.getElementById('discoverGrid');
+            grid.innerHTML = filtered.map(user => {
+                const isConnected = connections.find(c => c.userId === user.id);
+                const avatarHTML = user.profilePicture ? 
+                    `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;"><img src="${user.profilePicture}" alt="${user.firstName}"></div>` :
+                    `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${user.firstName[0]}${user.lastName[0]}</div>`;
+                
+                return `
+                    <div class="card person-card">
+                        ${avatarHTML}
+                        <h3>${user.firstName} ${user.lastName}</h3>
+                        ${user.role ? `<p class="role">${user.role}</p>` : `<p class="role">${user.industry}</p>`}
+                        ${user.company ? `<p style="font-size: 12px; color: #999; margin-top: -0.25rem;">${user.company}</p>` : ''}
+                        <div class="tags">
+                            ${user.interests.slice(0, 3).map(i => `<span class="tag">${i}</span>`).join('')}
+                        </div>
+                        <div class="profile-actions">
+                            <button class="btn btn-primary btn-sm" onclick="viewProfile(${user.id})" style="flex: 1; justify-content: center;">View Profile</button>
+                            ${isConnected ? 
+                                `<button class="btn btn-secondary btn-sm" onclick="startMessage(${user.id})" style="flex: 1; justify-content: center;">Message</button>` :
+                                `<button class="btn btn-accent btn-sm" onclick="connectUser(${user.id})" style="flex: 1; justify-content: center;">Connect</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterDiscovery() {
+            renderDiscovery();
+        }
+
+        function viewProfile(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            selectedPerson = user;
+            previousView = 'discoverView';
+
+            const isConnected = connections.find(c => c.userId === userId);
+            const isOwnProfile = currentUser && currentUser.id === userId;
+
+            const avatarHTML = user.profilePicture ? 
+                `<div class="person-avatar" style="width: 120px; height: 120px; font-size: 48px;"><img src="${user.profilePicture}" alt="${user.firstName}"></div>` :
+                `<div class="person-avatar" style="width: 120px; height: 120px; font-size: 48px;">${user.firstName[0]}${user.lastName[0]}</div>`;
+
+            const content = document.getElementById('profileDetailContent');
+            content.innerHTML = `
+                <div class="profile-header">
+                    ${avatarHTML}
+                    ${isOwnProfile ? '<button class="btn btn-secondary btn-sm edit-profile-btn" onclick="editMyProfile()">✏️ Edit Profile</button>' : ''}
+                    <h1 style="margin-bottom: 0.5rem;">${user.firstName} ${user.lastName}</h1>
+                    ${user.role ? `<p style="font-weight: 600; color: var(--primary); margin-bottom: 0.25rem;">${user.role}</p>` : ''}
+                    ${user.company ? `<p style="color: #666; font-size: 14px; margin-bottom: 0.25rem;">${user.company}</p>` : ''}
+                    ${user.location ? `<p style="color: #999; font-size: 13px;">📍 ${user.location}</p>` : ''}
+                    <p class="role" style="margin-top: 0.5rem;">${user.industry}</p>
+                </div>
+
+                ${user.bio ? `
+                    <div class="profile-info">
+                        <h3>About</h3>
+                        <p style="line-height: 1.6;">${user.bio}</p>
+                    </div>
+                ` : ''}
+
+                ${user.resume ? `
+                    <div class="resume-section">
+                        <h3 style="margin-bottom: 1rem;">Resume</h3>
+                        <a href="${user.resume}" class="resume-link" download>
+                            <div class="resume-icon">📄</div>
+                            <div>
+                                <p style="font-weight: 600; margin: 0;">${user.firstName}'s Resume</p>
+                                <p style="font-size: 12px; color: #999; margin: 0;">Click to download PDF</p>
+                            </div>
+                        </a>
+                    </div>
+                ` : ''}
+
+                <div class="profile-info">
+                    <h3>Career Goals</h3>
+                    <p>${user.goals}</p>
+                </div>
+
+                <div class="profile-info">
+                    <h3>Interests & Passions</h3>
+                    <div class="profile-tags">
+                        ${user.interests.map(i => `<span class="tag">${i}</span>`).join('')}
+                    </div>
+                </div>
+
+                ${!isOwnProfile ? `
+                    <div class="profile-actions">
+                        ${isConnected ? `
+                            <button class="btn btn-primary" onclick="startMessage(${user.id})">💬 Send Message</button>
+                            <button class="btn btn-accent" onclick="scheduleWith(${user.id})">📅 Schedule Chat</button>
+                        ` : `
+                            <button class="btn btn-primary" onclick="connectUser(${user.id})">Add Connection</button>
+                            <button class="btn btn-secondary" onclick="switchView('discoverView')">Back</button>
+                        `}
+                    </div>
+                ` : ''}
+
+                ${user.posts && user.posts.length > 0 ? `
+                    <div class="profile-posts">
+                        <h3 style="margin-bottom: 1rem;">Recent Posts</h3>
+                        ${user.posts.map(post => `
+                            <div class="post-card">
+                                <div class="post-header">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        ${user.profilePicture ? 
+                                            `<div class="person-avatar" style="width: 40px; height: 40px; font-size: 16px;"><img src="${user.profilePicture}"></div>` :
+                                            `<div class="person-avatar" style="width: 40px; height: 40px; font-size: 16px;">${user.firstName[0]}${user.lastName[0]}</div>`
+                                        }
+                                        <div>
+                                            <h4 style="margin: 0; font-size: 14px;">${user.firstName} ${user.lastName}</h4>
+                                            <p class="post-meta">${post.date}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="post-content">${post.content}</div>
+                                <div class="post-actions">
+                                    <button class="post-action-btn" onclick="likePost(${post.id})">👍 ${post.likes} Likes</button>
+                                    <button class="post-action-btn">💬 Comment</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+
+            switchView('profileDetailView');
+        }
+
+        function connectUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!connections.find(c => c.userId === userId)) {
+                connections.push({
+                    userId: user.id,
+                    userName: `${user.firstName} ${user.lastName}`,
+                    industry: user.industry,
+                    connectedAt: new Date().toLocaleDateString()
+                });
+                saveToStorage();
+                alert(`Connected with ${user.firstName}!`);
+                renderDiscovery();
+            }
+        }
+
+        // Messages
+        function startMessage(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!messages.find(m => m.userId === userId)) {
+                messages.push({
+                    userId: user.id,
+                    userName: `${user.firstName} ${user.lastName}`,
+                    conversation: []
+                });
+            }
+            switchView('messagesView');
+            selectConversation(userId);
+        }
+
+        function renderMessages() {
+            const list = document.getElementById('conversationList');
+            if (messages.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No conversations yet</p></div>';
+                document.getElementById('chatWindow').innerHTML = '<div class="chat-header"><h3>Start a conversation</h3></div>';
+                return;
+            }
+
+            list.innerHTML = messages.map(msg => `
+                <div class="conversation-item ${selectedConversation === msg.userId ? 'active' : ''}" onclick="selectConversation(${msg.userId})">
+                    <h4>${msg.userName}</h4>
+                    <p>${msg.conversation.length} messages</p>
+                </div>
+            `).join('');
+        }
+
+        function selectConversation(userId) {
+            selectedConversation = userId;
+            const msg = messages.find(m => m.userId === userId);
+            const user = users.find(u => u.id === userId);
+
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.innerHTML = `
+                <div class="chat-header">
+                    <div>
+                        <h3 style="margin: 0;">${msg.userName}</h3>
+                    </div>
+                    <button class="btn btn-accent btn-sm" onclick="scheduleWith(${userId})">Schedule Chat</button>
+                </div>
+                <div class="chat-messages">
+                    ${msg.conversation.map(m => `
+                        <div class="message ${m.sent ? 'sent' : 'received'}">
+                            <div class="message-content">${m.text}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage(${userId})">
+                    <button class="btn btn-primary btn-sm" onclick="sendMessage(${userId})">Send</button>
+                </div>
+            `;
+
+            document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.conversation-item')?.classList.add('active');
+        }
+
+        function sendMessage(userId) {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const msg = messages.find(m => m.userId === userId);
+            msg.conversation.push({ text, sent: true });
+            input.value = '';
+            saveToStorage();
+
+            setTimeout(() => {
+                msg.conversation.push({ text: "Thanks for reaching out! Let's schedule a time to chat.", sent: false });
+                selectConversation(userId);
+                saveToStorage();
+            }, 1000);
+
+            selectConversation(userId);
+        }
+
+        // Groups
+        function renderGroups() {
+            const list = document.getElementById('groupsList');
+            list.innerHTML = mockGroups.map(group => `
+                <div class="card">
+                    <h3>${group.name}</h3>
+                    <p>${group.description}</p>
+                    <p style="font-size: 12px; color: #999; margin: 0.5rem 0;">${group.members} members • ${group.industry}</p>
+                    <button class="btn btn-primary" onclick="joinGroup(${group.id})" style="width: 100%; margin-top: 1rem;">Join Group</button>
+                </div>
+            `).join('');
+
+            const myGroups = mockGroups.filter(g => g.userJoined);
+            const myList = document.getElementById('myGroupsList');
+            if (myGroups.length === 0) {
+                myList.innerHTML = '<div class="empty-state"><p>Join groups to connect with your community</p></div>';
+            } else {
+                myList.innerHTML = myGroups.map(group => `
+                    <div class="card compact">
+                        <h3>✓ ${group.name}</h3>
+                        <p style="font-size: 13px; color: #999;">${group.members} members</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function joinGroup(groupId) {
+            const group = mockGroups.find(g => g.id === groupId);
+            if (!group.userJoined) {
+                group.userJoined = true;
+                group.members++;
+                renderGroups();
+            }
+        }
+
+        // Calendar
+        function renderCalendar() {
+            renderCalendarGrid();
+        }
+
+        function renderCalendarView() {
+            renderCalendarGrid();
+            renderMeetingsList();
+        }
+
+        function renderCalendarGrid() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
+
+            const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+            const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = days.map(day => `<div class="calendar-day-header">${day}</div>`).join('');
+
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div class="calendar-day other-month"></div>';
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                const isToday = new Date().toDateString() === date.toDateString();
+                const hasEvent = meetings.some(m => new Date(m.date).toDateString() === date.toDateString());
+                
+                html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}">${day}</div>`;
+            }
+
+            document.getElementById('calendarGrid').innerHTML = html;
+        }
+
+        function renderMeetingsList() {
+            const list = document.getElementById('meetingsList');
+            const upcomingMeetings = meetings.filter(m => m.status !== 'completed').sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (upcomingMeetings.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>No upcoming meetings</p></div>';
+                return;
+            }
+
+            list.innerHTML = upcomingMeetings.map(meeting => `
+                <div class="meeting-card">
+                    <div class="meeting-header">
+                        <div>
+                            <p class="meeting-time">${new Date(meeting.date).toLocaleDateString()} at ${meeting.time}</p>
+                            <h3 style="margin: 0.5rem 0 0.25rem;">${meeting.personName}</h3>
+                            <p style="font-size: 13px; color: #999; margin: 0;">${meeting.topic}</p>
+                            <p style="font-size: 12px; color: #666; margin-top: 0.25rem;">Type: ${meeting.type}</p>
+                        </div>
+                        <span class="meeting-status ${meeting.status}">${meeting.status.charAt(0).toUpperCase() + meeting.status.slice(1)}</span>
+                    </div>
+                    <div class="meeting-actions">
+                        <button class="btn btn-primary btn-sm" onclick="startCall('${meeting.personName}', '${meeting.personName[0]}')">Start Call</button>
+                        <button class="btn btn-secondary btn-sm">Reschedule</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function previousMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendarGrid();
+        }
+
+        function nextMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendarGrid();
+        }
+
+        // Schedule Meeting
+        function scheduleWith(userId) {
+            const user = users.find(u => u.id === userId);
+            selectedPerson = user;
+            previousView = 'profileDetailView';
+
+            document.getElementById('scheduleName').textContent = `${user.firstName} ${user.lastName}`;
+            
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('scheduleDate').value = tomorrow.toISOString().split('T')[0];
+
+            renderTimeSlots();
+            document.getElementById('scheduleDate').onchange = renderTimeSlots;
+
+            switchView('scheduleView');
+        }
+
+        function renderTimeSlots() {
+            const times = [];
+            for (let hour = 9; hour < 17; hour++) {
+                for (let min of [0, 30]) {
+                    const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                    times.push(time);
+                }
+            }
+
+            const html = times.map(time => `
+                <div class="time-slot" onclick="selectTime('${time}', this)">${time}</div>
+            `).join('');
+
+            document.getElementById('timeSlots').innerHTML = html;
+        }
+
+        function selectTime(time, element) {
+            document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedTime = time;
+        }
+
+        function sendMeetingRequest() {
+            const date = document.getElementById('scheduleDate').value;
+            const time = selectedTime;
+            const duration = document.getElementById('scheduleDuration').value;
+            const topic = document.getElementById('scheduleTopic').value;
+            const type = document.getElementById('scheduleType').value;
+
+            if (!date || !time || !topic) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const meeting = {
+                id: meetings.length + 1,
+                personId: selectedPerson.id,
+                personName: `${selectedPerson.firstName} ${selectedPerson.lastName}`,
+                date,
+                time,
+                duration,
+                topic,
+                type,
+                status: 'pending',
+                createdAt: new Date()
+            };
+
+            meetings.push(meeting);
+            saveToStorage();
+            alert('Meeting request sent!');
+            switchView('dashboardView');
+            updateDashboard();
+        }
+
+        // Calling
+        function startCall(personName, initials) {
+            document.getElementById('callPersonName').textContent = personName;
+            document.getElementById('remoteName').textContent = initials;
+            document.getElementById('remotePerson').textContent = personName;
+            
+            callDuration = 0;
+            callInterval = setInterval(() => {
+                callDuration++;
+                const mins = Math.floor(callDuration / 60);
+                const secs = callDuration % 60;
+                document.getElementById('callTimer').textContent = 
+                    `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }, 1000);
+
+            switchView('callView');
+        }
+
+        function endCall() {
+            if (callInterval) clearInterval(callInterval);
+            switchView('calendarView');
+            renderMeetingsList();
+        }
+
+        function toggleMic() {
+            const btn = document.getElementById('micBtn');
+            btn.classList.toggle('muted');
+        }
+
+        function toggleVideo() {
+            const btn = document.getElementById('videoBtn');
+            btn.classList.toggle('muted');
+        }
+
+        // Modals
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Profile Management
+        function editMyProfile() {
+            document.getElementById('avatarInitials').textContent = currentUser.firstName[0] + currentUser.lastName[0];
+            document.getElementById('editFirstName').value = currentUser.firstName;
+            document.getElementById('editLastName').value = currentUser.lastName;
+            document.getElementById('editRole').value = currentUser.role || '';
+            document.getElementById('editCompany').value = currentUser.company || '';
+            document.getElementById('editLocation').value = currentUser.location || '';
+            document.getElementById('editBio').value = currentUser.bio || '';
+            document.getElementById('editIndustry').value = currentUser.industry;
+            document.getElementById('editInterests').value = (currentUser.interests || []).join(', ');
+            document.getElementById('editGoals').value = currentUser.goals || '';
+            openModal('editProfileModal');
+        }
+
+        function saveProfile() {
+            currentUser.firstName = document.getElementById('editFirstName').value;
+            currentUser.lastName = document.getElementById('editLastName').value;
+            currentUser.role = document.getElementById('editRole').value;
+            currentUser.company = document.getElementById('editCompany').value;
+            currentUser.location = document.getElementById('editLocation').value;
+            currentUser.bio = document.getElementById('editBio').value;
+            currentUser.industry = document.getElementById('editIndustry').value;
+            currentUser.interests = document.getElementById('editInterests').value.split(',').map(i => i.trim()).filter(Boolean);
+            currentUser.goals = document.getElementById('editGoals').value;
+
+            saveToStorage();
+            alert('Profile updated!');
+            closeModal('editProfileModal');
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUser.profilePicture = e.target.result;
+                    document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}" alt="Profile Picture">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleResumeUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUser.resume = e.target.result;
+                    document.getElementById('resumePreview').innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #d4edda; border-radius: 8px; color: #155724; font-size: 14px;">
+                            ✓ Resume uploaded successfully
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Posts
+        function createPost() {
+            openModal('createPostModal');
+        }
+
+        function publishPost() {
+            const content = document.getElementById('postContent').value.trim();
+            if (!content) {
+                alert('Please write something!');
+                return;
+            }
+
+            alert('Post published!');
+            document.getElementById('postContent').value = '';
+            closeModal('createPostModal');
+        }
+
+        function likePost(postId) {
+            alert('Post liked!');
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
