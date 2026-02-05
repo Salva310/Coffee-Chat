@@ -1791,32 +1791,116 @@
         ];
 
         // Initialize
-        function init() {
+        async function init() {
             users = [...mockUsers];
             groups = [...mockGroups];
-            loadFromStorage();
-            renderNav();
+
+            // Check for existing Supabase session
+            const { data: { session } } = await supabaseClient.auth.getSession();
+
+            if (session) {
+                // User is logged in, load their profile
+                await loadUserProfile(session.user.id);
+                renderNav();
+                switchView('dashboardView');
+                await updateDashboard();
+            } else {
+                // No session, show login
+                renderNav();
+                switchView('loginView');
+            }
+
             renderCalendar();
         }
 
-        function loadFromStorage() {
-            const stored = localStorage.getItem('coffeeChat');
-            if (stored) {
-                const data = JSON.parse(stored);
-                currentUser = data.currentUser;
-                connections = data.connections || [];
-                messages = data.messages || [];
-                meetings = data.meetings || [];
+        async function loadUserProfile(userId) {
+            try {
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (error) throw error;
+
+                currentUser = {
+                    id: profile.id,
+                    firstName: profile.first_name,
+                    lastName: profile.last_name,
+                    email: profile.email,
+                    industry: profile.industry,
+                    interests: profile.interests || [],
+                    hobbies: profile.hobbies || [],
+                    goals: profile.goals,
+                    bio: profile.bio,
+                    role: profile.role,
+                    company: profile.company,
+                    location: profile.location,
+                    profilePicture: profile.profile_picture,
+                    resume: profile.resume_url ? { url: profile.resume_url, name: 'Resume.pdf' } : null
+                };
+
+                // Load user's data
+                await loadUserData();
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+
+            try {
+                // Load connections
+                const { data: connectionsData } = await supabaseClient
+                    .from('connections')
+                    .select('*')
+                    .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`)
+                    .eq('status', 'accepted');
+
+                connections = connectionsData || [];
+
+                // Load posts for feed
+                const { data: postsData } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                posts = postsData || [];
+
+                // Load events
+                const { data: eventsData } = await supabaseClient
+                    .from('events')
+                    .select('*, event_rsvps(user_id)')
+                    .order('start_time', { ascending: true });
+
+                events = (eventsData || []).map(event => ({
+                    ...event,
+                    attendees: event.event_rsvps ? event.event_rsvps.map(r => r.user_id) : [],
+                    creator_name: event.creator_id // Will be populated from profiles
+                }));
+
+                // Load meetings
+                const { data: meetingsData } = await supabaseClient
+                    .from('meetings')
+                    .select('*')
+                    .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
+                    .order('start_time', { ascending: true});
+
+                meetings = meetingsData || [];
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
             }
         }
 
         function saveToStorage() {
-            const data = { currentUser, connections, messages, meetings };
-            localStorage.setItem('coffeeChat', JSON.stringify(data));
+            // Deprecated - keeping for backwards compatibility
+            // Data is now saved directly to Supabase
         }
 
         // Auth
-        function handleLogin() {
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
@@ -1825,59 +1909,143 @@
                 return;
             }
 
-            currentUser = {
-                id: 1,
-                firstName: 'You',
-                lastName: 'User',
-                email,
-                industry: 'Technology',
-                interests: ['Networking', 'Innovation'],
-                goals: 'Build meaningful professional relationships'
-            };
+            try {
+                // Sign in with Supabase
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
 
-            saveToStorage();
-            renderNav();
-            switchView('dashboardView');
-            updateDashboard();
+                if (error) throw error;
+
+                // Fetch user profile from database
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                currentUser = {
+                    id: profile.id,
+                    firstName: profile.first_name,
+                    lastName: profile.last_name,
+                    email: profile.email,
+                    industry: profile.industry,
+                    interests: profile.interests || [],
+                    hobbies: profile.hobbies || [],
+                    goals: profile.goals,
+                    bio: profile.bio,
+                    role: profile.role,
+                    company: profile.company,
+                    location: profile.location,
+                    profilePicture: profile.profile_picture,
+                    resume: profile.resume_url ? { url: profile.resume_url, name: 'Resume.pdf' } : null
+                };
+
+                renderNav();
+                switchView('dashboardView');
+                await updateDashboard();
+                alert('Welcome back!');
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed: ' + error.message);
+            }
         }
 
-        function handleSignup() {
+        async function handleSignup() {
             const firstName = document.getElementById('signupFirstName').value;
             const lastName = document.getElementById('signupLastName').value;
             const industry = document.getElementById('signupIndustry').value;
             const interests = document.getElementById('signupInterests').value.split(',').map(i => i.trim()).filter(Boolean);
             const goals = document.getElementById('signupGoals').value;
             const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
 
-            if (!firstName || !lastName || !industry || !email || !goals) {
+            if (!firstName || !lastName || !industry || !email || !password || !goals) {
                 alert('Please fill in all required fields');
                 return;
             }
 
-            currentUser = {
-                id: 1,
-                firstName,
-                lastName,
-                industry,
-                interests,
-                goals,
-                email
-            };
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
 
-            saveToStorage();
-            renderNav();
-            switchView('dashboardView');
-            updateDashboard();
+            try {
+                // Sign up with Supabase
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                // Create profile in database
+                const { error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .insert([{
+                        id: data.user.id,
+                        email,
+                        first_name: firstName,
+                        last_name: lastName,
+                        industry,
+                        interests,
+                        hobbies: [],
+                        goals,
+                        bio: '',
+                        role: '',
+                        company: '',
+                        location: ''
+                    }]);
+
+                if (profileError) throw profileError;
+
+                currentUser = {
+                    id: data.user.id,
+                    firstName,
+                    lastName,
+                    email,
+                    industry,
+                    interests,
+                    hobbies: [],
+                    goals,
+                    bio: '',
+                    role: '',
+                    company: '',
+                    location: '',
+                    profilePicture: null,
+                    resume: null
+                };
+
+                renderNav();
+                switchView('dashboardView');
+                await updateDashboard();
+                alert('Account created successfully! Please check your email to verify your account.');
+            } catch (error) {
+                console.error('Signup error:', error);
+                alert('Signup failed: ' + error.message);
+            }
         }
 
-        function handleLogout() {
-            currentUser = null;
-            connections = [];
-            messages = [];
-            meetings = [];
-            localStorage.removeItem('coffeeChat');
-            switchView('loginView');
-            renderNav();
+        async function handleLogout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+
+                currentUser = null;
+                connections = [];
+                messages = [];
+                meetings = [];
+                posts = [];
+                events = [];
+                switchView('loginView');
+                renderNav();
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Logout failed: ' + error.message);
+            }
         }
 
         // Navigation
@@ -2413,20 +2581,61 @@
             openModal('editProfileModal');
         }
 
-        function saveProfile() {
-            currentUser.firstName = document.getElementById('editFirstName').value;
-            currentUser.lastName = document.getElementById('editLastName').value;
-            currentUser.role = document.getElementById('editRole').value;
-            currentUser.company = document.getElementById('editCompany').value;
-            currentUser.location = document.getElementById('editLocation').value;
-            currentUser.bio = document.getElementById('editBio').value;
-            currentUser.industry = document.getElementById('editIndustry').value;
-            currentUser.interests = document.getElementById('editInterests').value.split(',').map(i => i.trim()).filter(Boolean);
-            currentUser.goals = document.getElementById('editGoals').value;
+        async function saveProfile() {
+            if (!currentUser) return;
 
-            saveToStorage();
-            alert('Profile updated!');
-            closeModal('editProfileModal');
+            // Get all form values
+            const firstName = document.getElementById('editFirstName').value;
+            const lastName = document.getElementById('editLastName').value;
+            const role = document.getElementById('editRole').value;
+            const company = document.getElementById('editCompany').value;
+            const location = document.getElementById('editLocation').value;
+            const bio = document.getElementById('editBio').value;
+            const industry = document.getElementById('editIndustry').value;
+            const interests = document.getElementById('editInterests').value.split(',').map(i => i.trim()).filter(Boolean);
+            const hobbies = document.getElementById('editHobbies').value.split(',').map(h => h.trim()).filter(Boolean);
+            const goals = document.getElementById('editGoals').value;
+
+            try {
+                // Update profile in Supabase
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({
+                        first_name: firstName,
+                        last_name: lastName,
+                        role,
+                        company,
+                        location,
+                        bio,
+                        industry,
+                        interests,
+                        hobbies,
+                        goals,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                // Update local currentUser object
+                currentUser.firstName = firstName;
+                currentUser.lastName = lastName;
+                currentUser.role = role;
+                currentUser.company = company;
+                currentUser.location = location;
+                currentUser.bio = bio;
+                currentUser.industry = industry;
+                currentUser.interests = interests;
+                currentUser.hobbies = hobbies;
+                currentUser.goals = goals;
+
+                alert('Profile updated successfully!');
+                closeModal('editProfileModal');
+                await updateDashboard();
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                alert('Failed to update profile: ' + error.message);
+            }
         }
 
         function handleAvatarUpload(event) {
@@ -2462,20 +2671,88 @@
             openModal('createPostModal');
         }
 
-        function publishPost() {
+        async function publishPost() {
+            if (!currentUser) {
+                alert('Please log in to create a post');
+                return;
+            }
+
             const content = document.getElementById('postContent').value.trim();
             if (!content) {
                 alert('Please write something!');
                 return;
             }
 
-            alert('Post published!');
-            document.getElementById('postContent').value = '';
-            closeModal('createPostModal');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .insert([{
+                        author_id: currentUser.id,
+                        content
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // Add to local posts array
+                posts.unshift({
+                    ...data,
+                    author: `${currentUser.firstName} ${currentUser.lastName}`,
+                    date: 'Just now'
+                });
+
+                document.getElementById('postContent').value = '';
+                closeModal('createPostModal');
+                alert('Post published successfully!');
+
+                // Refresh feed if we're on it
+                if (document.getElementById('feedView').classList.contains('active')) {
+                    await renderFeed();
+                }
+            } catch (error) {
+                console.error('Error publishing post:', error);
+                alert('Failed to publish post: ' + error.message);
+            }
         }
 
-        function likePost(postId) {
-            alert('Post liked!');
+        async function likePost(postId) {
+            if (!currentUser) {
+                alert('Please log in to like posts');
+                return;
+            }
+
+            try {
+                // Check if already liked
+                const { data: existing } = await supabaseClient
+                    .from('post_likes')
+                    .select('id')
+                    .eq('post_id', postId)
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (existing) {
+                    // Unlike
+                    await supabaseClient
+                        .from('post_likes')
+                        .delete()
+                        .eq('id', existing.id);
+                } else {
+                    // Like
+                    await supabaseClient
+                        .from('post_likes')
+                        .insert([{
+                            post_id: postId,
+                            user_id: currentUser.id
+                        }]);
+                }
+
+                // Refresh feed
+                await renderFeed();
+            } catch (error) {
+                console.error('Error liking post:', error);
+                alert('Failed to like post: ' + error.message);
+            }
         }
 
         // ===== FEED FUNCTIONS =====
@@ -2528,6 +2805,11 @@
         }
 
         async function publishEvent() {
+            if (!currentUser) {
+                alert('Please log in to create an event');
+                return;
+            }
+
             const title = document.getElementById('eventTitle').value.trim();
             const description = document.getElementById('eventDescription').value.trim();
             const eventType = document.getElementById('eventType').value;
@@ -2541,35 +2823,46 @@
                 return;
             }
 
-            const newEvent = {
-                id: Date.now(),
-                creator_id: currentUser.id,
-                creator_name: `${currentUser.firstName} ${currentUser.lastName}`,
-                title,
-                description,
-                event_type: eventType,
-                location,
-                start_time: startTime,
-                end_time: endTime,
-                max_attendees: maxAttendees || null,
-                attendees: [],
-                created_at: new Date().toISOString()
-            };
+            try {
+                const { data, error } = await supabaseClient
+                    .from('events')
+                    .insert([{
+                        creator_id: currentUser.id,
+                        title,
+                        description,
+                        event_type: eventType,
+                        location,
+                        start_time: startTime,
+                        end_time: endTime,
+                        max_attendees: maxAttendees || null
+                    }])
+                    .select()
+                    .single();
 
-            events.push(newEvent);
-            saveToStorage();
+                if (error) throw error;
 
-            // Clear form
-            document.getElementById('eventTitle').value = '';
-            document.getElementById('eventDescription').value = '';
-            document.getElementById('eventLocation').value = '';
-            document.getElementById('eventStartTime').value = '';
-            document.getElementById('eventEndTime').value = '';
-            document.getElementById('eventMaxAttendees').value = '';
+                // Add to local events array
+                events.push({
+                    ...data,
+                    creator_name: `${currentUser.firstName} ${currentUser.lastName}`,
+                    attendees: []
+                });
 
-            closeModal('createEventModal');
-            renderEvents();
-            alert('Event created successfully!');
+                // Clear form
+                document.getElementById('eventTitle').value = '';
+                document.getElementById('eventDescription').value = '';
+                document.getElementById('eventLocation').value = '';
+                document.getElementById('eventStartTime').value = '';
+                document.getElementById('eventEndTime').value = '';
+                document.getElementById('eventMaxAttendees').value = '';
+
+                closeModal('createEventModal');
+                await renderEvents();
+                alert('Event created successfully!');
+            } catch (error) {
+                console.error('Error creating event:', error);
+                alert('Failed to create event: ' + error.message);
+            }
         }
 
         async function renderEvents() {
@@ -2626,28 +2919,67 @@
             renderEvents();
         }
 
-        function rsvpEvent(eventId) {
-            const event = events.find(e => e.id === eventId);
-            if (event) {
-                if (!event.attendees) event.attendees = [];
-                if (event.max_attendees && event.attendees.length >= event.max_attendees) {
+        async function rsvpEvent(eventId) {
+            if (!currentUser) {
+                alert('Please log in to RSVP');
+                return;
+            }
+
+            try {
+                const event = events.find(e => e.id === eventId);
+                if (event.max_attendees && event.attendees && event.attendees.length >= event.max_attendees) {
                     alert('Event is full!');
                     return;
                 }
-                event.attendees.push(currentUser.id);
-                saveToStorage();
-                renderEvents();
+
+                const { error } = await supabaseClient
+                    .from('event_rsvps')
+                    .insert([{
+                        event_id: eventId,
+                        user_id: currentUser.id,
+                        status: 'going'
+                    }]);
+
+                if (error) throw error;
+
+                // Update local events array
+                const localEvent = events.find(e => e.id === eventId);
+                if (localEvent) {
+                    if (!localEvent.attendees) localEvent.attendees = [];
+                    localEvent.attendees.push(currentUser.id);
+                }
+
+                await renderEvents();
                 alert('RSVP confirmed!');
+            } catch (error) {
+                console.error('Error RSVPing to event:', error);
+                alert('Failed to RSVP: ' + error.message);
             }
         }
 
-        function unRSVPEvent(eventId) {
-            const event = events.find(e => e.id === eventId);
-            if (event && event.attendees) {
-                event.attendees = event.attendees.filter(id => id !== currentUser.id);
-                saveToStorage();
-                renderEvents();
+        async function unRSVPEvent(eventId) {
+            if (!currentUser) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('event_rsvps')
+                    .delete()
+                    .eq('event_id', eventId)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+
+                // Update local events array
+                const event = events.find(e => e.id === eventId);
+                if (event && event.attendees) {
+                    event.attendees = event.attendees.filter(id => id !== currentUser.id);
+                }
+
+                await renderEvents();
                 alert('RSVP cancelled');
+            } catch (error) {
+                console.error('Error cancelling RSVP:', error);
+                alert('Failed to cancel RSVP: ' + error.message);
             }
         }
 
@@ -2763,16 +3095,6 @@
             }
         }
 
-        // Update saveProfile to include hobbies
-        const originalSaveProfile = saveProfile;
-        function saveProfile() {
-            // Get hobbies
-            const hobbiesInput = document.getElementById('editHobbies').value;
-            currentUser.hobbies = hobbiesInput.split(',').map(h => h.trim()).filter(Boolean);
-
-            // Call original save
-            originalSaveProfile();
-        }
 
         // Update editMyProfile to include hobbies
         const originalEditMyProfile = editMyProfile;
