@@ -2140,8 +2140,11 @@
             if (viewId === 'messagesView') renderMessages();
             if (viewId === 'dashboardView') updateDashboard();
             if (viewId === 'calendarView') renderCalendarView();
+            if (viewId === 'availabilityView') renderAvailability();
 
-            previousView = viewId;
+            if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView') {
+                previousView = viewId;
+            }
         }
 
         function goBack() {
@@ -3411,14 +3414,6 @@
         }
 
 
-        // Update switchView to render availability
-        const originalSwitchView = switchView;
-        function switchView(viewId) {
-            originalSwitchView(viewId);
-            if (viewId === 'availabilityView') {
-                renderAvailability();
-            }
-        }
 
         // Initialize
         async function init() {
