@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee Chat - Professional Networking</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -1367,6 +1368,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Hobbies (comma-separated)</label>
+                        <input type="text" id="editHobbies" placeholder="Working out, Reading, Hiking, Photography">
+                    </div>
+
+                    <div class="form-group">
                         <label>Career Goals</label>
                         <textarea id="editGoals" placeholder="What are you looking to achieve?" rows="3"></textarea>
                     </div>
@@ -1536,10 +1542,102 @@
                     <button class="btn btn-primary" onclick="sendMeetingRequest()" style="width: 100%;">Send Meeting Request</button>
                 </div>
             </div>
+
+            <!-- Feed View -->
+            <div id="feedView" class="content-view">
+                <h1>Feed</h1>
+                <p style="color: #999; margin-bottom: 1.5rem;">See what's happening in your network</p>
+
+                <button class="btn btn-primary" onclick="createPost()" style="margin-bottom: 2rem;">✍️ Create Post</button>
+
+                <div id="feedPosts"></div>
+            </div>
+
+            <!-- Events View -->
+            <div id="eventsView" class="content-view">
+                <h1>Events</h1>
+                <p style="color: #999; margin-bottom: 1.5rem;">Discover and create networking events</p>
+
+                <button class="btn btn-primary" onclick="createEvent()" style="margin-bottom: 2rem;">🎉 Create Event</button>
+
+                <div class="search-bar">
+                    <input type="text" id="searchEvents" placeholder="Search events..." onkeyup="filterEvents()">
+                    <select id="filterEventType" onchange="filterEvents()">
+                        <option value="">All Types</option>
+                        <option value="virtual">Virtual</option>
+                        <option value="in-person">In-Person</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+
+                <div id="eventsList" class="grid"></div>
+            </div>
+
+            <!-- Create Event Modal -->
+            <div id="createEventModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 style="margin: 0;">Create Event</h2>
+                        <button class="modal-close" onclick="closeModal('createEventModal')">×</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Title</label>
+                        <input type="text" id="eventTitle" placeholder="e.g., Coffee Chat Networking Mixer">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="eventDescription" placeholder="Tell people what this event is about..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Type</label>
+                        <select id="eventType">
+                            <option value="virtual">Virtual</option>
+                            <option value="in-person">In-Person</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location / Meeting Link</label>
+                        <input type="text" id="eventLocation" placeholder="Address or Zoom link">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Start Date & Time</label>
+                        <input type="datetime-local" id="eventStartTime">
+                    </div>
+
+                    <div class="form-group">
+                        <label>End Date & Time</label>
+                        <input type="datetime-local" id="eventEndTime">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Max Attendees (optional)</label>
+                        <input type="number" id="eventMaxAttendees" placeholder="Leave blank for unlimited">
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-secondary" onclick="closeModal('createEventModal')" style="flex: 1;">Cancel</button>
+                        <button class="btn btn-primary" onclick="publishEvent()" style="flex: 1;">Create Event</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://vmrmkkngjlicuvrpejxx.supabase.co';
+        const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE'; // TODO: Replace with your actual anon key
+
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // State
         let currentUser = null;
         let users = [];
@@ -1547,6 +1645,8 @@
         let messages = [];
         let meetings = [];
         let connections = [];
+        let posts = [];
+        let events = [];
         let selectedConversation = null;
         let selectedPerson = null;
         let previousView = 'dashboardView';
@@ -1562,6 +1662,7 @@
                 lastName: 'Chen',
                 industry: 'Technology',
                 interests: ['AI', 'Product Management', 'Startups'],
+                hobbies: ['Working out', 'Reading', 'Hiking'],
                 goals: 'Lead a high-impact product team',
                 email: 'sarah@example.com',
                 bio: 'Product leader with 8 years building AI-powered solutions. Previously at Google and two successful startups. Passionate about mentoring and building products that scale.',
@@ -1580,6 +1681,7 @@
                 lastName: 'Johnson',
                 industry: 'Finance',
                 interests: ['Fintech', 'Blockchain', 'Investing'],
+                hobbies: ['Working out', 'Tennis', 'Traveling'],
                 goals: 'Build financial products for underserved markets',
                 email: 'marcus@example.com',
                 bio: 'Fintech entrepreneur focused on financial inclusion. Built two successful ventures in mobile payments. Looking to connect with fellow innovators.',
@@ -1786,7 +1888,9 @@
             if (currentUser) {
                 const items = [
                     { id: 'dashboardView', label: '🏠 Dashboard' },
+                    { id: 'feedView', label: '📰 Feed' },
                     { id: 'discoverView', label: '🔍 Discover' },
+                    { id: 'eventsView', label: '🎉 Events' },
                     { id: 'groupsView', label: '👥 Communities' },
                     { id: 'calendarView', label: '📅 Calendar' },
                     { id: 'messagesView', label: '💬 Messages' }
@@ -1807,6 +1911,8 @@
             document.getElementById(viewId).classList.add('active');
 
             if (viewId === 'discoverView') renderDiscovery();
+            if (viewId === 'feedView') renderFeed();
+            if (viewId === 'eventsView') renderEvents();
             if (viewId === 'groupsView') renderGroups();
             if (viewId === 'messagesView') renderMessages();
             if (viewId === 'dashboardView') updateDashboard();
@@ -2370,6 +2476,311 @@
 
         function likePost(postId) {
             alert('Post liked!');
+        }
+
+        // ===== FEED FUNCTIONS =====
+        async function renderFeed() {
+            const feedPosts = document.getElementById('feedPosts');
+
+            if (posts.length === 0) {
+                feedPosts.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📰</div>
+                        <p>No posts yet. Be the first to share something!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            feedPosts.innerHTML = posts.sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
+                .map(post => {
+                    const author = users.find(u => u.id === post.author_id) || currentUser;
+                    const authorName = author ? `${author.firstName} ${author.lastName}` : post.author;
+                    const avatarContent = author && author.profilePicture
+                        ? `<img src="${author.profilePicture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                        : author ? `${author.firstName[0]}${author.lastName[0]}` : '?';
+
+                    return `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div class="person-avatar" style="width: 48px; height: 48px; font-size: 20px;">${avatarContent}</div>
+                                    <div>
+                                        <strong>${authorName}</strong>
+                                        <p class="post-meta">${post.date || 'Just now'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-actions">
+                                <button class="post-action-btn" onclick="likePost(${post.id})">👍 ${post.likes || 0} Likes</button>
+                                <button class="post-action-btn">💬 Comment</button>
+                                <button class="post-action-btn">🔄 Share</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        // ===== EVENTS FUNCTIONS =====
+        function createEvent() {
+            openModal('createEventModal');
+        }
+
+        async function publishEvent() {
+            const title = document.getElementById('eventTitle').value.trim();
+            const description = document.getElementById('eventDescription').value.trim();
+            const eventType = document.getElementById('eventType').value;
+            const location = document.getElementById('eventLocation').value.trim();
+            const startTime = document.getElementById('eventStartTime').value;
+            const endTime = document.getElementById('eventEndTime').value;
+            const maxAttendees = document.getElementById('eventMaxAttendees').value;
+
+            if (!title || !description || !startTime || !endTime) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const newEvent = {
+                id: Date.now(),
+                creator_id: currentUser.id,
+                creator_name: `${currentUser.firstName} ${currentUser.lastName}`,
+                title,
+                description,
+                event_type: eventType,
+                location,
+                start_time: startTime,
+                end_time: endTime,
+                max_attendees: maxAttendees || null,
+                attendees: [],
+                created_at: new Date().toISOString()
+            };
+
+            events.push(newEvent);
+            saveToStorage();
+
+            // Clear form
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventStartTime').value = '';
+            document.getElementById('eventEndTime').value = '';
+            document.getElementById('eventMaxAttendees').value = '';
+
+            closeModal('createEventModal');
+            renderEvents();
+            alert('Event created successfully!');
+        }
+
+        async function renderEvents() {
+            const eventsList = document.getElementById('eventsList');
+
+            if (events.length === 0) {
+                eventsList.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">🎉</div>
+                        <p>No events yet. Create one to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const searchTerm = document.getElementById('searchEvents')?.value.toLowerCase() || '';
+            const filterType = document.getElementById('filterEventType')?.value || '';
+
+            const filteredEvents = events.filter(event => {
+                const matchesSearch = event.title.toLowerCase().includes(searchTerm) ||
+                                    event.description.toLowerCase().includes(searchTerm);
+                const matchesType = !filterType || event.event_type === filterType;
+                return matchesSearch && matchesType;
+            });
+
+            eventsList.innerHTML = filteredEvents.map(event => {
+                const startDate = new Date(event.start_time);
+                const isUserAttending = event.attendees && event.attendees.includes(currentUser.id);
+                const isFull = event.max_attendees && event.attendees && event.attendees.length >= event.max_attendees;
+
+                return `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <span class="tag">${event.event_type}</span>
+                            <span style="font-size: 12px; color: #999;">${event.attendees ? event.attendees.length : 0} attending</span>
+                        </div>
+                        <h3>${event.title}</h3>
+                        <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">📍 ${event.location || 'TBD'}</p>
+                        <p style="font-size: 13px; color: #666; margin: 1rem 0;">${event.description}</p>
+                        <p style="font-size: 12px; color: #999; margin-bottom: 1rem;">Hosted by ${event.creator_name}</p>
+                        ${isUserAttending ?
+                            `<button class="btn btn-secondary btn-sm" onclick="unRSVPEvent(${event.id})" style="width: 100%;">Cancel RSVP</button>` :
+                            isFull ?
+                            `<button class="btn btn-sm" disabled style="width: 100%; background: #ccc;">Event Full</button>` :
+                            `<button class="btn btn-primary btn-sm" onclick="rsvpEvent(${event.id})" style="width: 100%;">RSVP</button>`
+                        }
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterEvents() {
+            renderEvents();
+        }
+
+        function rsvpEvent(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                if (!event.attendees) event.attendees = [];
+                if (event.max_attendees && event.attendees.length >= event.max_attendees) {
+                    alert('Event is full!');
+                    return;
+                }
+                event.attendees.push(currentUser.id);
+                saveToStorage();
+                renderEvents();
+                alert('RSVP confirmed!');
+            }
+        }
+
+        function unRSVPEvent(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event && event.attendees) {
+                event.attendees = event.attendees.filter(id => id !== currentUser.id);
+                saveToStorage();
+                renderEvents();
+                alert('RSVP cancelled');
+            }
+        }
+
+        // ===== SMART RECOMMENDATIONS =====
+        function getSmartRecommendations() {
+            if (!currentUser) return [];
+
+            const userInterests = currentUser.interests || [];
+            const userHobbies = currentUser.hobbies || [];
+            const userIndustry = currentUser.industry;
+
+            return users.map(user => {
+                let score = 0;
+                const reasons = [];
+
+                // Industry match (highest priority)
+                if (user.industry === userIndustry) {
+                    score += 50;
+                    reasons.push(`Same industry: ${userIndustry}`);
+                }
+
+                // Interests match
+                const commonInterests = userInterests.filter(interest =>
+                    user.interests && user.interests.includes(interest)
+                );
+                if (commonInterests.length > 0) {
+                    score += commonInterests.length * 20;
+                    reasons.push(`Shared interests: ${commonInterests.join(', ')}`);
+                }
+
+                // Hobbies match
+                if (user.hobbies && userHobbies.length > 0) {
+                    const commonHobbies = userHobbies.filter(hobby =>
+                        user.hobbies.includes(hobby)
+                    );
+                    if (commonHobbies.length > 0) {
+                        score += commonHobbies.length * 15;
+                        reasons.push(`Shared hobbies: ${commonHobbies.join(', ')}`);
+                    }
+                }
+
+                // Location match
+                if (user.location && currentUser.location && user.location === currentUser.location) {
+                    score += 10;
+                    reasons.push(`Same location: ${user.location}`);
+                }
+
+                return {
+                    user,
+                    score,
+                    reasons
+                };
+            })
+            .filter(item => item.score > 0) // Only show users with some match
+            .sort((a, b) => b.score - a.score); // Sort by score
+        }
+
+        function renderRecommendations() {
+            const recommendations = getSmartRecommendations();
+
+            if (recommendations.length === 0) return '';
+
+            return `
+                <div style="margin-bottom: 2rem;">
+                    <h2 style="margin-bottom: 1rem;">✨ Recommended For You</h2>
+                    <div class="grid">
+                        ${recommendations.slice(0, 3).map(item => {
+                            const user = item.user;
+                            const isConnected = connections.find(c => c.userId === user.id);
+                            const avatarContent = user.profilePicture
+                                ? `<img src="${user.profilePicture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                                : `${user.firstName[0]}${user.lastName[0]}`;
+
+                            return `
+                                <div class="card person-card">
+                                    <div style="background: linear-gradient(135deg, var(--accent), var(--primary)); padding: 0.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                                        <p style="font-size: 11px; color: white; margin: 0; text-align: center;">⭐ ${item.score}% Match</p>
+                                    </div>
+                                    <div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${avatarContent}</div>
+                                    <h3>${user.firstName} ${user.lastName}</h3>
+                                    <p class="role">${user.role || user.industry}</p>
+                                    <div style="text-align: left; margin: 1rem 0; padding: 0.75rem; background: var(--bg-light); border-radius: 8px;">
+                                        <p style="font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Why we suggest ${user.firstName}:</p>
+                                        ${item.reasons.map(reason => `<p style="font-size: 11px; color: #666; margin: 0.25rem 0;">• ${reason}</p>`).join('')}
+                                    </div>
+                                    <div class="profile-actions">
+                                        <button class="btn btn-primary btn-sm" onclick="viewProfile(${user.id})" style="flex: 1;">View Profile</button>
+                                        ${isConnected ?
+                                            `<button class="btn btn-secondary btn-sm" onclick="startMessage(${user.id})" style="flex: 1;">Message</button>` :
+                                            `<button class="btn btn-accent btn-sm" onclick="connectUser(${user.id})" style="flex: 1;">Connect</button>`
+                                        }
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update renderDiscovery to show recommendations first
+        const originalRenderDiscovery = renderDiscovery;
+        function renderDiscovery() {
+            const recommendations = renderRecommendations();
+            const grid = document.getElementById('discoverGrid');
+
+            // Call original render
+            originalRenderDiscovery();
+
+            // Prepend recommendations
+            if (recommendations) {
+                grid.insertAdjacentHTML('beforebegin', recommendations);
+            }
+        }
+
+        // Update saveProfile to include hobbies
+        const originalSaveProfile = saveProfile;
+        function saveProfile() {
+            // Get hobbies
+            const hobbiesInput = document.getElementById('editHobbies').value;
+            currentUser.hobbies = hobbiesInput.split(',').map(h => h.trim()).filter(Boolean);
+
+            // Call original save
+            originalSaveProfile();
+        }
+
+        // Update editMyProfile to include hobbies
+        const originalEditMyProfile = editMyProfile;
+        function editMyProfile() {
+            originalEditMyProfile();
+
+            // Set hobbies value
+            document.getElementById('editHobbies').value = (currentUser.hobbies || []).join(', ');
         }
 
         // Initialize
