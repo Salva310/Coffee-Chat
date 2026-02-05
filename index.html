@@ -1266,6 +1266,11 @@
                         <h3>Create Post</h3>
                         <p style="font-size: 13px; color: #999;">Share your thoughts</p>
                     </div>
+                    <div class="card person-card" onclick="switchView('availabilityView')" style="cursor: pointer;">
+                        <div class="person-avatar">🕒</div>
+                        <h3>Set Availability</h3>
+                        <p style="font-size: 13px; color: #999;">Manage your schedule</p>
+                    </div>
                 </div>
             </div>
 
@@ -1274,18 +1279,27 @@
                 <h1>Discover People</h1>
                 <p style="color: #999; margin-bottom: 1.5rem;">Find professionals in your industry</p>
 
-                <div class="search-bar">
-                    <input type="text" id="searchName" placeholder="Search by name..." onkeyup="filterDiscovery()">
-                    <select id="filterIndustry" onchange="filterDiscovery()">
-                        <option value="">All Industries</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Sales">Sales</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="Design">Design</option>
-                    </select>
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 1rem; font-size: 16px;">Advanced Search</h3>
+                    <div class="search-bar">
+                        <input type="text" id="searchName" placeholder="Search by name..." onkeyup="filterDiscovery()">
+                        <select id="filterIndustry" onchange="filterDiscovery()">
+                            <option value="">All Industries</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Design">Design</option>
+                        </select>
+                    </div>
+                    <div class="search-bar" style="margin-top: 1rem;">
+                        <input type="text" id="searchLocation" placeholder="Filter by location..." onkeyup="filterDiscovery()">
+                        <input type="text" id="searchInterests" placeholder="Filter by interests (e.g., AI, Startups)..." onkeyup="filterDiscovery()">
+                        <input type="text" id="searchCompany" placeholder="Filter by company..." onkeyup="filterDiscovery()">
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="clearFilters()" style="margin-top: 1rem;">Clear All Filters</button>
                 </div>
 
                 <div id="discoverGrid" class="grid"></div>
@@ -1623,6 +1637,47 @@
                     <div style="display: flex; gap: 1rem;">
                         <button class="btn btn-secondary" onclick="closeModal('createEventModal')" style="flex: 1;">Cancel</button>
                         <button class="btn btn-primary" onclick="publishEvent()" style="flex: 1;">Create Event</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Availability View -->
+            <div id="availabilityView" class="content-view">
+                <h1>Set Your Availability</h1>
+                <p style="color: #999; margin-bottom: 2rem;">Let people know when you're available for coffee chats</p>
+
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <h3 style="margin-bottom: 1.5rem;">Weekly Availability</h3>
+
+                    <div id="availabilitySlots">
+                        <!-- Availability slots will be rendered here -->
+                    </div>
+
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                        <h3 style="margin-bottom: 1rem;">Add Time Slot</h3>
+                        <div class="form-group">
+                            <label>Day of Week</label>
+                            <select id="availabilityDay">
+                                <option value="0">Sunday</option>
+                                <option value="1">Monday</option>
+                                <option value="2">Tuesday</option>
+                                <option value="3">Wednesday</option>
+                                <option value="4">Thursday</option>
+                                <option value="5">Friday</option>
+                                <option value="6">Saturday</option>
+                            </select>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Start Time</label>
+                                <input type="time" id="availabilityStartTime" value="09:00">
+                            </div>
+                            <div class="form-group">
+                                <label>End Time</label>
+                                <input type="time" id="availabilityEndTime" value="17:00">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addAvailabilitySlot()">Add Availability</button>
                     </div>
                 </div>
             </div>
@@ -2103,13 +2158,39 @@
 
         // Discovery
         function renderDiscovery() {
-            const searchName = document.getElementById('searchName').value.toLowerCase();
-            const filterIndustry = document.getElementById('filterIndustry').value;
+            const searchName = document.getElementById('searchName')?.value.toLowerCase() || '';
+            const filterIndustry = document.getElementById('filterIndustry')?.value || '';
+            const searchLocation = document.getElementById('searchLocation')?.value.toLowerCase() || '';
+            const searchInterests = document.getElementById('searchInterests')?.value.toLowerCase() || '';
+            const searchCompany = document.getElementById('searchCompany')?.value.toLowerCase() || '';
 
             let filtered = users.filter(u => {
-                const matchName = u.firstName.toLowerCase().includes(searchName) || u.lastName.toLowerCase().includes(searchName);
+                // Name match
+                const matchName = !searchName ||
+                    u.firstName.toLowerCase().includes(searchName) ||
+                    u.lastName.toLowerCase().includes(searchName);
+
+                // Industry match
                 const matchIndustry = !filterIndustry || u.industry === filterIndustry;
-                return matchName && matchIndustry;
+
+                // Location match
+                const matchLocation = !searchLocation ||
+                    (u.location && u.location.toLowerCase().includes(searchLocation));
+
+                // Interests match
+                const matchInterests = !searchInterests ||
+                    (u.interests && u.interests.some(interest =>
+                        interest.toLowerCase().includes(searchInterests)
+                    )) ||
+                    (u.hobbies && u.hobbies.some(hobby =>
+                        hobby.toLowerCase().includes(searchInterests)
+                    ));
+
+                // Company match
+                const matchCompany = !searchCompany ||
+                    (u.company && u.company.toLowerCase().includes(searchCompany));
+
+                return matchName && matchIndustry && matchLocation && matchInterests && matchCompany;
             });
 
             const grid = document.getElementById('discoverGrid');
@@ -2141,6 +2222,15 @@
         }
 
         function filterDiscovery() {
+            renderDiscovery();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('filterIndustry').value = '';
+            document.getElementById('searchLocation').value = '';
+            document.getElementById('searchInterests').value = '';
+            document.getElementById('searchCompany').value = '';
             renderDiscovery();
         }
 
@@ -2245,98 +2335,208 @@
             switchView('profileDetailView');
         }
 
-        function connectUser(userId) {
+        async function connectUser(userId) {
+            if (!currentUser) {
+                alert('Please log in to connect with users');
+                return;
+            }
+
             const user = users.find(u => u.id === userId);
-            if (!connections.find(c => c.userId === userId)) {
-                connections.push({
-                    userId: user.id,
-                    userName: `${user.firstName} ${user.lastName}`,
-                    industry: user.industry,
-                    connectedAt: new Date().toLocaleDateString()
-                });
-                saveToStorage();
+
+            // Check if already connected
+            const existing = connections.find(c =>
+                (c.user_id === currentUser.id && c.connected_user_id === userId) ||
+                (c.user_id === userId && c.connected_user_id === currentUser.id)
+            );
+
+            if (existing) {
+                alert('Already connected!');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('connections')
+                    .insert([{
+                        user_id: currentUser.id,
+                        connected_user_id: userId,
+                        status: 'accepted'
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // Add to local connections
+                connections.push(data);
+
                 alert(`Connected with ${user.firstName}!`);
-                renderDiscovery();
+
+                // Refresh current view
+                if (document.getElementById('profileDetailView').classList.contains('active')) {
+                    viewProfile(userId);
+                } else {
+                    renderDiscovery();
+                }
+            } catch (error) {
+                console.error('Error connecting:', error);
+                alert('Failed to connect: ' + error.message);
             }
         }
 
         // Messages
-        function startMessage(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!messages.find(m => m.userId === userId)) {
-                messages.push({
-                    userId: user.id,
-                    userName: `${user.firstName} ${user.lastName}`,
-                    conversation: []
-                });
-            }
+        async function startMessage(userId) {
             switchView('messagesView');
-            selectConversation(userId);
+            await renderMessages();
+            await selectConversation(userId);
         }
 
-        function renderMessages() {
-            const list = document.getElementById('conversationList');
-            if (messages.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No conversations yet</p></div>';
-                document.getElementById('chatWindow').innerHTML = '<div class="chat-header"><h3>Start a conversation</h3></div>';
-                return;
+        async function renderMessages() {
+            if (!currentUser) return;
+
+            try {
+                // Get all conversations (messages where user is sender or receiver)
+                const { data: messagesData, error } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Group messages by conversation partner
+                const conversations = {};
+                messagesData.forEach(msg => {
+                    const partnerId = msg.sender_id === currentUser.id ? msg.receiver_id : msg.sender_id;
+                    if (!conversations[partnerId]) {
+                        conversations[partnerId] = [];
+                    }
+                    conversations[partnerId].push(msg);
+                });
+
+                const list = document.getElementById('conversationList');
+
+                if (Object.keys(conversations).length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No conversations yet</p></div>';
+                    document.getElementById('chatWindow').innerHTML = '<div class="chat-header"><h3>Start a conversation</h3></div>';
+                    return;
+                }
+
+                // Render conversation list
+                const conversationHTML = await Promise.all(
+                    Object.entries(conversations).map(async ([partnerId, msgs]) => {
+                        // Get partner profile
+                        const { data: profile } = await supabaseClient
+                            .from('profiles')
+                            .select('first_name, last_name')
+                            .eq('id', partnerId)
+                            .single();
+
+                        const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
+                        const lastMessage = msgs[0].content.substring(0, 50);
+
+                        return `
+                            <div class="conversation-item ${selectedConversation === partnerId ? 'active' : ''}" onclick="selectConversation('${partnerId}')">
+                                <h4>${partnerName}</h4>
+                                <p style="font-size: 12px; color: #999;">${lastMessage}${msgs[0].content.length > 50 ? '...' : ''}</p>
+                            </div>
+                        `;
+                    })
+                );
+
+                list.innerHTML = conversationHTML.join('');
+            } catch (error) {
+                console.error('Error rendering messages:', error);
             }
-
-            list.innerHTML = messages.map(msg => `
-                <div class="conversation-item ${selectedConversation === msg.userId ? 'active' : ''}" onclick="selectConversation(${msg.userId})">
-                    <h4>${msg.userName}</h4>
-                    <p>${msg.conversation.length} messages</p>
-                </div>
-            `).join('');
         }
 
-        function selectConversation(userId) {
+        async function selectConversation(userId) {
+            if (!currentUser) return;
+
             selectedConversation = userId;
-            const msg = messages.find(m => m.userId === userId);
-            const user = users.find(u => u.id === userId);
 
-            const chatWindow = document.getElementById('chatWindow');
-            chatWindow.innerHTML = `
-                <div class="chat-header">
-                    <div>
-                        <h3 style="margin: 0;">${msg.userName}</h3>
-                    </div>
-                    <button class="btn btn-accent btn-sm" onclick="scheduleWith(${userId})">Schedule Chat</button>
-                </div>
-                <div class="chat-messages">
-                    ${msg.conversation.map(m => `
-                        <div class="message ${m.sent ? 'sent' : 'received'}">
-                            <div class="message-content">${m.text}</div>
+            try {
+                // Get conversation messages
+                const { data: messagesData, error } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                // Get partner profile
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('first_name, last_name')
+                    .eq('id', userId)
+                    .single();
+
+                const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
+
+                const chatWindow = document.getElementById('chatWindow');
+                chatWindow.innerHTML = `
+                    <div class="chat-header">
+                        <div>
+                            <h3 style="margin: 0;">${partnerName}</h3>
                         </div>
-                    `).join('')}
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage(${userId})">
-                    <button class="btn btn-primary btn-sm" onclick="sendMessage(${userId})">Send</button>
-                </div>
-            `;
+                        <button class="btn btn-accent btn-sm" onclick="scheduleWith('${userId}')">Schedule Chat</button>
+                    </div>
+                    <div class="chat-messages" id="chatMessagesContainer">
+                        ${messagesData.map(m => `
+                            <div class="message ${m.sender_id === currentUser.id ? 'sent' : 'received'}">
+                                <div class="message-content">${m.content}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage('${userId}')">
+                        <button class="btn btn-primary btn-sm" onclick="sendMessage('${userId}')">Send</button>
+                    </div>
+                `;
 
-            document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
-            event.target.closest('.conversation-item')?.classList.add('active');
+                // Scroll to bottom
+                const container = document.getElementById('chatMessagesContainer');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+
+                // Mark messages as read
+                await supabaseClient
+                    .from('messages')
+                    .update({ read: true })
+                    .eq('receiver_id', currentUser.id)
+                    .eq('sender_id', userId);
+
+            } catch (error) {
+                console.error('Error selecting conversation:', error);
+            }
         }
 
-        function sendMessage(userId) {
+        async function sendMessage(userId) {
+            if (!currentUser) return;
+
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             if (!text) return;
 
-            const msg = messages.find(m => m.userId === userId);
-            msg.conversation.push({ text, sent: true });
-            input.value = '';
-            saveToStorage();
+            try {
+                const { error } = await supabaseClient
+                    .from('messages')
+                    .insert([{
+                        sender_id: currentUser.id,
+                        receiver_id: userId,
+                        content: text
+                    }]);
 
-            setTimeout(() => {
-                msg.conversation.push({ text: "Thanks for reaching out! Let's schedule a time to chat.", sent: false });
-                selectConversation(userId);
-                saveToStorage();
-            }, 1000);
+                if (error) throw error;
 
-            selectConversation(userId);
+                input.value = '';
+                await selectConversation(userId);
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message: ' + error.message);
+            }
         }
 
         // Groups
@@ -3105,7 +3305,214 @@
             document.getElementById('editHobbies').value = (currentUser.hobbies || []).join(', ');
         }
 
+        // ===== AVAILABILITY FUNCTIONS =====
+        async function renderAvailability() {
+            if (!currentUser) return;
+
+            try {
+                const { data: availability, error } = await supabaseClient
+                    .from('availability')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('day_of_week', { ascending: true })
+                    .order('start_time', { ascending: true });
+
+                if (error) throw error;
+
+                const container = document.getElementById('availabilitySlots');
+
+                if (!availability || availability.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No availability set. Add your available times below.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+                container.innerHTML = availability.map(slot => `
+                    <div class="meeting-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <strong>${days[slot.day_of_week]}</strong>
+                            <p style="font-size: 14px; color: #666; margin: 0.25rem 0;">
+                                ${slot.start_time} - ${slot.end_time}
+                            </p>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAvailabilitySlot('${slot.id}')">Delete</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error rendering availability:', error);
+            }
+        }
+
+        async function addAvailabilitySlot() {
+            if (!currentUser) {
+                alert('Please log in');
+                return;
+            }
+
+            const day = document.getElementById('availabilityDay').value;
+            const startTime = document.getElementById('availabilityStartTime').value;
+            const endTime = document.getElementById('availabilityEndTime').value;
+
+            if (!startTime || !endTime) {
+                alert('Please select start and end times');
+                return;
+            }
+
+            if (startTime >= endTime) {
+                alert('End time must be after start time');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('availability')
+                    .insert([{
+                        user_id: currentUser.id,
+                        day_of_week: parseInt(day),
+                        start_time: startTime,
+                        end_time: endTime,
+                        is_available: true
+                    }]);
+
+                if (error) throw error;
+
+                await renderAvailability();
+                alert('Availability added!');
+            } catch (error) {
+                console.error('Error adding availability:', error);
+                alert('Failed to add availability: ' + error.message);
+            }
+        }
+
+        async function deleteAvailabilitySlot(slotId) {
+            if (!currentUser) return;
+
+            if (!confirm('Delete this availability slot?')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('availability')
+                    .delete()
+                    .eq('id', slotId);
+
+                if (error) throw error;
+
+                await renderAvailability();
+                alert('Availability deleted');
+            } catch (error) {
+                console.error('Error deleting availability:', error);
+                alert('Failed to delete availability: ' + error.message);
+            }
+        }
+
+        // ===== REAL-TIME SUBSCRIPTIONS =====
+        function setupRealtimeSubscriptions() {
+            if (!currentUser) return;
+
+            // Subscribe to new posts
+            supabaseClient
+                .channel('posts-channel')
+                .on('postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'posts'
+                    },
+                    async (payload) => {
+                        console.log('New post:', payload);
+                        // Refresh feed if on feed view
+                        if (document.getElementById('feedView').classList.contains('active')) {
+                            await loadUserData();
+                            await renderFeed();
+                        }
+                    }
+                )
+                .subscribe();
+
+            // Subscribe to new messages
+            supabaseClient
+                .channel('messages-channel')
+                .on('postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'messages',
+                        filter: `receiver_id=eq.${currentUser.id}`
+                    },
+                    async (payload) => {
+                        console.log('New message:', payload);
+                        // Refresh messages if on messages view
+                        if (document.getElementById('messagesView').classList.contains('active')) {
+                            if (selectedConversation === payload.new.sender_id) {
+                                await selectConversation(selectedConversation);
+                            }
+                            await renderMessages();
+                        }
+                    }
+                )
+                .subscribe();
+
+            // Subscribe to new events
+            supabaseClient
+                .channel('events-channel')
+                .on('postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'events'
+                    },
+                    async (payload) => {
+                        console.log('New event:', payload);
+                        // Refresh events if on events view
+                        if (document.getElementById('eventsView').classList.contains('active')) {
+                            await loadUserData();
+                            await renderEvents();
+                        }
+                    }
+                )
+                .subscribe();
+
+            console.log('✅ Real-time subscriptions active!');
+        }
+
+        // Update switchView to render availability
+        const originalSwitchView = switchView;
+        function switchView(viewId) {
+            originalSwitchView(viewId);
+            if (viewId === 'availabilityView') {
+                renderAvailability();
+            }
+        }
+
         // Initialize
+        async function init() {
+            users = [...mockUsers];
+            groups = [...mockGroups];
+
+            // Check for existing Supabase session
+            const { data: { session } } = await supabaseClient.auth.getSession();
+
+            if (session) {
+                // User is logged in, load their profile
+                await loadUserProfile(session.user.id);
+                setupRealtimeSubscriptions(); // Enable real-time updates
+                renderNav();
+                switchView('dashboardView');
+                await updateDashboard();
+            } else {
+                // No session, show login
+                renderNav();
+                switchView('loginView');
+            }
+
+            renderCalendar();
+        }
+
         init();
     </script>
 </body>
