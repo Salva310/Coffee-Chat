@@ -1978,9 +1978,15 @@
                     .from('profiles')
                     .select('*')
                     .eq('id', data.user.id)
-                    .single();
+                    .maybeSingle();
 
                 if (profileError) throw profileError;
+
+                if (!profile) {
+                    alert('No profile found for this account. Please sign up first.');
+                    await supabaseClient.auth.signOut();
+                    return;
+                }
 
                 currentUser = {
                     id: profile.id,
@@ -2029,33 +2035,23 @@
             }
 
             try {
-                // Sign up with Supabase
+                // Sign up with Supabase (profile is auto-created by database trigger)
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
-                    password
+                    password,
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                            industry: industry,
+                            interests: interests,
+                            hobbies: [],
+                            goals: goals
+                        }
+                    }
                 });
 
                 if (error) throw error;
-
-                // Create profile in database
-                const { error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .insert([{
-                        id: data.user.id,
-                        email,
-                        first_name: firstName,
-                        last_name: lastName,
-                        industry,
-                        interests,
-                        hobbies: [],
-                        goals,
-                        bio: '',
-                        role: '',
-                        company: '',
-                        location: ''
-                    }]);
-
-                if (profileError) throw profileError;
 
                 currentUser = {
                     id: data.user.id,

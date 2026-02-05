@@ -348,3 +348,42 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_group_member_count_trigger
 AFTER INSERT OR DELETE ON group_members
 FOR EACH ROW EXECUTE FUNCTION update_group_member_count();
+
+-- Trigger to auto-create profile when a user signs up via Supabase Auth
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+    _interests TEXT[];
+    _hobbies TEXT[];
+BEGIN
+    IF NEW.raw_user_meta_data->'interests' IS NOT NULL THEN
+        SELECT ARRAY(SELECT jsonb_array_elements_text(NEW.raw_user_meta_data->'interests')) INTO _interests;
+    ELSE
+        _interests := ARRAY[]::TEXT[];
+    END IF;
+
+    IF NEW.raw_user_meta_data->'hobbies' IS NOT NULL THEN
+        SELECT ARRAY(SELECT jsonb_array_elements_text(NEW.raw_user_meta_data->'hobbies')) INTO _hobbies;
+    ELSE
+        _hobbies := ARRAY[]::TEXT[];
+    END IF;
+
+    INSERT INTO public.profiles (id, email, first_name, last_name, industry, interests, hobbies, goals, bio, role, company, location)
+    VALUES (
+        NEW.id,
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
+        COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
+        COALESCE(NEW.raw_user_meta_data->>'industry', ''),
+        _interests,
+        _hobbies,
+        COALESCE(NEW.raw_user_meta_data->>'goals', ''),
+        '', '', '', ''
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
