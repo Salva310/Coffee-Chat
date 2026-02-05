@@ -4,28 +4,59 @@ A beautiful, modern web application for building genuine professional connection
 
 ## Features
 
-- **User Authentication** - Sign up and login functionality
-- **Profile Management** - Edit your profile with avatar upload, resume, bio, and more
-- **Discovery** - Find and connect with professionals in your industry
-- **Messaging** - Real-time chat with your connections
-- **Video Calls** - Built-in video calling interface
+### Core Features
+- **User Authentication** - Supabase Auth with email/password signup and login
+- **Profile Management** - Complete profiles with avatar, resume, bio, hobbies, and interests
+- **Smart Recommendations** - AI-powered matching based on industry, interests, hobbies, and location
+- **Advanced Search** - Multi-filter discovery (name, industry, location, interests, company)
+- **Feed** - Social feed with posts and likes
+- **Events** - Create and RSVP to networking events (virtual, in-person, hybrid)
+- **Messaging** - Direct messaging with conversation threading
+- **Connections** - Build your professional network
+- **Availability Calendar** - Set your weekly availability for meetings
 - **Calendar & Scheduling** - Schedule coffee chats and manage meetings
 - **Communities** - Join industry-specific groups
-- **Posts** - Create and share professional updates
-
-## How to Run
-
-Simply open `index.html` in your web browser. No server required!
+- **Video Calls** - Built-in video calling interface (UI ready)
 
 ## Tech Stack
 
-- Pure HTML, CSS, and JavaScript
-- No external dependencies except Google Fonts
-- LocalStorage for data persistence
-- Responsive design for mobile and desktop
+- **Frontend**: Pure HTML, CSS, and JavaScript
+- **Backend**: Supabase (PostgreSQL database)
+- **Authentication**: Supabase Auth
+- **Hosting**: Vercel
+- **Fonts**: Google Fonts (Sora & Playfair Display)
+- **Design**: Responsive, mobile-friendly interface
+
+## Database Schema
+
+Complete database schema with:
+- User profiles with interests and hobbies
+- Connections and networking
+- Posts with likes and comments
+- Events with RSVP system
+- Messages and conversations
+- Availability scheduling
+- Groups and communities
+- Row Level Security (RLS) policies
 
 ## Getting Started
 
-1. Open `index.html` in your browser
-2. Create an account or sign in
-3. Start discovering and connecting with professionals!
+### Prerequisites
+- A Supabase account and project
+- The database schema set up (see `supabase-schema.sql`)
+
+### Setup
+1. Clone the repository
+2. Set up your Supabase project
+3. Run the SQL schema in Supabase SQL Editor
+4. Update the Supabase credentials in the code
+5. Deploy to Vercel or open `index.html` locally
+
+### Usage
+1. Sign up with a new account
+2. Complete your profile with hobbies and interests
+3. Discover professionals with smart recommendations
+4. Connect with people in your industry
+5. Create posts and events
+6. Set your availability for meetings
+7. Start networking!

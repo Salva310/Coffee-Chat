@@ -3410,75 +3410,6 @@
             }
         }
 
-        // ===== REAL-TIME SUBSCRIPTIONS =====
-        function setupRealtimeSubscriptions() {
-            if (!currentUser) return;
-
-            // Subscribe to new posts
-            supabaseClient
-                .channel('posts-channel')
-                .on('postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'posts'
-                    },
-                    async (payload) => {
-                        console.log('New post:', payload);
-                        // Refresh feed if on feed view
-                        if (document.getElementById('feedView').classList.contains('active')) {
-                            await loadUserData();
-                            await renderFeed();
-                        }
-                    }
-                )
-                .subscribe();
-
-            // Subscribe to new messages
-            supabaseClient
-                .channel('messages-channel')
-                .on('postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'messages',
-                        filter: `receiver_id=eq.${currentUser.id}`
-                    },
-                    async (payload) => {
-                        console.log('New message:', payload);
-                        // Refresh messages if on messages view
-                        if (document.getElementById('messagesView').classList.contains('active')) {
-                            if (selectedConversation === payload.new.sender_id) {
-                                await selectConversation(selectedConversation);
-                            }
-                            await renderMessages();
-                        }
-                    }
-                )
-                .subscribe();
-
-            // Subscribe to new events
-            supabaseClient
-                .channel('events-channel')
-                .on('postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'events'
-                    },
-                    async (payload) => {
-                        console.log('New event:', payload);
-                        // Refresh events if on events view
-                        if (document.getElementById('eventsView').classList.contains('active')) {
-                            await loadUserData();
-                            await renderEvents();
-                        }
-                    }
-                )
-                .subscribe();
-
-            console.log('✅ Real-time subscriptions active!');
-        }
 
         // Update switchView to render availability
         const originalSwitchView = switchView;
@@ -3500,7 +3431,6 @@
             if (session) {
                 // User is logged in, load their profile
                 await loadUserProfile(session.user.id);
-                setupRealtimeSubscriptions(); // Enable real-time updates
                 renderNav();
                 switchView('dashboardView');
                 await updateDashboard();
