@@ -14,18 +14,18 @@
         }
 
         :root {
-            --primary: #6B5B95;
-            --primary-light: #8B7BB8;
-            --primary-dark: #4B3B75;
+            --primary: #6F4E37;
+            --primary-light: #8B6F47;
+            --primary-dark: #3E2723;
             --accent: #D4A574;
             --success: #4CAF50;
             --danger: #FF6B6B;
-            --bg-dark: #1a1a1a;
-            --bg-light: #f5f3f0;
-            --text-dark: #2c2c2c;
-            --text-light: #f5f3f0;
-            --border: #e0dcd9;
-            --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --bg-dark: #2C1A0E;
+            --bg-light: #FFF8F0;
+            --text-dark: #3E2723;
+            --text-light: #FFF8F0;
+            --border: #E8D5C4;
+            --shadow: 0 8px 24px rgba(62, 39, 35, 0.12);
         }
 
         body {
@@ -209,7 +209,7 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+            box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.1);
             background: #fafaf8;
         }
 
@@ -240,7 +240,7 @@
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(107, 91, 149, 0.3);
+            box-shadow: 0 4px 16px rgba(111, 78, 55, 0.3);
         }
 
         .btn-secondary {
@@ -676,7 +676,7 @@
         }
 
         .conversation-item.active {
-            background: linear-gradient(135deg, rgba(107, 91, 149, 0.1), rgba(212, 165, 116, 0.1));
+            background: linear-gradient(135deg, rgba(111, 78, 55, 0.1), rgba(212, 165, 116, 0.1));
         }
 
         .chat-window {
@@ -949,7 +949,7 @@
         }
 
         .post-action-btn:hover {
-            background: rgba(107, 91, 149, 0.1);
+            background: rgba(111, 78, 55, 0.1);
         }
 
         .resume-section {
@@ -1299,9 +1299,13 @@
                         <input type="text" id="searchInterests" placeholder="Filter by interests (e.g., AI, Startups)..." onkeyup="filterDiscovery()">
                         <input type="text" id="searchCompany" placeholder="Filter by company..." onkeyup="filterDiscovery()">
                     </div>
-                    <button class="btn btn-secondary btn-sm" onclick="clearFilters()" style="margin-top: 1rem;">Clear All Filters</button>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-primary btn-sm" onclick="filterDiscovery()">Search</button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear All Filters</button>
+                    </div>
                 </div>
 
+                <div id="recommendationsSection"></div>
                 <div id="discoverGrid" class="grid"></div>
             </div>
 
@@ -1438,6 +1442,12 @@
 
                 <h2 style="margin-top: 2rem;">Your Groups</h2>
                 <div id="myGroupsList"></div>
+            </div>
+
+            <!-- Group Detail View -->
+            <div id="groupDetailView" class="content-view">
+                <button class="btn btn-secondary btn-sm" onclick="switchView('groupsView')" style="margin-bottom: 1.5rem;">&larr; Back to Groups</button>
+                <div id="groupDetailContent"></div>
             </div>
 
             <!-- Calendar View -->
@@ -2138,7 +2148,7 @@
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
 
-            if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView') {
+            if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView' && viewId !== 'groupDetailView') {
                 previousView = viewId;
             }
         }
@@ -2157,6 +2167,12 @@
 
         // Discovery
         function renderDiscovery() {
+            // Render smart recommendations
+            const recSection = document.getElementById('recommendationsSection');
+            if (recSection) {
+                recSection.innerHTML = renderRecommendations();
+            }
+
             const searchName = document.getElementById('searchName')?.value.toLowerCase() || '';
             const filterIndustry = document.getElementById('filterIndustry')?.value || '';
             const searchLocation = document.getElementById('searchLocation')?.value.toLowerCase() || '';
@@ -2473,6 +2489,21 @@
 
                 const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
 
+                const icebreakers = getConversationStarters(userId);
+                const icebreakerHTML = (!messagesData || messagesData.length === 0) ? `
+                    <div style="text-align: center; padding: 2rem;">
+                        <p style="font-size: 14px; color: #999; margin-bottom: 1rem;">Start a conversation with ${partnerName}!</p>
+                        <p style="font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 0.75rem;">Try one of these icebreakers:</p>
+                        ${icebreakers.map(starter => `
+                            <button class="btn btn-secondary btn-sm"
+                                onclick="useIcebreaker('${userId}', this.textContent.trim())"
+                                style="margin: 0.25rem; font-size: 12px; text-align: left;">
+                                ${starter}
+                            </button>
+                        `).join('')}
+                    </div>
+                ` : '';
+
                 const chatWindow = document.getElementById('chatWindow');
                 chatWindow.innerHTML = `
                     <div class="chat-header">
@@ -2482,6 +2513,7 @@
                         <button class="btn btn-accent btn-sm" onclick="scheduleWith('${userId}')">Schedule Chat</button>
                     </div>
                     <div class="chat-messages" id="chatMessagesContainer">
+                        ${icebreakerHTML}
                         ${messagesData.map(m => `
                             <div class="message ${m.sender_id === currentUser.id ? 'sent' : 'received'}">
                                 <div class="message-content">${m.content}</div>
@@ -2538,6 +2570,42 @@
             }
         }
 
+        function getConversationStarters(userId) {
+            const partner = users.find(u => u.id === userId);
+            const starters = [];
+
+            if (partner) {
+                if (partner.industry) {
+                    starters.push(`What's the most exciting trend in ${partner.industry} right now?`);
+                }
+                if (partner.role) {
+                    starters.push(`How did you get into your role as ${partner.role}?`);
+                }
+                if (partner.interests && partner.interests.length > 0) {
+                    starters.push(`I noticed we share an interest in ${partner.interests[0]}!`);
+                }
+                if (partner.company) {
+                    starters.push(`What's it like working at ${partner.company}?`);
+                }
+            }
+
+            const generic = [
+                "What's been the highlight of your week?",
+                "Any good books or podcasts you'd recommend?",
+                "What project are you most excited about right now?"
+            ];
+
+            return [...starters, ...generic].slice(0, 4);
+        }
+
+        function useIcebreaker(userId, text) {
+            const input = document.getElementById('messageInput');
+            if (input) {
+                input.value = text;
+                input.focus();
+            }
+        }
+
         // Groups
         function renderGroups() {
             const list = document.getElementById('groupsList');
@@ -2545,8 +2613,11 @@
                 <div class="card">
                     <h3>${group.name}</h3>
                     <p>${group.description}</p>
-                    <p style="font-size: 12px; color: #999; margin: 0.5rem 0;">${group.members} members • ${group.industry}</p>
-                    <button class="btn btn-primary" onclick="joinGroup(${group.id})" style="width: 100%; margin-top: 1rem;">Join Group</button>
+                    <p style="font-size: 12px; color: #999; margin: 0.5rem 0;">${group.members} members &bull; ${group.industry}</p>
+                    ${group.userJoined ?
+                        `<button class="btn btn-accent" onclick="viewGroup(${group.id})" style="width: 100%; margin-top: 1rem;">View Group</button>` :
+                        `<button class="btn btn-primary" onclick="joinGroup(${group.id})" style="width: 100%; margin-top: 1rem;">Join Group</button>`
+                    }
                 </div>
             `).join('');
 
@@ -2556,12 +2627,68 @@
                 myList.innerHTML = '<div class="empty-state"><p>Join groups to connect with your community</p></div>';
             } else {
                 myList.innerHTML = myGroups.map(group => `
-                    <div class="card compact">
-                        <h3>✓ ${group.name}</h3>
+                    <div class="card compact" onclick="viewGroup(${group.id})" style="cursor: pointer;">
+                        <h3 style="color: var(--primary);">&#10003; ${group.name}</h3>
                         <p style="font-size: 13px; color: #999;">${group.members} members</p>
+                        <p style="font-size: 12px; color: var(--accent); margin-top: 0.5rem;">Click to view group &rarr;</p>
                     </div>
                 `).join('');
             }
+        }
+
+        function viewGroup(groupId) {
+            const group = mockGroups.find(g => g.id === groupId);
+            if (!group) return;
+
+            const content = document.getElementById('groupDetailContent');
+            content.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
+                    <h1 style="margin-bottom: 0.5rem;">${group.name}</h1>
+                    <p style="color: #666; margin-bottom: 0.5rem;">${group.description}</p>
+                    <p style="font-size: 13px; color: #999;">${group.members} members &bull; ${group.industry}</p>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Group Discussion</h3>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                        <input type="text" id="groupPostInput" placeholder="Share something with the group..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                        <button class="btn btn-primary btn-sm" onclick="postToGroup(${group.id})">Post</button>
+                    </div>
+                    <div id="groupPosts-${group.id}">
+                        ${(group.posts || []).map(post => `
+                            <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
+                                <strong>${post.author}</strong>
+                                <p style="margin: 0.5rem 0; color: #444;">${post.content}</p>
+                            </div>
+                        `).join('') || '<p style="color: #999;">No posts yet. Start the conversation!</p>'}
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 1rem;">Members</h3>
+                    <p style="font-size: 14px; color: #666;">${group.members} active members in this community</p>
+                </div>
+            `;
+
+            switchView('groupDetailView');
+        }
+
+        function postToGroup(groupId) {
+            const input = document.getElementById('groupPostInput');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            const group = mockGroups.find(g => g.id === groupId);
+            if (!group) return;
+            if (!group.posts) group.posts = [];
+
+            group.posts.unshift({
+                author: `${currentUser.firstName} ${currentUser.lastName}`,
+                content: text
+            });
+
+            input.value = '';
+            viewGroup(groupId);
         }
 
         function joinGroup(groupId) {
@@ -2776,6 +2903,7 @@
             document.getElementById('editBio').value = currentUser.bio || '';
             document.getElementById('editIndustry').value = currentUser.industry;
             document.getElementById('editInterests').value = (currentUser.interests || []).join(', ');
+            document.getElementById('editHobbies').value = (currentUser.hobbies || []).join(', ');
             document.getElementById('editGoals').value = currentUser.goals || '';
             openModal('editProfileModal');
         }
@@ -2810,6 +2938,8 @@
                         interests,
                         hobbies,
                         goals,
+                        profile_picture: currentUser.profilePicture || null,
+                        resume_url: currentUser.resume || null,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', currentUser.id);
@@ -2954,6 +3084,79 @@
             }
         }
 
+        function toggleComments(postId) {
+            const section = document.getElementById(`comments-${postId}`);
+            if (!section) return;
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                loadComments(postId);
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        async function loadComments(postId) {
+            const container = document.getElementById(`comments-list-${postId}`);
+            if (!container) return;
+            try {
+                const { data: comments, error } = await supabaseClient
+                    .from('post_comments')
+                    .select('*, profiles(first_name, last_name)')
+                    .eq('post_id', postId)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                container.innerHTML = (comments || []).map(c => `
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                        <strong>${c.profiles.first_name} ${c.profiles.last_name}</strong>
+                        <p style="margin: 0.25rem 0;">${c.content}</p>
+                    </div>
+                `).join('') || '<p style="font-size: 13px; color: #999;">No comments yet. Be the first!</p>';
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+
+        async function submitComment(postId) {
+            if (!currentUser) return;
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('post_comments')
+                    .insert([{ post_id: postId, user_id: currentUser.id, content: text }]);
+
+                if (error) throw error;
+                input.value = '';
+                await loadComments(postId);
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Failed to post comment: ' + error.message);
+            }
+        }
+
+        function sharePost(postId) {
+            const post = posts.find(p => String(p.id) === String(postId));
+            if (!post) return;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Coffee Chat Post',
+                    text: post.content.substring(0, 100),
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(post.content).then(() => {
+                    alert('Post content copied to clipboard!');
+                }).catch(() => {
+                    alert('Unable to share.');
+                });
+            }
+        }
+
         // ===== FEED FUNCTIONS =====
         async function renderFeed() {
             const feedPosts = document.getElementById('feedPosts');
@@ -2989,9 +3192,16 @@
                             </div>
                             <div class="post-content">${post.content}</div>
                             <div class="post-actions">
-                                <button class="post-action-btn" onclick="likePost(${post.id})">👍 ${post.likes || 0} Likes</button>
-                                <button class="post-action-btn">💬 Comment</button>
-                                <button class="post-action-btn">🔄 Share</button>
+                                <button class="post-action-btn" onclick="likePost('${post.id}')">👍 ${post.likes_count || 0} Likes</button>
+                                <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
+                                <button class="post-action-btn" onclick="sharePost('${post.id}')">🔄 Share</button>
+                            </div>
+                            <div id="comments-${post.id}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                                <div id="comments-list-${post.id}" style="margin-bottom: 0.75rem;"></div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
+                                    <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -3226,6 +3436,28 @@
                     reasons.push(`Same location: ${user.location}`);
                 }
 
+                // Career goals keyword match
+                if (user.goals && currentUser.goals) {
+                    const userGoalWords = currentUser.goals.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+                    const theirGoalWords = user.goals.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+                    const commonGoalWords = userGoalWords.filter(word => theirGoalWords.includes(word));
+                    if (commonGoalWords.length > 0) {
+                        score += Math.min(commonGoalWords.length * 10, 30);
+                        reasons.push('Aligned career goals');
+                    }
+                }
+
+                // Mentorship potential
+                if (user.role && currentUser.role && user.industry === userIndustry) {
+                    const seniorKeywords = ['senior', 'lead', 'head', 'director', 'vp', 'chief', 'principal', 'staff', 'manager'];
+                    const userIsSenior = seniorKeywords.some(k => currentUser.role.toLowerCase().includes(k));
+                    const theyAreSenior = seniorKeywords.some(k => user.role.toLowerCase().includes(k));
+                    if (userIsSenior !== theyAreSenior) {
+                        score += 15;
+                        reasons.push('Mentorship potential');
+                    }
+                }
+
                 return {
                     user,
                     score,
@@ -3279,30 +3511,7 @@
             `;
         }
 
-        // Update renderDiscovery to show recommendations first
-        const originalRenderDiscovery = renderDiscovery;
-        function renderDiscovery() {
-            const recommendations = renderRecommendations();
-            const grid = document.getElementById('discoverGrid');
-
-            // Call original render
-            originalRenderDiscovery();
-
-            // Prepend recommendations
-            if (recommendations) {
-                grid.insertAdjacentHTML('beforebegin', recommendations);
-            }
-        }
-
-
-        // Update editMyProfile to include hobbies
-        const originalEditMyProfile = editMyProfile;
-        function editMyProfile() {
-            originalEditMyProfile();
-
-            // Set hobbies value
-            document.getElementById('editHobbies').value = (currentUser.hobbies || []).join(', ');
-        }
+        // (Recommendations and hobbies integrated into original functions above)
 
         // ===== AVAILABILITY FUNCTIONS =====
         async function renderAvailability() {
