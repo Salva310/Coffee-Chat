@@ -1131,7 +1131,10 @@
     <div class="app-container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <div class="logo">☕ Coffee Chat</div>
+            <div class="logo" style="font-size: 22px; letter-spacing: -0.5px;">
+                <span style="display: inline-block; font-size: 28px; margin-right: 4px;">&#9749;</span>
+                <span style="font-weight: 800; color: var(--accent);">Coffee</span><span style="font-weight: 300; color: var(--text-light);">Chat</span>
+            </div>
             <nav id="navMenu"></nav>
             <div class="sidebar-spacer"></div>
             <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
@@ -1315,122 +1318,7 @@
                 <div id="profileDetailContent" class="profile-detail"></div>
             </div>
 
-            <!-- Edit Profile Modal -->
-            <div id="editProfileModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 style="margin: 0;">Edit Profile</h2>
-                        <button class="modal-close" onclick="closeModal('editProfileModal')">×</button>
-                    </div>
-
-                    <div class="avatar-upload-preview" id="avatarPreview">
-                        <span id="avatarInitials"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Profile Picture</label>
-                        <div class="file-upload-area" onclick="document.getElementById('avatarInput').click()">
-                            <p>📷 Click or drag to upload profile picture</p>
-                            <p style="font-size: 12px; color: #999;">JPG, PNG (Max 5MB)</p>
-                        </div>
-                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
-                    </div>
-
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" id="editFirstName">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" id="editLastName">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Job Title</label>
-                        <input type="text" id="editRole" placeholder="e.g., Senior Product Manager">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Company</label>
-                        <input type="text" id="editCompany" placeholder="e.g., TechCorp">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" id="editLocation" placeholder="e.g., San Francisco, CA">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Bio</label>
-                        <textarea id="editBio" placeholder="Tell others about yourself..." rows="4"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Industry</label>
-                        <select id="editIndustry">
-                            <option value="Technology">Technology</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Healthcare">Healthcare</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Sales">Sales</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Design">Design</option>
-                            <option value="Education">Education</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Interests & Passions (comma-separated)</label>
-                        <input type="text" id="editInterests" placeholder="AI, Product Management, Startups">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Hobbies (comma-separated)</label>
-                        <input type="text" id="editHobbies" placeholder="Working out, Reading, Hiking, Photography">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Career Goals</label>
-                        <textarea id="editGoals" placeholder="What are you looking to achieve?" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Resume</label>
-                        <div class="file-upload-area" onclick="document.getElementById('resumeInput').click()">
-                            <p>📄 Click or drag to upload resume</p>
-                            <p style="font-size: 12px; color: #999;">PDF (Max 10MB)</p>
-                        </div>
-                        <input type="file" id="resumeInput" accept=".pdf" style="display: none;" onchange="handleResumeUpload(event)">
-                        <div id="resumePreview"></div>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="btn btn-secondary" onclick="closeModal('editProfileModal')" style="flex: 1;">Cancel</button>
-                        <button class="btn btn-primary" onclick="saveProfile()" style="flex: 1;">Save Changes</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Create Post Modal -->
-            <div id="createPostModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 style="margin: 0;">Create Post</h2>
-                        <button class="modal-close" onclick="closeModal('createPostModal')">×</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label>What's on your mind?</label>
-                        <textarea id="postContent" placeholder="Share your thoughts, insights, or experiences..." rows="6"></textarea>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="btn btn-secondary" onclick="closeModal('createPostModal')" style="flex: 1;">Cancel</button>
-                        <button class="btn btn-primary" onclick="publishPost()" style="flex: 1;">Publish</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Modals moved to end of body -->
 
             <!-- Groups View -->
             <div id="groupsView" class="content-view">
@@ -1597,60 +1485,6 @@
                 <div id="eventsList" class="grid"></div>
             </div>
 
-            <!-- Create Event Modal -->
-            <div id="createEventModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 style="margin: 0;">Create Event</h2>
-                        <button class="modal-close" onclick="closeModal('createEventModal')">×</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Event Title</label>
-                        <input type="text" id="eventTitle" placeholder="e.g., Coffee Chat Networking Mixer">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="eventDescription" placeholder="Tell people what this event is about..." rows="4"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Event Type</label>
-                        <select id="eventType">
-                            <option value="virtual">Virtual</option>
-                            <option value="in-person">In-Person</option>
-                            <option value="hybrid">Hybrid</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Location / Meeting Link</label>
-                        <input type="text" id="eventLocation" placeholder="Address or Zoom link">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Start Date & Time</label>
-                        <input type="datetime-local" id="eventStartTime">
-                    </div>
-
-                    <div class="form-group">
-                        <label>End Date & Time</label>
-                        <input type="datetime-local" id="eventEndTime">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Max Attendees (optional)</label>
-                        <input type="number" id="eventMaxAttendees" placeholder="Leave blank for unlimited">
-                    </div>
-
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="btn btn-secondary" onclick="closeModal('createEventModal')" style="flex: 1;">Cancel</button>
-                        <button class="btn btn-primary" onclick="publishEvent()" style="flex: 1;">Create Event</button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Availability View -->
             <div id="availabilityView" class="content-view">
                 <h1>Set Your Availability</h1>
@@ -1694,6 +1528,155 @@
         </div>
     </div>
 
+    <!-- Modals (outside main-content to avoid overflow clipping) -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin: 0;">Edit Profile</h2>
+                <button class="modal-close" onclick="closeModal('editProfileModal')">×</button>
+            </div>
+
+            <div class="avatar-upload-preview" id="avatarPreview">
+                <span id="avatarInitials"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Profile Picture</label>
+                <div class="file-upload-area" onclick="document.getElementById('avatarInput').click()">
+                    <p>Click or drag to upload profile picture</p>
+                    <p style="font-size: 12px; color: #999;">JPG, PNG (Max 5MB)</p>
+                </div>
+                <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+            </div>
+
+            <div class="form-group">
+                <label>First Name</label>
+                <input type="text" id="editFirstName">
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" id="editLastName">
+            </div>
+            <div class="form-group">
+                <label>Job Title</label>
+                <input type="text" id="editRole" placeholder="e.g., Senior Product Manager">
+            </div>
+            <div class="form-group">
+                <label>Company</label>
+                <input type="text" id="editCompany" placeholder="e.g., TechCorp">
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="editLocation" placeholder="e.g., San Francisco, CA">
+            </div>
+            <div class="form-group">
+                <label>Bio</label>
+                <textarea id="editBio" placeholder="Tell others about yourself..." rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Industry</label>
+                <select id="editIndustry">
+                    <option value="Technology">Technology</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Design">Design</option>
+                    <option value="Education">Education</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Interests & Passions (comma-separated)</label>
+                <input type="text" id="editInterests" placeholder="AI, Product Management, Startups">
+            </div>
+            <div class="form-group">
+                <label>Hobbies (comma-separated)</label>
+                <input type="text" id="editHobbies" placeholder="Working out, Reading, Hiking, Photography">
+            </div>
+            <div class="form-group">
+                <label>Career Goals</label>
+                <textarea id="editGoals" placeholder="What are you looking to achieve?" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Resume</label>
+                <div class="file-upload-area" onclick="document.getElementById('resumeInput').click()">
+                    <p>Click or drag to upload resume</p>
+                    <p style="font-size: 12px; color: #999;">PDF (Max 10MB)</p>
+                </div>
+                <input type="file" id="resumeInput" accept=".pdf" style="display: none;" onchange="handleResumeUpload(event)">
+                <div id="resumePreview"></div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('editProfileModal')" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProfile()" style="flex: 1;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="createPostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin: 0;">Create Post</h2>
+                <button class="modal-close" onclick="closeModal('createPostModal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>What's on your mind?</label>
+                <textarea id="postContent" placeholder="Share your thoughts, insights, or experiences..." rows="6"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('createPostModal')" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="publishPost()" style="flex: 1;">Publish</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin: 0;">Create Event</h2>
+                <button class="modal-close" onclick="closeModal('createEventModal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>Event Title</label>
+                <input type="text" id="eventTitle" placeholder="e.g., Coffee Chat Networking Mixer">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="eventDescription" placeholder="Tell people what this event is about..." rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Event Type</label>
+                <select id="eventType">
+                    <option value="virtual">Virtual</option>
+                    <option value="in-person">In-Person</option>
+                    <option value="hybrid">Hybrid</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Location / Meeting Link</label>
+                <input type="text" id="eventLocation" placeholder="Address or Zoom link">
+            </div>
+            <div class="form-group">
+                <label>Start Date & Time</label>
+                <input type="datetime-local" id="eventStartTime">
+            </div>
+            <div class="form-group">
+                <label>End Date & Time</label>
+                <input type="datetime-local" id="eventEndTime">
+            </div>
+            <div class="form-group">
+                <label>Max Attendees (optional)</label>
+                <input type="number" id="eventMaxAttendees" placeholder="Leave blank for unlimited">
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('createEventModal')" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="publishEvent()" style="flex: 1;">Create Event</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Supabase Configuration
         const SUPABASE_URL = 'https://vmrmkkngjlicuvrpejxx.supabase.co';
@@ -1722,7 +1705,7 @@
 
         const mockUsers = [
             {
-                id: 2,
+                id: '00000000-0000-0000-0000-000000000002',
                 firstName: 'Sarah',
                 lastName: 'Chen',
                 industry: 'Technology',
@@ -1737,11 +1720,11 @@
                 profilePicture: null,
                 resume: null,
                 posts: [
-                    { id: 1, content: 'Just launched our new AI feature! Excited to share what we learned about user onboarding.', date: '2 days ago', likes: 24 }
+                    { id: 'mock-post-001', content: 'Just launched our new AI feature! Excited to share what we learned about user onboarding.', date: '2 days ago', likes_count: 24 }
                 ]
             },
             {
-                id: 3,
+                id: '00000000-0000-0000-0000-000000000003',
                 firstName: 'Marcus',
                 lastName: 'Johnson',
                 industry: 'Finance',
@@ -1756,11 +1739,11 @@
                 profilePicture: null,
                 resume: null,
                 posts: [
-                    { id: 2, content: 'The future of banking is decentralized. Here\'s why traditional banks need to adapt...', date: '1 week ago', likes: 42 }
+                    { id: 'mock-post-002', content: 'The future of banking is decentralized. Here\'s why traditional banks need to adapt...', date: '1 week ago', likes_count: 42 }
                 ]
             },
             {
-                id: 4,
+                id: '00000000-0000-0000-0000-000000000004',
                 firstName: 'Elena',
                 lastName: 'Rodriguez',
                 industry: 'Healthcare',
@@ -1776,7 +1759,7 @@
                 posts: []
             },
             {
-                id: 5,
+                id: '00000000-0000-0000-0000-000000000005',
                 firstName: 'David',
                 lastName: 'Kim',
                 industry: 'Technology',
@@ -1790,11 +1773,11 @@
                 profilePicture: null,
                 resume: null,
                 posts: [
-                    { id: 3, content: 'Wrote a deep dive on database sharding strategies. Check it out if you\'re dealing with scaling challenges!', date: '3 days ago', likes: 67 }
+                    { id: 'mock-post-003', content: 'Wrote a deep dive on database sharding strategies. Check it out if you\'re dealing with scaling challenges!', date: '3 days ago', likes_count: 67 }
                 ]
             },
             {
-                id: 6,
+                id: '00000000-0000-0000-0000-000000000006',
                 firstName: 'Priya',
                 lastName: 'Patel',
                 industry: 'Marketing',
@@ -2210,7 +2193,7 @@
 
             const grid = document.getElementById('discoverGrid');
             grid.innerHTML = filtered.map(user => {
-                const isConnected = connections.find(c => c.userId === user.id);
+                const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === user.id || c.connected_user_id === currentUser.id && c.user_id === user.id);
                 const avatarHTML = user.profilePicture ? 
                     `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;"><img src="${user.profilePicture}" alt="${user.firstName}"></div>` :
                     `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${user.firstName[0]}${user.lastName[0]}</div>`;
@@ -2225,10 +2208,10 @@
                             ${user.interests.slice(0, 3).map(i => `<span class="tag">${i}</span>`).join('')}
                         </div>
                         <div class="profile-actions">
-                            <button class="btn btn-primary btn-sm" onclick="viewProfile(${user.id})" style="flex: 1; justify-content: center;">View Profile</button>
+                            <button class="btn btn-primary btn-sm" onclick="viewProfile('${user.id}')" style="flex: 1; justify-content: center;">View Profile</button>
                             ${isConnected ? 
-                                `<button class="btn btn-secondary btn-sm" onclick="startMessage(${user.id})" style="flex: 1; justify-content: center;">Message</button>` :
-                                `<button class="btn btn-accent btn-sm" onclick="connectUser(${user.id})" style="flex: 1; justify-content: center;">Connect</button>`
+                                `<button class="btn btn-secondary btn-sm" onclick="startMessage('${user.id}')" style="flex: 1; justify-content: center;">Message</button>` :
+                                `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1; justify-content: center;">Connect</button>`
                             }
                         </div>
                     </div>
@@ -2256,7 +2239,7 @@
             selectedPerson = user;
             previousView = 'discoverView';
 
-            const isConnected = connections.find(c => c.userId === userId);
+            const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === userId || c.connected_user_id === currentUser.id && c.user_id === userId);
             const isOwnProfile = currentUser && currentUser.id === userId;
 
             const avatarHTML = user.profilePicture ? 
@@ -2310,10 +2293,10 @@
                 ${!isOwnProfile ? `
                     <div class="profile-actions">
                         ${isConnected ? `
-                            <button class="btn btn-primary" onclick="startMessage(${user.id})">💬 Send Message</button>
-                            <button class="btn btn-accent" onclick="scheduleWith(${user.id})">📅 Schedule Chat</button>
+                            <button class="btn btn-primary" onclick="startMessage('${user.id}')">💬 Send Message</button>
+                            <button class="btn btn-accent" onclick="scheduleWith('${user.id}')">📅 Schedule Chat</button>
                         ` : `
-                            <button class="btn btn-primary" onclick="connectUser(${user.id})">Add Connection</button>
+                            <button class="btn btn-primary" onclick="connectUser('${user.id}')">Add Connection</button>
                             <button class="btn btn-secondary" onclick="switchView('discoverView')">Back</button>
                         `}
                     </div>
@@ -2369,6 +2352,23 @@
                 return;
             }
 
+            // Handle mock users locally (mock UUIDs start with 00000000-)
+            if (String(userId).startsWith('00000000-')) {
+                connections.push({
+                    id: 'local-' + Date.now(),
+                    user_id: currentUser.id,
+                    connected_user_id: userId,
+                    status: 'accepted'
+                });
+                alert(`Connected with ${user.firstName}!`);
+                if (document.getElementById('profileDetailView').classList.contains('active')) {
+                    viewProfile(userId);
+                } else {
+                    renderDiscovery();
+                }
+                return;
+            }
+
             try {
                 const { data, error } = await supabaseClient
                     .from('connections')
@@ -2382,12 +2382,9 @@
 
                 if (error) throw error;
 
-                // Add to local connections
                 connections.push(data);
-
                 alert(`Connected with ${user.firstName}!`);
 
-                // Refresh current view
                 if (document.getElementById('profileDetailView').classList.contains('active')) {
                     viewProfile(userId);
                 } else {
@@ -3051,23 +3048,30 @@
                 return;
             }
 
+            // Handle mock posts locally
+            if (String(postId).startsWith('mock-')) {
+                const post = posts.find(p => String(p.id) === String(postId));
+                if (post) {
+                    post.likes_count = (post.likes_count || 0) + 1;
+                    await renderFeed();
+                }
+                return;
+            }
+
             try {
-                // Check if already liked
                 const { data: existing } = await supabaseClient
                     .from('post_likes')
                     .select('id')
                     .eq('post_id', postId)
                     .eq('user_id', currentUser.id)
-                    .single();
+                    .maybeSingle();
 
                 if (existing) {
-                    // Unlike
                     await supabaseClient
                         .from('post_likes')
                         .delete()
                         .eq('id', existing.id);
                 } else {
-                    // Like
                     await supabaseClient
                         .from('post_likes')
                         .insert([{
@@ -3076,7 +3080,6 @@
                         }]);
                 }
 
-                // Refresh feed
                 await renderFeed();
             } catch (error) {
                 console.error('Error liking post:', error);
@@ -3095,9 +3098,25 @@
             }
         }
 
+        // Store mock comments locally
+        const mockComments = {};
+
         async function loadComments(postId) {
             const container = document.getElementById(`comments-list-${postId}`);
             if (!container) return;
+
+            // Handle mock posts locally
+            if (String(postId).startsWith('mock-')) {
+                const comments = mockComments[postId] || [];
+                container.innerHTML = comments.map(c => `
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                        <strong>${c.author}</strong>
+                        <p style="margin: 0.25rem 0;">${c.content}</p>
+                    </div>
+                `).join('') || '<p style="font-size: 13px; color: #999;">No comments yet. Be the first!</p>';
+                return;
+            }
+
             try {
                 const { data: comments, error } = await supabaseClient
                     .from('post_comments')
@@ -3123,6 +3142,18 @@
             const input = document.getElementById(`comment-input-${postId}`);
             const text = input.value.trim();
             if (!text) return;
+
+            // Handle mock posts locally
+            if (String(postId).startsWith('mock-')) {
+                if (!mockComments[postId]) mockComments[postId] = [];
+                mockComments[postId].push({
+                    author: `${currentUser.firstName} ${currentUser.lastName}`,
+                    content: text
+                });
+                input.value = '';
+                await loadComments(postId);
+                return;
+            }
 
             try {
                 const { error } = await supabaseClient
@@ -3314,10 +3345,10 @@
                         <p style="font-size: 13px; color: #666; margin: 1rem 0;">${event.description}</p>
                         <p style="font-size: 12px; color: #999; margin-bottom: 1rem;">Hosted by ${event.creator_name}</p>
                         ${isUserAttending ?
-                            `<button class="btn btn-secondary btn-sm" onclick="unRSVPEvent(${event.id})" style="width: 100%;">Cancel RSVP</button>` :
+                            `<button class="btn btn-secondary btn-sm" onclick="unRSVPEvent('${event.id}')" style="width: 100%;">Cancel RSVP</button>` :
                             isFull ?
                             `<button class="btn btn-sm" disabled style="width: 100%; background: #ccc;">Event Full</button>` :
-                            `<button class="btn btn-primary btn-sm" onclick="rsvpEvent(${event.id})" style="width: 100%;">RSVP</button>`
+                            `<button class="btn btn-primary btn-sm" onclick="rsvpEvent('${event.id}')" style="width: 100%;">RSVP</button>`
                         }
                     </div>
                 `;
@@ -3479,7 +3510,7 @@
                     <div class="grid">
                         ${recommendations.slice(0, 3).map(item => {
                             const user = item.user;
-                            const isConnected = connections.find(c => c.userId === user.id);
+                            const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === user.id || c.connected_user_id === currentUser.id && c.user_id === user.id);
                             const avatarContent = user.profilePicture
                                 ? `<img src="${user.profilePicture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
                                 : `${user.firstName[0]}${user.lastName[0]}`;
@@ -3497,10 +3528,10 @@
                                         ${item.reasons.map(reason => `<p style="font-size: 11px; color: #666; margin: 0.25rem 0;">• ${reason}</p>`).join('')}
                                     </div>
                                     <div class="profile-actions">
-                                        <button class="btn btn-primary btn-sm" onclick="viewProfile(${user.id})" style="flex: 1;">View Profile</button>
+                                        <button class="btn btn-primary btn-sm" onclick="viewProfile('${user.id}')" style="flex: 1;">View Profile</button>
                                         ${isConnected ?
-                                            `<button class="btn btn-secondary btn-sm" onclick="startMessage(${user.id})" style="flex: 1;">Message</button>` :
-                                            `<button class="btn btn-accent btn-sm" onclick="connectUser(${user.id})" style="flex: 1;">Connect</button>`
+                                            `<button class="btn btn-secondary btn-sm" onclick="startMessage('${user.id}')" style="flex: 1;">Message</button>` :
+                                            `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1;">Connect</button>`
                                         }
                                     </div>
                                 </div>
@@ -3616,31 +3647,6 @@
                 console.error('Error deleting availability:', error);
                 alert('Failed to delete availability: ' + error.message);
             }
-        }
-
-
-
-        // Initialize
-        async function init() {
-            users = [...mockUsers];
-            groups = [...mockGroups];
-
-            // Check for existing Supabase session
-            const { data: { session } } = await supabaseClient.auth.getSession();
-
-            if (session) {
-                // User is logged in, load their profile
-                await loadUserProfile(session.user.id);
-                renderNav();
-                switchView('dashboardView');
-                await updateDashboard();
-            } else {
-                // No session, show login
-                renderNav();
-                switchView('loginView');
-            }
-
-            renderCalendar();
         }
 
         init();
