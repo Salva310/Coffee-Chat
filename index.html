@@ -1285,9 +1285,12 @@
                 <p style="color: #999; margin-bottom: 1.5rem;">Find professionals in your industry</p>
 
                 <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 1rem; font-size: 16px;">Advanced Search</h3>
-                    <div class="search-bar">
-                        <input type="text" id="searchName" placeholder="Search by name..." onkeyup="filterDiscovery()">
+                    <h3 style="margin-bottom: 1rem; font-size: 16px;">Find People</h3>
+                    <div style="position: relative; margin-bottom: 1rem;">
+                        <input type="text" id="searchName" placeholder="Search by name..." onkeyup="filterDiscovery()" style="width: 100%; padding: 12px 16px; font-size: 16px; border-radius: 10px; border: 2px solid var(--border); box-sizing: border-box;">
+                    </div>
+                    <p style="font-size: 13px; color: #999; margin-bottom: 0.75rem;">Filter by:</p>
+                    <div class="search-bar" style="margin-bottom: 0;">
                         <select id="filterIndustry" onchange="filterDiscovery()">
                             <option value="">All Industries</option>
                             <option value="Technology">Technology</option>
@@ -1298,11 +1301,11 @@
                             <option value="Engineering">Engineering</option>
                             <option value="Design">Design</option>
                         </select>
+                        <input type="text" id="searchLocation" placeholder="Location..." onkeyup="filterDiscovery()">
                     </div>
-                    <div class="search-bar" style="margin-top: 1rem;">
-                        <input type="text" id="searchLocation" placeholder="Filter by location..." onkeyup="filterDiscovery()">
-                        <input type="text" id="searchInterests" placeholder="Filter by interests (e.g., AI, Startups)..." onkeyup="filterDiscovery()">
-                        <input type="text" id="searchCompany" placeholder="Filter by company..." onkeyup="filterDiscovery()">
+                    <div class="search-bar" style="margin-top: 0.75rem; margin-bottom: 0;">
+                        <input type="text" id="searchInterests" placeholder="Interests (e.g., AI, Startups)..." onkeyup="filterDiscovery()">
+                        <input type="text" id="searchCompany" placeholder="Company..." onkeyup="filterDiscovery()">
                     </div>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                         <button class="btn btn-primary btn-sm" onclick="filterDiscovery()">Search</button>
@@ -1444,13 +1447,21 @@
 
                     <div class="form-group">
                         <label>Meeting Type</label>
-                        <select id="scheduleType">
+                        <select id="scheduleType" onchange="updateMeetingDetails()">
                             <option value="video">Video Call</option>
                             <option value="zoom">Zoom Meeting</option>
                             <option value="facetime">FaceTime</option>
                             <option value="phone">Phone Call</option>
                             <option value="coffee">Coffee Chat (In-person)</option>
                         </select>
+                    </div>
+
+                    <div id="meetingDetailsSection">
+                        <div class="form-group" id="meetingLinkGroup">
+                            <label id="meetingDetailLabel">Video Call Link</label>
+                            <input type="text" id="meetingDetailInput" placeholder="Paste your video call link here">
+                            <p style="font-size: 12px; color: #999; margin-top: 0.25rem;" id="meetingDetailHint">e.g., Google Meet, Teams, or other video call link</p>
+                        </div>
                     </div>
 
                     <button class="btn btn-primary" onclick="sendMeetingRequest()" style="width: 100%;">Send Meeting Request</button>
@@ -2845,15 +2856,62 @@
             selectedTime = time;
         }
 
+        function updateMeetingDetails() {
+            const type = document.getElementById('scheduleType').value;
+            const label = document.getElementById('meetingDetailLabel');
+            const input = document.getElementById('meetingDetailInput');
+            const hint = document.getElementById('meetingDetailHint');
+
+            switch (type) {
+                case 'video':
+                    label.textContent = 'Video Call Link';
+                    input.placeholder = 'Paste your video call link here';
+                    input.type = 'text';
+                    hint.textContent = 'e.g., Google Meet, Teams, or other video call link';
+                    break;
+                case 'zoom':
+                    label.textContent = 'Zoom Meeting Link';
+                    input.placeholder = 'https://zoom.us/j/...';
+                    input.type = 'text';
+                    hint.textContent = 'Paste your Zoom meeting link or meeting ID';
+                    break;
+                case 'facetime':
+                    label.textContent = 'FaceTime Number or Email';
+                    input.placeholder = '+1 (555) 123-4567 or email@icloud.com';
+                    input.type = 'text';
+                    hint.textContent = 'Phone number or Apple ID for FaceTime';
+                    break;
+                case 'phone':
+                    label.textContent = 'Phone Number';
+                    input.placeholder = '+1 (555) 123-4567';
+                    input.type = 'tel';
+                    hint.textContent = 'Enter the phone number to call';
+                    break;
+                case 'coffee':
+                    label.textContent = 'Meeting Location';
+                    input.placeholder = 'e.g., Blue Bottle Coffee, 123 Main St';
+                    input.type = 'text';
+                    hint.textContent = 'Name and address of the coffee shop or meeting spot';
+                    break;
+            }
+        }
+
         function sendMeetingRequest() {
             const date = document.getElementById('scheduleDate').value;
             const time = selectedTime;
             const duration = document.getElementById('scheduleDuration').value;
             const topic = document.getElementById('scheduleTopic').value;
             const type = document.getElementById('scheduleType').value;
+            const meetingDetail = document.getElementById('meetingDetailInput').value.trim();
 
             if (!date || !time || !topic) {
                 alert('Please fill in all fields');
+                return;
+            }
+
+            if (!meetingDetail) {
+                const detailNames = { video: 'video call link', zoom: 'Zoom link', facetime: 'FaceTime contact', phone: 'phone number', coffee: 'meeting location' };
+                alert(`Please enter the ${detailNames[type] || 'meeting details'}`);
                 return;
             }
 
@@ -2866,6 +2924,7 @@
                 duration,
                 topic,
                 type,
+                meetingDetail,
                 status: 'pending',
                 createdAt: new Date()
             };
