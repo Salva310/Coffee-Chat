@@ -723,6 +723,607 @@
             }
         }
 
+        /* === STEAM ANIMATION === */
+        .steam-container {
+            position: relative;
+            display: inline-block;
+        }
+        .steam {
+            position: absolute;
+            top: -8px;
+            width: 4px;
+            height: 10px;
+            background: transparent;
+            border-radius: 50%;
+            opacity: 0;
+        }
+        .steam::before, .steam::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 10px;
+            background: rgba(212, 165, 116, 0.5);
+            border-radius: 50%;
+            animation: steamRise 2s ease-out infinite;
+        }
+        .steam:nth-child(2)::before { animation-delay: 0.4s; left: 4px; }
+        .steam:nth-child(3)::before { animation-delay: 0.8s; left: 8px; }
+
+        @keyframes steamRise {
+            0% { opacity: 0; transform: translateY(0) scaleX(1); }
+            15% { opacity: 0.7; }
+            50% { opacity: 0.3; transform: translateY(-12px) scaleX(1.5); }
+            100% { opacity: 0; transform: translateY(-24px) scaleX(0.5); }
+        }
+
+        /* === ENHANCED CARD HOVER === */
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card:hover {
+            box-shadow: 0 12px 32px rgba(62, 39, 35, 0.15);
+            transform: translateY(-4px);
+        }
+
+        /* === ENHANCED BUTTON HOVER === */
+        .btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(111, 78, 55, 0.25);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* === NAV ITEM HOVER INDICATOR === */
+        .nav-item {
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scaleY(0);
+            width: 3px;
+            height: 60%;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+            transition: transform 0.2s ease;
+        }
+        .nav-item:hover::before {
+            transform: translateY(-50%) scaleY(1);
+        }
+        .nav-item.active::before {
+            transform: translateY(-50%) scaleY(1);
+            background: var(--primary-dark);
+        }
+
+        /* === COFFEE DIVIDER === */
+        .coffee-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            color: var(--accent);
+            font-size: 14px;
+        }
+        .coffee-divider::before, .coffee-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+        }
+
+        /* === TOAST NOTIFICATIONS === */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .toast {
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            animation: toastIn 0.4s cubic-bezier(0.4, 0, 0.2, 1), toastOut 0.4s ease 2.6s forwards;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 360px;
+        }
+        .toast.success { background: linear-gradient(135deg, #4CAF50, #2E7D32); }
+        .toast.info { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+        .toast.warning { background: linear-gradient(135deg, #FF9800, #E65100); }
+        .toast.error { background: linear-gradient(135deg, #FF6B6B, #D32F2F); }
+        .toast.celebration { background: linear-gradient(135deg, var(--accent), #C68B59); }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+
+        /* === CONFETTI === */
+        .confetti-piece {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            z-index: 10002;
+            pointer-events: none;
+            animation: confettiFall 1.5s ease forwards;
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+            100% { opacity: 0; transform: translateY(400px) rotate(720deg) scale(0.3); }
+        }
+
+        /* === PULSE ANIMATION === */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* === GROUP CARD ENHANCEMENTS === */
+        .group-card {
+            background: linear-gradient(135deg, white 0%, #FFF8F0 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .group-card:hover {
+            box-shadow: 0 12px 32px rgba(62, 39, 35, 0.15);
+            transform: translateY(-4px);
+        }
+        .group-card .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .activity-dot.active {
+            background: #4CAF50;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+            animation: dotPulse 2s ease infinite;
+        }
+        .activity-dot.inactive {
+            background: #ccc;
+        }
+        @keyframes dotPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(76, 175, 80, 0.3); }
+            50% { box-shadow: 0 0 10px rgba(76, 175, 80, 0.6); }
+        }
+        .member-avatars {
+            display: flex;
+            margin: 0.75rem 0;
+        }
+        .member-avatars .mini-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            margin-left: -8px;
+        }
+        .member-avatars .mini-avatar:first-child {
+            margin-left: 0;
+        }
+        .member-avatars .mini-avatar.more {
+            background: var(--accent);
+            color: var(--text-dark);
+            font-size: 9px;
+        }
+        .group-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 12px;
+            color: #999;
+            margin: 0.5rem 0;
+        }
+        .industry-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: rgba(111, 78, 55, 0.1);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* === PROFILE COMPLETION === */
+        .completion-card {
+            background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .completion-card:hover {
+            box-shadow: 0 8px 24px rgba(62, 39, 35, 0.12);
+        }
+        .progress-ring-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        .progress-ring-container svg {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 6;
+        }
+        .progress-ring-fill {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .completion-info h3 {
+            margin-bottom: 0.25rem;
+        }
+        .completion-info p {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        /* === GETTING STARTED CHECKLIST === */
+        .getting-started {
+            background: linear-gradient(135deg, white 0%, #FFF8F0 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .getting-started-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .getting-started-header h3 {
+            margin-bottom: 0;
+        }
+        .dismiss-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+        }
+        .dismiss-btn:hover {
+            color: var(--primary);
+        }
+        .checklist {
+            list-style: none;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            transition: background 0.2s;
+        }
+        .checklist-item:hover {
+            background: rgba(111, 78, 55, 0.05);
+        }
+        .checklist-item .check-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .checklist-item.done .check-icon {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .checklist-item.done .check-label {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        /* === NOTIFICATION BELL === */
+        .notification-bell {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-light);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .notification-bell:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .notification-bell .bell-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notification-bell .bell-badge.hidden {
+            display: none;
+        }
+        @keyframes bellShake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(10deg); }
+        }
+        .notification-bell.has-new {
+            animation: bellShake 0.6s ease;
+        }
+
+        /* === NOTIFICATION PANEL === */
+        .notification-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            z-index: 9998;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .notification-panel.open {
+            right: 0;
+        }
+        .notification-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 9997;
+            display: none;
+        }
+        .notification-panel-overlay.open {
+            display: block;
+        }
+        .notification-panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-panel-header h3 {
+            margin-bottom: 0;
+        }
+        .notification-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .notification-item:hover {
+            background: #FFF8F0;
+        }
+        .notification-item.unread {
+            background: rgba(212, 165, 116, 0.08);
+        }
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .notification-icon.meeting { background: rgba(111, 78, 55, 0.1); }
+        .notification-icon.connection { background: rgba(76, 175, 80, 0.1); }
+        .notification-icon.message { background: rgba(33, 150, 243, 0.1); }
+        .notification-icon.event { background: rgba(255, 152, 0, 0.1); }
+        .notification-icon.badge { background: rgba(212, 165, 116, 0.15); }
+        .notification-text {
+            flex: 1;
+        }
+        .notification-text p {
+            font-size: 13px;
+            margin-bottom: 2px;
+            line-height: 1.4;
+        }
+        .notification-text .notif-time {
+            font-size: 11px;
+            color: #999;
+        }
+        .notification-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #999;
+        }
+
+        /* === BADGES & GAMIFICATION === */
+        .badge-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            width: 72px;
+            text-align: center;
+            position: relative;
+        }
+        .badge-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: linear-gradient(135deg, #FFF8F0, #F5E6D3);
+            border: 2px solid var(--accent);
+            transition: all 0.3s;
+        }
+        .badge-item.locked .badge-icon {
+            filter: grayscale(1);
+            opacity: 0.4;
+            border-color: #ddd;
+        }
+        .badge-item:not(.locked) .badge-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(212, 165, 116, 0.4);
+        }
+        .badge-name {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+        .badge-item.locked .badge-name {
+            color: #ccc;
+        }
+        .badge-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-dark);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .badge-item:hover .badge-tooltip {
+            opacity: 1;
+        }
+        .streak-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #FF9800, #E65100);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .badge-toast-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10003;
+            background: rgba(0,0,0,0.4);
+            animation: fadeIn 0.3s ease;
+        }
+        .badge-toast-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: badgePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 300px;
+        }
+        .badge-toast-card .big-badge {
+            font-size: 64px;
+            margin-bottom: 1rem;
+        }
+        @keyframes badgePop {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .message.sent {
             justify-content: flex-end;
         }
@@ -1133,9 +1734,14 @@
     <div class="app-container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <div class="logo" style="font-size: 22px; letter-spacing: -0.5px;">
-                <span style="display: inline-block; font-size: 28px; margin-right: 4px;">&#9749;</span>
+            <div class="logo" style="font-size: 22px; letter-spacing: -0.5px; display: flex; align-items: center;">
+                <span class="steam-container" style="font-size: 28px; margin-right: 4px;">&#9749;<span class="steam"></span><span class="steam"></span><span class="steam"></span></span>
                 <span style="font-weight: 800; color: var(--accent);">Coffee</span><span style="font-weight: 300; color: var(--text-light);">Chat</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                <button class="notification-bell" onclick="toggleNotifications()" id="notifBell">
+                    &#128276;<span class="bell-badge hidden" id="bellBadge">0</span>
+                </button>
             </div>
             <nav id="navMenu"></nav>
             <div class="sidebar-spacer"></div>
@@ -1222,7 +1828,32 @@
             <!-- Dashboard -->
             <div id="dashboardView" class="content-view">
                 <h1>Welcome, <span id="userName"></span>!</h1>
-                <p style="color: #999; margin-bottom: 2rem;">Build genuine connections over real conversations</p>
+                <p style="color: #999; margin-bottom: 1.5rem;">Build genuine connections over real conversations</p>
+
+                <!-- Profile Completion Card -->
+                <div class="completion-card" id="completionCard">
+                    <div class="progress-ring-container">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
+                            <circle class="progress-ring-fill" id="progressRing" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
+                        </svg>
+                        <span class="progress-text" id="progressPercent">0%</span>
+                    </div>
+                    <div class="completion-info">
+                        <h3>Profile Completion</h3>
+                        <p id="completionMsg">Complete your profile to get better matches</p>
+                        <button class="btn btn-accent btn-sm" onclick="editMyProfile()">Complete Profile</button>
+                    </div>
+                </div>
+
+                <!-- Getting Started Checklist -->
+                <div class="getting-started" id="gettingStarted">
+                    <div class="getting-started-header">
+                        <h3>Getting Started</h3>
+                        <button class="dismiss-btn" onclick="dismissGettingStarted()" title="Dismiss">&times;</button>
+                    </div>
+                    <ul class="checklist" id="checklistItems"></ul>
+                </div>
 
                 <div class="stats">
                     <div class="stat-card">
@@ -1237,7 +1868,19 @@
                         <h3 id="statMeetings">0</h3>
                         <p>Meetings Scheduled</p>
                     </div>
+                    <div class="stat-card">
+                        <h3 id="statStreak"><span class="streak-counter" id="streakDisplay">0</span></h3>
+                        <p>Day Streak</p>
+                    </div>
                 </div>
+
+                <!-- Badges Section -->
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem;">Your Badges</h3>
+                    <div class="badge-grid" id="dashboardBadges"></div>
+                </div>
+
+                <div class="coffee-divider">&#9749;</div>
 
                 <h2>Quick Actions</h2>
                 <div class="grid">
@@ -1814,9 +2457,11 @@
                 industry: 'Technology',
                 description: 'For technology professionals looking to grow and mentor others',
                 members: 234,
+                lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000),
+                memberList: ['SC', 'DK', 'MJ', 'ER', 'PP'],
                 posts: [
-                    { author: 'Sarah Chen', content: 'Anyone working on AI products? Would love to connect!' },
-                    { author: 'David Kim', content: 'Best practices for scaling backends - let\'s discuss!' }
+                    { author: 'Sarah Chen', content: 'Anyone working on AI products? Would love to connect!', time: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+                    { author: 'David Kim', content: 'Best practices for scaling backends - let\'s discuss!', time: new Date(Date.now() - 8 * 60 * 60 * 1000) }
                 ]
             },
             {
@@ -1825,8 +2470,10 @@
                 industry: 'Finance',
                 description: 'Building the future of financial services',
                 members: 189,
+                lastActivity: new Date(Date.now() - 18 * 60 * 60 * 1000),
+                memberList: ['MJ', 'SC', 'PP'],
                 posts: [
-                    { author: 'Marcus Johnson', content: 'New regulatory landscape - what\'s your take?' }
+                    { author: 'Marcus Johnson', content: 'New regulatory landscape - what\'s your take?', time: new Date(Date.now() - 18 * 60 * 60 * 1000) }
                 ]
             },
             {
@@ -1835,8 +2482,10 @@
                 industry: 'Healthcare',
                 description: 'Healthcare professionals and technologists',
                 members: 156,
+                lastActivity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+                memberList: ['ER', 'DK'],
                 posts: [
-                    { author: 'Elena Rodriguez', content: 'Patient data privacy - best solutions?' }
+                    { author: 'Elena Rodriguez', content: 'Patient data privacy - best solutions?', time: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) }
                 ]
             },
             {
@@ -1845,8 +2494,10 @@
                 industry: 'Marketing',
                 description: 'Growth, strategy, and brand discussions',
                 members: 201,
+                lastActivity: new Date(Date.now() - 6 * 60 * 60 * 1000),
+                memberList: ['PP', 'MJ', 'SC', 'DK'],
                 posts: [
-                    { author: 'Priya Patel', content: 'Growth hacking strategies for B2B startups' }
+                    { author: 'Priya Patel', content: 'Growth hacking strategies for B2B startups', time: new Date(Date.now() - 6 * 60 * 60 * 1000) }
                 ]
             }
         ];
@@ -1862,9 +2513,11 @@
             if (session) {
                 // User is logged in, load their profile
                 await loadUserProfile(session.user.id);
+                recordLogin();
                 renderNav();
                 switchView('dashboardView');
                 await updateDashboard();
+                checkBadgesWithCelebration();
             } else {
                 // No session, show login
                 renderNav();
@@ -2156,9 +2809,27 @@
         // Dashboard
         function updateDashboard() {
             document.getElementById('userName').textContent = currentUser.firstName;
-            document.getElementById('statConnections').textContent = connections.length;
-            document.getElementById('statGroups').textContent = groups.filter(g => g.userJoined).length;
-            document.getElementById('statMeetings').textContent = meetings.filter(m => m.status !== 'completed').length;
+
+            // Animated counters
+            animateCounter('statConnections', connections.length);
+            animateCounter('statGroups', groups.filter(g => g.userJoined).length);
+            animateCounter('statMeetings', meetings.filter(m => m.status !== 'completed').length);
+
+            // Profile completion
+            renderProfileCompletion();
+
+            // Getting started checklist
+            renderGettingStarted();
+
+            // Badges
+            renderDashboardBadges();
+
+            // Streak
+            const streak = getLoginStreak();
+            document.getElementById('streakDisplay').innerHTML = `&#128293; ${streak}`;
+
+            // Notifications
+            generateNotifications();
         }
 
         // Discovery
@@ -2315,6 +2986,13 @@
                     </div>
                 ` : ''}
 
+                ${isOwnProfile ? `
+                    <div class="profile-info">
+                        <h3>Your Badges</h3>
+                        <div class="badge-grid" id="profileBadges"></div>
+                    </div>
+                ` : ''}
+
                 ${user.posts && user.posts.length > 0 ? `
                     <div class="profile-posts">
                         <h3 style="margin-bottom: 1rem;">Recent Posts</h3>
@@ -2344,6 +3022,11 @@
             `;
 
             switchView('profileDetailView');
+
+            // Render badges on own profile
+            if (isOwnProfile) {
+                setTimeout(() => renderBadges('profileBadges'), 50);
+            }
         }
 
         async function connectUser(userId) {
@@ -2373,7 +3056,8 @@
                     connected_user_id: userId,
                     status: 'accepted'
                 });
-                alert(`Connected with ${user.firstName}!`);
+                showToast(`Connected with ${user.firstName}!`, 'success');
+                checkBadgesWithCelebration();
                 if (document.getElementById('profileDetailView').classList.contains('active')) {
                     viewProfile(userId);
                 } else {
@@ -2642,36 +3326,71 @@
             if (input) {
                 input.value = text;
                 input.focus();
+                localStorage.setItem('usedIcebreaker', 'true');
             }
         }
 
         // Groups
         function renderGroups() {
             const list = document.getElementById('groupsList');
-            list.innerHTML = mockGroups.map(group => `
-                <div class="card">
-                    <h3>${group.name}</h3>
-                    <p>${group.description}</p>
-                    <p style="font-size: 12px; color: #999; margin: 0.5rem 0;">${group.members} members &bull; ${group.industry}</p>
+            list.innerHTML = mockGroups.map(group => {
+                const isRecent = group.lastActivity && (Date.now() - new Date(group.lastActivity).getTime()) < 24 * 60 * 60 * 1000;
+                const memberAvatars = (group.memberList || []).slice(0, 3).map(initials =>
+                    `<div class="mini-avatar">${initials}</div>`
+                ).join('');
+                const extraMembers = group.members - (group.memberList || []).length;
+
+                return `
+                <div class="group-card">
+                    <div class="group-header">
+                        <div>
+                            <h3 style="margin-bottom: 0.25rem;">${group.name}</h3>
+                            <span class="industry-pill">${group.industry}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: ${isRecent ? '#4CAF50' : '#999'};">
+                            <span class="activity-dot ${isRecent ? 'active' : 'inactive'}"></span>
+                            ${isRecent ? 'Active' : 'Quiet'}
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">${group.description}</p>
+                    <div class="member-avatars">
+                        ${memberAvatars}
+                        ${extraMembers > 0 ? `<div class="mini-avatar more">+${extraMembers}</div>` : ''}
+                    </div>
+                    <div class="group-meta">
+                        <span>&#128101; ${group.members} members</span>
+                        <span>&#128172; ${(group.posts || []).length} posts</span>
+                        ${group.lastActivity ? `<span>${getTimeAgo(group.lastActivity)}</span>` : ''}
+                    </div>
                     ${group.userJoined ?
-                        `<button class="btn btn-accent" onclick="viewGroup(${group.id})" style="width: 100%; margin-top: 1rem;">View Group</button>` :
-                        `<button class="btn btn-primary" onclick="joinGroup(${group.id})" style="width: 100%; margin-top: 1rem;">Join Group</button>`
+                        `<button class="btn btn-accent" onclick="viewGroup(${group.id})" style="width: 100%; margin-top: 0.75rem;">View Group</button>` :
+                        `<button class="btn btn-primary" onclick="joinGroup(${group.id})" style="width: 100%; margin-top: 0.75rem;">Join Group</button>`
                     }
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             const myGroups = mockGroups.filter(g => g.userJoined);
             const myList = document.getElementById('myGroupsList');
             if (myGroups.length === 0) {
                 myList.innerHTML = '<div class="empty-state"><p>Join groups to connect with your community</p></div>';
             } else {
-                myList.innerHTML = myGroups.map(group => `
-                    <div class="card compact" onclick="viewGroup(${group.id})" style="cursor: pointer;">
-                        <h3 style="color: var(--primary);">&#10003; ${group.name}</h3>
-                        <p style="font-size: 13px; color: #999;">${group.members} members</p>
-                        <p style="font-size: 12px; color: var(--accent); margin-top: 0.5rem;">Click to view group &rarr;</p>
-                    </div>
-                `).join('');
+                myList.innerHTML = myGroups.map(group => {
+                    const isRecent = group.lastActivity && (Date.now() - new Date(group.lastActivity).getTime()) < 24 * 60 * 60 * 1000;
+                    return `
+                    <div class="group-card" onclick="viewGroup(${group.id})" style="cursor: pointer; margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="color: var(--primary); margin-bottom: 0.25rem;">&#10003; ${group.name}</h3>
+                                <div class="group-meta" style="margin: 0;">
+                                    <span>&#128101; ${group.members} members</span>
+                                    <span class="activity-dot ${isRecent ? 'active' : 'inactive'}" style="margin-left: 4px;"></span>
+                                    <span>${getTimeAgo(group.lastActivity)}</span>
+                                </div>
+                            </div>
+                            <span style="color: var(--accent); font-size: 18px;">&rarr;</span>
+                        </div>
+                    </div>`;
+                }).join('');
             }
         }
 
@@ -2696,8 +3415,11 @@
                     <div id="groupPosts-${group.id}">
                         ${(group.posts || []).map(post => `
                             <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
-                                <strong>${post.author}</strong>
-                                <p style="margin: 0.5rem 0; color: #444;">${post.content}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <strong>${post.author}</strong>
+                                    <span style="font-size: 11px; color: #999;">${post.time ? getTimeAgo(post.time) : ''}</span>
+                                </div>
+                                <p style="color: #444;">${post.content}</p>
                             </div>
                         `).join('') || '<p style="color: #999;">No posts yet. Start the conversation!</p>'}
                     </div>
@@ -2723,11 +3445,14 @@
 
             group.posts.unshift({
                 author: `${currentUser.firstName} ${currentUser.lastName}`,
-                content: text
+                content: text,
+                time: new Date()
             });
+            group.lastActivity = new Date();
 
             input.value = '';
             viewGroup(groupId);
+            showToast('Posted to group!', 'success');
         }
 
         function joinGroup(groupId) {
@@ -2736,6 +3461,8 @@
                 group.userJoined = true;
                 group.members++;
                 renderGroups();
+                showToast(`Joined ${group.name}!`, 'success');
+                checkBadgesWithCelebration();
             }
         }
 
@@ -3739,7 +4466,403 @@
             }
         }
 
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        function getTimeAgo(date) {
+            if (!date) return '';
+            const now = Date.now();
+            const diff = now - new Date(date).getTime();
+            const mins = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return `${mins}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return `${Math.floor(days / 7)}w ago`;
+        }
+
+        function animateCounter(elementId, target) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const current = parseInt(el.textContent) || 0;
+            if (current === target) { el.textContent = target; return; }
+            const duration = 600;
+            const start = performance.now();
+            function tick(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(current + (target - current) * eased);
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const icons = { success: '&#10003;', info: '&#9749;', warning: '&#9888;', error: '&#10007;', celebration: '&#127881;' };
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${icons[type] || ''}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3200);
+        }
+
+        // ============================================
+        // CONFETTI
+        // ============================================
+
+        function showConfetti() {
+            const colors = ['#D4A574', '#6F4E37', '#FF9800', '#4CAF50', '#FF6B6B', '#8B6F47'];
+            for (let i = 0; i < 30; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = `${Math.random() * 100}vw`;
+                piece.style.top = `${Math.random() * 30}vh`;
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.width = `${6 + Math.random() * 6}px`;
+                piece.style.height = `${6 + Math.random() * 6}px`;
+                piece.style.animationDuration = `${1 + Math.random() * 1.5}s`;
+                piece.style.animationDelay = `${Math.random() * 0.5}s`;
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 3000);
+            }
+        }
+
+        // ============================================
+        // PROFILE COMPLETION
+        // ============================================
+
+        function getProfileCompletion() {
+            if (!currentUser) return { percentage: 0, missing: [], completed: [] };
+            const fields = [
+                { key: 'firstName', label: 'First Name' },
+                { key: 'lastName', label: 'Last Name' },
+                { key: 'bio', label: 'Bio' },
+                { key: 'role', label: 'Job Title' },
+                { key: 'company', label: 'Company' },
+                { key: 'location', label: 'Location' },
+                { key: 'industry', label: 'Industry' },
+                { key: 'interests', label: 'Interests', isArray: true },
+                { key: 'hobbies', label: 'Hobbies', isArray: true },
+                { key: 'goals', label: 'Career Goals' },
+                { key: 'profilePicture', label: 'Profile Picture' },
+                { key: 'resume', label: 'Resume' }
+            ];
+            const completed = [];
+            const missing = [];
+            fields.forEach(f => {
+                const val = currentUser[f.key];
+                const filled = f.isArray ? (val && val.length > 0) : (val && val.trim && val.trim() !== '');
+                if (filled) completed.push(f.label);
+                else missing.push(f.label);
+            });
+            return {
+                percentage: Math.round((completed.length / fields.length) * 100),
+                missing,
+                completed
+            };
+        }
+
+        function renderProfileCompletion() {
+            const { percentage, missing } = getProfileCompletion();
+            const ring = document.getElementById('progressRing');
+            const text = document.getElementById('progressPercent');
+            const msg = document.getElementById('completionMsg');
+            const card = document.getElementById('completionCard');
+            if (!ring || !text) return;
+
+            const circumference = 2 * Math.PI * 34;
+            const offset = circumference - (percentage / 100) * circumference;
+            ring.style.strokeDasharray = circumference;
+            setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+            text.textContent = percentage + '%';
+
+            if (percentage === 100) {
+                msg.textContent = 'Your profile is complete! Great job!';
+                ring.style.stroke = 'var(--success)';
+            } else {
+                msg.textContent = `Add: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? '...' : ''}`;
+            }
+        }
+
+        // ============================================
+        // GETTING STARTED CHECKLIST
+        // ============================================
+
+        function renderGettingStarted() {
+            const container = document.getElementById('gettingStarted');
+            const list = document.getElementById('checklistItems');
+            if (!container || !list) return;
+
+            if (localStorage.getItem('gettingStartedDismissed') === 'true') {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            const { percentage } = getProfileCompletion();
+            const hasConnections = connections.length > 0;
+            const hasJoinedGroup = groups.some(g => g.userJoined);
+            const hasSentMessage = Object.keys(localMessages || {}).length > 0;
+            const hasMeeting = meetings.length > 0;
+
+            const items = [
+                { label: 'Complete your profile', done: percentage >= 80, action: 'editMyProfile()' },
+                { label: 'Discover people to connect with', done: hasConnections, action: "switchView('discoverView')" },
+                { label: 'Join a community', done: hasJoinedGroup, action: "switchView('groupsView')" },
+                { label: 'Send your first message', done: hasSentMessage, action: "switchView('messagesView')" },
+                { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('calendarView')" }
+            ];
+
+            list.innerHTML = items.map(item => `
+                <li class="checklist-item ${item.done ? 'done' : ''}" onclick="${item.action}">
+                    <span class="check-icon">${item.done ? '&#10003;' : ''}</span>
+                    <span class="check-label">${item.label}</span>
+                </li>
+            `).join('');
+        }
+
+        function dismissGettingStarted() {
+            localStorage.setItem('gettingStartedDismissed', 'true');
+            const el = document.getElementById('gettingStarted');
+            if (el) el.style.display = 'none';
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+
+        let notifications = [];
+
+        function generateNotifications() {
+            notifications = [];
+            const now = new Date();
+
+            // Upcoming meeting reminders
+            meetings.forEach(m => {
+                const meetingTime = new Date(m.start_time || m.startTime);
+                const hoursUntil = (meetingTime - now) / 3600000;
+                if (hoursUntil > 0 && hoursUntil < 24) {
+                    const partner = users.find(u => u.id === m.participant_id || u.id === m.participantId);
+                    notifications.push({
+                        id: 'meeting-' + m.id,
+                        type: 'meeting',
+                        icon: '&#128197;',
+                        text: `Upcoming chat${partner ? ` with ${partner.firstName}` : ''} in ${Math.round(hoursUntil)}h`,
+                        time: meetingTime,
+                        unread: true
+                    });
+                }
+            });
+
+            // Connection notifications
+            if (connections.length > 0) {
+                notifications.push({
+                    id: 'conn-welcome',
+                    type: 'connection',
+                    icon: '&#129309;',
+                    text: `You have ${connections.length} connection${connections.length > 1 ? 's' : ''}. Keep growing your network!`,
+                    time: new Date(now - 3600000),
+                    unread: false
+                });
+            }
+
+            // Welcome notification
+            notifications.push({
+                id: 'welcome',
+                type: 'event',
+                icon: '&#9749;',
+                text: 'Welcome to Coffee Chat! Start by completing your profile.',
+                time: new Date(now - 86400000),
+                unread: false
+            });
+
+            renderNotifications();
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('bellBadge');
+            if (!list) return;
+
+            const unreadCount = notifications.filter(n => n.unread).length;
+
+            if (badge) {
+                badge.textContent = unreadCount;
+                badge.classList.toggle('hidden', unreadCount === 0);
+            }
+
+            // Shake bell if new notifications
+            if (unreadCount > 0) {
+                const bell = document.getElementById('notifBell');
+                if (bell) {
+                    bell.classList.add('has-new');
+                    setTimeout(() => bell.classList.remove('has-new'), 700);
+                }
+            }
+
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="notification-empty"><p>&#9749; No notifications yet</p><p style="font-size: 12px;">You\'re all caught up!</p></div>';
+                return;
+            }
+
+            list.innerHTML = notifications.map(n => `
+                <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="markNotificationRead('${n.id}')">
+                    <div class="notification-icon ${n.type}">${n.icon}</div>
+                    <div class="notification-text">
+                        <p>${n.text}</p>
+                        <span class="notif-time">${getTimeAgo(n.time)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notifPanel');
+            const overlay = document.getElementById('notifOverlay');
+            if (!panel || !overlay) return;
+            const isOpen = panel.classList.contains('open');
+            panel.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        function markNotificationRead(id) {
+            const notif = notifications.find(n => n.id === id);
+            if (notif) notif.unread = false;
+            renderNotifications();
+        }
+
+        function clearAllNotifications() {
+            notifications = [];
+            renderNotifications();
+            showToast('Notifications cleared', 'info');
+        }
+
+        // ============================================
+        // GAMIFICATION - BADGES & STREAKS
+        // ============================================
+
+        const BADGES = [
+            { id: 'first-sip', name: 'First Sip', icon: '&#9749;', desc: 'Complete your profile', check: () => getProfileCompletion().percentage >= 50 },
+            { id: 'regular', name: 'Regular', icon: '&#128260;', desc: '3-day login streak', check: () => getLoginStreak() >= 3 },
+            { id: 'connoisseur', name: 'Connoisseur', icon: '&#127942;', desc: '10+ connections', check: () => connections.length >= 10 },
+            { id: 'connector', name: 'Connector', icon: '&#129309;', desc: 'Send 5+ messages', check: () => Object.values(localMessages || {}).reduce((sum, msgs) => sum + msgs.length, 0) >= 5 },
+            { id: 'butterfly', name: 'Social Butterfly', icon: '&#129419;', desc: 'Join 3+ groups', check: () => groups.filter(g => g.userJoined).length >= 3 },
+            { id: 'icebreaker', name: 'Icebreaker', icon: '&#129482;', desc: 'Use conversation starter', check: () => localStorage.getItem('usedIcebreaker') === 'true' },
+            { id: 'profile-pro', name: 'Profile Pro', icon: '&#11088;', desc: '100% profile completion', check: () => getProfileCompletion().percentage === 100 }
+        ];
+
+        function checkBadges() {
+            return BADGES.map(badge => ({
+                ...badge,
+                earned: badge.check()
+            }));
+        }
+
+        function checkBadgesWithCelebration() {
+            const prev = JSON.parse(localStorage.getItem('earnedBadges') || '[]');
+            const badges = checkBadges();
+            const newlyEarned = badges.filter(b => b.earned && !prev.includes(b.id));
+
+            localStorage.setItem('earnedBadges', JSON.stringify(badges.filter(b => b.earned).map(b => b.id)));
+
+            if (newlyEarned.length > 0) {
+                setTimeout(() => showBadgeEarned(newlyEarned[0]), 1000);
+            }
+        }
+
+        function showBadgeEarned(badge) {
+            showConfetti();
+            const overlay = document.createElement('div');
+            overlay.className = 'badge-toast-overlay';
+            overlay.onclick = () => overlay.remove();
+            overlay.innerHTML = `
+                <div class="badge-toast-card">
+                    <div class="big-badge">${badge.icon}</div>
+                    <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Badge Earned!</h2>
+                    <h3 style="color: var(--accent); margin-bottom: 0.5rem;">${badge.name}</h3>
+                    <p style="color: #999; font-size: 13px;">${badge.desc}</p>
+                    <button class="btn btn-accent" onclick="this.closest('.badge-toast-overlay').remove()" style="margin-top: 1rem;">Awesome!</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 5000);
+        }
+
+        function renderBadges(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const badges = checkBadges();
+            container.innerHTML = badges.map(b => `
+                <div class="badge-item ${b.earned ? '' : 'locked'}">
+                    <div class="badge-tooltip">${b.desc}</div>
+                    <div class="badge-icon">${b.icon}</div>
+                    <span class="badge-name">${b.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderDashboardBadges() {
+            renderBadges('dashboardBadges');
+        }
+
+        function recordLogin() {
+            const history = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+            const today = new Date().toDateString();
+            if (!history.includes(today)) {
+                history.push(today);
+                // Keep last 90 days only
+                if (history.length > 90) history.shift();
+                localStorage.setItem('loginHistory', JSON.stringify(history));
+            }
+        }
+
+        function getLoginStreak() {
+            const history = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+            if (history.length === 0) return 0;
+            let streak = 1;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Check if logged in today
+            if (!history.includes(today.toDateString())) return 0;
+
+            for (let i = 1; i < 365; i++) {
+                const checkDate = new Date(today);
+                checkDate.setDate(checkDate.getDate() - i);
+                if (history.includes(checkDate.toDateString())) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        }
+
         init();
     </script>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel-overlay" id="notifOverlay" onclick="toggleNotifications()"></div>
+    <div class="notification-panel" id="notifPanel">
+        <div class="notification-panel-header">
+            <h3>Notifications</h3>
+            <button class="btn btn-sm" onclick="clearAllNotifications()" style="font-size: 12px;">Clear All</button>
+        </div>
+        <div class="notification-list" id="notifList"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 </body>
 </html>
