@@ -333,6 +333,371 @@
             font-weight: 600;
         }
 
+        /* === LANDING PAGE === */
+        .sidebar-hidden .sidebar { display: none; }
+        .sidebar-hidden .main-content { margin-left: 0; }
+
+        .landing-page {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .landing-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 3rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(44, 26, 14, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .landing-nav .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--accent);
+        }
+        .landing-nav .nav-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .landing-nav .btn-ghost {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .landing-nav .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+        .landing-nav .btn-cta-nav {
+            background: var(--accent);
+            color: var(--text-dark);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .landing-nav .btn-cta-nav:hover { background: #C68B59; }
+
+        .landing-hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 40%, #8B6F47 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .landing-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(212,165,116,0.15) 0%, transparent 60%);
+        }
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(36px, 5vw, 64px);
+            color: white;
+            margin-bottom: 1.5rem;
+            line-height: 1.15;
+            max-width: 700px;
+            position: relative;
+        }
+        .hero-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: rgba(255,255,255,0.8);
+            max-width: 560px;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+        }
+        .btn-hero-primary {
+            padding: 14px 32px;
+            background: var(--accent);
+            color: var(--text-dark);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(212,165,116,0.4);
+        }
+        .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,165,116,0.5); }
+        .btn-hero-secondary {
+            padding: 14px 32px;
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-hero-secondary:hover { border-color: white; background: rgba(255,255,255,0.1); }
+
+        .landing-section {
+            padding: 5rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .landing-section.dark {
+            background: var(--primary-dark);
+            max-width: 100%;
+            padding: 5rem 2rem;
+        }
+        .landing-section.dark .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .landing-section.cream {
+            background: #FFF8F0;
+            max-width: 100%;
+            padding: 5rem 2rem;
+        }
+        .landing-section.cream .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .section-title.light { color: white; }
+        .section-subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 3rem;
+            font-size: 16px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .section-subtitle.light { color: rgba(255,255,255,0.7); }
+
+        .problem-text {
+            font-size: 18px;
+            line-height: 1.8;
+            color: var(--text-dark);
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 1rem;
+        }
+        .problem-highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .step-card {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--text-dark);
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .step-card h3 { color: white; margin-bottom: 0.5rem; }
+        .step-card p { color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.6; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 { color: var(--primary); margin-bottom: 0.5rem; }
+        .feature-card p { color: #666; font-size: 14px; line-height: 1.6; }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        .testimonial-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        .testimonial-card::before {
+            content: '"';
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            color: var(--accent);
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            line-height: 1;
+        }
+        .testimonial-text {
+            font-style: italic;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+            padding-top: 1rem;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .testimonial-name { font-weight: 600; font-size: 14px; color: var(--primary); }
+        .testimonial-role { font-size: 12px; color: #999; }
+
+        .landing-final-cta {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+        .landing-final-cta h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .landing-final-cta p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 2rem;
+            font-size: 16px;
+        }
+
+        .landing-footer {
+            background: var(--primary-dark);
+            padding: 2rem;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+
+        /* === LINKEDIN-STYLE PROFILE === */
+        .profile-banner {
+            height: 180px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #8B6F47 100%);
+            border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+        .profile-main-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .profile-main-info {
+            padding: 0 2rem 2rem;
+            position: relative;
+        }
+        .profile-main-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background: var(--primary);
+            color: white;
+            font-size: 40px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -60px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .profile-main-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-headline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .profile-section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        .profile-section-card h3 {
+            margin-bottom: 1rem;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .steps-grid, .features-grid, .testimonials-grid { grid-template-columns: 1fr; }
+            .landing-nav { padding: 1rem 1.5rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+        }
+
         /* Grid */
         .grid {
             display: grid;
@@ -1750,8 +2115,143 @@
 
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
+
+            <!-- Landing Page -->
+            <div id="landingView" class="content-view">
+                <div class="landing-page">
+                    <!-- Nav -->
+                    <div class="landing-nav">
+                        <span class="logo-text">&#9749; <strong>Coffee</strong>Chat</span>
+                        <div class="nav-buttons">
+                            <button class="btn-ghost" onclick="showLandingLogin()">Sign In</button>
+                            <button class="btn-cta-nav" onclick="showLandingSignup()">Get Started</button>
+                        </div>
+                    </div>
+
+                    <!-- Hero -->
+                    <div class="landing-hero">
+                        <h1 class="hero-title">Your network shouldn't feel like work</h1>
+                        <p class="hero-subtitle">Find people who share your curiosity. Schedule real conversations. Build relationships that actually matter.</p>
+                        <div class="hero-buttons">
+                            <button class="btn-hero-primary" onclick="showLandingSignup()">Start Connecting</button>
+                            <button class="btn-hero-secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+                        </div>
+                    </div>
+
+                    <!-- Problem -->
+                    <div class="landing-section">
+                        <p class="problem-text">
+                            Networking events leave you with a stack of business cards you'll never use. LinkedIn messages disappear into the void.
+                        </p>
+                        <p class="problem-text">
+                            <span class="problem-highlight">Coffee Chat is different.</span> We connect you with professionals who share your interests, your goals, and your curiosity &mdash; then make it easy to have <em>real</em> conversations.
+                        </p>
+                    </div>
+
+                    <!-- How It Works -->
+                    <div class="landing-section dark" id="howItWorks">
+                        <div class="section-inner">
+                            <h2 class="section-title light">How It Works</h2>
+                            <p class="section-subtitle light">Three simple steps to meaningful connections</p>
+                            <div class="steps-grid">
+                                <div class="step-card">
+                                    <div class="step-number">1</div>
+                                    <h3>Create Your Profile</h3>
+                                    <p>Share your interests, goals, and what you're passionate about. Our smart matching uses this to find your people.</p>
+                                </div>
+                                <div class="step-card">
+                                    <div class="step-number">2</div>
+                                    <h3>Discover &amp; Connect</h3>
+                                    <p>Browse recommended professionals matched to your interests. Send connection requests to people who inspire you.</p>
+                                </div>
+                                <div class="step-card">
+                                    <div class="step-number">3</div>
+                                    <h3>Schedule Coffee Chats</h3>
+                                    <p>Book a virtual or in-person chat. Use our conversation starters to break the ice and build genuine relationships.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="landing-section cream">
+                        <div class="section-inner">
+                            <h2 class="section-title">What Makes Us Different</h2>
+                            <p class="section-subtitle">Built for real connections, not vanity metrics</p>
+                            <div class="features-grid">
+                                <div class="feature-card">
+                                    <div class="feature-icon">&#129504;</div>
+                                    <h3>Smart Matching</h3>
+                                    <p>Our algorithm matches you based on shared interests, career goals, industry, and mentorship potential &mdash; not just who you already know.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="feature-icon">&#9749;</div>
+                                    <h3>Real Conversations</h3>
+                                    <p>Built-in scheduling, icebreakers, and conversation starters make it easy to go from "nice to meet you" to a genuine connection.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="feature-icon">&#128101;</div>
+                                    <h3>Community Groups</h3>
+                                    <p>Join groups aligned with your industry and passions. Share ideas, ask questions, and find your professional tribe.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonials -->
+                    <div class="landing-section">
+                        <h2 class="section-title">What People Are Saying</h2>
+                        <p class="section-subtitle">Join thousands of professionals building real relationships</p>
+                        <div class="testimonials-grid">
+                            <div class="testimonial-card">
+                                <p class="testimonial-text">I've had more meaningful conversations through Coffee Chat in one month than I did in a year of networking events.</p>
+                                <div class="testimonial-author">
+                                    <div class="testimonial-avatar">AK</div>
+                                    <div>
+                                        <div class="testimonial-name">Aisha Khan</div>
+                                        <div class="testimonial-role">Product Manager at Stripe</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="testimonial-card">
+                                <p class="testimonial-text">The smart matching is incredible. I was connected with a mentor who completely changed my career trajectory.</p>
+                                <div class="testimonial-author">
+                                    <div class="testimonial-avatar">JR</div>
+                                    <div>
+                                        <div class="testimonial-name">James Rivera</div>
+                                        <div class="testimonial-role">Software Engineer at Google</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="testimonial-card">
+                                <p class="testimonial-text">Finally, a networking platform that doesn't feel transactional. The conversation starters alone are worth it.</p>
+                                <div class="testimonial-author">
+                                    <div class="testimonial-avatar">LW</div>
+                                    <div>
+                                        <div class="testimonial-name">Lisa Wong</div>
+                                        <div class="testimonial-role">Head of Design at Shopify</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final CTA -->
+                    <div class="landing-final-cta">
+                        <h2>Ready for coffee?</h2>
+                        <p>Join a community of professionals who believe in real connections.</p>
+                        <button class="btn-hero-primary" onclick="showLandingSignup()">Get Started &mdash; It's Free</button>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="landing-footer">
+                        &copy; 2025 Coffee Chat. Built for genuine professional connections.
+                    </div>
+                </div>
+            </div>
+
             <!-- Auth Screens -->
-            <div id="loginView" class="content-view active">
+            <div id="loginView" class="content-view">
                 <div class="auth-container">
                     <h1>Welcome Back</h1>
                     <p class="auth-subtitle">Connect and grow with professionals in your industry</p>
@@ -1964,6 +2464,11 @@
             <div id="profileDetailView" class="content-view">
                 <button class="btn btn-secondary btn-sm" onclick="switchView('discoverView')" style="margin-bottom: 1.5rem;">← Back</button>
                 <div id="profileDetailContent" class="profile-detail"></div>
+            </div>
+
+            <!-- My Profile View (LinkedIn-style) -->
+            <div id="myProfileView" class="content-view">
+                <div id="myProfileContent"></div>
             </div>
 
             <!-- Modals moved to end of body -->
@@ -2502,6 +3007,19 @@
             }
         ];
 
+        // Map initials to mock user IDs for group member display
+        const initialsToUserId = {
+            'SC': '00000000-0000-0000-0000-000000000002',
+            'MJ': '00000000-0000-0000-0000-000000000003',
+            'ER': '00000000-0000-0000-0000-000000000004',
+            'DK': '00000000-0000-0000-0000-000000000005',
+            'PP': '00000000-0000-0000-0000-000000000006'
+        };
+
+        // Group post interactions (local storage)
+        const groupPostLikes = {};
+        const groupPostComments = {};
+
         // Initialize
         async function init() {
             users = [...mockUsers];
@@ -2519,12 +3037,24 @@
                 await updateDashboard();
                 checkBadgesWithCelebration();
             } else {
-                // No session, show login
-                renderNav();
-                switchView('loginView');
+                // No session, show landing page
+                document.querySelector('.app-container').classList.add('sidebar-hidden');
+                switchView('landingView');
             }
 
             renderCalendar();
+        }
+
+        function showLandingSignup() {
+            document.querySelector('.app-container').classList.remove('sidebar-hidden');
+            renderNav();
+            switchView('signupView');
+        }
+
+        function showLandingLogin() {
+            document.querySelector('.app-container').classList.remove('sidebar-hidden');
+            renderNav();
+            switchView('loginView');
         }
 
         async function loadUserProfile(userId) {
@@ -2664,10 +3194,13 @@
                     resume: profile.resume_url ? { url: profile.resume_url, name: 'Resume.pdf' } : null
                 };
 
+                document.querySelector('.app-container').classList.remove('sidebar-hidden');
+                recordLogin();
                 renderNav();
                 switchView('dashboardView');
                 await updateDashboard();
-                alert('Welcome back!');
+                checkBadgesWithCelebration();
+                showToast('Welcome back!', 'success');
             } catch (error) {
                 console.error('Login error:', error);
                 alert('Login failed: ' + error.message);
@@ -2729,10 +3262,12 @@
                     resume: null
                 };
 
+                document.querySelector('.app-container').classList.remove('sidebar-hidden');
+                recordLogin();
                 renderNav();
                 switchView('dashboardView');
                 await updateDashboard();
-                alert('Account created successfully! Please check your email to verify your account.');
+                showToast('Account created! Check your email to verify.', 'success');
             } catch (error) {
                 console.error('Signup error:', error);
                 alert('Signup failed: ' + error.message);
@@ -2750,7 +3285,8 @@
                 meetings = [];
                 posts = [];
                 events = [];
-                switchView('loginView');
+                document.querySelector('.app-container').classList.add('sidebar-hidden');
+                switchView('landingView');
                 renderNav();
             } catch (error) {
                 console.error('Logout error:', error);
@@ -2766,6 +3302,7 @@
             if (currentUser) {
                 const items = [
                     { id: 'dashboardView', label: '🏠 Dashboard' },
+                    { id: 'myProfileView', label: '👤 My Profile' },
                     { id: 'feedView', label: '📰 Feed' },
                     { id: 'discoverView', label: '🔍 Discover' },
                     { id: 'eventsView', label: '🎉 Events' },
@@ -2796,6 +3333,7 @@
             if (viewId === 'dashboardView') updateDashboard();
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
+            if (viewId === 'myProfileView') renderMyProfile();
 
             if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView' && viewId !== 'groupDetailView') {
                 previousView = viewId;
@@ -3398,36 +3936,87 @@
             const group = mockGroups.find(g => g.id === groupId);
             if (!group) return;
 
+            // Build member cards from initials
+            const memberCards = (group.memberList || []).map(initials => {
+                const userId = initialsToUserId[initials];
+                const user = userId ? users.find(u => u.id === userId) : null;
+                if (!user) return '';
+                const isConnected = connections.find(c =>
+                    (c.user_id === currentUser.id && c.connected_user_id === user.id) ||
+                    (c.connected_user_id === currentUser.id && c.user_id === user.id)
+                );
+                return `
+                    <div class="card compact" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                        <div class="person-avatar" style="width: 44px; height: 44px; font-size: 16px; flex-shrink: 0;">${user.firstName[0]}${user.lastName[0]}</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <strong style="font-size: 14px;">${user.firstName} ${user.lastName}</strong>
+                            <p style="font-size: 12px; color: #999; margin: 0;">${user.role || user.industry}</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                            <button class="btn btn-secondary btn-sm" onclick="viewProfile('${user.id}')" style="font-size: 11px; padding: 4px 10px;">View</button>
+                            ${!isConnected ? `<button class="btn btn-primary btn-sm" onclick="connectUser('${user.id}')" style="font-size: 11px; padding: 4px 10px;">Connect</button>` : `<span style="font-size: 11px; color: var(--success);">&#10003; Connected</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
             const content = document.getElementById('groupDetailContent');
             content.innerHTML = `
                 <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
                     <h1 style="margin-bottom: 0.5rem;">${group.name}</h1>
                     <p style="color: #666; margin-bottom: 0.5rem;">${group.description}</p>
-                    <p style="font-size: 13px; color: #999;">${group.members} members &bull; ${group.industry}</p>
+                    <div class="group-meta">
+                        <span>&#128101; ${group.members} members</span>
+                        <span class="industry-pill">${group.industry}</span>
+                        ${group.lastActivity ? `<span>${getTimeAgo(group.lastActivity)}</span>` : ''}
+                    </div>
                 </div>
 
                 <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
                     <h3 style="margin-bottom: 1rem;">Group Discussion</h3>
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-                        <input type="text" id="groupPostInput" placeholder="Share something with the group..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                        <input type="text" id="groupPostInput" placeholder="Share something with the group..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);" onkeypress="if(event.key==='Enter') postToGroup(${group.id})">
                         <button class="btn btn-primary btn-sm" onclick="postToGroup(${group.id})">Post</button>
                     </div>
                     <div id="groupPosts-${group.id}">
-                        ${(group.posts || []).map(post => `
+                        ${(group.posts || []).map((post, idx) => {
+                            const postId = 'gp-' + group.id + '-' + idx;
+                            const likes = groupPostLikes[postId] || 0;
+                            const comments = groupPostComments[postId] || [];
+                            return `
                             <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                     <strong>${post.author}</strong>
                                     <span style="font-size: 11px; color: #999;">${post.time ? getTimeAgo(post.time) : ''}</span>
                                 </div>
-                                <p style="color: #444;">${post.content}</p>
-                            </div>
-                        `).join('') || '<p style="color: #999;">No posts yet. Start the conversation!</p>'}
+                                <p style="color: #444; margin-bottom: 0.75rem;">${post.content}</p>
+                                <div class="post-actions" style="padding-top: 0.5rem; border-top: 1px solid var(--border);">
+                                    <button class="post-action-btn" onclick="likeGroupPost('${postId}', ${group.id})">&#128077; ${likes} Likes</button>
+                                    <button class="post-action-btn" onclick="toggleGroupComments('${postId}')">&#128172; ${comments.length} Comments</button>
+                                    <button class="post-action-btn" onclick="shareGroupPost('${postId}', \`${post.content.replace(/`/g, "'")}\`)">&#128260; Share</button>
+                                </div>
+                                <div id="gc-${postId}" style="display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+                                    <div id="gc-list-${postId}">
+                                        ${comments.map(c => `
+                                            <div style="padding: 0.5rem; background: var(--bg-light); border-radius: 6px; margin-bottom: 0.5rem;">
+                                                <strong style="font-size: 12px;">${c.author}</strong>
+                                                <p style="font-size: 13px; color: #444; margin: 0;">${c.text}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                        <input type="text" id="gci-${postId}" placeholder="Write a comment..." style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 13px;" onkeypress="if(event.key==='Enter') submitGroupComment('${postId}', ${group.id})">
+                                        <button class="btn btn-primary btn-sm" onclick="submitGroupComment('${postId}', ${group.id})" style="font-size: 12px; padding: 4px 10px;">Post</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        }).join('') || '<p style="color: #999;">No posts yet. Start the conversation!</p>'}
                     </div>
                 </div>
 
                 <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 1rem;">Members</h3>
-                    <p style="font-size: 14px; color: #666;">${group.members} active members in this community</p>
+                    <h3 style="margin-bottom: 1rem;">Members (${(group.memberList || []).length})</h3>
+                    ${memberCards || '<p style="color: #999;">No members to display</p>'}
                 </div>
             `;
 
@@ -3453,6 +4042,43 @@
             input.value = '';
             viewGroup(groupId);
             showToast('Posted to group!', 'success');
+        }
+
+        function likeGroupPost(postId, groupId) {
+            groupPostLikes[postId] = (groupPostLikes[postId] || 0) + 1;
+            viewGroup(groupId);
+        }
+
+        function toggleGroupComments(postId) {
+            const section = document.getElementById('gc-' + postId);
+            if (section) {
+                section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function submitGroupComment(postId, groupId) {
+            const input = document.getElementById('gci-' + postId);
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            if (!groupPostComments[postId]) groupPostComments[postId] = [];
+            groupPostComments[postId].push({
+                author: `${currentUser.firstName} ${currentUser.lastName}`,
+                text: text
+            });
+
+            viewGroup(groupId);
+        }
+
+        function shareGroupPost(postId, content) {
+            if (navigator.share) {
+                navigator.share({ title: 'Coffee Chat Group Post', text: content });
+            } else {
+                navigator.clipboard.writeText(content).then(() => {
+                    showToast('Post copied to clipboard!', 'info');
+                });
+            }
         }
 
         function joinGroup(groupId) {
@@ -4009,17 +4635,43 @@
         async function renderFeed() {
             const feedPosts = document.getElementById('feedPosts');
 
-            if (posts.length === 0) {
+            // Build set of connected user IDs
+            const connectedIds = new Set();
+            connections.forEach(c => {
+                if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
+                if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
+            });
+
+            // Gather all feed posts: from posts array + mock users' embedded posts
+            let allPosts = [...posts];
+            users.forEach(u => {
+                if (connectedIds.has(u.id) && u.posts && u.posts.length > 0) {
+                    u.posts.forEach(p => {
+                        if (!allPosts.find(ep => ep.id === p.id)) {
+                            allPosts.push({ ...p, author_id: u.id, author: `${u.firstName} ${u.lastName}` });
+                        }
+                    });
+                }
+            });
+
+            // Filter: only connections' posts, exclude own
+            const feedItems = allPosts.filter(p => {
+                if (p.author_id === currentUser.id) return false;
+                return connectedIds.has(p.author_id);
+            });
+
+            if (feedItems.length === 0) {
                 feedPosts.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📰</div>
-                        <p>No posts yet. Be the first to share something!</p>
+                        <div class="empty-state-icon">&#128101;</div>
+                        <p>Connect with people to see their posts in your feed!</p>
+                        <button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top: 1rem;">Discover People</button>
                     </div>
                 `;
                 return;
             }
 
-            feedPosts.innerHTML = posts.sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
+            feedPosts.innerHTML = feedItems.sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
                 .map(post => {
                     const author = users.find(u => u.id === post.author_id) || currentUser;
                     const authorName = author ? `${author.firstName} ${author.lastName}` : post.author;
@@ -4464,6 +5116,122 @@
                 console.error('Error deleting availability:', error);
                 alert('Failed to delete availability: ' + error.message);
             }
+        }
+
+        // ============================================
+        // MY PROFILE (LinkedIn-style)
+        // ============================================
+
+        function renderMyProfile() {
+            if (!currentUser) return;
+            const container = document.getElementById('myProfileContent');
+            if (!container) return;
+
+            const { percentage, missing } = getProfileCompletion();
+            const badges = checkBadges();
+            const streak = getLoginStreak();
+
+            const avatarHTML = currentUser.profilePicture
+                ? `<img src="${currentUser.profilePicture}" alt="${currentUser.firstName}">`
+                : `${currentUser.firstName[0]}${currentUser.lastName[0]}`;
+
+            // Gather user's own posts
+            const myPosts = posts.filter(p => p.author_id === currentUser.id);
+
+            container.innerHTML = `
+                <!-- Banner + Main Card -->
+                <div class="profile-main-card">
+                    <div class="profile-banner"></div>
+                    <div class="profile-main-info">
+                        <div class="profile-main-avatar">${avatarHTML}</div>
+                        <div class="profile-headline">
+                            <div>
+                                <h1 style="margin-bottom: 0.25rem; font-size: 28px;">${currentUser.firstName} ${currentUser.lastName}</h1>
+                                ${currentUser.role ? `<p style="font-size: 16px; color: var(--primary); font-weight: 600;">${currentUser.role}${currentUser.company ? ` at ${currentUser.company}` : ''}</p>` : ''}
+                                ${currentUser.location ? `<p style="color: #999; font-size: 14px; margin-top: 0.25rem;">&#128205; ${currentUser.location}</p>` : ''}
+                                <div style="display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem;">
+                                    <span class="industry-pill">${currentUser.industry || 'Not set'}</span>
+                                    <span class="streak-counter">&#128293; ${streak} day streak</span>
+                                    <span style="font-size: 13px; color: #999;">&#128279; ${connections.length} connections</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-accent" onclick="editMyProfile()">&#9998; Edit Profile</button>
+                        </div>
+
+                        <!-- Completion bar -->
+                        ${percentage < 100 ? `
+                            <div style="margin-top: 1.25rem; background: var(--bg-light); border-radius: 8px; padding: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 13px; font-weight: 600; color: var(--primary);">Profile ${percentage}% complete</span>
+                                    <span style="font-size: 12px; color: #999;">Add: ${missing.slice(0, 2).join(', ')}</span>
+                                </div>
+                                <div style="height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${percentage}%; background: linear-gradient(90deg, var(--accent), var(--primary)); border-radius: 3px; transition: width 0.6s ease;"></div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- About -->
+                ${currentUser.bio ? `
+                    <div class="profile-section-card">
+                        <h3>About</h3>
+                        <p style="line-height: 1.7; color: #555;">${currentUser.bio}</p>
+                    </div>
+                ` : ''}
+
+                <!-- Career Goals -->
+                ${currentUser.goals ? `
+                    <div class="profile-section-card">
+                        <h3>Career Goals</h3>
+                        <p style="line-height: 1.7; color: #555;">${currentUser.goals}</p>
+                    </div>
+                ` : ''}
+
+                <!-- Skills & Interests -->
+                <div class="profile-section-card">
+                    <h3>Skills & Interests</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        ${(currentUser.interests || []).map(i => `<span class="tag">${i}</span>`).join('')}
+                        ${(currentUser.hobbies || []).map(h => `<span class="tag" style="background: rgba(212,165,116,0.15); color: var(--primary);">${h}</span>`).join('')}
+                    </div>
+                </div>
+
+                <!-- Resume -->
+                ${currentUser.resume ? `
+                    <div class="profile-section-card">
+                        <h3>Resume</h3>
+                        <a href="${currentUser.resume}" class="resume-link" download style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-light); border-radius: 8px; text-decoration: none; color: var(--text-dark);">
+                            <span style="font-size: 24px;">&#128196;</span>
+                            <div>
+                                <p style="font-weight: 600; margin: 0;">${currentUser.firstName}'s Resume</p>
+                                <p style="font-size: 12px; color: #999; margin: 0;">Click to download</p>
+                            </div>
+                        </a>
+                    </div>
+                ` : ''}
+
+                <!-- Badges -->
+                <div class="profile-section-card">
+                    <h3>Badges</h3>
+                    <div class="badge-grid" id="myProfileBadgesView"></div>
+                </div>
+
+                <!-- My Posts -->
+                <div class="profile-section-card">
+                    <h3>My Posts</h3>
+                    ${myPosts.length > 0 ? myPosts.map(post => `
+                        <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem;">
+                            <p style="color: #444;">${post.content}</p>
+                            <p style="font-size: 12px; color: #999; margin-top: 0.5rem;">${post.date || 'Recently'} &bull; ${post.likes_count || 0} likes</p>
+                        </div>
+                    `).join('') : '<p style="color: #999;">No posts yet. <a href="#" onclick="createPost(); return false;" style="color: var(--primary);">Create your first post!</a></p>'}
+                </div>
+            `;
+
+            // Render badges after HTML is set
+            setTimeout(() => renderBadges('myProfileBadgesView'), 50);
         }
 
         // ============================================
