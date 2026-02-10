@@ -363,6 +363,20 @@
             display: flex;
             gap: 0.75rem;
         }
+        .landing-nav .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .nav-link-landing {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+        .nav-link-landing:hover { color: var(--accent); }
         .landing-nav .btn-ghost {
             background: transparent;
             color: var(--text-light);
@@ -543,6 +557,9 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
         }
+        .features-grid.four-col {
+            grid-template-columns: repeat(4, 1fr);
+        }
         .feature-card {
             background: white;
             border-radius: 16px;
@@ -693,9 +710,13 @@
         }
 
         @media (max-width: 768px) {
-            .steps-grid, .features-grid, .testimonials-grid { grid-template-columns: 1fr; }
-            .landing-nav { padding: 1rem 1.5rem; }
+            .steps-grid, .features-grid, .features-grid.four-col, .testimonials-grid { grid-template-columns: 1fr; }
+            .landing-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+            .landing-nav .nav-links { display: none; }
             .hero-buttons { flex-direction: column; align-items: center; }
+        }
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid.four-col { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* Grid */
@@ -2122,9 +2143,14 @@
                     <!-- Nav -->
                     <div class="landing-nav">
                         <span class="logo-text">&#9749; <strong>Coffee</strong>Chat</span>
+                        <div class="nav-links">
+                            <a class="nav-link-landing" onclick="document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})">About</a>
+                            <a class="nav-link-landing" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">How It Works</a>
+                            <a class="nav-link-landing" onclick="document.getElementById('contactSection').scrollIntoView({behavior:'smooth'})">Contact</a>
+                        </div>
                         <div class="nav-buttons">
                             <button class="btn-ghost" onclick="showLandingLogin()">Sign In</button>
-                            <button class="btn-cta-nav" onclick="showLandingSignup()">Get Started</button>
+                            <button class="btn-cta-nav" onclick="showLandingSignup()">Sign Up</button>
                         </div>
                     </div>
 
@@ -2133,8 +2159,8 @@
                         <h1 class="hero-title">Your network shouldn't feel like work</h1>
                         <p class="hero-subtitle">Find people who share your curiosity. Schedule real conversations. Build relationships that actually matter.</p>
                         <div class="hero-buttons">
-                            <button class="btn-hero-primary" onclick="showLandingSignup()">Start Connecting</button>
-                            <button class="btn-hero-secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+                            <button class="btn-hero-primary" onclick="showLandingSignup()">Get Started</button>
+                            <button class="btn-hero-secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">Start Connecting &#8595;</button>
                         </div>
                     </div>
 
@@ -2146,6 +2172,26 @@
                         <p class="problem-text">
                             <span class="problem-highlight">Coffee Chat is different.</span> We connect you with professionals who share your interests, your goals, and your curiosity &mdash; then make it easy to have <em>real</em> conversations.
                         </p>
+                    </div>
+
+                    <!-- About -->
+                    <div class="landing-section cream" id="aboutSection">
+                        <div class="section-inner">
+                            <h2 class="section-title">The Story Behind Coffee Chat</h2>
+                            <div style="max-width: 680px; margin: 0 auto; text-align: center;">
+                                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">S</div>
+                                <p style="font-size: 17px; line-height: 1.8; color: var(--text-dark); margin-bottom: 1rem;">
+                                    Coffee Chat was built by a 20-year-old college student who was tired of the traditional networking grind. Stiff handshakes at career fairs, cold LinkedIn messages that go nowhere, and events where everyone's just exchanging business cards they'll never look at again.
+                                </p>
+                                <p style="font-size: 17px; line-height: 1.8; color: var(--text-dark); margin-bottom: 1rem;">
+                                    I wanted something different &mdash; a way to build <strong>genuine relationships</strong> with people who share my curiosity, not just my industry. A place where a 30-minute coffee conversation could turn into a mentorship, a friendship, or even a co-founder match.
+                                </p>
+                                <p style="font-size: 17px; line-height: 1.8; color: var(--text-dark);">
+                                    So I built Coffee Chat &mdash; a more human, more efficient way to network. No fluff. Just real people, real conversations, and real connections.
+                                </p>
+                                <p style="font-weight: 600; color: var(--primary); margin-top: 1.5rem; font-size: 16px;">&mdash; Sal, Founder</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- How It Works -->
@@ -2178,21 +2224,26 @@
                         <div class="section-inner">
                             <h2 class="section-title">What Makes Us Different</h2>
                             <p class="section-subtitle">Built for real connections, not vanity metrics</p>
-                            <div class="features-grid">
+                            <div class="features-grid four-col">
                                 <div class="feature-card">
                                     <div class="feature-icon">&#129504;</div>
                                     <h3>Smart Matching</h3>
-                                    <p>Our algorithm matches you based on shared interests, career goals, industry, and mentorship potential &mdash; not just who you already know.</p>
+                                    <p>Matched based on shared interests, career goals, and mentorship potential. Our algorithm pairs you with people who align with where you're headed &mdash; not just who you already know.</p>
                                 </div>
                                 <div class="feature-card">
                                     <div class="feature-icon">&#9749;</div>
                                     <h3>Real Conversations</h3>
-                                    <p>Built-in scheduling, icebreakers, and conversation starters make it easy to go from "nice to meet you" to a genuine connection.</p>
+                                    <p>Every chat comes with tailored icebreakers and conversation starters based on your shared interests. No more awkward small talk &mdash; jump straight into topics you both care about.</p>
                                 </div>
                                 <div class="feature-card">
                                     <div class="feature-icon">&#128101;</div>
                                     <h3>Community Groups</h3>
-                                    <p>Join groups aligned with your industry and passions. Share ideas, ask questions, and find your professional tribe.</p>
+                                    <p>Join groups aligned with your industry and passions. Share ideas, ask questions, and find your professional tribe in a space that feels like a conversation, not a conference.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="feature-icon">&#9200;</div>
+                                    <h3>30-Minute Commitments</h3>
+                                    <p>Skip the 3-hour networking events. Coffee Chat is built around quick, focused 30-minute conversations that fit into your schedule &mdash; whether virtual or at your favorite caf&eacute;.</p>
                                 </div>
                             </div>
                         </div>
@@ -2236,6 +2287,18 @@
                         </div>
                     </div>
 
+                    <!-- Contact -->
+                    <div class="landing-section" id="contactSection">
+                        <h2 class="section-title">Get in Touch</h2>
+                        <p class="section-subtitle">Have questions, feedback, or just want to say hi? We'd love to hear from you.</p>
+                        <div style="text-align: center;">
+                            <div style="display: inline-flex; align-items: center; gap: 0.75rem; background: white; padding: 1.25rem 2rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                                <span style="font-size: 24px;">&#9993;</span>
+                                <a href="mailto:Sal.CoffeeChat@outlook.com" style="color: var(--primary); font-weight: 600; font-size: 16px; text-decoration: none;">Sal.CoffeeChat@outlook.com</a>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Final CTA -->
                     <div class="landing-final-cta">
                         <h2>Ready for coffee?</h2>
@@ -2245,6 +2308,11 @@
 
                     <!-- Footer -->
                     <div class="landing-footer">
+                        <div style="margin-bottom: 0.5rem;">
+                            <a class="nav-link-landing" onclick="document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})" style="margin: 0 0.75rem; font-size: 13px; color: rgba(255,255,255,0.6);">About</a>
+                            <a class="nav-link-landing" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})" style="margin: 0 0.75rem; font-size: 13px; color: rgba(255,255,255,0.6);">How It Works</a>
+                            <a href="mailto:Sal.CoffeeChat@outlook.com" style="margin: 0 0.75rem; font-size: 13px; color: rgba(255,255,255,0.6); text-decoration: none; cursor: pointer;">Contact</a>
+                        </div>
                         &copy; 2025 Coffee Chat. Built for genuine professional connections.
                     </div>
                 </div>
