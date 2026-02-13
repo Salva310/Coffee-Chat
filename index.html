@@ -14,10 +14,11 @@
         }
 
         :root {
-            --primary: #6F4E37;
-            --primary-light: #8B6F47;
+            --primary: #8B5A3C;
+            --primary-light: #A0704F;
             --primary-dark: #3E2723;
             --accent: #D4A574;
+            --accent-light: #F5E6D3;
             --success: #4CAF50;
             --danger: #FF6B6B;
             --bg-dark: #2C1A0E;
@@ -25,7 +26,8 @@
             --text-dark: #3E2723;
             --text-light: #FFF8F0;
             --border: #E8D5C4;
-            --shadow: 0 8px 24px rgba(62, 39, 35, 0.12);
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 24px rgba(139, 90, 60, 0.18);
         }
 
         body {
@@ -373,34 +375,37 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.3s ease;
             text-decoration: none;
+            padding-bottom: 2px;
+            border-bottom: 2px solid transparent;
         }
-        .nav-link-landing:hover { color: var(--accent); }
+        .nav-link-landing:hover { color: var(--accent); border-bottom-color: var(--accent); }
         .landing-nav .btn-ghost {
             background: transparent;
             color: var(--text-light);
             border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 20px;
-            border-radius: 8px;
+            padding: 10px 22px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 500;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
-        .landing-nav .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+        .landing-nav .btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); transform: translateY(-1px); }
         .landing-nav .btn-cta-nav {
-            background: var(--accent);
-            color: var(--text-dark);
+            background: var(--primary);
+            color: white;
             border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
+            padding: 10px 22px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(139, 90, 60, 0.25);
         }
-        .landing-nav .btn-cta-nav:hover { background: #C68B59; }
+        .landing-nav .btn-cta-nav:hover { background: #7A4F35; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139, 90, 60, 0.35); }
 
         .landing-hero {
             min-height: 100vh;
@@ -410,7 +415,7 @@
             align-items: center;
             text-align: center;
             padding: 6rem 2rem 4rem;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 40%, #8B6F47 100%);
+            background: linear-gradient(160deg, #3E2723 0%, var(--primary) 35%, #A0704F 65%, #C49A6C 100%);
             position: relative;
             overflow: hidden;
         }
@@ -418,22 +423,25 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse at 30% 50%, rgba(212,165,116,0.15) 0%, transparent 60%);
+            background:
+                radial-gradient(ellipse at 20% 40%, rgba(212,165,116,0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(245,230,211,0.1) 0%, transparent 50%);
         }
         .hero-title {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(36px, 5vw, 64px);
+            font-size: clamp(40px, 6vw, 64px);
             color: white;
             margin-bottom: 1.5rem;
-            line-height: 1.15;
-            max-width: 700px;
+            line-height: 1.1;
+            max-width: 750px;
             position: relative;
+            letter-spacing: -0.5px;
         }
         .hero-subtitle {
             font-size: clamp(16px, 2vw, 20px);
-            color: rgba(255,255,255,0.8);
-            max-width: 560px;
-            line-height: 1.6;
+            color: rgba(255,255,255,0.85);
+            max-width: 580px;
+            line-height: 1.7;
             margin-bottom: 2.5rem;
             position: relative;
         }
@@ -443,49 +451,57 @@
             position: relative;
         }
         .btn-hero-primary {
-            padding: 14px 32px;
-            background: var(--accent);
-            color: var(--text-dark);
+            padding: 16px 36px;
+            background: var(--primary);
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(212,165,116,0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(139, 90, 60, 0.35);
+            letter-spacing: 0.3px;
+            position: relative;
         }
-        .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,165,116,0.5); }
+        .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(139, 90, 60, 0.45); background: #7A4F35; }
         .btn-hero-secondary {
-            padding: 14px 32px;
+            padding: 16px 36px;
             background: transparent;
             color: white;
             border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
-        .btn-hero-secondary:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        .btn-hero-secondary:hover { border-color: white; background: rgba(255,255,255,0.12); transform: translateY(-2px); }
 
         .landing-section {
             padding: 5rem 2rem;
+            max-width: 100%;
+            background: white;
+        }
+        .landing-section .section-inner,
+        .landing-section > .section-title,
+        .landing-section > .section-subtitle,
+        .landing-section > .problem-text,
+        .landing-section > .testimonials-grid,
+        .landing-section > div[style] {
             max-width: 1100px;
-            margin: 0 auto;
+            margin-left: auto;
+            margin-right: auto;
         }
         .landing-section.dark {
             background: var(--primary-dark);
-            max-width: 100%;
-            padding: 5rem 2rem;
         }
         .landing-section.dark .section-inner {
             max-width: 1100px;
             margin: 0 auto;
         }
         .landing-section.cream {
-            background: #FFF8F0;
-            max-width: 100%;
-            padding: 5rem 2rem;
+            background: var(--bg-light);
         }
         .landing-section.cream .section-inner {
             max-width: 1100px;
@@ -493,30 +509,32 @@
         }
         .section-title {
             font-family: 'Playfair Display', serif;
-            font-size: 32px;
+            font-size: 36px;
             color: var(--primary);
             text-align: center;
             margin-bottom: 1rem;
+            letter-spacing: -0.3px;
         }
         .section-title.light { color: white; }
         .section-subtitle {
             text-align: center;
-            color: #999;
+            color: #888;
             margin-bottom: 3rem;
-            font-size: 16px;
+            font-size: 17px;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            line-height: 1.6;
         }
         .section-subtitle.light { color: rgba(255,255,255,0.7); }
 
         .problem-text {
-            font-size: 18px;
+            font-size: 19px;
             line-height: 1.8;
-            color: var(--text-dark);
+            color: #555;
             text-align: center;
             max-width: 700px;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.25rem;
         }
         .problem-highlight {
             color: var(--primary);
@@ -531,14 +549,16 @@
         }
         .step-card {
             text-align: center;
-            padding: 2rem 1.5rem;
-            background: rgba(255,255,255,0.05);
+            padding: 2.5rem 1.5rem;
+            background: rgba(255,255,255,0.06);
             border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
         }
+        .step-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-4px); }
         .step-number {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             background: var(--accent);
             color: var(--text-dark);
@@ -547,10 +567,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 4px 12px rgba(212,165,116,0.3);
         }
-        .step-card h3 { color: white; margin-bottom: 0.5rem; }
-        .step-card p { color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.6; }
+        .step-card h3 { color: white; margin-bottom: 0.75rem; font-size: 18px; }
+        .step-card p { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.7; }
 
         .features-grid {
             display: grid;
@@ -563,18 +584,28 @@
         .feature-card {
             background: white;
             border-radius: 16px;
-            padding: 2rem;
+            padding: 2.5rem 2rem;
             text-align: center;
             border: 1px solid var(--border);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
-        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
         .feature-icon {
-            font-size: 40px;
-            margin-bottom: 1rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 4px 12px rgba(139, 90, 60, 0.2);
         }
-        .feature-card h3 { color: var(--primary); margin-bottom: 0.5rem; }
-        .feature-card p { color: #666; font-size: 14px; line-height: 1.6; }
+        .feature-card h3 { color: var(--primary); margin-bottom: 0.75rem; font-size: 17px; }
+        .feature-card p { color: #666; font-size: 14px; line-height: 1.7; }
 
         .testimonials-grid {
             display: grid;
@@ -627,28 +658,44 @@
 
         .landing-final-cta {
             text-align: center;
-            padding: 5rem 2rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 6rem 2rem;
+            background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 50%, #A0704F 100%);
+            position: relative;
+        }
+        .landing-final-cta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(212,165,116,0.12) 0%, transparent 60%);
         }
         .landing-final-cta h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 36px;
+            font-size: 40px;
             color: white;
             margin-bottom: 1rem;
+            position: relative;
+            letter-spacing: -0.3px;
         }
         .landing-final-cta p {
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 2rem;
-            font-size: 16px;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 2.5rem;
+            font-size: 17px;
+            position: relative;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
         }
 
         .landing-footer {
             background: var(--primary-dark);
-            padding: 2rem;
+            padding: 2.5rem 2rem;
             text-align: center;
             color: rgba(255,255,255,0.5);
             font-size: 13px;
         }
+        .landing-footer a { transition: color 0.3s ease; }
+        .landing-footer a:hover { color: var(--accent) !important; }
 
         /* === LINKEDIN-STYLE PROFILE === */
         .profile-banner {
@@ -2273,7 +2320,7 @@
                     </div>
 
                     <!-- Contact -->
-                    <div class="landing-section" id="contactSection">
+                    <div class="landing-section cream" id="contactSection">
                         <h2 class="section-title">Get in Touch</h2>
                         <p class="section-subtitle">Have feedback? Want to be a campus ambassador at your school? Reach out.</p>
                         <div style="text-align: center;">
