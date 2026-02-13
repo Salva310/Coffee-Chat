@@ -410,11 +410,9 @@
         .landing-hero {
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 6rem 2rem 4rem;
+            padding: 6rem 4rem 4rem;
             background: linear-gradient(160deg, #3E2723 0%, var(--primary) 35%, #A0704F 65%, #C49A6C 100%);
             position: relative;
             overflow: hidden;
@@ -427,28 +425,114 @@
                 radial-gradient(ellipse at 20% 40%, rgba(212,165,116,0.2) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 60%, rgba(245,230,211,0.1) 0%, transparent 50%);
         }
+        .hero-content {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            max-width: 1300px;
+            width: 100%;
+            position: relative;
+        }
+        .hero-text {
+            flex: 1;
+        }
+        .hero-visual {
+            flex: 0 0 420px;
+            position: relative;
+        }
+        .hero-mockup {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transform: perspective(800px) rotateY(-5deg);
+            transition: transform 0.5s ease;
+        }
+        .hero-mockup:hover { transform: perspective(800px) rotateY(0deg); }
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .mockup-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+        }
+        .mockup-match {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: var(--bg-light);
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .mockup-match:hover { background: var(--accent-light); }
+        .mockup-match-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+        .mockup-match-info { font-size: 12px; color: #555; line-height: 1.4; }
+        .mockup-match-info strong { color: var(--text-dark); font-size: 13px; }
+        .mockup-match-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--accent-light);
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .mockup-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-top: 0.5rem;
+            cursor: default;
+        }
         .hero-title {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(40px, 6vw, 64px);
+            font-size: clamp(40px, 5vw, 60px);
             color: white;
             margin-bottom: 1.5rem;
             line-height: 1.1;
-            max-width: 850px;
-            position: relative;
             letter-spacing: -0.5px;
         }
         .hero-subtitle {
-            font-size: clamp(16px, 2vw, 20px);
+            font-size: clamp(16px, 1.8vw, 19px);
             color: rgba(255,255,255,0.85);
-            max-width: 650px;
+            max-width: 520px;
             line-height: 1.7;
             margin-bottom: 2.5rem;
-            position: relative;
         }
         .hero-buttons {
             display: flex;
             gap: 1rem;
-            position: relative;
         }
         .btn-hero-primary {
             padding: 16px 36px;
@@ -592,18 +676,20 @@
         }
         .feature-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
         .feature-icon {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: var(--primary);
             color: white;
-            font-size: 28px;
+            font-size: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.25rem;
-            box-shadow: 0 4px 12px rgba(139, 90, 60, 0.2);
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 6px 20px rgba(139, 90, 60, 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+        .feature-card:hover .feature-icon { transform: scale(1.1); box-shadow: 0 8px 24px rgba(139, 90, 60, 0.35); }
         .feature-card h3 { color: var(--primary); margin-bottom: 0.75rem; font-size: 17px; }
         .feature-card p { color: #666; font-size: 14px; line-height: 1.7; }
 
@@ -760,12 +846,20 @@
             .steps-grid, .features-grid, .features-grid.four-col, .testimonials-grid { grid-template-columns: 1fr; }
             .landing-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
             .landing-nav .nav-links { display: none; }
+            .hero-content { flex-direction: column; text-align: center; gap: 2rem; }
+            .hero-visual { flex: 0 0 auto; width: 100%; max-width: 340px; }
+            .hero-mockup { transform: none; }
+            .hero-mockup:hover { transform: none; }
+            .hero-subtitle { max-width: 100%; }
             .hero-buttons { flex-direction: column; align-items: center; }
+            .landing-hero { padding: 6rem 1.5rem 3rem; }
             .landing-section { padding: 3rem 1.5rem; }
         }
         @media (max-width: 1024px) and (min-width: 769px) {
             .features-grid.four-col { grid-template-columns: repeat(2, 1fr); }
             .landing-section { padding: 4rem 2rem; }
+            .hero-visual { flex: 0 0 320px; }
+            .hero-content { gap: 2rem; }
         }
 
         /* Grid */
@@ -2205,11 +2299,51 @@
 
                     <!-- Hero -->
                     <div class="landing-hero">
-                        <h1 class="hero-title">Networking in college shouldn't feel impossible</h1>
-                        <p class="hero-subtitle">Meet students and alumni who actually want to help. Schedule real conversations. Build relationships that lead to referrals, mentors, and opportunities.</p>
-                        <div class="hero-buttons">
-                            <button class="btn-hero-primary" onclick="showLandingSignup()">Join the Founding Cohort</button>
-                            <button class="btn-hero-secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">See How It Works &#8595;</button>
+                        <div class="hero-content">
+                            <div class="hero-text">
+                                <h1 class="hero-title">Networking in college shouldn't feel impossible</h1>
+                                <p class="hero-subtitle">Meet students and alumni who actually want to help. Schedule real conversations. Build relationships that lead to referrals, mentors, and opportunities.</p>
+                                <div class="hero-buttons">
+                                    <button class="btn-hero-primary" onclick="showLandingSignup()">Join the Founding Cohort</button>
+                                    <button class="btn-hero-secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">See How It Works &#8595;</button>
+                                </div>
+                            </div>
+                            <div class="hero-visual">
+                                <div class="hero-mockup">
+                                    <div class="mockup-header">
+                                        <div style="font-size: 20px;">&#9749;</div>
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 14px; color: var(--primary);">Your Matches</div>
+                                            <div style="font-size: 11px; color: #999;">3 new people to meet</div>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-match">
+                                        <div class="mockup-match-avatar" style="background: #8B5A3C;">SC</div>
+                                        <div class="mockup-match-info">
+                                            <strong>Sarah Chen</strong><br>
+                                            CS Junior &middot; Stanford<br>
+                                            <span class="mockup-match-tag">&#129504; 92% Match</span>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-match">
+                                        <div class="mockup-match-avatar" style="background: #A0704F;">MJ</div>
+                                        <div class="mockup-match-info">
+                                            <strong>Marcus Johnson</strong><br>
+                                            Finance Senior &middot; UMich<br>
+                                            <span class="mockup-match-tag">&#127891; Same goals</span>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-match">
+                                        <div class="mockup-match-avatar" style="background: #C49A6C;">ER</div>
+                                        <div class="mockup-match-info">
+                                            <strong>Elena Rodriguez</strong><br>
+                                            Pre-Med Sophomore &middot; UCLA<br>
+                                            <span class="mockup-match-tag">&#9749; Wants to chat</span>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-btn">Schedule a Coffee Chat</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2228,7 +2362,7 @@
                         <div class="section-inner">
                             <h2 class="section-title">The Story Behind Coffee Chat</h2>
                             <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-                                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">S</div>
+                                <div style="width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, #A0704F 100%); color: white; font-size: 40px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 8px 24px rgba(139, 90, 60, 0.25); border: 4px solid white;">S</div>
                                 <p style="font-size: 17px; line-height: 1.8; color: var(--text-dark); margin-bottom: 1rem;">
                                     Coffee Chat was built by a 20-year-old college student who was tired of the traditional networking grind. Stiff handshakes at career fairs, cold LinkedIn messages that go nowhere, and events where everyone's just exchanging business cards they'll never look at again.
                                 </p>
@@ -2459,6 +2593,32 @@
             <div id="dashboardView" class="content-view">
                 <h1>Welcome, <span id="userName"></span>!</h1>
                 <p style="color: #999; margin-bottom: 1.5rem;">Build genuine connections over real conversations</p>
+
+                <!-- Welcome Empty State -->
+                <div id="welcomeEmptyState" style="display: none; background: white; border-radius: 16px; padding: 2.5rem; border: 1px solid var(--border); margin-bottom: 2rem; text-align: center; box-shadow: var(--shadow);">
+                    <div style="font-size: 48px; margin-bottom: 1rem;">&#9749;</div>
+                    <h2 style="font-size: 24px; margin-bottom: 0.5rem; color: var(--primary);">Welcome to Coffee Chat!</h2>
+                    <p style="color: #888; margin-bottom: 2rem; max-width: 460px; margin-left: auto; margin-right: auto;">You're part of the founding cohort. Let's get you set up so you can start making real connections.</p>
+                    <div style="max-width: 360px; margin: 0 auto; text-align: left;">
+                        <div id="onboardStep1" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--bg-light); cursor: pointer;" onclick="editMyProfile()">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">1</span>
+                            <div><strong style="font-size: 14px;">Complete your profile</strong><br><span style="font-size: 12px; color: #999;">Takes about 5 minutes</span></div>
+                        </div>
+                        <div id="onboardStep2" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--bg-light); cursor: pointer;" onclick="switchView('discoverView')">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">2</span>
+                            <div><strong style="font-size: 14px;">Discover your first connection</strong><br><span style="font-size: 12px; color: #999;">Browse students who share your interests</span></div>
+                        </div>
+                        <div id="onboardStep3" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--bg-light); cursor: pointer;" onclick="switchView('groupsView')">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">3</span>
+                            <div><strong style="font-size: 14px;">Join a community group</strong><br><span style="font-size: 12px; color: #999;">Find your people by major or interest</span></div>
+                        </div>
+                        <div id="onboardStep4" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--bg-light); cursor: pointer;" onclick="switchView('scheduleView')">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">4</span>
+                            <div><strong style="font-size: 14px;">Schedule your first coffee chat</strong><br><span style="font-size: 12px; color: #999;">15-30 min, virtual or in-person</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="editMyProfile()" style="margin-top: 1.5rem; padding: 12px 32px;">Complete Your Profile</button>
+                </div>
 
                 <!-- Profile Completion Card -->
                 <div class="completion-card" id="completionCard">
@@ -3480,6 +3640,13 @@
         // Dashboard
         function updateDashboard() {
             document.getElementById('userName').textContent = currentUser.firstName;
+
+            // Show welcome state if user has no activity
+            const totalActivity = connections.length + groups.filter(g => g.userJoined).length + meetings.filter(m => m.status !== 'completed').length;
+            const welcomeEl = document.getElementById('welcomeEmptyState');
+            if (welcomeEl) {
+                welcomeEl.style.display = totalActivity === 0 ? 'block' : 'none';
+            }
 
             // Animated counters
             animateCounter('statConnections', connections.length);
