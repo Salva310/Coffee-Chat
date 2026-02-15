@@ -3054,26 +3054,6 @@
                 <div id="feedPosts"></div>
             </div>
 
-            <!-- Events View -->
-            <div id="eventsView" class="content-view">
-                <h1>Events</h1>
-                <p style="color: #999; margin-bottom: 1.5rem;">Discover and create networking events</p>
-
-                <button class="btn btn-primary" onclick="createEvent()" style="margin-bottom: 2rem;">🎉 Create Event</button>
-
-                <div class="search-bar">
-                    <input type="text" id="searchEvents" placeholder="Search events..." onkeyup="filterEvents()">
-                    <select id="filterEventType" onchange="filterEvents()">
-                        <option value="">All Types</option>
-                        <option value="virtual">Virtual</option>
-                        <option value="in-person">In-Person</option>
-                        <option value="hybrid">Hybrid</option>
-                    </select>
-                </div>
-
-                <div id="eventsList" class="grid"></div>
-            </div>
-
             <!-- Availability View -->
             <div id="availabilityView" class="content-view">
                 <h1>Set Your Availability</h1>
@@ -3219,51 +3199,6 @@
         </div>
     </div>
 
-    <div id="createEventModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 style="margin: 0;">Create Event</h2>
-                <button class="modal-close" onclick="closeModal('createEventModal')">×</button>
-            </div>
-            <div class="form-group">
-                <label>Event Title</label>
-                <input type="text" id="eventTitle" placeholder="e.g., Coffee Chat Networking Mixer">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="eventDescription" placeholder="Tell people what this event is about..." rows="4"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Event Type</label>
-                <select id="eventType">
-                    <option value="virtual">Virtual</option>
-                    <option value="in-person">In-Person</option>
-                    <option value="hybrid">Hybrid</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Location / Meeting Link</label>
-                <input type="text" id="eventLocation" placeholder="Address or Zoom link">
-            </div>
-            <div class="form-group">
-                <label>Start Date & Time</label>
-                <input type="datetime-local" id="eventStartTime">
-            </div>
-            <div class="form-group">
-                <label>End Date & Time</label>
-                <input type="datetime-local" id="eventEndTime">
-            </div>
-            <div class="form-group">
-                <label>Max Attendees (optional)</label>
-                <input type="number" id="eventMaxAttendees" placeholder="Leave blank for unlimited">
-            </div>
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn btn-secondary" onclick="closeModal('createEventModal')" style="flex: 1;">Cancel</button>
-                <button class="btn btn-primary" onclick="publishEvent()" style="flex: 1;">Create Event</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Supabase Configuration
         const SUPABASE_URL = 'https://vmrmkkngjlicuvrpejxx.supabase.co';
@@ -3281,7 +3216,6 @@
         let meetings = [];
         let connections = [];
         let posts = [];
-        let events = [];
         let selectedConversation = null;
         let selectedPerson = null;
         let previousView = 'dashboardView';
@@ -3538,18 +3472,6 @@
 
                 posts = postsData || [];
 
-                // Load events
-                const { data: eventsData } = await supabaseClient
-                    .from('events')
-                    .select('*, event_rsvps(user_id)')
-                    .order('start_time', { ascending: true });
-
-                events = (eventsData || []).map(event => ({
-                    ...event,
-                    attendees: event.event_rsvps ? event.event_rsvps.map(r => r.user_id) : [],
-                    creator_name: event.creator_id // Will be populated from profiles
-                }));
-
                 // Load meetings
                 const { data: meetingsData } = await supabaseClient
                     .from('meetings')
@@ -3716,7 +3638,6 @@
                 messages = [];
                 meetings = [];
                 posts = [];
-                events = [];
                 document.querySelector('.app-container').classList.add('sidebar-hidden');
                 switchView('landingView');
                 renderNav();
@@ -3737,7 +3658,6 @@
                     { id: 'myProfileView', label: '👤 My Profile' },
                     { id: 'feedView', label: '📰 Feed' },
                     { id: 'discoverView', label: '🔍 Discover' },
-                    { id: 'eventsView', label: '🎉 Events' },
                     { id: 'groupsView', label: '👥 Communities' },
                     { id: 'calendarView', label: '📅 Calendar' },
                     { id: 'messagesView', label: '💬 Messages' }
@@ -3759,7 +3679,6 @@
 
             if (viewId === 'discoverView') renderDiscovery();
             if (viewId === 'feedView') renderFeed();
-            if (viewId === 'eventsView') renderEvents();
             if (viewId === 'groupsView') renderGroups();
             if (viewId === 'messagesView') renderMessages();
             if (viewId === 'dashboardView') updateDashboard();
@@ -5146,190 +5065,6 @@
                         </div>
                     `;
                 }).join('');
-        }
-
-        // ===== EVENTS FUNCTIONS =====
-        function createEvent() {
-            openModal('createEventModal');
-        }
-
-        async function publishEvent() {
-            if (!currentUser) {
-                alert('Please log in to create an event');
-                return;
-            }
-
-            const title = document.getElementById('eventTitle').value.trim();
-            const description = document.getElementById('eventDescription').value.trim();
-            const eventType = document.getElementById('eventType').value;
-            const location = document.getElementById('eventLocation').value.trim();
-            const startTime = document.getElementById('eventStartTime').value;
-            const endTime = document.getElementById('eventEndTime').value;
-            const maxAttendees = document.getElementById('eventMaxAttendees').value;
-
-            if (!title || !description || !startTime || !endTime) {
-                alert('Please fill in all required fields');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('events')
-                    .insert([{
-                        creator_id: currentUser.id,
-                        title,
-                        description,
-                        event_type: eventType,
-                        location,
-                        start_time: startTime,
-                        end_time: endTime,
-                        max_attendees: maxAttendees || null
-                    }])
-                    .select()
-                    .single();
-
-                if (error) throw error;
-
-                // Add to local events array
-                events.push({
-                    ...data,
-                    creator_name: `${currentUser.firstName} ${currentUser.lastName}`,
-                    attendees: []
-                });
-
-                // Clear form
-                document.getElementById('eventTitle').value = '';
-                document.getElementById('eventDescription').value = '';
-                document.getElementById('eventLocation').value = '';
-                document.getElementById('eventStartTime').value = '';
-                document.getElementById('eventEndTime').value = '';
-                document.getElementById('eventMaxAttendees').value = '';
-
-                closeModal('createEventModal');
-                await renderEvents();
-                alert('Event created successfully!');
-            } catch (error) {
-                console.error('Error creating event:', error);
-                alert('Failed to create event: ' + error.message);
-            }
-        }
-
-        async function renderEvents() {
-            const eventsList = document.getElementById('eventsList');
-
-            if (events.length === 0) {
-                eventsList.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <div class="empty-state-icon">🎉</div>
-                        <p>No events yet. Create one to get started!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const searchTerm = document.getElementById('searchEvents')?.value.toLowerCase() || '';
-            const filterType = document.getElementById('filterEventType')?.value || '';
-
-            const filteredEvents = events.filter(event => {
-                const matchesSearch = event.title.toLowerCase().includes(searchTerm) ||
-                                    event.description.toLowerCase().includes(searchTerm);
-                const matchesType = !filterType || event.event_type === filterType;
-                return matchesSearch && matchesType;
-            });
-
-            eventsList.innerHTML = filteredEvents.map(event => {
-                const startDate = new Date(event.start_time);
-                const isUserAttending = event.attendees && event.attendees.includes(currentUser.id);
-                const isFull = event.max_attendees && event.attendees && event.attendees.length >= event.max_attendees;
-
-                return `
-                    <div class="card">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                            <span class="tag">${event.event_type}</span>
-                            <span style="font-size: 12px; color: #999;">${event.attendees ? event.attendees.length : 0} attending</span>
-                        </div>
-                        <h3>${event.title}</h3>
-                        <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                        <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">📍 ${event.location || 'TBD'}</p>
-                        <p style="font-size: 13px; color: #666; margin: 1rem 0;">${event.description}</p>
-                        <p style="font-size: 12px; color: #999; margin-bottom: 1rem;">Hosted by ${event.creator_name}</p>
-                        ${isUserAttending ?
-                            `<button class="btn btn-secondary btn-sm" onclick="unRSVPEvent('${event.id}')" style="width: 100%;">Cancel RSVP</button>` :
-                            isFull ?
-                            `<button class="btn btn-sm" disabled style="width: 100%; background: #ccc;">Event Full</button>` :
-                            `<button class="btn btn-primary btn-sm" onclick="rsvpEvent('${event.id}')" style="width: 100%;">RSVP</button>`
-                        }
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterEvents() {
-            renderEvents();
-        }
-
-        async function rsvpEvent(eventId) {
-            if (!currentUser) {
-                alert('Please log in to RSVP');
-                return;
-            }
-
-            try {
-                const event = events.find(e => e.id === eventId);
-                if (event.max_attendees && event.attendees && event.attendees.length >= event.max_attendees) {
-                    alert('Event is full!');
-                    return;
-                }
-
-                const { error } = await supabaseClient
-                    .from('event_rsvps')
-                    .insert([{
-                        event_id: eventId,
-                        user_id: currentUser.id,
-                        status: 'going'
-                    }]);
-
-                if (error) throw error;
-
-                // Update local events array
-                const localEvent = events.find(e => e.id === eventId);
-                if (localEvent) {
-                    if (!localEvent.attendees) localEvent.attendees = [];
-                    localEvent.attendees.push(currentUser.id);
-                }
-
-                await renderEvents();
-                alert('RSVP confirmed!');
-            } catch (error) {
-                console.error('Error RSVPing to event:', error);
-                alert('Failed to RSVP: ' + error.message);
-            }
-        }
-
-        async function unRSVPEvent(eventId) {
-            if (!currentUser) return;
-
-            try {
-                const { error } = await supabaseClient
-                    .from('event_rsvps')
-                    .delete()
-                    .eq('event_id', eventId)
-                    .eq('user_id', currentUser.id);
-
-                if (error) throw error;
-
-                // Update local events array
-                const event = events.find(e => e.id === eventId);
-                if (event && event.attendees) {
-                    event.attendees = event.attendees.filter(id => id !== currentUser.id);
-                }
-
-                await renderEvents();
-                alert('RSVP cancelled');
-            } catch (error) {
-                console.error('Error cancelling RSVP:', error);
-                alert('Failed to cancel RSVP: ' + error.message);
-            }
         }
 
         // ===== SMART RECOMMENDATIONS =====
