@@ -55,6 +55,8 @@
             overflow-y: auto;
             box-shadow: var(--shadow);
             z-index: 100;
+            display: flex;
+            flex-direction: column;
         }
 
         .logo {
@@ -111,6 +113,8 @@
             transition: all 0.3s ease;
             font-weight: 500;
             font-size: 14px;
+            margin-top: 1.5rem;
+            flex-shrink: 0;
         }
 
         .logout-btn:hover {
@@ -3599,7 +3603,7 @@
 
             <!-- Profile Detail View -->
             <div id="profileDetailView" class="content-view">
-                <button class="btn btn-secondary btn-sm" onclick="switchView('discoverView')" style="margin-bottom: 1.5rem;">← Back</button>
+                <button class="btn btn-secondary btn-sm" onclick="goBack()" style="margin-bottom: 1.5rem;">← Back</button>
                 <div id="profileDetailContent" class="profile-detail"></div>
             </div>
 
@@ -4583,9 +4587,9 @@
                     const roleLine = [u.role, u.industry].filter(Boolean).join(' · ');
                     return `
                         <div class="connection-card">
-                            <div class="connection-card-avatar">${initials}</div>
+                            <div class="connection-card-avatar" onclick="viewProfile('${u.id}')" style="cursor:pointer;" title="View profile">${initials}</div>
                             <div class="connection-card-info">
-                                <div class="connection-card-name">${u.firstName} ${u.lastName}</div>
+                                <div class="connection-card-name" onclick="viewProfile('${u.id}')" style="cursor:pointer;">${u.firstName} ${u.lastName}</div>
                                 ${roleLine ? `<div class="connection-card-role">${roleLine}</div>` : ''}
                             </div>
                             <div class="connection-card-actions">
@@ -5036,9 +5040,8 @@
         function viewProfile(userId) {
             const user = users.find(u => u.id === userId);
             if (!user) return;
-            
+
             selectedPerson = user;
-            previousView = 'discoverView';
 
             const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === userId || c.connected_user_id === currentUser.id && c.user_id === userId);
             const isOwnProfile = currentUser && currentUser.id === userId;
@@ -6270,7 +6273,7 @@
                     return `
                         <div class="post-card">
                             <div class="post-header">
-                                <div style="display:flex;align-items:center;gap:1rem;">
+                                <div style="display:flex;align-items:center;gap:1rem;cursor:pointer;" onclick="viewProfile('${post.author_id}')">
                                     <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${avatarContent}</div>
                                     <div><strong>${authorName}</strong><p class="post-meta">${post.date || 'Just now'}</p></div>
                                 </div>
@@ -6327,10 +6330,13 @@
                 .map(post => {
                     const timeAgo = post.time ? formatTimeAgo(new Date(post.time)) : 'Recently';
                     const key = postKey(post);
+                    // Find the user matching this author name (for profile link)
+                    const postAuthorUser = users.find(u => `${u.firstName} ${u.lastName}` === post.author);
+                    const authorClickHandler = postAuthorUser ? `onclick="viewProfile('${postAuthorUser.id}')" style="cursor:pointer;"` : '';
                     return `
                         <div class="post-card">
                             <div class="post-header">
-                                <div style="display:flex;align-items:center;gap:1rem;">
+                                <div style="display:flex;align-items:center;gap:1rem;" ${authorClickHandler}>
                                     <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${(post.author||'?')[0]}</div>
                                     <div>
                                         <strong>${post.author || 'Member'}</strong>
