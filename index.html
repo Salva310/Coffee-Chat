@@ -2618,6 +2618,17 @@
             .search-bar select {
                 min-width: unset;
             }
+
+            .auth-container {
+                margin: 1.5rem auto;
+                padding: 1.5rem;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .auth-container h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -3641,14 +3652,10 @@
         }
 
         function showLandingSignup() {
-            document.querySelector('.app-container').classList.remove('sidebar-hidden');
-            renderNav();
             switchView('signupView');
         }
 
         function showLandingLogin() {
-            document.querySelector('.app-container').classList.remove('sidebar-hidden');
-            renderNav();
             switchView('loginView');
         }
 
