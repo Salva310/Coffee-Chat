@@ -2716,7 +2716,7 @@
                                             <span class="mockup-match-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Wants to chat</span>
                                         </div>
                                     </div>
-                                    <div class="mockup-btn">Schedule a First Sip</div>
+                                    <div class="mockup-btn">Schedule a Coffee Chat</div>
                                 </div>
                             </div>
                         </div>
@@ -2726,7 +2726,7 @@
                     <div class="landing-section">
                         <div class="problem-layout">
                             <div class="problem-image">
-                                <img src="images/first sip image.png" alt="Two students having a first sip at a table">
+                                <img src="images/coffee chat image.png" alt="Two students having a first sip at a table">
                             </div>
                             <div class="problem-text-group">
                                 <p class="problem-text">
@@ -2769,11 +2769,11 @@
                                 <div class="step-card">
                                     <div class="step-number">2</div>
                                     <h3>Discover &amp; Connect</h3>
-                                    <p>Browse fellow Rowan students and alumni who recently broke into your target industry. Request first sips with people who inspire you.</p>
+                                    <p>Browse fellow Rowan students and alumni who recently broke into your target industry. Request coffee chats with people who inspire you.</p>
                                 </div>
                                 <div class="step-card">
                                     <div class="step-number">3</div>
-                                    <h3>Schedule First Sips</h3>
+                                    <h3>Schedule Coffee Chats</h3>
                                     <p>Book 15&ndash;30 minute virtual or in-person chats. Get conversation starters based on shared interests. Build relationships that lead to referrals and opportunities.</p>
                                 </div>
                             </div>
@@ -2988,7 +2988,7 @@
                         </div>
                         <div id="onboardStep4" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--bg-light); cursor: pointer;" onclick="switchView('scheduleView')">
                             <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">4</span>
-                            <div><strong style="font-size: 14px;">Schedule your first first sip</strong><br><span style="font-size: 12px; color: #999;">15-30 min, virtual or in-person</span></div>
+                            <div><strong style="font-size: 14px;">Schedule your first coffee chat</strong><br><span style="font-size: 12px; color: #999;">15-30 min, virtual or in-person</span></div>
                         </div>
                     </div>
                     <button class="btn btn-primary" onclick="editMyProfile()" style="margin-top: 1.5rem; padding: 12px 32px;">Complete Your Profile</button>
@@ -3157,7 +3157,7 @@
             <!-- Calendar View -->
             <div id="calendarView" class="content-view">
                 <h1>Your Schedule</h1>
-                <p style="color: #999; margin-bottom: 2rem;">View and manage your first sips</p>
+                <p style="color: #999; margin-bottom: 2rem;">View and manage your coffee chats</p>
 
                 <div class="grid two-col">
                     <div>
@@ -3226,7 +3226,7 @@
             <div id="scheduleView" class="content-view">
                 <button class="btn btn-secondary btn-sm" onclick="goBack()" style="margin-bottom: 1.5rem;">← Back</button>
                 <div class="profile-detail">
-                    <h1 style="text-align: center; margin-bottom: 2rem;">Schedule a First Sip</h1>
+                    <h1 style="text-align: center; margin-bottom: 2rem;">Schedule a Coffee Chat</h1>
                     
                     <div class="form-group">
                         <label>With: <strong id="scheduleName"></strong></label>
@@ -3292,7 +3292,7 @@
             <!-- Availability View -->
             <div id="availabilityView" class="content-view">
                 <h1>Set Your Availability</h1>
-                <p style="color: #999; margin-bottom: 2rem;">Let people know when you're available for first sips</p>
+                <p style="color: #999; margin-bottom: 2rem;">Let people know when you're available for coffee chats</p>
 
                 <div class="card" style="max-width: 800px; margin: 0 auto;">
                     <h3 style="margin-bottom: 1.5rem;">Weekly Availability</h3>
@@ -5821,7 +5821,7 @@
                 { label: 'Discover people to connect with', done: hasConnections, action: "switchView('discoverView')" },
                 { label: 'Join a community', done: hasJoinedGroup, action: "switchView('groupsView')" },
                 { label: 'Send your first message', done: hasSentMessage, action: "switchView('messagesView')" },
-                { label: 'Schedule a first sip', done: hasMeeting, action: "switchView('calendarView')" }
+                { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('calendarView')" }
             ];
 
             list.innerHTML = items.map(item => `
