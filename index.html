@@ -3082,7 +3082,7 @@
                 <svg width="28" height="31" viewBox="0 0 72 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 6px;"><path d="M24 18 Q27 12 24 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M36 18 Q39 12 36 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M48 18 Q51 12 48 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M14 22 L20 66 H52 L58 22 Z" fill="#c17d3c"/><path d="M18 22 L23 58 H28 L23.5 22 Z" fill="rgba(255,255,255,0.07)"/><ellipse cx="36" cy="27" rx="20" ry="4" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="24" ry="5" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="20" ry="3.5" fill="#c17d3c"/><path d="M58 30 Q72 30 72 44 Q72 58 58 58" stroke="#c17d3c" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M58 30 Q68 30 68 44 Q68 58 58 58" stroke="#9a5f28" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
                 <span style="font-weight: 800; color: var(--accent);">First</span><span style="font-weight: 300; color: var(--text-light);">Sip</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <div id="notifBellContainer" style="display:none; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                 <button class="notification-bell" onclick="toggleNotifications()" id="notifBell">
                     &#128276;<span class="bell-badge hidden" id="bellBadge">0</span>
                 </button>
@@ -3522,46 +3522,6 @@
                     <div class="badge-grid" id="dashboardBadges"></div>
                 </div>
 
-                <div class="coffee-divider">&#9749;</div>
-
-                <h2>Quick Actions</h2>
-                <div class="grid">
-                    <div class="card person-card" onclick="editMyProfile()" style="cursor: pointer;">
-                        <div class="person-avatar">👤</div>
-                        <h3>Edit Profile</h3>
-                        <p style="font-size: 13px; color: #999;">Update your information</p>
-                    </div>
-                    <div class="card person-card" onclick="switchView('discoverView')" style="cursor: pointer;">
-                        <div class="person-avatar">🔍</div>
-                        <h3>Discover People</h3>
-                        <p style="font-size: 13px; color: #999;">Find genuine connections</p>
-                    </div>
-                    <div class="card person-card" onclick="switchView('groupsView')" style="cursor: pointer;">
-                        <div class="person-avatar">👥</div>
-                        <h3>Communities</h3>
-                        <p style="font-size: 13px; color: #999;">Join interest groups</p>
-                    </div>
-                    <div class="card person-card" onclick="switchView('calendarView')" style="cursor: pointer;">
-                        <div class="person-avatar">📅</div>
-                        <h3>Calendar</h3>
-                        <p style="font-size: 13px; color: #999;">View your schedule</p>
-                    </div>
-                    <div class="card person-card" onclick="switchView('messagesView')" style="cursor: pointer;">
-                        <div class="person-avatar">💬</div>
-                        <h3>Messages</h3>
-                        <p style="font-size: 13px; color: #999;">Chat with connections</p>
-                    </div>
-                    <div class="card person-card" onclick="createPost()" style="cursor: pointer;">
-                        <div class="person-avatar">✍️</div>
-                        <h3>Create Post</h3>
-                        <p style="font-size: 13px; color: #999;">Share your thoughts</p>
-                    </div>
-                    <div class="card person-card" onclick="switchView('availabilityView')" style="cursor: pointer;">
-                        <div class="person-avatar">🕒</div>
-                        <h3>Set Availability</h3>
-                        <p style="font-size: 13px; color: #999;">Manage your schedule</p>
-                    </div>
-                </div>
             </div>
 
             <!-- Discover View -->
@@ -3634,8 +3594,13 @@
 
             <!-- Calendar View -->
             <div id="calendarView" class="content-view">
-                <h1>Your Schedule</h1>
-                <p style="color: #999; margin-bottom: 2rem;">View and manage your coffee chats</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem; gap:1rem; flex-wrap:wrap;">
+                    <div>
+                        <h1 style="margin-bottom:0.25rem;">Your Schedule</h1>
+                        <p style="color:#999;">View and manage your coffee chats</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="switchView('availabilityView')" style="flex-shrink:0;">🕒 Set Availability</button>
+                </div>
 
                 <div class="grid two-col">
                     <div>
@@ -4445,6 +4410,10 @@
         function renderNav() {
             const navMenu = document.getElementById('navMenu');
             navMenu.innerHTML = '';
+
+            // Show bell only when logged in
+            const bellContainer = document.getElementById('notifBellContainer');
+            if (bellContainer) bellContainer.style.display = currentUser ? 'flex' : 'none';
 
             if (currentUser) {
                 const items = [
