@@ -1263,6 +1263,246 @@
             opacity: 0.9;
         }
 
+        /* Zero-state CTA Cards */
+        .cta-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-card {
+            background: white;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .cta-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .cta-card h3 {
+            font-size: 15px;
+            color: var(--primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .cta-card p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        /* Hub Tab Bar */
+        .hub-tab-bar {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            padding: 0.4rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .hub-tab {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            color: #888;
+            transition: all 0.2s ease;
+        }
+
+        .hub-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .hub-tab:hover:not(.active) {
+            background: var(--bg-light);
+            color: var(--primary);
+        }
+
+        .hub-panel-content {
+            display: none;
+        }
+
+        .hub-panel-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* My Chats Hub */
+        .chats-hub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            gap: 1rem;
+        }
+
+        .chats-hub-search {
+            flex: 1;
+            position: relative;
+        }
+
+        .chats-hub-search input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Jost', sans-serif;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .chats-hub-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chats-hub-search::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .chats-section-label {
+            font-weight: 700;
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .chat-inbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-inbox-item:hover {
+            background: var(--bg-light);
+            border-color: var(--border);
+        }
+
+        .chat-inbox-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .chat-inbox-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-inbox-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .chat-inbox-preview {
+            font-size: 13px;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .scheduled-chat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            background: var(--accent-light);
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .scheduled-chat-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(139,90,60,0.1);
+        }
+
+        .scheduled-chat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .btn-schedule-chat {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-schedule-chat:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139,90,60,0.25);
+        }
+
         /* Person Card */
         .person-card {
             text-align: center;
@@ -2577,6 +2817,15 @@
                 grid-template-columns: 1fr;
             }
 
+            .cta-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hub-tab {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
             .grid.two-col {
                 grid-template-columns: 1fr;
             }
@@ -3030,22 +3279,47 @@
                     <ul class="checklist" id="checklistItems"></ul>
                 </div>
 
-                <div class="stats">
-                    <div class="stat-card">
-                        <h3 id="statConnections">0</h3>
-                        <p>Connections</p>
+                <!-- Streak badge -->
+                <div id="streakBadge" style="display:none; text-align: right; margin-bottom: 0.75rem;">
+                    <span class="streak-counter" id="streakDisplay">0</span>
+                </div>
+
+                <!-- Zero-state CTA cards (shown when no activity) -->
+                <div id="zeroCTAs" style="display:none;">
+                    <div class="cta-cards-grid">
+                        <div class="cta-card" onclick="switchView('discoverView')">
+                            <div class="cta-icon">🤝</div>
+                            <h3>Meet your first connection</h3>
+                            <p>Browse Rowan students who share your interests and goals</p>
+                        </div>
+                        <div class="cta-card" onclick="switchView('groupsView')">
+                            <div class="cta-icon">👥</div>
+                            <h3>Find your people</h3>
+                            <p>Join groups for your major, career path, or campus interests</p>
+                        </div>
+                        <div class="cta-card" onclick="switchView('discoverView')">
+                            <div class="cta-icon">☕</div>
+                            <h3>Schedule your first chat</h3>
+                            <p>Find someone to connect with, then kick off a 30-min coffee chat</p>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3 id="statGroups">0</h3>
-                        <p>Groups Joined</p>
+                </div>
+
+                <!-- Hub Tabs (shown when user has any activity) -->
+                <div id="hubPanel" style="display:none;">
+                    <div class="hub-tab-bar">
+                        <button id="tabNetwork" class="hub-tab active" onclick="switchHubTab('network')">My Network</button>
+                        <button id="tabGroups" class="hub-tab" onclick="switchHubTab('groups')">My Groups</button>
+                        <button id="tabChats" class="hub-tab" onclick="switchHubTab('chats')">My Chats</button>
                     </div>
-                    <div class="stat-card">
-                        <h3 id="statMeetings">0</h3>
-                        <p>Meetings Scheduled</p>
+                    <div id="hubNetworkPanel" class="hub-panel-content active">
+                        <div id="hubNetworkFeed"></div>
                     </div>
-                    <div class="stat-card">
-                        <h3 id="statStreak"><span class="streak-counter" id="streakDisplay">0</span></h3>
-                        <p>Day Streak</p>
+                    <div id="hubGroupsPanel" class="hub-panel-content">
+                        <div id="hubGroupsFeed"></div>
+                    </div>
+                    <div id="hubChatsPanel" class="hub-panel-content">
+                        <div id="hubChatsContent"></div>
                     </div>
                 </div>
 
@@ -3914,11 +4188,9 @@
                 const items = [
                     { id: 'dashboardView', label: '🏠 Dashboard' },
                     { id: 'myProfileView', label: '👤 My Profile' },
-                    { id: 'feedView', label: '📰 Feed' },
                     { id: 'discoverView', label: '🔍 Discover' },
                     { id: 'groupsView', label: '👥 Communities' },
-                    { id: 'calendarView', label: '📅 Calendar' },
-                    { id: 'messagesView', label: '💬 Messages' }
+                    { id: 'calendarView', label: '📅 Calendar' }
                 ];
 
                 items.forEach(item => {
@@ -3957,17 +4229,35 @@
         function updateDashboard() {
             document.getElementById('userName').textContent = currentUser.firstName;
 
-            // Show welcome state if user has no activity
-            const totalActivity = connections.length + groups.filter(g => g.userJoined).length + meetings.filter(m => m.status !== 'completed').length;
+            const connectionCount = connections.length;
+            const groupCount = groups.filter(g => g.userJoined).length;
+            const meetingCount = meetings.filter(m => m.status !== 'completed').length;
+            const totalActivity = connectionCount + groupCount + meetingCount;
+
+            // Show welcome empty state only when no activity
             const welcomeEl = document.getElementById('welcomeEmptyState');
             if (welcomeEl) {
                 welcomeEl.style.display = totalActivity === 0 ? 'block' : 'none';
             }
 
-            // Animated counters
-            animateCounter('statConnections', connections.length);
-            animateCounter('statGroups', groups.filter(g => g.userJoined).length);
-            animateCounter('statMeetings', meetings.filter(m => m.status !== 'completed').length);
+            // Show zero CTAs or hub tabs
+            const zeroCTAs = document.getElementById('zeroCTAs');
+            const hubPanel = document.getElementById('hubPanel');
+            if (totalActivity === 0) {
+                if (zeroCTAs) zeroCTAs.style.display = 'block';
+                if (hubPanel) hubPanel.style.display = 'none';
+            } else {
+                if (zeroCTAs) zeroCTAs.style.display = 'none';
+                if (hubPanel) hubPanel.style.display = 'block';
+                renderActiveHubTab();
+            }
+
+            // Streak badge
+            const streak = getLoginStreak();
+            const streakBadge = document.getElementById('streakBadge');
+            const streakDisplay = document.getElementById('streakDisplay');
+            if (streakDisplay) streakDisplay.innerHTML = `&#128293; ${streak} day streak`;
+            if (streakBadge) streakBadge.style.display = streak > 1 ? 'block' : 'none';
 
             // Profile completion
             renderProfileCompletion();
@@ -3978,12 +4268,282 @@
             // Badges
             renderDashboardBadges();
 
-            // Streak
-            const streak = getLoginStreak();
-            document.getElementById('streakDisplay').innerHTML = `&#128293; ${streak}`;
-
             // Notifications
             generateNotifications();
+        }
+
+        // ===== HUB TABS =====
+        let activeHubTab = 'network';
+
+        function switchHubTab(tab) {
+            activeHubTab = tab;
+            ['network', 'groups', 'chats'].forEach(t => {
+                const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const panel = document.getElementById(`hub${t.charAt(0).toUpperCase() + t.slice(1)}Panel`);
+                if (btn) btn.classList.toggle('active', t === tab);
+                if (panel) panel.classList.toggle('active', t === tab);
+            });
+            renderActiveHubTab();
+        }
+
+        function renderActiveHubTab() {
+            if (activeHubTab === 'network') renderHubNetworkFeed();
+            if (activeHubTab === 'groups') renderHubGroupsFeed();
+            if (activeHubTab === 'chats') renderHubChats();
+        }
+
+        function renderHubNetworkFeed() {
+            const container = document.getElementById('hubNetworkFeed');
+            if (!container) return;
+
+            const connectedIds = new Set();
+            connections.forEach(c => {
+                if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
+                if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
+            });
+
+            if (connectedIds.size === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🤝</div>
+                        <p>Connect with people to see their posts here.</p>
+                        <button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top: 1rem;">Discover People</button>
+                    </div>`;
+                return;
+            }
+
+            let allPosts = [...posts];
+            users.forEach(u => {
+                if (connectedIds.has(u.id) && u.posts && u.posts.length > 0) {
+                    u.posts.forEach(p => {
+                        if (!allPosts.find(ep => ep.id === p.id)) {
+                            allPosts.push({ ...p, author_id: u.id, author: `${u.firstName} ${u.lastName}` });
+                        }
+                    });
+                }
+            });
+
+            const feedItems = allPosts.filter(p => p.author_id !== currentUser.id && connectedIds.has(p.author_id));
+
+            if (feedItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✍️</div>
+                        <p>No posts from your connections yet. Check back soon!</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = feedItems
+                .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
+                .map(post => {
+                    const author = users.find(u => u.id === post.author_id) || currentUser;
+                    const authorName = author ? `${author.firstName} ${author.lastName}` : (post.author || 'Someone');
+                    const avatarContent = author && author.profilePicture
+                        ? `<img src="${author.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : author ? `${(author.firstName||'?')[0]}${(author.lastName||'')[0]}` : '?';
+                    return `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div style="display:flex;align-items:center;gap:1rem;">
+                                    <div class="person-avatar" style="width:48px;height:48px;font-size:18px;">${avatarContent}</div>
+                                    <div><strong>${authorName}</strong><p class="post-meta">${post.date || 'Just now'}</p></div>
+                                </div>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-actions">
+                                <button class="post-action-btn" onclick="likePost('${post.id}')">👍 ${post.likes_count || 0} Likes</button>
+                                <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
+                            </div>
+                            <div id="comments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                                <div id="comments-list-${post.id}" style="margin-bottom:0.75rem;"></div>
+                                <div style="display:flex;gap:0.5rem;">
+                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
+                                    <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+        }
+
+        function renderHubGroupsFeed() {
+            const container = document.getElementById('hubGroupsFeed');
+            if (!container) return;
+
+            const joinedGroups = groups.filter(g => g.userJoined);
+
+            if (joinedGroups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Join a group to see posts from your communities here.</p>
+                        <button class="btn btn-primary" onclick="switchView('groupsView')" style="margin-top: 1rem;">Browse Communities</button>
+                    </div>`;
+                return;
+            }
+
+            const allGroupPosts = [];
+            joinedGroups.forEach(g => {
+                (g.posts || []).forEach(p => {
+                    allGroupPosts.push({ ...p, groupName: g.name, groupId: g.id });
+                });
+            });
+
+            if (allGroupPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✍️</div>
+                        <p>No posts in your groups yet. Be the first!</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = allGroupPosts
+                .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0))
+                .map(post => {
+                    const timeAgo = post.time ? formatTimeAgo(new Date(post.time)) : 'Recently';
+                    return `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div style="display:flex;align-items:center;gap:1rem;">
+                                    <div class="person-avatar" style="width:48px;height:48px;font-size:18px;">${(post.author||'?')[0]}</div>
+                                    <div>
+                                        <strong>${post.author || 'Member'}</strong>
+                                        <p class="post-meta">${timeAgo} · <span style="color:var(--primary);font-weight:600;">${post.groupName}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                        </div>`;
+                }).join('');
+        }
+
+        async function renderHubChats() {
+            const container = document.getElementById('hubChatsContent');
+            if (!container) return;
+
+            // Build connections list for search
+            const connectedIds = new Set();
+            connections.forEach(c => {
+                if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
+                if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
+            });
+
+            // Get upcoming scheduled meetings
+            const upcomingMeetings = meetings
+                .filter(m => m.status !== 'completed' && new Date(m.start_time || m.date) >= new Date())
+                .sort((a, b) => new Date(a.start_time || a.date) - new Date(b.start_time || b.date))
+                .slice(0, 5);
+
+            const meetingsHTML = upcomingMeetings.length > 0
+                ? upcomingMeetings.map(m => {
+                    const partnerUser = users.find(u => u.id === m.organizer_id || u.id === m.participant_id);
+                    const partnerName = partnerUser ? `${partnerUser.firstName} ${partnerUser.lastName}` : (m.participant_name || m.organizer_name || 'Someone');
+                    const dateStr = m.start_time ? new Date(m.start_time).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : (m.date || 'TBD');
+                    return `
+                        <div class="scheduled-chat-item">
+                            <div class="scheduled-chat-icon">☕</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-weight:600;font-size:14px;color:var(--text-dark);">${partnerName}</div>
+                                <div style="font-size:12px;color:#888;">${dateStr}${m.duration ? ` · ${m.duration} min` : ''}</div>
+                            </div>
+                        </div>`;
+                }).join('')
+                : `<div style="color:#888;font-size:13px;padding:1rem 0;">No upcoming chats scheduled.</div>`;
+
+            // Get conversation list from connected mock users (and real messages via supabase)
+            const connectedUsers = users.filter(u => connectedIds.has(u.id));
+
+            let conversationsHTML = '';
+            if (connectedUsers.length > 0) {
+                conversationsHTML = connectedUsers.map(u => {
+                    const initials = `${u.firstName[0]}${u.lastName[0]}`;
+                    const hasMessages = (localMessages[u.id] || []).length > 0;
+                    const lastMsg = hasMessages ? localMessages[u.id].slice(-1)[0].content.substring(0, 45) : 'Say hello! ☕';
+                    return `
+                        <div class="chat-inbox-item" onclick="openChatWith('${u.id}')">
+                            <div class="chat-inbox-avatar">${initials}</div>
+                            <div class="chat-inbox-info">
+                                <div class="chat-inbox-name">${u.firstName} ${u.lastName}</div>
+                                <div class="chat-inbox-preview">${lastMsg}${lastMsg.length >= 45 ? '…' : ''}</div>
+                            </div>
+                        </div>`;
+                }).join('');
+            } else {
+                // Try to load real conversations from Supabase
+                try {
+                    const { data: msgsData } = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+                        .order('created_at', { ascending: false });
+
+                    if (msgsData && msgsData.length > 0) {
+                        const partnerIds = [...new Set(msgsData.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id))];
+                        const partnerProfiles = await Promise.all(partnerIds.map(pid =>
+                            supabaseClient.from('profiles').select('id,first_name,last_name').eq('id', pid).maybeSingle().then(r => r.data)
+                        ));
+                        conversationsHTML = partnerProfiles.filter(Boolean).map(p => {
+                            const lastMessage = msgsData.find(m => m.sender_id === p.id || m.receiver_id === p.id);
+                            const preview = lastMessage ? lastMessage.content.substring(0, 45) : 'Start a conversation';
+                            return `
+                                <div class="chat-inbox-item" onclick="openChatWith('${p.id}')">
+                                    <div class="chat-inbox-avatar">${p.first_name[0]}${p.last_name[0]}</div>
+                                    <div class="chat-inbox-info">
+                                        <div class="chat-inbox-name">${p.first_name} ${p.last_name}</div>
+                                        <div class="chat-inbox-preview">${preview}${preview.length >= 45 ? '…' : ''}</div>
+                                    </div>
+                                </div>`;
+                        }).join('');
+                    }
+                } catch (e) { /* silent */ }
+            }
+
+            if (!conversationsHTML) {
+                conversationsHTML = `<div style="color:#888;font-size:13px;padding:1rem 0;">No conversations yet. Connect with someone and start chatting!</div>`;
+            }
+
+            container.innerHTML = `
+                <div style="background:white;border-radius:12px;padding:1.5rem;border:1px solid var(--border);">
+                    <div class="chats-hub-header">
+                        <div class="chats-hub-search">
+                            <input type="text" id="chatsSearchInput" placeholder="Search your connections…" oninput="filterChatsSearch(this.value)">
+                        </div>
+                        <button class="btn-schedule-chat" onclick="switchView('discoverView')">
+                            ☕ Schedule a Chat
+                        </button>
+                    </div>
+
+                    <div class="chats-section-label">Upcoming Chats</div>
+                    <div id="upcomingChatsList">${meetingsHTML}</div>
+
+                    <div class="chats-section-label">Messages</div>
+                    <div id="chatsInboxList">${conversationsHTML}</div>
+                </div>`;
+        }
+
+        function filterChatsSearch(query) {
+            const q = query.toLowerCase().trim();
+            const items = document.querySelectorAll('#chatsInboxList .chat-inbox-item');
+            items.forEach(item => {
+                const name = item.querySelector('.chat-inbox-name')?.textContent.toLowerCase() || '';
+                item.style.display = !q || name.includes(q) ? '' : 'none';
+            });
+        }
+
+        function openChatWith(userId) {
+            switchView('messagesView');
+            selectConversation(userId);
+        }
+
+        function formatTimeAgo(date) {
+            const diff = Date.now() - date.getTime();
+            const hours = Math.floor(diff / 3600000);
+            if (hours < 1) return 'Just now';
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days === 1) return 'Yesterday';
+            return `${days}d ago`;
         }
 
         // Discovery
