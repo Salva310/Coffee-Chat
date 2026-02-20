@@ -1503,6 +1503,195 @@
             box-shadow: 0 4px 12px rgba(139,90,60,0.25);
         }
 
+        /* Connection card in My Network tab */
+        .connection-card {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .connection-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(139,90,60,0.08);
+        }
+
+        .connection-card-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .connection-card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .connection-card-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .connection-card-role {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .connection-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Group list card in My Groups tab */
+        .group-list-card {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .group-list-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(139,90,60,0.08);
+        }
+
+        .group-list-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--accent-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Find More banner */
+        .find-more-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, var(--accent-light), #fff8f0);
+            border: 1.5px dashed var(--accent);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 1rem;
+        }
+
+        .find-more-banner:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139,90,60,0.1);
+        }
+
+        /* Feed sub-tabs */
+        .feed-subtab-bar {
+            display: inline-flex;
+            gap: 0.25rem;
+            background: white;
+            border-radius: 10px;
+            padding: 0.3rem;
+            border: 1px solid var(--border);
+        }
+
+        .feed-subtab {
+            padding: 7px 18px;
+            border: none;
+            background: transparent;
+            border-radius: 7px;
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            color: #888;
+            transition: all 0.2s ease;
+        }
+
+        .feed-subtab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .feed-subtab:hover:not(.active) {
+            background: var(--bg-light);
+            color: var(--primary);
+        }
+
+        /* Schedule chat modal person picker */
+        .schedule-modal-person {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.2s;
+            background: var(--bg-light);
+            margin-bottom: 0.35rem;
+        }
+
+        .schedule-modal-person:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        /* Availability slots display */
+        .avail-slot-btn {
+            padding: 6px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            font-family: 'Jost', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        .avail-slot-btn:hover, .avail-slot-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .connection-card-actions {
+                flex-direction: column;
+            }
+            .find-more-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
         /* Person Card */
         .person-card {
             text-align: center;
@@ -3567,9 +3756,15 @@
             <!-- Feed View -->
             <div id="feedView" class="content-view">
                 <h1>Feed</h1>
-                <p style="color: #999; margin-bottom: 1.5rem;">See what's happening in your network</p>
+                <p style="color: #999; margin-bottom: 1.25rem;">See what's happening in your world</p>
 
-                <button class="btn btn-primary" onclick="createPost()" style="margin-bottom: 2rem;">✍️ Create Post</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+                    <div class="feed-subtab-bar">
+                        <button id="feedTabConnections" class="feed-subtab active" onclick="switchFeedTab('connections')">Connections</button>
+                        <button id="feedTabGroups" class="feed-subtab" onclick="switchFeedTab('groups')">Groups</button>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="createPost()">✍️ Create Post</button>
+                </div>
 
                 <div id="feedPosts"></div>
             </div>
@@ -3613,6 +3808,69 @@
                         <button class="btn btn-primary" onclick="addAvailabilitySlot()">Add Availability</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Chat Modal -->
+    <div id="scheduleChatModal" class="modal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h2 style="margin:0;">☕ Schedule a Coffee Chat</h2>
+                <button class="modal-close" onclick="closeModal('scheduleChatModal')">×</button>
+            </div>
+
+            <!-- Step 1: Pick a person -->
+            <div id="scheduleStep1">
+                <p style="color:#888;margin-bottom:1rem;font-size:14px;">Who do you want to have a coffee chat with?</p>
+                <div id="schedulePersonList" style="max-height:320px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Step 2: Pick date / time / details -->
+            <div id="scheduleStep2" style="display:none;">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;padding:0.875rem;background:var(--bg-light);border-radius:10px;">
+                    <div class="chat-inbox-avatar" id="schedulePickedAvatar" style="font-size:16px;"></div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:14px;" id="schedulePickedName"></div>
+                        <button style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;padding:0;margin-top:2px;" onclick="resetScheduleStep()">← Change person</button>
+                    </div>
+                </div>
+
+                <!-- Availability display -->
+                <div id="schedulePickedAvailability" style="margin-bottom:1.25rem;"></div>
+
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="modalScheduleDate" onchange="renderModalTimeSlots()">
+                </div>
+                <div class="form-group">
+                    <label>Time</label>
+                    <div class="time-slots" id="modalTimeSlots"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <select id="modalScheduleDuration">
+                            <option value="15">15 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="60">1 hour</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Meeting Type</label>
+                        <select id="modalScheduleType">
+                            <option value="video">Video Call</option>
+                            <option value="zoom">Zoom</option>
+                            <option value="phone">Phone Call</option>
+                            <option value="coffee">In-Person ☕</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>What would you like to talk about?</label>
+                    <textarea id="modalScheduleTopic" placeholder="Share a topic, ask for advice, or just say you'd love to connect!" style="min-height:80px;"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="sendModalMeetingRequest()" style="width:100%;padding:13px;">Send Chat Request ☕</button>
             </div>
         </div>
     </div>
@@ -4188,6 +4446,7 @@
                 const items = [
                     { id: 'dashboardView', label: '🏠 Dashboard' },
                     { id: 'myProfileView', label: '👤 My Profile' },
+                    { id: 'feedView', label: '📰 Feed' },
                     { id: 'discoverView', label: '🔍 Discover' },
                     { id: 'groupsView', label: '👥 Communities' },
                     { id: 'calendarView', label: '📅 Calendar' }
@@ -4302,68 +4561,46 @@
                 if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
             });
 
-            if (connectedIds.size === 0) {
+            const connectedUsers = users.filter(u => connectedIds.has(u.id));
+            const count = connectedUsers.length;
+
+            if (count === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🤝</div>
-                        <p>Connect with people to see their posts here.</p>
-                        <button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top: 1rem;">Discover People</button>
+                        <p>You haven't connected with anyone yet.</p>
+                        <button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top:1rem;">Find Your People</button>
                     </div>`;
                 return;
             }
 
-            let allPosts = [...posts];
-            users.forEach(u => {
-                if (connectedIds.has(u.id) && u.posts && u.posts.length > 0) {
-                    u.posts.forEach(p => {
-                        if (!allPosts.find(ep => ep.id === p.id)) {
-                            allPosts.push({ ...p, author_id: u.id, author: `${u.firstName} ${u.lastName}` });
-                        }
-                    });
-                }
-            });
-
-            const feedItems = allPosts.filter(p => p.author_id !== currentUser.id && connectedIds.has(p.author_id));
-
-            if (feedItems.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">✍️</div>
-                        <p>No posts from your connections yet. Check back soon!</p>
-                    </div>`;
-                return;
-            }
-
-            container.innerHTML = feedItems
-                .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
-                .map(post => {
-                    const author = users.find(u => u.id === post.author_id) || currentUser;
-                    const authorName = author ? `${author.firstName} ${author.lastName}` : (post.author || 'Someone');
-                    const avatarContent = author && author.profilePicture
-                        ? `<img src="${author.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-                        : author ? `${(author.firstName||'?')[0]}${(author.lastName||'')[0]}` : '?';
+            container.innerHTML = `
+                <p style="font-weight:600;font-size:15px;color:var(--text-dark);margin-bottom:1rem;">
+                    ${count} connection${count !== 1 ? 's' : ''}
+                </p>
+                ${connectedUsers.map(u => {
+                    const initials = `${u.firstName[0]}${u.lastName[0]}`;
+                    const roleLine = [u.role, u.industry].filter(Boolean).join(' · ');
                     return `
-                        <div class="post-card">
-                            <div class="post-header">
-                                <div style="display:flex;align-items:center;gap:1rem;">
-                                    <div class="person-avatar" style="width:48px;height:48px;font-size:18px;">${avatarContent}</div>
-                                    <div><strong>${authorName}</strong><p class="post-meta">${post.date || 'Just now'}</p></div>
-                                </div>
+                        <div class="connection-card">
+                            <div class="connection-card-avatar">${initials}</div>
+                            <div class="connection-card-info">
+                                <div class="connection-card-name">${u.firstName} ${u.lastName}</div>
+                                ${roleLine ? `<div class="connection-card-role">${roleLine}</div>` : ''}
                             </div>
-                            <div class="post-content">${post.content}</div>
-                            <div class="post-actions">
-                                <button class="post-action-btn" onclick="likePost('${post.id}')">👍 ${post.likes_count || 0} Likes</button>
-                                <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
-                            </div>
-                            <div id="comments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
-                                <div id="comments-list-${post.id}" style="margin-bottom:0.75rem;"></div>
-                                <div style="display:flex;gap:0.5rem;">
-                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
-                                    <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
-                                </div>
+                            <div class="connection-card-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="openChatWith('${u.id}')">💬 Message</button>
+                                <button class="btn btn-accent btn-sm" onclick="openScheduleForUser('${u.id}')">☕ Schedule Chat</button>
                             </div>
                         </div>`;
-                }).join('');
+                }).join('')}
+                <div class="find-more-banner" onclick="switchView('discoverView')">
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:var(--primary);">Looking to expand your network?</div>
+                        <div style="font-size:13px;color:#888;margin-top:3px;">Discover Rowan students who share your interests ✨</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" style="pointer-events:none;">Find Students →</button>
+                </div>`;
         }
 
         function renderHubGroupsFeed() {
@@ -4371,51 +4608,38 @@
             if (!container) return;
 
             const joinedGroups = groups.filter(g => g.userJoined);
+            const count = joinedGroups.length;
 
-            if (joinedGroups.length === 0) {
+            if (count === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>
-                        <p>Join a group to see posts from your communities here.</p>
-                        <button class="btn btn-primary" onclick="switchView('groupsView')" style="margin-top: 1rem;">Browse Communities</button>
+                        <p>You haven't joined any groups yet.</p>
+                        <button class="btn btn-primary" onclick="switchView('groupsView')" style="margin-top:1rem;">Browse Communities</button>
                     </div>`;
                 return;
             }
 
-            const allGroupPosts = [];
-            joinedGroups.forEach(g => {
-                (g.posts || []).forEach(p => {
-                    allGroupPosts.push({ ...p, groupName: g.name, groupId: g.id });
-                });
-            });
-
-            if (allGroupPosts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">✍️</div>
-                        <p>No posts in your groups yet. Be the first!</p>
-                    </div>`;
-                return;
-            }
-
-            container.innerHTML = allGroupPosts
-                .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0))
-                .map(post => {
-                    const timeAgo = post.time ? formatTimeAgo(new Date(post.time)) : 'Recently';
-                    return `
-                        <div class="post-card">
-                            <div class="post-header">
-                                <div style="display:flex;align-items:center;gap:1rem;">
-                                    <div class="person-avatar" style="width:48px;height:48px;font-size:18px;">${(post.author||'?')[0]}</div>
-                                    <div>
-                                        <strong>${post.author || 'Member'}</strong>
-                                        <p class="post-meta">${timeAgo} · <span style="color:var(--primary);font-weight:600;">${post.groupName}</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="post-content">${post.content}</div>
-                        </div>`;
-                }).join('');
+            container.innerHTML = `
+                <p style="font-weight:600;font-size:15px;color:var(--text-dark);margin-bottom:1rem;">
+                    ${count} group${count !== 1 ? 's' : ''}
+                </p>
+                ${joinedGroups.map(g => `
+                    <div class="group-list-card">
+                        <div class="group-list-icon">👥</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:600;font-size:14px;color:var(--text-dark);">${g.name}</div>
+                            <div style="font-size:12px;color:#888;margin-top:2px;">${g.members} members${g.description ? ' · ' + g.description.substring(0, 60) + '…' : ''}</div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="viewGroup(${g.id})">View Group</button>
+                    </div>`).join('')}
+                <div class="find-more-banner" onclick="switchView('groupsView')">
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:var(--primary);">Find more communities to join!</div>
+                        <div style="font-size:13px;color:#888;margin-top:3px;">There are groups for every major, interest, and goal 🎓</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" style="pointer-events:none;">Browse Groups →</button>
+                </div>`;
         }
 
         async function renderHubChats() {
@@ -4509,7 +4733,7 @@
                         <div class="chats-hub-search">
                             <input type="text" id="chatsSearchInput" placeholder="Search your connections…" oninput="filterChatsSearch(this.value)">
                         </div>
-                        <button class="btn-schedule-chat" onclick="switchView('discoverView')">
+                        <button class="btn-schedule-chat" onclick="openScheduleModal()">
                             ☕ Schedule a Chat
                         </button>
                     </div>
@@ -4534,6 +4758,185 @@
         function openChatWith(userId) {
             switchView('messagesView');
             selectConversation(userId);
+        }
+
+        // ===== SCHEDULE CHAT MODAL =====
+        let scheduleModalUserId = null;
+        let selectedModalTime = null;
+
+        // Mock availability for demo users
+        const mockUserAvailability = {
+            '00000000-0000-0000-0000-000000000002': [
+                { day: 1, start: '10:00', end: '12:00' },
+                { day: 3, start: '14:00', end: '17:00' },
+                { day: 5, start: '09:00', end: '11:00' }
+            ],
+            '00000000-0000-0000-0000-000000000003': [
+                { day: 2, start: '11:00', end: '13:00' },
+                { day: 4, start: '15:00', end: '18:00' }
+            ],
+            '00000000-0000-0000-0000-000000000004': [
+                { day: 1, start: '09:00', end: '11:00' },
+                { day: 2, start: '14:00', end: '16:00' },
+                { day: 5, start: '13:00', end: '15:00' }
+            ],
+            '00000000-0000-0000-0000-000000000005': [
+                { day: 3, start: '10:00', end: '12:00' },
+                { day: 4, start: '13:00', end: '15:00' }
+            ],
+            '00000000-0000-0000-0000-000000000006': [
+                { day: 1, start: '14:00', end: '16:00' },
+                { day: 5, start: '10:00', end: '12:00' }
+            ]
+        };
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        function openScheduleModal() {
+            const connectedIds = new Set();
+            connections.forEach(c => {
+                if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
+                if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
+            });
+            const connectedUsers = users.filter(u => connectedIds.has(u.id));
+
+            if (connectedUsers.length === 0) {
+                alert("Connect with someone first before scheduling a chat!");
+                closeModal('scheduleChatModal');
+                switchView('discoverView');
+                return;
+            }
+
+            const list = document.getElementById('schedulePersonList');
+            list.innerHTML = connectedUsers.map(u => `
+                <div class="schedule-modal-person" onclick="selectSchedulePerson('${u.id}')">
+                    <div class="chat-inbox-avatar" style="font-size:15px;">${u.firstName[0]}${u.lastName[0]}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:14px;">${u.firstName} ${u.lastName}</div>
+                        <div style="font-size:12px;color:#888;">${[u.role, u.industry].filter(Boolean).join(' · ')}</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>`).join('');
+
+            document.getElementById('scheduleStep1').style.display = 'block';
+            document.getElementById('scheduleStep2').style.display = 'none';
+            selectedModalTime = null;
+            openModal('scheduleChatModal');
+        }
+
+        function openScheduleForUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            // Show modal directly at step 2
+            document.getElementById('scheduleStep1').style.display = 'none';
+            document.getElementById('scheduleStep2').style.display = 'block';
+            selectedModalTime = null;
+            openModal('scheduleChatModal');
+            _populateScheduleStep2(user);
+        }
+
+        function selectSchedulePerson(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            document.getElementById('scheduleStep1').style.display = 'none';
+            document.getElementById('scheduleStep2').style.display = 'block';
+            selectedModalTime = null;
+            _populateScheduleStep2(user);
+        }
+
+        function _populateScheduleStep2(user) {
+            scheduleModalUserId = user.id;
+            selectedPerson = user;
+
+            document.getElementById('schedulePickedAvatar').textContent = `${user.firstName[0]}${user.lastName[0]}`;
+            document.getElementById('schedulePickedName').textContent = `${user.firstName} ${user.lastName}`;
+            document.getElementById('modalScheduleTopic').value = '';
+
+            // Show availability
+            const avail = mockUserAvailability[user.id] || [];
+            const availContainer = document.getElementById('schedulePickedAvailability');
+            if (avail.length > 0) {
+                availContainer.innerHTML = `
+                    <div style="background:var(--accent-light);border-radius:10px;padding:0.875rem 1rem;border:1px solid var(--border);">
+                        <div style="font-weight:600;font-size:13px;color:var(--primary);margin-bottom:0.5rem;">
+                            ☕ ${user.firstName}'s typical availability
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+                            ${avail.map(a => `
+                                <span style="background:white;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text-dark);">
+                                    ${dayNames[a.day]} ${a.start}–${a.end}
+                                </span>`).join('')}
+                        </div>
+                        <p style="font-size:11px;color:#aaa;margin-top:0.5rem;">Pick a date and time that works for both of you — they'll confirm the request.</p>
+                    </div>`;
+            } else {
+                availContainer.innerHTML = `
+                    <div style="font-size:13px;color:#888;padding:0.5rem 0;">
+                        No set availability yet — feel free to request any time that works for you!
+                    </div>`;
+            }
+
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('modalScheduleDate').value = tomorrow.toISOString().split('T')[0];
+            renderModalTimeSlots();
+        }
+
+        function resetScheduleStep() {
+            document.getElementById('scheduleStep1').style.display = 'block';
+            document.getElementById('scheduleStep2').style.display = 'none';
+            scheduleModalUserId = null;
+            selectedModalTime = null;
+        }
+
+        function renderModalTimeSlots() {
+            const times = [];
+            for (let hour = 8; hour < 20; hour++) {
+                for (let min of [0, 30]) {
+                    times.push(`${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`);
+                }
+            }
+            selectedModalTime = null;
+            document.getElementById('modalTimeSlots').innerHTML = times.map(t =>
+                `<div class="time-slot" onclick="selectModalTime('${t}', this)">${t}</div>`
+            ).join('');
+        }
+
+        function selectModalTime(time, el) {
+            document.querySelectorAll('#modalTimeSlots .time-slot').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedModalTime = time;
+        }
+
+        function sendModalMeetingRequest() {
+            const date = document.getElementById('modalScheduleDate').value;
+            const duration = document.getElementById('modalScheduleDuration').value;
+            const topic = document.getElementById('modalScheduleTopic').value.trim();
+            const type = document.getElementById('modalScheduleType').value;
+
+            if (!date) { alert('Please select a date'); return; }
+            if (!selectedModalTime) { alert('Please select a time slot'); return; }
+            if (!topic) { alert('Please add a note about what you\'d like to discuss'); return; }
+            if (!selectedPerson) { alert('Please select a person to chat with'); return; }
+
+            const meeting = {
+                id: meetings.length + 1,
+                personId: selectedPerson.id,
+                personName: `${selectedPerson.firstName} ${selectedPerson.lastName}`,
+                date,
+                time: selectedModalTime,
+                duration,
+                topic,
+                type,
+                status: 'pending',
+                createdAt: new Date()
+            };
+
+            meetings.push(meeting);
+            closeModal('scheduleChatModal');
+            selectedModalTime = null;
+            alert(`Chat request sent to ${selectedPerson.firstName}! 🎉 They'll confirm a time that works.`);
+            updateDashboard();
         }
 
         function formatTimeAgo(date) {
@@ -5809,17 +6212,30 @@
         }
 
         // ===== FEED FUNCTIONS =====
+        let activeFeedTab = 'connections';
+
+        function switchFeedTab(tab) {
+            activeFeedTab = tab;
+            document.getElementById('feedTabConnections').classList.toggle('active', tab === 'connections');
+            document.getElementById('feedTabGroups').classList.toggle('active', tab === 'groups');
+            renderFeed();
+        }
+
         async function renderFeed() {
             const feedPosts = document.getElementById('feedPosts');
 
-            // Build set of connected user IDs
+            if (activeFeedTab === 'groups') {
+                renderGroupsFeedTab(feedPosts);
+                return;
+            }
+
+            // --- Connections feed ---
             const connectedIds = new Set();
             connections.forEach(c => {
                 if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
                 if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
             });
 
-            // Gather all feed posts: from posts array + mock users' embedded posts
             let allPosts = [...posts];
             users.forEach(u => {
                 if (connectedIds.has(u.id) && u.posts && u.posts.length > 0) {
@@ -5831,40 +6247,32 @@
                 }
             });
 
-            // Filter: only connections' posts, exclude own
-            const feedItems = allPosts.filter(p => {
-                if (p.author_id === currentUser.id) return false;
-                return connectedIds.has(p.author_id);
-            });
+            const feedItems = allPosts.filter(p => p.author_id !== currentUser.id && connectedIds.has(p.author_id));
 
             if (feedItems.length === 0) {
                 feedPosts.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">&#128101;</div>
-                        <p>Connect with people to see their posts in your feed!</p>
-                        <button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top: 1rem;">Discover People</button>
-                    </div>
-                `;
+                        <div class="empty-state-icon">🤝</div>
+                        <p>Connect with people to see their posts here!</p>
+                        <button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top:1rem;">Discover People</button>
+                    </div>`;
                 return;
             }
 
-            feedPosts.innerHTML = feedItems.sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
+            feedPosts.innerHTML = feedItems
+                .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
                 .map(post => {
                     const author = users.find(u => u.id === post.author_id) || currentUser;
                     const authorName = author ? `${author.firstName} ${author.lastName}` : post.author;
                     const avatarContent = author && author.profilePicture
-                        ? `<img src="${author.profilePicture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                        ? `<img src="${author.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                         : author ? `${author.firstName[0]}${author.lastName[0]}` : '?';
-
                     return `
                         <div class="post-card">
                             <div class="post-header">
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <div class="person-avatar" style="width: 48px; height: 48px; font-size: 20px;">${avatarContent}</div>
-                                    <div>
-                                        <strong>${authorName}</strong>
-                                        <p class="post-meta">${post.date || 'Just now'}</p>
-                                    </div>
+                                <div style="display:flex;align-items:center;gap:1rem;">
+                                    <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${avatarContent}</div>
+                                    <div><strong>${authorName}</strong><p class="post-meta">${post.date || 'Just now'}</p></div>
                                 </div>
                             </div>
                             <div class="post-content">${post.content}</div>
@@ -5873,16 +6281,109 @@
                                 <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
                                 <button class="post-action-btn" onclick="sharePost('${post.id}')">🔄 Share</button>
                             </div>
-                            <div id="comments-${post.id}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                                <div id="comments-list-${post.id}" style="margin-bottom: 0.75rem;"></div>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
+                            <div id="comments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                                <div id="comments-list-${post.id}" style="margin-bottom:0.75rem;"></div>
+                                <div style="display:flex;gap:0.5rem;">
+                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
                                     <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 }).join('');
+        }
+
+        function renderGroupsFeedTab(container) {
+            const joinedGroups = groups.filter(g => g.userJoined);
+            if (joinedGroups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Join a group to see posts from your communities here!</p>
+                        <button class="btn btn-primary" onclick="switchView('groupsView')" style="margin-top:1rem;">Browse Communities</button>
+                    </div>`;
+                return;
+            }
+
+            const allGroupPosts = [];
+            joinedGroups.forEach(g => {
+                (g.posts || []).forEach(p => {
+                    allGroupPosts.push({ ...p, groupName: g.name, groupId: g.id });
+                });
+            });
+
+            if (allGroupPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✍️</div>
+                        <p>No posts in your groups yet — be the first to share something!</p>
+                    </div>`;
+                return;
+            }
+
+            const postKey = p => `gpost-${p.groupId}-${p.author}-${p.content.substring(0, 10)}`.replace(/\s/g, '_');
+
+            container.innerHTML = allGroupPosts
+                .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0))
+                .map(post => {
+                    const timeAgo = post.time ? formatTimeAgo(new Date(post.time)) : 'Recently';
+                    const key = postKey(post);
+                    return `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div style="display:flex;align-items:center;gap:1rem;">
+                                    <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${(post.author||'?')[0]}</div>
+                                    <div>
+                                        <strong>${post.author || 'Member'}</strong>
+                                        <p class="post-meta">${timeAgo} · <span style="color:var(--primary);font-weight:600;">${post.groupName}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-actions">
+                                <button class="post-action-btn" id="like-${key}" onclick="likeGroupPost('${key}', this)">👍 <span id="likecount-${key}">0</span> Likes</button>
+                                <button class="post-action-btn" onclick="toggleGroupComments('${key}')">💬 Comment</button>
+                            </div>
+                            <div id="gcomments-${key}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                                <div id="gcomments-list-${key}" style="margin-bottom:0.75rem;"></div>
+                                <div style="display:flex;gap:0.5rem;">
+                                    <input type="text" id="gcomment-input-${key}" placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);" onkeypress="if(event.key==='Enter') submitGroupComment('${key}')">
+                                    <button class="btn btn-primary btn-sm" onclick="submitGroupComment('${key}')">Post</button>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+        }
+
+        const groupPostLikeCounts = {};
+        const groupPostCommentsList = {};
+
+        function likeGroupPost(key, btn) {
+            groupPostLikeCounts[key] = (groupPostLikeCounts[key] || 0) + 1;
+            const countEl = document.getElementById(`likecount-${key}`);
+            if (countEl) countEl.textContent = groupPostLikeCounts[key];
+            btn.style.color = 'var(--primary)';
+            btn.style.fontWeight = '700';
+        }
+
+        function toggleGroupComments(key) {
+            const el = document.getElementById(`gcomments-${key}`);
+            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function submitGroupComment(key) {
+            const input = document.getElementById(`gcomment-input-${key}`);
+            if (!input || !input.value.trim()) return;
+            const listEl = document.getElementById(`gcomments-list-${key}`);
+            if (!groupPostCommentsList[key]) groupPostCommentsList[key] = [];
+            groupPostCommentsList[key].push(input.value.trim());
+            if (listEl) {
+                listEl.innerHTML = groupPostCommentsList[key].map(c =>
+                    `<div style="background:var(--bg-light);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px;">
+                        <strong>${currentUser.firstName}:</strong> ${c}
+                    </div>`
+                ).join('');
+            }
+            input.value = '';
         }
 
         // ===== SMART RECOMMENDATIONS =====
