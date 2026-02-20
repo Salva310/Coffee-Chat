@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>First Sip - Professional Networking</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -14,121 +14,301 @@
         }
 
         :root {
-            --primary: #8B5A3C;
-            --primary-light: #A0704F;
-            --primary-dark: #3E2723;
-            --accent: #D4A574;
-            --accent-light: #F5E6D3;
+            /* New design system */
+            --cream: #F5F0E8;
+            --warm-white: #FDFAF4;
+            --espresso: #1C1208;
+            --brown: #3D2B1A;
+            --caramel: #C07C3A;
+            --caramel-light: #D4964F;
+            --latte: #EAD9B8;
+            --latte-soft: #F2E9D6;
+            --sage: #8A9E85;
+            --muted: #7A6E62;
+            --card: #FFFDF8;
+            --border: rgba(192,124,58,0.14);
+            --sidebar-w: 228px;
+
+            /* Legacy aliases so existing JS-generated HTML still works */
+            --primary: #C07C3A;
+            --primary-light: #D4964F;
+            --primary-dark: #1C1208;
+            --accent: #EAD9B8;
+            --accent-light: #F2E9D6;
             --success: #4CAF50;
             --danger: #FF6B6B;
-            --bg-dark: #2C1A0E;
-            --bg-light: #FFF8F0;
-            --text-dark: #3E2723;
-            --text-light: #FFF8F0;
-            --border: #E8D5C4;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-hover: 0 8px 24px rgba(139, 90, 60, 0.18);
+            --bg-dark: #1C1208;
+            --bg-light: #F5F0E8;
+            --text-dark: #1C1208;
+            --text-light: #FDFAF4;
+            --shadow: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-hover: 0 8px 24px rgba(192,124,58,0.15);
         }
 
         body {
-            font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--cream);
+            color: var(--espresso);
             line-height: 1.6;
         }
+
+        html { height: 100%; }
+
+        /* ─── TOP BAR ─── */
+        .topbar {
+            height: 56px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: none; /* shown only when logged in */
+            align-items: center;
+            padding: 0 20px 0 0;
+            flex-shrink: 0;
+            z-index: 50;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+        }
+        .topbar.visible { display: flex; }
+
+        .topbar-logo {
+            width: var(--sidebar-w);
+            padding: 0 20px;
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            font-weight: 900;
+            color: var(--espresso);
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .topbar-logo span { color: var(--caramel); }
+
+        .topbar-search { flex: 1; padding: 0 20px; }
+
+        .topbar-search-input {
+            width: 280px;
+            height: 34px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: var(--cream);
+            padding: 0 14px 0 34px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--espresso);
+            outline: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            transition: border-color 0.2s;
+        }
+        .topbar-search-input:focus { border-color: var(--caramel); }
+        .topbar-search-input::placeholder { color: var(--muted); }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .icon-btn {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            transition: background 0.15s, color 0.15s;
+            position: relative;
+        }
+        .icon-btn:hover { background: var(--latte-soft); color: var(--espresso); }
+
+        .notif-dot {
+            position: absolute;
+            top: 6px; right: 6px;
+            width: 7px; height: 7px;
+            background: var(--caramel);
+            border-radius: 50%;
+            border: 1.5px solid var(--card);
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px 4px 4px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-left: 4px;
+            background: var(--warm-white);
+        }
+        .user-chip:hover { background: var(--latte-soft); }
+
+        .user-chip-av {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--caramel), var(--caramel-light));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; color: white;
+        }
+        .user-chip-name { font-size: 13px; font-weight: 500; color: var(--espresso); }
 
         .app-container {
             min-height: 100vh;
             display: flex;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: var(--primary);
-            color: var(--text-light);
-            padding: 2rem 1.5rem;
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            width: 280px;
-            overflow-y: auto;
-            box-shadow: var(--shadow);
-            z-index: 100;
-            display: flex;
             flex-direction: column;
         }
 
+        /* App body shifts down when topbar is visible */
+        body.app-mode { overflow: hidden; }
+        body.app-mode .app-container { padding-top: 56px; height: 100vh; box-sizing: border-box; }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            left: 0;
+            top: 56px;
+            height: calc(100vh - 56px);
+            width: var(--sidebar-w);
+            overflow-y: auto;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px;
+        }
+
+        /* Sidebar hidden on landing/login/signup */
+        body:not(.app-mode) .sidebar { display: none; }
+
+        .sidebar-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0 8px;
+            margin-bottom: 4px;
+            margin-top: 16px;
+        }
+        .sidebar-label:first-child { margin-top: 0; }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 10px 0;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 12px;
+        }
+
         .logo {
-            font-family: 'Fraunces', serif; font-weight: 800;
-            font-size: 32px;
-            margin-bottom: 2rem;
-            color: var(--accent);
-            letter-spacing: -1px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 19px;
+            color: var(--espresso);
         }
 
         .sidebar nav {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 2px;
         }
 
         .nav-item {
-            padding: 12px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid transparent;
-            color: var(--text-light);
-            font-size: 14px;
-            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 9px 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            transition: all 0.15s;
             border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
         }
 
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
+        .nav-item:hover { background: var(--latte-soft); color: var(--espresso); }
 
         .nav-item.active {
-            background: var(--accent);
-            color: var(--text-dark);
+            background: var(--latte);
+            color: var(--brown);
+            font-weight: 600;
         }
 
-        .sidebar-spacer {
-            flex: 1;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: var(--text-light);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            font-size: 14px;
-            margin-top: 1.5rem;
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            opacity: 0.8;
             flex-shrink: 0;
         }
 
-        .logout-btn:hover {
-            background: var(--danger);
-            border-color: var(--danger);
+        .nav-badge {
+            margin-left: auto;
+            background: var(--caramel);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
         }
 
-        /* Main Content */
+        .sidebar-spacer { flex: 1; }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            transition: all 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .logout-btn:hover { background: var(--latte-soft); color: var(--espresso); }
+
+        /* ─── MAIN CONTENT ─── */
         .main-content {
-            margin-left: 280px;
+            margin-left: var(--sidebar-w);
             padding: 2rem;
             overflow-y: auto;
             flex: 1;
             min-width: 0;
+            height: calc(100vh - 56px);
+        }
+
+        /* Landing page — no sidebar offset */
+        body:not(.app-mode) .main-content {
+            margin-left: 0;
+            height: 100vh;
+            padding: 0;
         }
 
         .content-view {
@@ -153,37 +333,40 @@
 
         /* Headers */
         h1 {
-            font-family: 'Fraunces', serif; font-weight: 800;
-            font-size: 36px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 28px;
             margin-bottom: 1rem;
-            color: var(--primary);
+            color: var(--espresso);
         }
 
         h2 {
-            font-size: 24px;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
             margin-bottom: 1.5rem;
-            color: var(--primary);
+            color: var(--espresso);
         }
 
         h3 {
-            font-size: 18px;
-            color: var(--primary);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--espresso);
             margin-bottom: 0.5rem;
         }
 
         /* Cards */
         .card {
-            background: white;
-            border-radius: 12px;
+            background: var(--card);
+            border-radius: 14px;
             padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
             border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .card:hover {
-            box-shadow: var(--shadow);
-            transform: translateY(-4px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(28,18,8,0.08);
         }
 
         .card.compact {
@@ -208,17 +391,18 @@
             padding: 12px 14px;
             border: 1.5px solid var(--border);
             border-radius: 8px;
-            font-family: inherit;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
-            transition: all 0.3s ease;
-            background: white;
+            transition: all 0.2s ease;
+            background: var(--warm-white);
+            color: var(--espresso);
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.1);
-            background: #fafaf8;
+            border-color: var(--caramel);
+            box-shadow: 0 0 0 3px rgba(192,124,58,0.1);
+            background: var(--warm-white);
         }
 
         textarea {
@@ -228,48 +412,48 @@
 
         /* Buttons */
         .btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: white;
+            background: var(--espresso);
+            color: var(--cream);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(111, 78, 55, 0.3);
+            background: var(--brown);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(28,18,8,0.2);
         }
 
         .btn-secondary {
-            background: var(--bg-light);
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            background: var(--latte-soft);
+            color: var(--espresso);
+            border: 1.5px solid var(--latte);
         }
 
         .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
+            background: var(--latte);
         }
 
         .btn-accent {
-            background: var(--accent);
-            color: var(--text-dark);
+            background: var(--caramel);
+            color: white;
         }
 
         .btn-accent:hover {
-            background: #c89b68;
-            transform: translateY(-2px);
+            background: var(--caramel-light);
+            transform: translateY(-1px);
         }
 
         .btn-danger {
@@ -307,10 +491,9 @@
         .auth-container {
             max-width: 500px;
             margin: 4rem auto;
-            background: white;
+            background: var(--card);
             padding: 3rem;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
+            border-radius: 18px;
             border: 1px solid var(--border);
         }
 
@@ -321,7 +504,7 @@
 
         .auth-subtitle {
             text-align: center;
-            color: #999;
+            color: var(--muted);
             margin-bottom: 2rem;
             font-size: 14px;
         }
@@ -335,7 +518,7 @@
         .toggle-auth button {
             background: none;
             border: none;
-            color: var(--primary);
+            color: var(--caramel);
             text-decoration: underline;
             cursor: pointer;
             font-weight: 600;
@@ -391,7 +574,7 @@
             transition: all 0.3s ease;
         }
         .landing-nav .logo-text {
-            font-family: 'Fraunces', serif;
+            font-family: 'Playfair Display', serif;
             font-size: 20px;
             font-weight: 800;
             color: var(--lp-accent);
@@ -677,7 +860,7 @@
             letter-spacing: 0.2px;
         }
         .hero-title {
-            font-family: 'Fraunces', serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 800;
             font-size: clamp(44px, 5vw, 64px);
             color: white;
@@ -767,7 +950,7 @@
             margin: 0 auto;
         }
         .section-title {
-            font-family: 'Fraunces', serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 800;
             font-size: clamp(28px, 4vw, 40px);
             color: var(--lp-text);
@@ -926,7 +1109,7 @@
         }
         .testimonial-card::before {
             content: '\201C';
-            font-family: 'Fraunces', serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 800;
             font-size: 48px;
             color: var(--lp-accent);
@@ -1021,7 +1204,7 @@
             background: radial-gradient(ellipse at 50% 30%, rgba(200, 149, 108, 0.15) 0%, transparent 60%);
         }
         .landing-final-cta h2 {
-            font-family: 'Fraunces', serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 800;
             font-size: clamp(36px, 4vw, 48px);
             color: white;
@@ -1271,77 +1454,79 @@
         .cta-cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 14px;
+            margin-bottom: 24px;
         }
 
         .cta-card {
-            background: white;
-            border: 2px dashed var(--border);
+            background: var(--card);
+            border: 1.5px dashed rgba(192,124,58,0.25);
             border-radius: 16px;
-            padding: 2rem 1.5rem;
+            padding: 24px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .cta-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
+            border-color: var(--caramel);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(192,124,58,0.12);
         }
 
         .cta-icon {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 0.75rem;
         }
 
         .cta-card h3 {
-            font-size: 15px;
-            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--espresso);
             margin-bottom: 0.4rem;
         }
 
         .cta-card p {
-            font-size: 13px;
-            color: #888;
+            font-size: 12px;
+            color: var(--muted);
             line-height: 1.5;
+            font-weight: 300;
         }
 
         /* Hub Tab Bar */
         .hub-tab-bar {
             display: flex;
-            gap: 0.25rem;
-            margin-bottom: 1.5rem;
-            background: white;
+            gap: 0;
+            margin-bottom: 20px;
+            background: var(--card);
             border-radius: 12px;
-            padding: 0.4rem;
+            padding: 4px;
             border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
         .hub-tab {
             flex: 1;
-            padding: 10px 16px;
+            padding: 9px 16px;
             border: none;
             background: transparent;
             border-radius: 8px;
-            font-family: 'Jost', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 13.5px;
             cursor: pointer;
-            color: #888;
-            transition: all 0.2s ease;
+            color: var(--muted);
+            transition: all 0.15s ease;
         }
 
         .hub-tab.active {
-            background: var(--primary);
-            color: white;
+            background: var(--espresso);
+            color: var(--cream);
+            font-weight: 600;
         }
 
         .hub-tab:hover:not(.active) {
-            background: var(--bg-light);
-            color: var(--primary);
+            background: var(--latte-soft);
+            color: var(--espresso);
         }
 
         .hub-panel-content {
@@ -1372,7 +1557,7 @@
             padding: 10px 16px 10px 40px;
             border: 1.5px solid var(--border);
             border-radius: 10px;
-            font-family: 'Jost', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
             background: white;
             transition: border-color 0.2s ease;
@@ -1489,7 +1674,7 @@
             border: none;
             border-radius: 10px;
             padding: 10px 20px;
-            font-family: 'Jost', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
@@ -1629,7 +1814,7 @@
             border: none;
             background: transparent;
             border-radius: 7px;
-            font-family: 'Jost', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
@@ -1672,7 +1857,7 @@
             border: 1.5px solid var(--border);
             border-radius: 8px;
             background: white;
-            font-family: 'Jost', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -2310,12 +2495,12 @@
         }
         .progress-ring-bg {
             fill: none;
-            stroke: var(--border);
+            stroke: var(--latte-soft);
             stroke-width: 6;
         }
         .progress-ring-fill {
             fill: none;
-            stroke: var(--accent);
+            stroke: var(--caramel);
             stroke-width: 6;
             stroke-linecap: round;
             transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2325,9 +2510,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 18px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--espresso);
         }
         .completion-info h3 {
             margin-bottom: 0.25rem;
@@ -2340,10 +2525,8 @@
 
         /* === GETTING STARTED CHECKLIST === */
         .getting-started {
-            background: linear-gradient(135deg, white 0%, #FFF8F0 100%);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
+            /* The dark card style is applied inline in the HTML */
+            border-radius: 18px;
             margin-bottom: 1.5rem;
             position: relative;
         }
@@ -2373,36 +2556,49 @@
         .checklist-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 0;
+            gap: 10px;
             cursor: pointer;
-            border-radius: 8px;
-            padding: 0.5rem 0.75rem;
-            transition: background 0.2s;
+            border-radius: 10px;
+            padding: 10px 14px;
+            transition: background 0.15s;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.08);
+            flex: 1;
+            min-width: 150px;
         }
         .checklist-item:hover {
-            background: rgba(111, 78, 55, 0.05);
+            background: rgba(255,255,255,0.11);
+        }
+        .checklist-item.done {
+            opacity: 0.45;
         }
         .checklist-item .check-icon {
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            border: 2px solid var(--border);
+            border: 1.5px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             flex-shrink: 0;
-            transition: all 0.3s;
+            color: rgba(255,255,255,0.4);
+            transition: all 0.2s;
         }
         .checklist-item.done .check-icon {
-            background: var(--success);
-            border-color: var(--success);
+            background: var(--caramel);
+            border-color: var(--caramel);
             color: white;
+        }
+        .check-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(245,240,232,0.8);
+            line-height: 1.3;
         }
         .checklist-item.done .check-label {
             text-decoration: line-through;
-            color: #999;
+            color: rgba(245,240,232,0.4);
         }
 
         /* === NOTIFICATION BELL === */
@@ -3072,24 +3268,63 @@
                 font-size: 24px;
             }
         }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--latte); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--caramel); }
+
+        /* Floating schedule chat button */
+        .btn-schedule-chat {
+            background: var(--caramel) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 16px rgba(192,124,58,0.3) !important;
+        }
+        .btn-schedule-chat:hover {
+            background: var(--caramel-light) !important;
+            transform: translateY(-2px) !important;
+        }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo" style="font-size: 22px; letter-spacing: -0.5px; display: flex; align-items: center;">
-                <svg width="28" height="31" viewBox="0 0 72 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 6px;"><path d="M24 18 Q27 12 24 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M36 18 Q39 12 36 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M48 18 Q51 12 48 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M14 22 L20 66 H52 L58 22 Z" fill="#c17d3c"/><path d="M18 22 L23 58 H28 L23.5 22 Z" fill="rgba(255,255,255,0.07)"/><ellipse cx="36" cy="27" rx="20" ry="4" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="24" ry="5" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="20" ry="3.5" fill="#c17d3c"/><path d="M58 30 Q72 30 72 44 Q72 58 58 58" stroke="#c17d3c" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M58 30 Q68 30 68 44 Q68 58 58 58" stroke="#9a5f28" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
-                <span style="font-weight: 800; color: var(--accent);">First</span><span style="font-weight: 300; color: var(--text-light);">Sip</span>
-            </div>
-            <div id="notifBellContainer" style="display:none; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                <button class="notification-bell" onclick="toggleNotifications()" id="notifBell">
-                    &#128276;<span class="bell-badge hidden" id="bellBadge">0</span>
+    <!-- Top Bar (shown only when logged in via app-mode class on body) -->
+    <div class="topbar" id="appTopbar">
+        <div class="topbar-logo">
+            <svg width="22" height="24" viewBox="0 0 72 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 18 Q27 12 24 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M36 18 Q39 12 36 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M48 18 Q51 12 48 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M14 22 L20 66 H52 L58 22 Z" fill="#c17d3c"/><path d="M18 22 L23 58 H28 L23.5 22 Z" fill="rgba(255,255,255,0.07)"/><ellipse cx="36" cy="27" rx="20" ry="4" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="24" ry="5" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="20" ry="3.5" fill="#c17d3c"/><path d="M58 30 Q72 30 72 44 Q72 58 58 58" stroke="#c17d3c" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M58 30 Q68 30 68 44 Q68 58 58 58" stroke="#9a5f28" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+            <span>First</span><span style="color:var(--caramel)">Sip</span>
+        </div>
+        <div class="topbar-search">
+            <input class="topbar-search-input" placeholder="Search people, groups..." />
+        </div>
+        <div class="topbar-right">
+            <div id="notifBellContainer" style="display:none;">
+                <button class="icon-btn" onclick="toggleNotifications()" id="notifBell" title="Notifications">
+                    🔔
+                    <div class="notif-dot" id="notifDot" style="display:none;"></div>
                 </button>
             </div>
+            <div class="user-chip" onclick="switchView('myProfileView')" id="topbarUserChip" style="display:none;">
+                <div class="user-chip-av" id="topbarUserAv">?</div>
+                <div class="user-chip-name" id="topbarUserName">You</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="appSidebar">
+            <div class="sidebar-label" style="margin-top:0;">Main</div>
             <nav id="navMenu"></nav>
-            <div class="sidebar-spacer"></div>
-            <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+            <div class="sidebar-bottom">
+                <div class="sidebar-divider"></div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <span class="nav-icon">🚪</span> Sign Out
+                </button>
+            </div>
         </div>
 
         <!-- Main Content -->
@@ -3418,63 +3653,88 @@
 
             <!-- Dashboard -->
             <div id="dashboardView" class="content-view">
-                <h1>Welcome, <span id="userName"></span>!</h1>
-                <p style="color: #999; margin-bottom: 1.5rem;">Build genuine connections over real conversations</p>
 
-                <!-- Welcome Empty State -->
-                <div id="welcomeEmptyState" style="display: none; background: white; border-radius: 16px; padding: 2.5rem; border: 1px solid var(--border); margin-bottom: 2rem; text-align: center; box-shadow: var(--shadow);">
-                    <div style="font-size: 48px; margin-bottom: 1rem;">&#9749;</div>
-                    <h2 style="font-size: 24px; margin-bottom: 0.5rem; color: var(--primary);">Welcome to First Sip!</h2>
-                    <p style="color: #888; margin-bottom: 2rem; max-width: 460px; margin-left: auto; margin-right: auto;">You're part of Rowan's founding cohort. Let's get you set up so you can start making real connections.</p>
-                    <div style="max-width: 360px; margin: 0 auto; text-align: left;">
-                        <div id="onboardStep1" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--bg-light); cursor: pointer;" onclick="editMyProfile()">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">1</span>
-                            <div><strong style="font-size: 14px;">Complete your profile</strong><br><span style="font-size: 12px; color: #999;">Takes about 5 minutes</span></div>
-                        </div>
-                        <div id="onboardStep2" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--bg-light); cursor: pointer;" onclick="switchView('discoverView')">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">2</span>
-                            <div><strong style="font-size: 14px;">Discover your first connection</strong><br><span style="font-size: 12px; color: #999;">Browse students who share your interests</span></div>
-                        </div>
-                        <div id="onboardStep3" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--bg-light); cursor: pointer;" onclick="switchView('groupsView')">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">3</span>
-                            <div><strong style="font-size: 14px;">Join a community group</strong><br><span style="font-size: 12px; color: #999;">Find your people by major or interest</span></div>
-                        </div>
-                        <div id="onboardStep4" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--bg-light); cursor: pointer;" onclick="switchView('scheduleView')">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">4</span>
-                            <div><strong style="font-size: 14px;">Schedule your first coffee chat</strong><br><span style="font-size: 12px; color: #999;">15-30 min, virtual or in-person</span></div>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="editMyProfile()" style="margin-top: 1.5rem; padding: 12px 32px;">Complete Your Profile</button>
+                <!-- Greeting -->
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--espresso); margin-bottom:4px;">Good morning, <span id="userName"></span> ☕</h2>
+                    <p style="font-size:14px; color:var(--muted); font-weight:300;">Here's what's happening in your network today.</p>
                 </div>
 
-                <!-- Profile Completion Card -->
-                <div class="completion-card" id="completionCard">
-                    <div class="progress-ring-container">
-                        <svg width="80" height="80" viewBox="0 0 80 80">
+                <!-- Streak badge (subtle, top right) -->
+                <div id="streakBadge" style="display:none; text-align: right; margin-bottom: 0.75rem;">
+                    <span class="streak-counter" id="streakDisplay">0</span>
+                </div>
+
+                <!-- Getting Started card (dark) — hidden after dismissed -->
+                <div class="getting-started" id="gettingStarted" style="background:var(--espresso); border-radius:18px; padding:28px 32px; margin-bottom:24px; position:relative; overflow:hidden; display:none;">
+                    <div style="position:absolute; right:28px; top:50%; transform:translateY(-50%); font-size:72px; opacity:0.07; pointer-events:none;">☕</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                        <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--cream);">Your First Sip journey starts here</div>
+                        <button class="dismiss-btn" onclick="dismissGettingStarted()" title="Dismiss" style="background:none;border:none;color:rgba(245,240,232,0.4);font-size:20px;cursor:pointer;line-height:1;padding:0;flex-shrink:0;">&times;</button>
+                    </div>
+                    <div style="font-size:13px; color:rgba(245,240,232,0.55); margin-bottom:20px; font-weight:300;">Complete these steps to get the most out of First Sip</div>
+                    <ul class="checklist" id="checklistItems" style="list-style:none; display:flex; gap:12px; flex-wrap:wrap; margin:0; padding:0;"></ul>
+                </div>
+
+                <!-- Welcome Empty State (shown on very first login) -->
+                <div id="welcomeEmptyState" style="display: none; background: var(--card); border-radius: 16px; padding: 2.5rem; border: 1px solid var(--border); margin-bottom: 2rem; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 1rem;">&#9749;</div>
+                    <h2 style="font-size: 22px; margin-bottom: 0.5rem; color: var(--espresso);">Welcome to First Sip!</h2>
+                    <p style="color: var(--muted); margin-bottom: 2rem; max-width: 460px; margin-left: auto; margin-right: auto;">You're part of Rowan's founding cohort. Let's get you set up so you can start making real connections.</p>
+                    <div style="max-width: 360px; margin: 0 auto; text-align: left;">
+                        <div id="onboardStep1" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--latte-soft); cursor: pointer;" onclick="editMyProfile()">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--caramel); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">1</span>
+                            <div><strong style="font-size: 14px; color:var(--espresso);">Complete your profile</strong><br><span style="font-size: 12px; color: var(--muted);">Takes about 5 minutes</span></div>
+                        </div>
+                        <div id="onboardStep2" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--latte-soft); cursor: pointer;" onclick="switchView('discoverView')">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--latte); color: var(--caramel); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">2</span>
+                            <div><strong style="font-size: 14px; color:var(--espresso);">Discover your first connection</strong><br><span style="font-size: 12px; color: var(--muted);">Browse students who share your interests</span></div>
+                        </div>
+                        <div id="onboardStep3" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--latte-soft); cursor: pointer;" onclick="switchView('groupsView')">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--latte); color: var(--caramel); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">3</span>
+                            <div><strong style="font-size: 14px; color:var(--espresso);">Join a community group</strong><br><span style="font-size: 12px; color: var(--muted);">Find your people by major or interest</span></div>
+                        </div>
+                        <div id="onboardStep4" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--latte-soft); cursor: pointer;" onclick="switchView('scheduleView')">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--latte); color: var(--caramel); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">4</span>
+                            <div><strong style="font-size: 14px; color:var(--espresso);">Schedule your first coffee chat</strong><br><span style="font-size: 12px; color: var(--muted);">15-30 min, virtual or in-person</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="editMyProfile()" style="margin-top: 1.5rem;">Complete Your Profile</button>
+                </div>
+
+                <!-- Profile Completion Bar -->
+                <div class="completion-card" id="completionCard" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:16px;">
+                    <div class="progress-ring-container" style="position:relative; flex-shrink:0;">
+                        <svg width="56" height="56" viewBox="0 0 80 80">
                             <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
                             <circle class="progress-ring-fill" id="progressRing" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
                         </svg>
-                        <span class="progress-text" id="progressPercent">0%</span>
+                        <span class="progress-text" id="progressPercent" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:700;color:var(--espresso);">0%</span>
                     </div>
-                    <div class="completion-info">
-                        <h3>Profile Completion</h3>
-                        <p id="completionMsg">Complete your profile to get better matches</p>
-                        <button class="btn btn-accent btn-sm" onclick="editMyProfile()">Complete Profile</button>
+                    <div class="completion-info" style="flex:1;">
+                        <div style="font-size:13px; font-weight:600; color:var(--espresso); margin-bottom:2px;">Profile Completion</div>
+                        <div id="completionMsg" style="font-size:12px; color:var(--muted); font-weight:300; margin-bottom:8px;">Complete your profile to get better matches</div>
+                        <button class="btn btn-accent btn-sm" onclick="editMyProfile()" style="font-size:12px; padding:6px 14px;">Complete Profile</button>
                     </div>
                 </div>
 
-                <!-- Getting Started Checklist -->
-                <div class="getting-started" id="gettingStarted">
-                    <div class="getting-started-header">
-                        <h3>Getting Started</h3>
-                        <button class="dismiss-btn" onclick="dismissGettingStarted()" title="Dismiss">&times;</button>
+                <!-- Stats Row -->
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px;" id="dashboardStats">
+                    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;">
+                        <div style="font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Connections</div>
+                        <div id="statConnections" style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--espresso); margin-bottom:4px;">0</div>
+                        <div style="font-size:12px; color:var(--muted); font-weight:300; cursor:pointer;" onclick="switchView('discoverView')">Discover people to connect →</div>
                     </div>
-                    <ul class="checklist" id="checklistItems"></ul>
-                </div>
-
-                <!-- Streak badge -->
-                <div id="streakBadge" style="display:none; text-align: right; margin-bottom: 0.75rem;">
-                    <span class="streak-counter" id="streakDisplay">0</span>
+                    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;">
+                        <div style="font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Chats Completed</div>
+                        <div id="statChats" style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--espresso); margin-bottom:4px;">0</div>
+                        <div style="font-size:12px; color:var(--muted); font-weight:300; cursor:pointer;" onclick="openScheduleModal()">Schedule your first sip →</div>
+                    </div>
+                    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;">
+                        <div style="font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Groups Joined</div>
+                        <div id="statGroups" style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--espresso); margin-bottom:4px;">0</div>
+                        <div style="font-size:12px; color:var(--muted); font-weight:300; cursor:pointer;" onclick="switchView('groupsView')">Browse communities →</div>
+                    </div>
                 </div>
 
                 <!-- Zero-state CTA cards (shown when no activity) -->
@@ -3490,7 +3750,7 @@
                             <h3>Find your people</h3>
                             <p>Join groups for your major, career path, or campus interests</p>
                         </div>
-                        <div class="cta-card" onclick="switchView('discoverView')">
+                        <div class="cta-card" onclick="openScheduleModal()">
                             <div class="cta-icon">☕</div>
                             <h3>Schedule your first chat</h3>
                             <p>Find someone to connect with, then kick off a 30-min coffee chat</p>
@@ -3517,8 +3777,8 @@
                 </div>
 
                 <!-- Badges Section -->
-                <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.5rem;">
-                    <h3 style="margin-bottom: 0.75rem;">Your Badges</h3>
+                <div style="background: var(--card); border-radius: 14px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem; font-size:14px; font-weight:600; color:var(--espresso);">Your Badges</h3>
                     <div class="badge-grid" id="dashboardBadges"></div>
                 </div>
 
@@ -4411,28 +4671,87 @@
             const navMenu = document.getElementById('navMenu');
             navMenu.innerHTML = '';
 
-            // Show bell only when logged in
+            // Topbar + sidebar visibility
+            const topbar = document.getElementById('appTopbar');
             const bellContainer = document.getElementById('notifBellContainer');
-            if (bellContainer) bellContainer.style.display = currentUser ? 'flex' : 'none';
+            const userChip = document.getElementById('topbarUserChip');
 
             if (currentUser) {
-                const items = [
-                    { id: 'dashboardView', label: '🏠 Dashboard' },
-                    { id: 'myProfileView', label: '👤 My Profile' },
-                    { id: 'feedView', label: '📰 Feed' },
-                    { id: 'discoverView', label: '🔍 Discover' },
-                    { id: 'groupsView', label: '👥 Communities' },
-                    { id: 'calendarView', label: '📅 Calendar' }
+                // Show topbar, sidebar, bell, user chip
+                document.body.classList.add('app-mode');
+                if (topbar) topbar.classList.add('visible');
+                if (bellContainer) bellContainer.style.display = 'flex';
+                if (userChip) {
+                    userChip.style.display = 'flex';
+                    const initials = (currentUser.firstName[0] || '') + (currentUser.lastName ? currentUser.lastName[0] : '');
+                    document.getElementById('topbarUserAv').textContent = initials.toUpperCase();
+                    document.getElementById('topbarUserName').textContent = currentUser.firstName + ' ' + (currentUser.lastName ? currentUser.lastName[0] + '.' : '');
+                }
+
+                // Build nav items with icons and labels
+                const mainItems = [
+                    { id: 'dashboardView', icon: '🏠', label: 'Dashboard' },
+                    { id: 'discoverView', icon: '🔍', label: 'Discover' },
+                ];
+                const communityItems = [
+                    { id: 'feedView', icon: '📰', label: 'Feed' },
+                    { id: 'groupsView', icon: '👥', label: 'Communities' },
+                    { id: 'messagesView', icon: '☕', label: 'My Chats' },
+                    { id: 'calendarView', icon: '📅', label: 'Calendar' },
                 ];
 
-                items.forEach(item => {
+                // Label: Main
+                mainItems.forEach(item => {
                     const btn = document.createElement('button');
                     btn.className = 'nav-item';
-                    btn.textContent = item.label;
+                    btn.innerHTML = `<span class="nav-icon">${item.icon}</span>${item.label}`;
                     btn.onclick = () => switchView(item.id);
                     navMenu.appendChild(btn);
                 });
+
+                // Label: Community
+                const communityLabel = document.createElement('div');
+                communityLabel.className = 'sidebar-label';
+                communityLabel.textContent = 'Community';
+                navMenu.appendChild(communityLabel);
+
+                communityItems.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-item';
+                    btn.innerHTML = `<span class="nav-icon">${item.icon}</span>${item.label}`;
+                    btn.onclick = () => switchView(item.id);
+                    navMenu.appendChild(btn);
+                });
+
+                // Divider + My Profile
+                const divider = document.createElement('div');
+                divider.className = 'sidebar-divider';
+                navMenu.appendChild(divider);
+
+                const profileBtn = document.createElement('button');
+                profileBtn.className = 'nav-item';
+                profileBtn.innerHTML = `<span class="nav-icon">👤</span>My Profile`;
+                profileBtn.onclick = () => switchView('myProfileView');
+                navMenu.appendChild(profileBtn);
+            } else {
+                // Hide topbar, sidebar, bell
+                document.body.classList.remove('app-mode');
+                if (topbar) topbar.classList.remove('visible');
+                if (bellContainer) bellContainer.style.display = 'none';
+                if (userChip) userChip.style.display = 'none';
             }
+        }
+
+        function updateNavActive(viewId) {
+            document.querySelectorAll('#navMenu .nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Match by onclick reference
+            document.querySelectorAll('#navMenu .nav-item').forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(viewId)) {
+                    btn.classList.add('active');
+                }
+            });
         }
 
         function switchView(viewId) {
@@ -4447,6 +4766,8 @@
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
             if (viewId === 'myProfileView') renderMyProfile();
+
+            updateNavActive(viewId);
 
             if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView' && viewId !== 'groupDetailView') {
                 previousView = viewId;
@@ -4463,8 +4784,17 @@
 
             const connectionCount = connections.length;
             const groupCount = groups.filter(g => g.userJoined).length;
+            const completedMeetings = meetings.filter(m => m.status === 'completed').length;
             const meetingCount = meetings.filter(m => m.status !== 'completed').length;
             const totalActivity = connectionCount + groupCount + meetingCount;
+
+            // Update stat counters
+            const statConnections = document.getElementById('statConnections');
+            const statChats = document.getElementById('statChats');
+            const statGroups = document.getElementById('statGroups');
+            if (statConnections) statConnections.textContent = connectionCount;
+            if (statChats) statChats.textContent = completedMeetings;
+            if (statGroups) statGroups.textContent = groupCount;
 
             // Show welcome empty state only when no activity
             const welcomeEl = document.getElementById('welcomeEmptyState');
