@@ -5993,13 +5993,7 @@
                 if (error) throw error;
 
                 myGroupIds.add(groupId);
-                group.member_count = (group.member_count || 0) + 1;
-
-                // Update member_count in Supabase
-                await supabaseClient
-                    .from('groups')
-                    .update({ member_count: group.member_count })
-                    .eq('id', groupId);
+                group.member_count = (group.member_count || 0) + 1; // optimistic local update (DB trigger handles the real count)
 
                 renderGroups();
                 showToast(`Joined ${group.name}!`, 'success');
