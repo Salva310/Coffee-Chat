@@ -529,887 +529,614 @@
         .sidebar-hidden .main-content { margin-left: 0; padding: 0; width: 100%; }
 
         .landing-page {
-            --lp-primary: #6B4C3B;
-            --lp-primary-hover: #5A3F31;
-            --lp-accent: #C8956C;
-            --lp-accent-soft: #F0E2D4;
-            --lp-dark: #1C1210;
-            --lp-dark-surface: #2A1F1A;
-            --lp-light: #FDFAF7;
-            --lp-text: #2D2420;
-            --lp-text-muted: #8C7B72;
-            --lp-text-on-dark: #F5F0EB;
-            --lp-border: #E8DED6;
-            --lp-surface: #FFFFFF;
-            --lp-radius: 12px;
-            --lp-radius-lg: 20px;
             min-height: 100vh;
             overflow-x: hidden;
-            background: var(--lp-light);
-            color: var(--lp-text);
+            background: var(--warm-white);
+            color: var(--espresso);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
         }
-        .landing-page svg {
-            display: inline-block;
-            vertical-align: middle;
-            flex-shrink: 0;
-        }
-        .landing-page img {
-            max-width: 100%;
-            height: auto;
-        }
-        .landing-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 3rem;
+
+        /* ── NAV ── */
+        .landing-page nav {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 100;
-            background: rgba(28, 18, 16, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 48px;
+            background: rgba(253, 250, 244, 0.88);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(192, 124, 58, 0.12);
         }
-        .landing-nav .logo-text {
+
+        .lp-nav-logo {
             font-family: 'Playfair Display', serif;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--lp-accent);
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--espresso);
             letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
-        .landing-nav .nav-buttons {
-            display: flex;
-            gap: 0.75rem;
-        }
-        .landing-nav .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-        .nav-link-landing {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
+        .lp-nav-logo span { color: var(--caramel); }
+
+        .lp-nav-links { display: flex; gap: 36px; list-style: none; }
+        .lp-nav-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 14px;
             font-weight: 500;
             letter-spacing: 0.3px;
+            transition: color 0.2s;
             cursor: pointer;
-            transition: color 0.2s ease;
-            text-decoration: none;
-            padding-bottom: 0;
-            border-bottom: none;
         }
-        .nav-link-landing:hover { color: rgba(255, 255, 255, 1); }
-        .landing-nav .btn-ghost {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 10px 20px;
-            min-height: 44px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            letter-spacing: 0.2px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .landing-nav .btn-ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.3); }
-        .landing-nav .btn-cta-nav {
-            background: var(--lp-accent);
-            color: var(--lp-dark);
-            border: none;
-            padding: 10px 20px;
-            min-height: 44px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            letter-spacing: 0.2px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .landing-nav .btn-cta-nav:hover { background: #D4A57C; transform: translateY(-1px); }
+        .lp-nav-links a:hover { color: var(--espresso); }
 
-        /* Hamburger menu */
-        .hamburger {
-            display: none;
+        .lp-nav-actions { display: flex; gap: 12px; align-items: center; }
+
+        .lp-btn-ghost {
             background: none;
             border: none;
-            cursor: pointer;
-            padding: 8px;
-            z-index: 101;
-        }
-        .hamburger span {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.85);
-            margin: 5px 0;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
-        .mobile-menu {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(28, 18, 16, 0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 99;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        .mobile-menu.active {
-            display: flex;
-        }
-        .mobile-menu .nav-link-landing {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
-            padding: 12px 24px;
-        }
-        .mobile-menu .nav-link-landing:hover {
-            color: white;
-        }
-        .mobile-menu .mobile-menu-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-top: 1rem;
-            width: 100%;
-            max-width: 280px;
-        }
-        .mobile-menu .btn-ghost,
-        .mobile-menu .btn-cta-nav {
-            width: 100%;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            border-radius: 10px;
-        }
-        .mobile-menu .btn-ghost {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 12px 24px;
-            cursor: pointer;
+            color: var(--brown);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
             font-weight: 500;
-        }
-        .mobile-menu .btn-cta-nav {
-            background: var(--lp-accent);
-            color: var(--lp-dark);
-            border: none;
-            padding: 12px 24px;
             cursor: pointer;
-            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: background 0.2s;
         }
+        .lp-btn-ghost:hover { background: var(--latte); }
 
-        @keyframes floatMockup {
-            0%, 100% { transform: perspective(1000px) rotateY(-3deg) rotateX(1deg) translateY(0); }
-            50% { transform: perspective(1000px) rotateY(-3deg) rotateX(1deg) translateY(-8px); }
+        .lp-btn-primary {
+            background: var(--espresso);
+            color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+            transition: background 0.2s, transform 0.15s;
+            letter-spacing: 0.2px;
         }
-        .landing-hero {
+        .lp-btn-primary:hover { background: var(--brown); transform: translateY(-1px); }
+
+        /* ── HERO ── */
+        .lp-hero {
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 8rem 4rem 6rem;
-            background: linear-gradient(165deg, var(--lp-dark) 0%, var(--lp-dark-surface) 45%, var(--lp-primary) 100%);
+            padding: 120px 48px 80px;
             position: relative;
             overflow: hidden;
         }
-        .landing-hero::before {
-            content: '';
+
+        .lp-hero-bg {
             position: absolute;
-            top: -20%;
-            right: -10%;
-            width: 60%;
-            height: 80%;
-            background: radial-gradient(ellipse, rgba(200, 149, 108, 0.12) 0%, transparent 70%);
-            pointer-events: none;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 70% 40%, rgba(192, 124, 58, 0.10) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 60% at 20% 80%, rgba(138, 158, 133, 0.10) 0%, transparent 60%);
         }
-        .landing-hero::after {
-            content: '';
+
+        .lp-coffee-ring {
             position: absolute;
-            bottom: -5%;
-            left: -5%;
-            width: 40%;
-            height: 50%;
-            background: radial-gradient(ellipse, rgba(200, 149, 108, 0.06) 0%, transparent 70%);
-            pointer-events: none;
+            right: 6%; top: 18%;
+            width: 480px; height: 480px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(192, 124, 58, 0.15);
+            animation: lpSlowSpin 40s linear infinite;
         }
-        .hero-content {
+        .lp-coffee-ring::before {
+            content: '';
+            position: absolute; inset: 24px;
+            border-radius: 50%;
+            border: 1px solid rgba(192, 124, 58, 0.10);
+        }
+        .lp-coffee-ring::after {
+            content: '';
+            position: absolute; inset: 48px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 124, 58, 0.06) 0%, transparent 70%);
+        }
+        @keyframes lpSlowSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .lp-float-card {
+            position: absolute;
+            background: var(--card);
+            border: 1px solid rgba(192, 124, 58, 0.18);
+            border-radius: 16px;
+            padding: 14px 18px;
             display: flex;
             align-items: center;
-            gap: 5rem;
-            max-width: 1200px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(28, 18, 8, 0.08);
+            animation: lpFloatUp 6s ease-in-out infinite;
         }
-        .hero-text {
-            flex: 1;
+        .lp-float-card:nth-child(2) { animation-delay: -2s; }
+        .lp-float-card:nth-child(3) { animation-delay: -4s; }
+        @keyframes lpFloatUp {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
         }
-        .hero-visual {
-            flex: 0 0 400px;
-            position: relative;
+        .lp-card-1 { right: 14%; top: 28%; }
+        .lp-card-2 { right: 28%; top: 55%; }
+        .lp-card-3 { right: 8%; top: 64%; }
+
+        .lp-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+            color: white; flex-shrink: 0;
         }
-        .hero-mockup {
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: var(--lp-radius-lg);
-            padding: 1.5rem;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            animation: floatMockup 6s ease-in-out infinite;
+        .lp-avatar.a { background: linear-gradient(135deg, #C07C3A, #D4964F); }
+        .lp-avatar.b { background: linear-gradient(135deg, #8A9E85, #6B8566); }
+        .lp-avatar.c { background: linear-gradient(135deg, #3D2B1A, #6B4A2E); }
+
+        .lp-float-name { font-size: 13px; font-weight: 600; color: var(--espresso); line-height: 1; margin-bottom: 3px; }
+        .lp-float-meta { font-size: 11px; color: var(--muted); }
+
+        .lp-match-badge {
+            margin-left: auto;
+            background: var(--cream);
+            color: var(--caramel);
+            font-size: 11px; font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--latte);
         }
-        .hero-mockup:hover {
-            animation: none;
-            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+
+        .lp-hero-content {
+            max-width: 580px;
+            position: relative; z-index: 1;
+            animation: lpFadeUp 0.8s ease both;
         }
-        .mockup-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #F0ECE8;
+        @keyframes lpFadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .mockup-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            color: white;
-        }
-        .mockup-match {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            border-radius: 10px;
-            background: var(--lp-light);
-            margin-bottom: 0.5rem;
-            transition: background 0.2s ease;
-            border: 1px solid transparent;
-        }
-        .mockup-match:hover { background: var(--lp-accent-soft); border-color: rgba(200, 149, 108, 0.15); }
-        .mockup-match-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: white;
-            flex-shrink: 0;
-        }
-        .mockup-match-info { font-size: 12px; color: var(--lp-text-muted); line-height: 1.4; }
-        .mockup-match-info strong { color: var(--lp-text); font-size: 13px; font-weight: 600; }
-        .mockup-match-tag {
+
+        .lp-hero-tag {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: var(--lp-accent-soft);
-            color: var(--lp-primary);
-            font-weight: 600;
-            margin-top: 3px;
+            gap: 8px;
+            background: var(--latte);
+            color: var(--brown);
+            font-size: 12px; font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 28px;
         }
-        .mockup-btn {
-            width: 100%;
-            padding: 10px;
-            background: var(--lp-primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            margin-top: 0.75rem;
-            cursor: default;
-            letter-spacing: 0.2px;
+        .lp-hero-tag::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--caramel);
         }
-        .hero-title {
+
+        .landing-page h1 {
             font-family: 'Playfair Display', serif;
-            font-weight: 800;
-            font-size: clamp(44px, 5vw, 64px);
-            color: white;
-            margin-bottom: 1.75rem;
+            font-size: clamp(44px, 5.5vw, 72px);
+            font-weight: 900;
             line-height: 1.05;
-            letter-spacing: -2px;
-        }
-        .hero-accent {
-            color: var(--lp-accent);
-        }
-        .hero-subtitle {
-            font-size: clamp(16px, 1.5vw, 18px);
-            color: rgba(255, 255, 255, 0.65);
-            max-width: 480px;
-            line-height: 1.75;
-            margin-bottom: 3rem;
-            font-weight: 400;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        .btn-hero-primary {
-            padding: 14px 32px;
-            min-height: 48px;
-            background: var(--lp-accent);
-            color: var(--lp-dark);
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            letter-spacing: 0.2px;
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200, 149, 108, 0.3); background: #D4A57C; }
-        .btn-hero-primary:active { transform: translateY(0); }
-        .btn-hero-secondary {
-            padding: 14px 32px;
-            min-height: 48px;
-            background: transparent;
-            color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-hero-secondary:hover { border-color: rgba(255, 255, 255, 0.5); color: white; background: rgba(255, 255, 255, 0.05); }
-
-        .landing-section {
-            padding: 7rem 4rem;
-            max-width: 100%;
-            background: var(--lp-surface);
-        }
-        .landing-section .section-inner,
-        .landing-section > .section-title,
-        .landing-section > .section-subtitle,
-        .landing-section > .problem-text,
-        .landing-section > .testimonials-grid,
-        .landing-section > div:not([class]) {
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .landing-section.dark {
-            background: var(--lp-dark-surface);
-        }
-        .landing-section.dark .section-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .landing-section.cream {
-            background: var(--lp-light);
-        }
-        .landing-section.cream .section-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 800;
-            font-size: clamp(28px, 4vw, 40px);
-            color: var(--lp-text);
-            text-align: center;
-            margin-bottom: 1rem;
             letter-spacing: -1.5px;
-            line-height: 1.1;
+            color: var(--espresso);
+            margin-bottom: 24px;
         }
-        .section-title.light { color: var(--lp-text-on-dark); }
-        .section-subtitle {
-            text-align: center;
-            color: var(--lp-text-muted);
-            margin-bottom: 4rem;
-            font-size: clamp(14px, 1.5vw, 16px);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.7;
-            font-weight: 400;
-        }
-        .section-subtitle.light { color: rgba(255, 255, 255, 0.5); }
+        .landing-page h1 em { font-style: italic; color: var(--caramel); }
 
-        .problem-layout {
+        .lp-hero-sub {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--muted);
+            max-width: 460px;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .lp-hero-cta { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+        .lp-btn-cta {
+            background: var(--caramel);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px; font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 10px; border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 24px rgba(192, 124, 58, 0.35);
+        }
+        .lp-btn-cta:hover {
+            background: var(--caramel-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(192, 124, 58, 0.40);
+        }
+
+        .lp-btn-outline {
+            background: transparent;
+            color: var(--brown);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px; font-weight: 500;
+            padding: 15px 28px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(61, 43, 26, 0.25);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lp-btn-outline:hover { border-color: var(--caramel); color: var(--caramel); }
+
+        .lp-social-proof {
+            margin-top: 52px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .lp-avatars-row { display: flex; }
+        .lp-mini-av {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: 2.5px solid var(--warm-white);
+            margin-left: -10px;
+            font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+        }
+        .lp-mini-av:first-child { margin-left: 0; }
+        .lp-mini-av.m1 { background: var(--caramel); }
+        .lp-mini-av.m2 { background: var(--sage); }
+        .lp-mini-av.m3 { background: var(--brown); }
+        .lp-mini-av.m4 { background: #C4956A; }
+        .lp-proof-text { font-size: 13px; color: var(--muted); line-height: 1.4; }
+        .lp-proof-text strong { color: var(--espresso); font-weight: 600; }
+
+        /* ── STATS BAR ── */
+        .lp-stats-bar {
+            background: var(--espresso);
+            padding: 28px 48px;
             display: flex;
-            align-items: center;
-            gap: 3.5rem;
+            justify-content: center;
+            gap: 80px;
+            flex-wrap: wrap;
+        }
+        .lp-stat-item { text-align: center; }
+        .lp-stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px; font-weight: 700;
+            color: var(--caramel-light);
+            line-height: 1; margin-bottom: 4px;
+        }
+        .lp-stat-label { font-size: 13px; color: rgba(245, 240, 232, 0.6); letter-spacing: 0.3px; }
+
+        /* ── SECTION BASE ── */
+        .lp-section { padding: 96px 48px; }
+        .lp-section-tag {
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--caramel);
+            margin-bottom: 16px;
+        }
+        .landing-page h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 4vw, 52px);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            color: var(--espresso);
+            margin-bottom: 16px;
+        }
+        .landing-page h2 em { font-style: italic; color: var(--caramel); }
+        .lp-section-sub {
+            font-size: 16px;
+            color: var(--muted);
+            line-height: 1.7;
+            font-weight: 300;
+            max-width: 520px;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .lp-how { background: var(--cream); }
+        .lp-how-inner { max-width: 1100px; margin: 0 auto; }
+        .lp-how-header { margin-bottom: 64px; }
+        .lp-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        .lp-step {
+            background: var(--card);
+            border: 1px solid rgba(192, 124, 58, 0.15);
+            border-radius: 20px;
+            padding: 36px 32px;
+            position: relative;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .lp-step:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(28, 18, 8, 0.10); }
+        .lp-step-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 64px; font-weight: 900;
+            color: rgba(192, 124, 58, 0.12);
+            line-height: 1;
+            position: absolute; top: 20px; right: 24px;
+        }
+        .lp-step-icon {
+            width: 48px; height: 48px;
+            background: var(--latte);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        .lp-step h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px; font-weight: 700;
+            color: var(--espresso);
+            margin-bottom: 12px;
+        }
+        .lp-step p { font-size: 14px; line-height: 1.7; color: var(--muted); font-weight: 300; }
+
+        /* ── FEATURES ── */
+        .lp-features-inner {
             max-width: 1100px;
             margin: 0 auto;
-        }
-        .problem-image {
-            flex: 0 0 400px;
-            border-radius: var(--lp-radius-lg, 16px);
-            overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-        }
-        .problem-image img {
-            width: 100%;
-            display: block;
-        }
-        .problem-text-group {
-            flex: 1;
-        }
-        .problem-text {
-            font-size: clamp(15px, 1.6vw, 18px);
-            line-height: 1.9;
-            color: var(--lp-text-muted);
-            margin: 0 0 1.5rem;
-        }
-        .problem-highlight {
-            color: var(--lp-primary);
-            font-weight: 700;
-        }
-
-        .steps-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin-top: 3rem;
-            position: relative;
-        }
-        .steps-grid::before {
-            content: '';
-            position: absolute;
-            top: 36px;
-            left: calc(16.67% + 26px);
-            right: calc(16.67% + 26px);
-            height: 2px;
-            background: rgba(200, 149, 108, 0.3);
-            z-index: 0;
-        }
-        .step-card {
-            text-align: center;
-            padding: 3rem 2rem;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: var(--lp-radius-lg);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
-        }
-        .step-card:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-4px); border-color: rgba(200, 149, 108, 0.2); }
-        .step-number {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            background: var(--lp-accent);
-            color: var(--lp-dark);
-            font-size: 18px;
-            font-weight: 800;
-            display: flex;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
             align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
         }
-        .step-card h3 { color: var(--lp-text-on-dark); margin-bottom: 0.75rem; font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
-        .step-card p { color: rgba(255, 255, 255, 0.55); font-size: 14px; line-height: 1.75; }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-        .features-grid.four-col {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .feature-card {
-            background: var(--lp-surface);
-            border-radius: var(--lp-radius-lg);
-            padding: 2.5rem;
-            text-align: left;
-            border: 1px solid var(--lp-border);
-            transition: all 0.3s ease;
-        }
-        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06); border-color: rgba(200, 149, 108, 0.3); }
-        .feature-card--centered { text-align: center; }
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: var(--lp-accent-soft);
-            color: var(--lp-primary);
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        .feature-card--centered .feature-icon { margin: 0 auto 1.5rem; }
-        .feature-card:hover .feature-icon { background: var(--lp-accent); color: var(--lp-dark); }
-        .feature-card h3 { color: var(--lp-text); margin-bottom: 0.75rem; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-        .feature-card p { color: var(--lp-text-muted); font-size: 14px; line-height: 1.75; }
-        .cohort-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: var(--lp-accent-soft);
-            color: var(--lp-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.25rem;
-        }
-
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-        .testimonial-card {
-            background: var(--lp-surface);
-            border-radius: var(--lp-radius-lg);
-            padding: 2rem;
-            border: 1px solid var(--lp-border);
-            position: relative;
-        }
-        .testimonial-card::before {
-            content: '\201C';
-            font-family: 'Playfair Display', serif;
-            font-weight: 800;
-            font-size: 48px;
-            color: var(--lp-accent);
-            position: absolute;
-            top: 12px;
-            left: 20px;
-            line-height: 1;
-        }
-        .testimonial-text {
-            font-style: italic;
-            color: var(--lp-text-muted);
-            line-height: 1.6;
-            margin-bottom: 1.25rem;
-            padding-top: 1rem;
-        }
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .testimonial-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: var(--lp-primary);
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .testimonial-name { font-weight: 600; font-size: 14px; color: var(--lp-text); }
-        .testimonial-role { font-size: 12px; color: var(--lp-text-muted); }
-
-        /* Founder section */
-        .founder-section {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 4rem;
-            max-width: 900px;
-            margin: 0 auto;
-            align-items: start;
-        }
-        .founder-photo {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: var(--lp-radius-lg);
-            object-fit: cover;
-            object-position: center center;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
-        }
-        .founder-text p {
-            font-size: 17px;
-            line-height: 1.85;
-            color: var(--lp-text);
-            margin-bottom: 1.25rem;
-        }
-        .founder-attribution {
-            font-weight: 700;
-            color: var(--lp-primary);
-            font-size: 15px;
-            margin-top: 2rem;
-            letter-spacing: -0.3px;
-        }
-
-        /* Contact card */
-        .contact-card {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: var(--lp-surface);
-            padding: 1.25rem 2rem;
-            border-radius: var(--lp-radius);
-            border: 1px solid var(--lp-border);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: all 0.2s ease;
-        }
-        .contact-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); transform: translateY(-2px); }
-
-        .landing-final-cta {
-            text-align: center;
-            padding: 8rem 2rem;
-            background: linear-gradient(165deg, var(--lp-dark) 0%, var(--lp-dark-surface) 50%, var(--lp-primary) 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .landing-final-cta::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse at 50% 30%, rgba(200, 149, 108, 0.15) 0%, transparent 60%);
-        }
-        .landing-final-cta h2 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 800;
-            font-size: clamp(36px, 4vw, 48px);
-            color: white;
-            margin-bottom: 1.25rem;
-            position: relative;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-        }
-        .landing-final-cta p {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 3rem;
-            font-size: 17px;
-            position: relative;
-            max-width: 550px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.7;
-        }
-
-        .landing-footer {
-            background: var(--lp-dark);
-            padding: 3rem 2rem;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.35);
-            font-size: 13px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .landing-footer a { transition: color 0.2s ease; }
-        .landing-footer a:hover { color: var(--lp-accent) !important; }
-
-        /* === LINKEDIN-STYLE PROFILE === */
-        .profile-banner {
-            height: 180px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #8B6F47 100%);
-            border-radius: 12px 12px 0 0;
-            position: relative;
-        }
-        .profile-main-card {
-            background: white;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-        }
-        .profile-main-info {
-            padding: 0 2rem 2rem;
-            position: relative;
-        }
-        .profile-main-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px solid white;
-            background: var(--primary);
-            color: white;
-            font-size: 40px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: -60px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-        .profile-main-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .profile-headline {
-            display: flex;
-            justify-content: space-between;
+        .lp-feature-list { display: flex; flex-direction: column; gap: 28px; }
+        .lp-feature-item {
+            display: flex; gap: 20px;
             align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 1rem;
+            padding: 24px; border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .profile-section-card {
-            background: white;
+        .lp-feature-item:hover, .lp-feature-item.active { background: var(--cream); }
+        .lp-feature-icon {
+            width: 44px; height: 44px; flex-shrink: 0;
+            background: var(--latte);
             border-radius: 12px;
-            padding: 1.5rem 2rem;
-            border: 1px solid var(--border);
-            margin-bottom: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
         }
-        .profile-section-card h3 {
-            margin-bottom: 1rem;
-            font-size: 18px;
+        .lp-feature-item.active .lp-feature-icon { background: var(--espresso); }
+        .lp-feature-item h3 { font-size: 16px; font-weight: 600; color: var(--espresso); margin-bottom: 6px; }
+        .lp-feature-item p { font-size: 14px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+        /* App mockup */
+        .lp-app-mockup {
+            background: var(--espresso);
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 32px 80px rgba(28, 18, 8, 0.20);
+            position: relative; overflow: hidden;
         }
-
-        /* === TABLET: 769px - 1024px === */
-        @media (max-width: 1024px) and (min-width: 769px) {
-            .landing-section { padding: 5rem 2.5rem; }
-            .hero-visual { flex: 0 0 320px; }
-            .hero-content { gap: 3rem; }
-            .landing-hero { padding: 7rem 2.5rem 5rem; }
-            .features-grid, .features-grid.four-col { grid-template-columns: repeat(2, 1fr); }
-            .testimonials-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-            .founder-section { grid-template-columns: 200px 1fr; gap: 2.5rem; }
-            .founder-text p { font-size: 15px; }
-            .section-title { font-size: 36px; }
-            .section-subtitle { font-size: 15px; margin-bottom: 3rem; }
-            .landing-final-cta { padding: 6rem 2rem; }
-            .landing-final-cta h2 { font-size: 36px; }
+        .lp-app-mockup::before {
+            content: '';
+            position: absolute; top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 124, 58, 0.15) 0%, transparent 70%);
         }
-
-        /* === MOBILE: 768px and below === */
-        @media (max-width: 768px) {
-            /* Nav: show hamburger, hide desktop links/buttons */
-            .landing-nav {
-                padding: 0.75rem 1.25rem;
-            }
-            .landing-nav .nav-links { display: none; }
-            .landing-nav .nav-buttons { display: none; }
-            .hamburger { display: block; }
-
-            /* Hero */
-            .landing-hero { padding: 6.5rem 1.25rem 3.5rem; min-height: auto; }
-            .hero-content { flex-direction: column; text-align: center; gap: 2.5rem; }
-            .hero-visual { flex: 0 0 auto; width: 100%; max-width: 320px; margin: 0 auto; }
-            .hero-mockup { animation: none; transform: none; }
-            .hero-mockup:hover { transform: none; }
-            .hero-title { font-size: clamp(32px, 8vw, 44px); letter-spacing: -1.2px; }
-            .hero-subtitle { max-width: 100%; margin-left: auto; margin-right: auto; font-size: 15px; margin-bottom: 2rem; }
-            .hero-buttons { flex-direction: column; align-items: center; width: 100%; }
-            .btn-hero-primary, .btn-hero-secondary {
-                width: 100%;
-                max-width: 340px;
-                min-height: 48px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 15px;
-            }
-
-            /* Sections */
-            .landing-section { padding: 3.5rem 1.25rem; }
-            .section-title { font-size: clamp(26px, 6vw, 32px); letter-spacing: -0.8px; }
-            .section-subtitle { font-size: 14px; margin-bottom: 2.5rem; max-width: 100%; }
-            .problem-layout { flex-direction: column; gap: 2rem; }
-            .problem-image { flex: 0 0 auto; max-width: 100%; }
-            .problem-text { font-size: 15px; line-height: 1.8; text-align: center; }
-
-            /* Steps - stack */
-            .steps-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .steps-grid::before { display: none; }
-            .step-card { padding: 2rem 1.5rem; }
-
-            /* Features - stack */
-            .features-grid, .features-grid.four-col { grid-template-columns: 1fr; }
-            .feature-card { padding: 2rem 1.5rem; }
-
-            /* Founding cohort - stack */
-            .testimonials-grid { grid-template-columns: 1fr; }
-
-            /* Founder section */
-            .founder-section { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
-            .founder-photo { max-width: 200px; margin: 0 auto; border-radius: 16px; }
-            .founder-text p { font-size: 15px; line-height: 1.75; }
-            .founder-attribution { font-size: 14px; }
-
-            /* Contact */
-            .contact-card {
-                flex-direction: column;
-                text-align: center;
-                padding: 1rem 1.5rem;
-                width: 100%;
-                max-width: 340px;
-            }
-            .contact-card a { font-size: 14px; word-break: break-all; }
-
-            /* Final CTA */
-            .landing-final-cta { padding: 4rem 1.25rem; }
-            .landing-final-cta h2 { font-size: clamp(28px, 6vw, 36px); letter-spacing: -1px; }
-            .landing-final-cta p { font-size: 15px; }
-            .landing-final-cta .btn-hero-primary {
-                min-height: 48px;
-                font-size: 14px;
-                padding: 14px 24px;
-            }
-
-            /* Footer */
-            .landing-footer { padding: 2rem 1.25rem; }
-            .landing-footer div { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem; }
-            .landing-footer a { min-height: 44px; display: inline-flex; align-items: center; padding: 8px 12px !important; }
+        .lp-mockup-bar { display: flex; gap: 6px; margin-bottom: 20px; }
+        .lp-mockup-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .lp-mockup-dot.r { background: #FF5F57; }
+        .lp-mockup-dot.y { background: #FEBC2E; }
+        .lp-mockup-dot.g { background: #28C840; }
+        .lp-mockup-tabs {
+            display: flex; gap: 4px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 10px; padding: 4px;
+            margin-bottom: 20px;
+        }
+        .lp-mockup-tab {
+            flex: 1; text-align: center;
+            padding: 8px; border-radius: 8px;
+            font-size: 12px; font-weight: 500;
+            color: rgba(245, 240, 232, 0.45);
+        }
+        .lp-mockup-tab.active { background: var(--caramel); color: white; }
+        .lp-mockup-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 16px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .lp-mc-av {
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700;
+            color: white; flex-shrink: 0;
+        }
+        .lp-mc-av.a1 { background: linear-gradient(135deg, var(--caramel), #D4964F); }
+        .lp-mc-av.a2 { background: linear-gradient(135deg, var(--sage), #6B8566); }
+        .lp-mc-av.a3 { background: linear-gradient(135deg, #C4956A, #9E6B3A); }
+        .lp-mc-info { flex: 1; }
+        .lp-mc-name { font-size: 13px; font-weight: 600; color: rgba(245,240,232,0.9); margin-bottom: 3px; }
+        .lp-mc-meta { font-size: 11px; color: rgba(245,240,232,0.45); }
+        .lp-mc-btn {
+            background: rgba(192, 124, 58, 0.25);
+            color: var(--caramel-light);
+            font-size: 11px; font-weight: 600;
+            padding: 6px 12px; border-radius: 20px;
+            border: 1px solid rgba(192, 124, 58, 0.3);
+            cursor: pointer; white-space: nowrap;
         }
 
-        /* === SMALL MOBILE: 480px and below === */
-        @media (max-width: 480px) {
-            .landing-hero { padding: 6rem 1rem 3rem; }
-            .landing-section { padding: 3rem 1rem; }
-            .hero-title { font-size: 28px; letter-spacing: -1px; }
-            .hero-subtitle { font-size: 14px; }
-            .hero-visual { max-width: 280px; }
-            .hero-mockup { padding: 1rem; }
-            .mockup-match-info { font-size: 11px; }
-            .mockup-match-info strong { font-size: 12px; }
-            .section-title { font-size: 24px; }
-            .section-subtitle { font-size: 13px; }
-            .step-card { padding: 1.5rem 1rem; }
-            .feature-card { padding: 1.5rem 1.25rem; }
-            .landing-final-cta { padding: 3.5rem 1rem; }
-            .landing-final-cta h2 { font-size: 24px; }
-            .landing-final-cta p { font-size: 14px; }
-            .landing-footer { font-size: 12px; }
+        /* ── FOUNDER ── */
+        .lp-founder { background: var(--cream); }
+        .lp-founder-inner {
+            max-width: 900px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 64px;
+            align-items: center;
         }
+        .lp-founder-portrait {
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: var(--latte);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 72px; font-weight: 900;
+            color: var(--caramel);
+            flex-shrink: 0;
+            position: relative; overflow: hidden;
+            border: 4px solid rgba(192, 124, 58, 0.2);
+        }
+        .lp-founder-portrait img { width: 100%; height: 100%; object-fit: cover; }
+        .lp-founder-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(20px, 2.5vw, 28px);
+            font-style: italic; font-weight: 700;
+            line-height: 1.4;
+            color: var(--espresso);
+            margin-bottom: 24px;
+        }
+        .lp-founder-attr {
+            font-size: 14px; color: var(--muted);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .lp-founder-attr::before {
+            content: '';
+            width: 32px; height: 1.5px;
+            background: var(--caramel);
+        }
+
+        /* ── CTA SECTION ── */
+        .lp-cta-section {
+            background: var(--espresso);
+            text-align: center;
+            padding: 100px 48px;
+            position: relative; overflow: hidden;
+        }
+        .lp-cta-section::before {
+            content: '';
+            position: absolute;
+            top: -100px; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 124, 58, 0.12) 0%, transparent 70%);
+        }
+        .lp-cta-section h2 { color: var(--cream); max-width: 600px; margin: 0 auto 16px; }
+        .lp-cta-section .lp-section-sub { color: rgba(245, 240, 232, 0.55); margin: 0 auto 40px; }
+
+        /* ── FOOTER ── */
+        .lp-footer {
+            background: var(--espresso);
+            border-top: 1px solid rgba(245, 240, 232, 0.08);
+            padding: 32px 48px;
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .lp-footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px; font-weight: 900;
+            color: var(--cream);
+        }
+        .lp-footer-logo span { color: var(--caramel); }
+        .lp-footer-text { font-size: 13px; color: rgba(245, 240, 232, 0.35); }
+        .lp-footer-links { display: flex; gap: 24px; list-style: none; }
+        .lp-footer-links a {
+            font-size: 13px; color: rgba(245, 240, 232, 0.45);
+            text-decoration: none; transition: color 0.2s;
+        }
+        .lp-footer-links a:hover { color: var(--caramel-light); }
+
+        /* ── SCROLL ANIMATIONS ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── HAMBURGER (mobile) ── */
+        .lp-hamburger {
+            display: none;
+            background: none; border: none;
+            cursor: pointer; padding: 8px;
+            z-index: 101;
+        }
+        .lp-hamburger span {
+            display: block;
+            width: 22px; height: 2px;
+            background: var(--espresso);
+            margin: 5px 0; border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .lp-hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .lp-hamburger.active span:nth-child(2) { opacity: 0; }
+        .lp-hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        .lp-mobile-menu {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(253, 250, 244, 0.97);
+            backdrop-filter: blur(20px);
+            z-index: 99;
+            flex-direction: column;
+            justify-content: center; align-items: center;
+            gap: 1.5rem;
+        }
+        .lp-mobile-menu.active { display: flex; }
+        .lp-mobile-menu a {
+            font-size: 18px; color: var(--muted);
+            text-decoration: none; padding: 12px 24px;
+            cursor: pointer; transition: color 0.2s;
+        }
+        .lp-mobile-menu a:hover { color: var(--espresso); }
+        .lp-mobile-buttons {
+            display: flex; flex-direction: column;
+            gap: 0.75rem; margin-top: 1rem;
+            width: 100%; max-width: 280px;
+        }
+        .lp-mobile-buttons .lp-btn-ghost,
+        .lp-mobile-buttons .lp-btn-primary {
+            width: 100%; min-height: 48px;
+            font-size: 15px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .landing-page nav { padding: 16px 24px; }
+            .lp-nav-links { display: none; }
+            .lp-nav-actions { display: none; }
+            .lp-hamburger { display: block; }
+            .lp-hero { padding: 100px 24px 60px; }
+            .lp-float-card { display: none; }
+            .lp-coffee-ring { display: none; }
+            .lp-section { padding: 64px 24px; }
+            .lp-steps { grid-template-columns: 1fr; }
+            .lp-features-inner { grid-template-columns: 1fr; gap: 40px; }
+            .lp-founder-inner { grid-template-columns: 1fr; text-align: center; }
+            .lp-founder-portrait { margin: 0 auto; }
+            .lp-footer { flex-direction: column; gap: 16px; text-align: center; }
+            .lp-stats-bar { gap: 40px; padding: 28px 24px; }
+            .lp-cta-section { padding: 64px 24px; }
+        }
+        @media (max-width: 600px) {
+            .lp-hero { padding: 90px 20px 48px; }
+            .lp-section { padding: 48px 20px; }
+            .landing-page h1 { font-size: 36px; }
+            .landing-page h2 { font-size: 28px; }
+            .lp-stats-bar { gap: 24px; }
+            .lp-cta-section { padding: 48px 20px; }
+            .lp-footer { padding: 24px 20px; }
+        }
+
 
         /* Grid */
         .grid {
@@ -3333,222 +3060,251 @@
             <!-- Landing Page -->
             <div id="landingView" class="content-view">
                 <div class="landing-page">
+
                     <!-- Nav -->
-                    <div class="landing-nav">
-                        <span class="logo-text"><svg width="22" height="24" viewBox="0 0 72 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 18 Q27 12 24 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M36 18 Q39 12 36 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M48 18 Q51 12 48 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M14 22 L20 66 H52 L58 22 Z" fill="#c17d3c"/><path d="M18 22 L23 58 H28 L23.5 22 Z" fill="rgba(255,255,255,0.07)"/><ellipse cx="36" cy="27" rx="20" ry="4" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="24" ry="5" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="20" ry="3.5" fill="#c17d3c"/><path d="M58 30 Q72 30 72 44 Q72 58 58 58" stroke="#c17d3c" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M58 30 Q68 30 68 44 Q68 58 58 58" stroke="#9a5f28" stroke-width="2" stroke-linecap="round" fill="none"/></svg> <strong>First</strong>Sip</span>
-                        <div class="nav-links">
-                            <a class="nav-link-landing" onclick="document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})">About</a>
-                            <a class="nav-link-landing" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">How It Works</a>
-                            <a class="nav-link-landing" onclick="document.getElementById('contactSection').scrollIntoView({behavior:'smooth'})">Contact</a>
+                    <nav>
+                        <div class="lp-nav-logo">First<span>Sip</span></div>
+                        <ul class="lp-nav-links">
+                            <li><a onclick="document.getElementById('lpHow').scrollIntoView({behavior:'smooth'})">How It Works</a></li>
+                            <li><a onclick="document.getElementById('lpFeatures').scrollIntoView({behavior:'smooth'})">Features</a></li>
+                            <li><a onclick="document.getElementById('lpFounder').scrollIntoView({behavior:'smooth'})">Our Story</a></li>
+                            <li><a onclick="document.getElementById('lpContact').scrollIntoView({behavior:'smooth'})">Contact</a></li>
+                        </ul>
+                        <div class="lp-nav-actions">
+                            <button class="lp-btn-ghost" onclick="showLandingLogin()">Sign In</button>
+                            <button class="lp-btn-primary" onclick="showLandingSignup()">Join Rowan&#39;s Cohort &rarr;</button>
                         </div>
-                        <div class="nav-buttons">
-                            <button class="btn-ghost" onclick="showLandingLogin()">Sign In</button>
-                            <button class="btn-cta-nav" onclick="showLandingSignup()">Sign Up</button>
-                        </div>
-                        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                        <button class="lp-hamburger" id="lpHamburger" onclick="toggleLpMenu()" aria-label="Menu">
                             <span></span><span></span><span></span>
                         </button>
-                    </div>
+                    </nav>
+
                     <!-- Mobile Menu -->
-                    <div class="mobile-menu" id="mobileMenu">
-                        <a class="nav-link-landing" onclick="closeMobileMenu(); document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})">About</a>
-                        <a class="nav-link-landing" onclick="closeMobileMenu(); document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">How It Works</a>
-                        <a class="nav-link-landing" onclick="closeMobileMenu(); document.getElementById('contactSection').scrollIntoView({behavior:'smooth'})">Contact</a>
-                        <div class="mobile-menu-buttons">
-                            <button class="btn-ghost" onclick="closeMobileMenu(); showLandingLogin()">Sign In</button>
-                            <button class="btn-cta-nav" onclick="closeMobileMenu(); showLandingSignup()">Sign Up</button>
+                    <div class="lp-mobile-menu" id="lpMobileMenu">
+                        <a onclick="closeLpMenu(); document.getElementById('lpHow').scrollIntoView({behavior:'smooth'})">How It Works</a>
+                        <a onclick="closeLpMenu(); document.getElementById('lpFeatures').scrollIntoView({behavior:'smooth'})">Features</a>
+                        <a onclick="closeLpMenu(); document.getElementById('lpFounder').scrollIntoView({behavior:'smooth'})">Our Story</a>
+                        <a onclick="closeLpMenu(); document.getElementById('lpContact').scrollIntoView({behavior:'smooth'})">Contact</a>
+                        <div class="lp-mobile-buttons">
+                            <button class="lp-btn-ghost" onclick="closeLpMenu(); showLandingLogin()">Sign In</button>
+                            <button class="lp-btn-primary" onclick="closeLpMenu(); showLandingSignup()">Join Rowan&#39;s Cohort</button>
                         </div>
                     </div>
 
                     <!-- Hero -->
-                    <div class="landing-hero">
-                        <div class="hero-content">
-                            <div class="hero-text">
-                                <h1 class="hero-title">The networking app built for <span class="hero-accent">Rowan University students</span></h1>
-                                <p class="hero-subtitle">Meet fellow Profs and Rowan alumni who actually want to help. Schedule real conversations. Build relationships that lead to referrals, mentors, and opportunities.</p>
-                                <div class="hero-buttons">
-                                    <button class="btn-hero-primary" onclick="showLandingSignup()">Join Rowan's Founding Cohort</button>
-                                    <button class="btn-hero-secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">See How It Works &#8595;</button>
-                                </div>
+                    <section class="lp-hero">
+                        <div class="lp-hero-bg"></div>
+                        <div class="lp-coffee-ring"></div>
+
+                        <div class="lp-float-card lp-card-1">
+                            <div class="lp-avatar a">JT</div>
+                            <div>
+                                <div class="lp-float-name">Jordan Torres</div>
+                                <div class="lp-float-meta">Finance Junior &middot; Rowan</div>
                             </div>
-                            <div class="hero-visual">
-                                <div class="hero-mockup">
-                                    <div class="mockup-header">
-                                        <div style="color: var(--lp-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></div>
-                                        <div>
-                                            <div style="font-weight: 700; font-size: 14px; color: var(--lp-text);">Your Matches</div>
-                                            <div style="font-size: 11px; color: var(--lp-text-muted);">3 new people to meet</div>
-                                        </div>
-                                    </div>
-                                    <div class="mockup-match">
-                                        <div class="mockup-match-avatar" style="background: #6B4C3B;">JT</div>
-                                        <div class="mockup-match-info">
-                                            <strong>Jordan Torres</strong><br>
-                                            Finance Junior &middot; Rowan<br>
-                                            <span class="mockup-match-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 92% Match</span>
-                                        </div>
-                                    </div>
-                                    <div class="mockup-match">
-                                        <div class="mockup-match-avatar" style="background: #8C7B72;">AP</div>
-                                        <div class="mockup-match-info">
-                                            <strong>Anika Patel</strong><br>
-                                            CS Senior &middot; Rowan<br>
-                                            <span class="mockup-match-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Same goals</span>
-                                        </div>
-                                    </div>
-                                    <div class="mockup-match">
-                                        <div class="mockup-match-avatar" style="background: #C8956C;">MR</div>
-                                        <div class="mockup-match-info">
-                                            <strong>Mike Reyes</strong><br>
-                                            Engineering Sophomore &middot; Rowan<br>
-                                            <span class="mockup-match-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Wants to chat</span>
-                                        </div>
-                                    </div>
-                                    <div class="mockup-btn">Schedule a Coffee Chat</div>
+                            <div class="lp-match-badge">92% match</div>
+                        </div>
+                        <div class="lp-float-card lp-card-2">
+                            <div class="lp-avatar b">AP</div>
+                            <div>
+                                <div class="lp-float-name">Anika Patel</div>
+                                <div class="lp-float-meta">CS Senior &middot; Rowan</div>
+                            </div>
+                            <div class="lp-match-badge">Same goals</div>
+                        </div>
+                        <div class="lp-float-card lp-card-3">
+                            <div class="lp-avatar c">MR</div>
+                            <div>
+                                <div class="lp-float-name">Mike Reyes</div>
+                                <div class="lp-float-meta">Engineering &middot; Rowan</div>
+                            </div>
+                            <div class="lp-match-badge">Wants to chat</div>
+                        </div>
+
+                        <div class="lp-hero-content">
+                            <div class="lp-hero-tag">Now at Rowan University</div>
+                            <h1>Networking that<br/>feels <em>human</em><br/>for once.</h1>
+                            <p class="lp-hero-sub">Meet fellow Profs and Rowan alumni who actually want to help. Skip the LinkedIn grind &mdash; book a real 30-minute conversation instead.</p>
+                            <div class="lp-hero-cta">
+                                <button class="lp-btn-cta" onclick="showLandingSignup()">&#9749; Join the Founding Cohort</button>
+                                <button class="lp-btn-outline" onclick="document.getElementById('lpHow').scrollIntoView({behavior:'smooth'})">See How It Works &darr;</button>
+                            </div>
+                            <div class="lp-social-proof">
+                                <div class="lp-avatars-row">
+                                    <div class="lp-mini-av m1">S</div>
+                                    <div class="lp-mini-av m2">J</div>
+                                    <div class="lp-mini-av m3">A</div>
+                                    <div class="lp-mini-av m4">M</div>
+                                </div>
+                                <div class="lp-proof-text">
+                                    <strong>Rowan students</strong> are already connecting.<br>
+                                    Be part of the founding cohort &mdash; it&apos;s free.
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- Problem -->
-                    <div class="landing-section">
-                        <div class="problem-layout">
-                            <div class="problem-image">
-                                <img src="images/coffee%20chat%20image.png" alt="Two students having a first sip at a table">
-                            </div>
-                            <div class="problem-text-group">
-                                <p class="problem-text">
-                                    Career fairs feel like speed dating with recruiters who forget your name. LinkedIn messages to alumni go unanswered. You know networking matters, but nobody teaches you <em>how</em>.
-                                </p>
-                                <p class="problem-text">
-                                    <span class="problem-highlight">First Sip is different.</span> We match you with fellow Rowan students, alumni who recently broke into your target industry, and mentors who actually want to help &mdash; then make it easy to have <em>real</em> conversations.
-                                </p>
-                            </div>
+                    <!-- Stats Bar -->
+                    <div class="lp-stats-bar">
+                        <div class="lp-stat-item">
+                            <div class="lp-stat-num">30 min</div>
+                            <div class="lp-stat-label">Average chat length</div>
                         </div>
-                    </div>
-
-                    <!-- About -->
-                    <div class="landing-section cream" id="aboutSection">
-                        <div class="section-inner">
-                            <h2 class="section-title">The Story Behind First Sip</h2>
-                            <div class="founder-section">
-                                <img src="images/sal.jpg" alt="Sal Altadonna, Founder of First Sip" class="founder-photo">
-                                <div class="founder-text">
-                                    <p>First Sip was built by a Rowan junior who was tired of the traditional networking grind. Stiff handshakes at career fairs, cold LinkedIn messages that go nowhere, and events where everyone's just exchanging business cards they'll never look at again.</p>
-                                    <p>I wanted something different &mdash; a way to build <strong>genuine relationships</strong> with people who share my curiosity, not just my industry. A place where a 30-minute coffee conversation could turn into a mentorship, a friendship, or even a co-founder match.</p>
-                                    <p>So I built First Sip &mdash; a more human, more efficient way to network. No fluff. Just real people, real conversations, and real connections.</p>
-                                    <p class="founder-attribution">&mdash; Sal Altadonna, Founder</p>
-                                </div>
-                            </div>
+                        <div class="lp-stat-item">
+                            <div class="lp-stat-num">100%</div>
+                            <div class="lp-stat-label">Rowan-only community</div>
+                        </div>
+                        <div class="lp-stat-item">
+                            <div class="lp-stat-num">Free</div>
+                            <div class="lp-stat-label">Always, for students</div>
+                        </div>
+                        <div class="lp-stat-item">
+                            <div class="lp-stat-num">Real</div>
+                            <div class="lp-stat-label">Conversations, not cold messages</div>
                         </div>
                     </div>
 
                     <!-- How It Works -->
-                    <div class="landing-section dark" id="howItWorks">
-                        <div class="section-inner">
-                            <h2 class="section-title light">How It Works</h2>
-                            <p class="section-subtitle light">Three simple steps to meaningful connections</p>
-                            <div class="steps-grid">
-                                <div class="step-card">
-                                    <div class="step-number">1</div>
-                                    <h3>Create Your Profile</h3>
-                                    <p>Share what you're studying, your career interests, and what you're curious about. We match you with students and alumni who can actually help.</p>
+                    <section class="lp-section lp-how" id="lpHow">
+                        <div class="lp-how-inner">
+                            <div class="lp-how-header reveal">
+                                <div class="lp-section-tag">How It Works</div>
+                                <h2>Three steps to a<br/><em>real</em> connection.</h2>
+                                <p class="lp-section-sub">No algorithm feeding you strangers. No cold messages disappearing into the void. Just a simple path to a genuine conversation.</p>
+                            </div>
+                            <div class="lp-steps">
+                                <div class="lp-step reveal">
+                                    <div class="lp-step-num">01</div>
+                                    <div class="lp-step-icon">&#128100;</div>
+                                    <h3>Build Your Profile</h3>
+                                    <p>Tell us what you&apos;re studying, where you&apos;re headed, and what you&apos;re curious about. The more real you are, the better your matches.</p>
                                 </div>
-                                <div class="step-card">
-                                    <div class="step-number">2</div>
+                                <div class="lp-step reveal">
+                                    <div class="lp-step-num">02</div>
+                                    <div class="lp-step-icon">&#128269;</div>
                                     <h3>Discover &amp; Connect</h3>
-                                    <p>Browse fellow Rowan students and alumni who recently broke into your target industry. Request coffee chats with people who inspire you.</p>
+                                    <p>Browse students and Rowan alumni who recently broke into your target field. Send a connection request when someone catches your eye.</p>
                                 </div>
-                                <div class="step-card">
-                                    <div class="step-number">3</div>
-                                    <h3>Schedule Coffee Chats</h3>
-                                    <p>Book 15&ndash;30 minute virtual or in-person chats. Get conversation starters based on shared interests. Build relationships that lead to referrals and opportunities.</p>
+                                <div class="lp-step reveal">
+                                    <div class="lp-step-num">03</div>
+                                    <div class="lp-step-icon">&#9749;</div>
+                                    <h3>Schedule a First Sip</h3>
+                                    <p>Book a 15&ndash;30 minute chat, virtual or in-person. We give you conversation starters so it never feels awkward.</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Features -->
-                    <div class="landing-section cream">
-                        <div class="section-inner">
-                            <h2 class="section-title">What Makes Us Different</h2>
-                            <p class="section-subtitle">Built for students who want real connections, not LinkedIn noise</p>
-                            <div class="features-grid">
-                                <div class="feature-card">
-                                    <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></div>
-                                    <h3>Smart Matching</h3>
-                                    <p>Matched based on what you're studying, your career interests, and mentorship goals. We pair you with students and alumni who align with where you're headed &mdash; not just who you already know.</p>
+                    <section class="lp-section" id="lpFeatures" style="background: var(--warm-white);">
+                        <div class="lp-features-inner">
+                            <div class="lp-feature-list reveal">
+                                <div class="lp-section-tag">What Makes Us Different</div>
+                                <h2>Built for students,<br/>not recruiters.</h2>
+                                <div class="lp-feature-item active">
+                                    <div class="lp-feature-icon">&#127919;</div>
+                                    <div>
+                                        <h3>Smart Matching</h3>
+                                        <p>Matched by major, career goals, and genuine interests &mdash; not just who you already know.</p>
+                                    </div>
                                 </div>
-                                <div class="feature-card">
-                                    <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-                                    <h3>Built-In Icebreakers</h3>
-                                    <p>Every chat comes with tailored conversation starters based on your shared interests and goals. No more awkward "so what do you do?" &mdash; jump straight into topics you both care about.</p>
+                                <div class="lp-feature-item">
+                                    <div class="lp-feature-icon">&#128172;</div>
+                                    <div>
+                                        <h3>Built-In Icebreakers</h3>
+                                        <p>Every chat comes with conversation starters based on your shared interests. No awkward silences.</p>
+                                    </div>
                                 </div>
-                                <div class="feature-card">
-                                    <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-                                    <h3>Community Groups</h3>
-                                    <p>Join groups for your major, career interest, or campus. Share advice, ask questions, and find your people in a space that feels like a group chat, not a career fair.</p>
+                                <div class="lp-feature-item">
+                                    <div class="lp-feature-icon">&#128101;</div>
+                                    <div>
+                                        <h3>Community Groups</h3>
+                                        <p>Join groups for your major or career interest. Share advice, ask questions, find your people.</p>
+                                    </div>
                                 </div>
-                                <div class="feature-card">
-                                    <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                                    <h3>15&ndash;30 Minute Chats</h3>
-                                    <p>Fits between classes. First Sip is built around quick, focused conversations that work with your schedule &mdash; whether virtual or at the campus caf&eacute;.</p>
+                                <div class="lp-feature-item">
+                                    <div class="lp-feature-icon">&#9201;&#65039;</div>
+                                    <div>
+                                        <h3>Fits Your Schedule</h3>
+                                        <p>15&ndash;30 minute chats that fit between classes. Virtual or at the campus caf&eacute;.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="lp-app-mockup reveal">
+                                <div class="lp-mockup-bar">
+                                    <div class="lp-mockup-dot r"></div>
+                                    <div class="lp-mockup-dot y"></div>
+                                    <div class="lp-mockup-dot g"></div>
+                                </div>
+                                <div class="lp-mockup-tabs">
+                                    <div class="lp-mockup-tab active">My Network</div>
+                                    <div class="lp-mockup-tab">My Groups</div>
+                                    <div class="lp-mockup-tab">My Chats</div>
+                                </div>
+                                <div class="lp-mockup-card">
+                                    <div class="lp-mc-av a1">JT</div>
+                                    <div class="lp-mc-info">
+                                        <div class="lp-mc-name">Jordan Torres</div>
+                                        <div class="lp-mc-meta">Finance Junior &middot; 92% match</div>
+                                    </div>
+                                    <div class="lp-mc-btn">&#9749; Chat</div>
+                                </div>
+                                <div class="lp-mockup-card">
+                                    <div class="lp-mc-av a2">AP</div>
+                                    <div class="lp-mc-info">
+                                        <div class="lp-mc-name">Anika Patel</div>
+                                        <div class="lp-mc-meta">CS Senior &middot; Same goals</div>
+                                    </div>
+                                    <div class="lp-mc-btn">&#9749; Chat</div>
+                                </div>
+                                <div class="lp-mockup-card">
+                                    <div class="lp-mc-av a3">MR</div>
+                                    <div class="lp-mc-info">
+                                        <div class="lp-mc-name">Mike Reyes</div>
+                                        <div class="lp-mc-meta">Engineering &middot; Wants to connect</div>
+                                    </div>
+                                    <div class="lp-mc-btn">&#9749; Chat</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- Founding Cohort -->
-                    <div class="landing-section">
-                        <h2 class="section-title">Be Part of Something Early</h2>
-                        <p class="section-subtitle">Join Rowan students building real connections</p>
-                        <div class="testimonials-grid">
-                            <div class="feature-card feature-card--centered">
-                                <div class="cohort-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1.5 2.5-.5 6.5a9 9 0 0 1-3 3"/><path d="M15 20a7 7 0 0 0-1.2-13.1"/><path d="M12 20a5 5 0 0 0 0-10 5 5 0 0 0 0 10Z"/></svg></div>
-                                <h3>Founding Cohort</h3>
-                                <p>We're just getting started at Rowan &mdash; and that's the point. Join now and help shape what First Sip becomes. Early members get to influence features and build the community from day one.</p>
+                    <!-- Founder -->
+                    <section class="lp-section lp-founder" id="lpFounder">
+                        <div class="lp-founder-inner reveal">
+                            <div class="lp-founder-portrait">
+                                <img src="images/sal.jpg" alt="Sal Altadonna" onerror="this.style.display='none'" />
+                                S
                             </div>
-                            <div class="feature-card feature-card--centered">
-                                <div class="cohort-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 6 3 6 3s3 0 6-3v-5"/></svg></div>
-                                <h3>Built by a Student, for Students</h3>
-                                <p>This isn't another corporate networking tool. First Sip was built by a Rowan student who wanted a better way to meet people, find mentors, and break into an industry without the awkward career fair energy.</p>
-                            </div>
-                            <div class="feature-card feature-card--centered">
-                                <div class="cohort-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-                                <h3>Your Network Starts Here</h3>
-                                <p>The connections you make at Rowan follow you for life. Skip the transactional LinkedIn grind and start building genuine relationships with fellow Profs who are on the same journey as you.</p>
+                            <div>
+                                <div class="lp-section-tag">Our Story</div>
+                                <p class="lp-founder-quote">&ldquo;I wanted a way to build genuine relationships with people who share my curiosity &mdash; not just my industry.&rdquo;</p>
+                                <div class="lp-founder-attr">Sal Altadonna, Founder &middot; Rowan University Junior</div>
+                                <p style="margin-top:20px; font-size:15px; color:var(--muted); line-height:1.7; font-weight:300;">First Sip was born out of frustration with stiff career fairs, cold LinkedIn messages, and events where everyone just exchanges business cards they&apos;ll never look at again. It&apos;s a more human, more efficient way to network.</p>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- Contact -->
-                    <div class="landing-section cream" id="contactSection">
-                        <h2 class="section-title">Get in Touch</h2>
-                        <p class="section-subtitle">Have feedback? Want to help grow First Sip at Rowan? Reach out.</p>
-                        <div style="text-align: center;">
-                            <div class="contact-card">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                                <a href="mailto:Sal.FirstSip@Outlook.com" style="color: var(--lp-primary); font-weight: 600; font-size: 16px; text-decoration: none;">Sal.FirstSip@Outlook.com</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Final CTA -->
-                    <div class="landing-final-cta">
-                        <h2>Ready to build your network the right way?</h2>
-                        <p>Be part of Rowan's founding cohort. Join fellow Profs who are done with awkward networking and ready for real connections.</p>
-                        <button class="btn-hero-primary" onclick="showLandingSignup()">Join Rowan's Founding Cohort &mdash; It's Free</button>
-                    </div>
+                    <!-- CTA -->
+                    <section class="lp-cta-section" id="lpContact">
+                        <div class="lp-section-tag" style="color:var(--caramel-light);">Join Now</div>
+                        <h2>Ready to build your<br/><em>real</em> network?</h2>
+                        <p class="lp-section-sub" style="margin: 0 auto 40px;">Be part of Rowan&apos;s founding cohort. No fluff, no cold messages. Just real conversations with people who actually want to connect.</p>
+                        <button class="lp-btn-cta" onclick="showLandingSignup()">&#9749; Join Rowan&apos;s Founding Cohort &mdash; It&apos;s Free</button>
+                        <p style="margin-top:24px; font-size:13px; color:rgba(245,240,232,0.35);">Questions? <a href="mailto:Sal.FirstSip@Outlook.com" style="color:var(--caramel-light);text-decoration:none;">Sal.FirstSip@Outlook.com</a></p>
+                    </section>
 
                     <!-- Footer -->
-                    <div class="landing-footer">
-                        <div style="margin-bottom: 0.75rem;">
-                            <a class="nav-link-landing" onclick="document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})" style="margin: 0 0.75rem; font-size: 13px; color: rgba(255,255,255,0.4);">About</a>
-                            <a class="nav-link-landing" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})" style="margin: 0 0.75rem; font-size: 13px; color: rgba(255,255,255,0.4);">How It Works</a>
-                            <a href="mailto:Sal.FirstSip@Outlook.com" style="margin: 0 0.75rem; font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; cursor: pointer;">Contact</a>
-                        </div>
-                        &copy; 2026 First Sip. Starting at Rowan University. Built by a Prof, for Profs.
-                    </div>
+                    <footer class="lp-footer">
+                        <div class="lp-footer-logo">First<span>Sip</span></div>
+                        <div class="lp-footer-text">&copy; 2026 First Sip. Starting at Rowan University.</div>
+                        <ul class="lp-footer-links">
+                            <li><a onclick="document.getElementById('lpFounder').scrollIntoView({behavior:'smooth'})">About</a></li>
+                            <li><a onclick="document.getElementById('lpHow').scrollIntoView({behavior:'smooth'})">How It Works</a></li>
+                            <li><a href="mailto:Sal.FirstSip@Outlook.com">Contact</a></li>
+                        </ul>
+                    </footer>
+
                 </div>
             </div>
 
@@ -4423,17 +4179,53 @@
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const hamburger = document.querySelector('.hamburger');
-            menu.classList.toggle('active');
-            hamburger.classList.toggle('active');
-            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+            if (menu) { menu.classList.toggle('active'); hamburger && hamburger.classList.toggle('active'); document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : ''; }
         }
-
         function closeMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const hamburger = document.querySelector('.hamburger');
+            if (menu) { menu.classList.remove('active'); hamburger && hamburger.classList.remove('active'); document.body.style.overflow = ''; }
+        }
+
+        // New landing page mobile menu
+        function toggleLpMenu() {
+            const menu = document.getElementById('lpMobileMenu');
+            const btn = document.getElementById('lpHamburger');
+            if (!menu) return;
+            menu.classList.toggle('active');
+            btn && btn.classList.toggle('active');
+            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+        }
+        function closeLpMenu() {
+            const menu = document.getElementById('lpMobileMenu');
+            const btn = document.getElementById('lpHamburger');
+            if (!menu) return;
             menu.classList.remove('active');
-            hamburger.classList.remove('active');
+            btn && btn.classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        // Scroll reveal for landing page
+        function initLandingReveal() {
+            const reveals = document.querySelectorAll('#landingView .reveal');
+            if (!reveals.length) return;
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach((entry, i) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            reveals.forEach(el => { el.classList.remove('visible'); obs.observe(el); });
+
+            // Feature item toggle
+            document.querySelectorAll('#landingView .lp-feature-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('#landingView .lp-feature-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
         }
 
         async function loadUserProfile(userId) {
@@ -4766,6 +4558,7 @@
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
             if (viewId === 'myProfileView') renderMyProfile();
+            if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
 
             updateNavActive(viewId);
 
