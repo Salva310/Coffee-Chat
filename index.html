@@ -4190,6 +4190,8 @@
         let currentUser = null;
         let users = [];
         let groups = [];
+        let myGroupIds = new Set();
+        let sentMessageCount = 0;
         let messages = [];
         let meetings = [];
         let connections = [];
@@ -4360,8 +4362,6 @@
 
         // Initialize
         async function init() {
-            users = [...mockUsers];
-            groups = [...mockGroups];
 
             // Check for existing Supabase session
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -4491,15 +4491,14 @@
                     .select('*')
                     .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`)
                     .eq('status', 'accepted');
-
                 connections = connectionsData || [];
 
                 // Load posts for feed
                 const { data: postsData } = await supabaseClient
                     .from('posts')
                     .select('*')
+                    .is('group_id', null)
                     .order('created_at', { ascending: false });
-
                 posts = postsData || [];
 
                 // Load meetings
@@ -4507,9 +4506,52 @@
                     .from('meetings')
                     .select('*')
                     .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
-                    .order('start_time', { ascending: true});
-
+                    .order('start_time', { ascending: true });
                 meetings = meetingsData || [];
+
+                // Load all other profiles for discovery
+                const { data: profilesData } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .neq('id', currentUser.id);
+                users = (profilesData || []).map(p => ({
+                    id: p.id,
+                    firstName: p.first_name,
+                    lastName: p.last_name,
+                    email: p.email,
+                    industry: p.industry || '',
+                    interests: p.interests || [],
+                    hobbies: p.hobbies || [],
+                    goals: p.goals || '',
+                    bio: p.bio || '',
+                    role: p.role || '',
+                    company: p.company || '',
+                    location: p.location || '',
+                    profilePicture: p.profile_picture || null,
+                    resume: p.resume_url ? { url: p.resume_url, name: 'Resume.pdf' } : null,
+                    posts: []
+                }));
+
+                // Load groups
+                const { data: groupsData } = await supabaseClient
+                    .from('groups')
+                    .select('*')
+                    .order('member_count', { ascending: false });
+                groups = groupsData || [];
+
+                // Load user's group memberships
+                const { data: membershipsData } = await supabaseClient
+                    .from('group_members')
+                    .select('group_id')
+                    .eq('user_id', currentUser.id);
+                myGroupIds = new Set((membershipsData || []).map(m => m.group_id));
+
+                // Count sent messages for checklist / badges
+                const { count } = await supabaseClient
+                    .from('messages')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('sender_id', currentUser.id);
+                sentMessageCount = count || 0;
 
             } catch (error) {
                 console.error('Error loading user data:', error);
@@ -4795,7 +4837,7 @@
             document.getElementById('userName').textContent = currentUser.firstName;
 
             const connectionCount = connections.length;
-            const groupCount = groups.filter(g => g.userJoined).length;
+            const groupCount = myGroupIds.size;
             const completedMeetings = meetings.filter(m => m.status === 'completed').length;
             const meetingCount = meetings.filter(m => m.status !== 'completed').length;
             const totalActivity = connectionCount + groupCount + meetingCount;
@@ -4922,7 +4964,7 @@
             const container = document.getElementById('hubGroupsFeed');
             if (!container) return;
 
-            const joinedGroups = groups.filter(g => g.userJoined);
+            const joinedGroups = groups.filter(g => myGroupIds.has(g.id));
             const count = joinedGroups.length;
 
             if (count === 0) {
@@ -4944,9 +4986,9 @@
                         <div class="group-list-icon">👥</div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:600;font-size:14px;color:var(--text-dark);">${g.name}</div>
-                            <div style="font-size:12px;color:#888;margin-top:2px;">${g.members} members${g.description ? ' · ' + g.description.substring(0, 60) + '…' : ''}</div>
+                            <div style="font-size:12px;color:#888;margin-top:2px;">${g.member_count || 0} members${g.description ? ' · ' + g.description.substring(0, 60) + '…' : ''}</div>
                         </div>
-                        <button class="btn btn-secondary btn-sm" onclick="viewGroup(${g.id})">View Group</button>
+                        <button class="btn btn-secondary btn-sm" onclick="viewGroup('${g.id}')">View Group</button>
                     </div>`).join('')}
                 <div class="find-more-banner" onclick="switchView('groupsView')">
                     <div>
@@ -4997,14 +5039,12 @@
             if (connectedUsers.length > 0) {
                 conversationsHTML = connectedUsers.map(u => {
                     const initials = `${u.firstName[0]}${u.lastName[0]}`;
-                    const hasMessages = (localMessages[u.id] || []).length > 0;
-                    const lastMsg = hasMessages ? localMessages[u.id].slice(-1)[0].content.substring(0, 45) : 'Say hello! ☕';
                     return `
                         <div class="chat-inbox-item" onclick="openChatWith('${u.id}')">
                             <div class="chat-inbox-avatar">${initials}</div>
                             <div class="chat-inbox-info">
                                 <div class="chat-inbox-name">${u.firstName} ${u.lastName}</div>
-                                <div class="chat-inbox-preview">${lastMsg}${lastMsg.length >= 45 ? '…' : ''}</div>
+                                <div class="chat-inbox-preview">Say hello! ☕</div>
                             </div>
                         </div>`;
                 }).join('');
@@ -5478,24 +5518,6 @@
                 return;
             }
 
-            // Handle mock users locally (mock UUIDs start with 00000000-)
-            if (String(userId).startsWith('00000000-')) {
-                connections.push({
-                    id: 'local-' + Date.now(),
-                    user_id: currentUser.id,
-                    connected_user_id: userId,
-                    status: 'accepted'
-                });
-                showToast(`Connected with ${user.firstName}!`, 'success');
-                checkBadgesWithCelebration();
-                if (document.getElementById('profileDetailView').classList.contains('active')) {
-                    viewProfile(userId);
-                } else {
-                    renderDiscovery();
-                }
-                return;
-            }
-
             try {
                 const { data, error } = await supabaseClient
                     .from('connections')
@@ -5510,7 +5532,8 @@
                 if (error) throw error;
 
                 connections.push(data);
-                alert(`Connected with ${user.firstName}!`);
+                showToast(`Connected with ${user ? user.firstName : 'user'}!`, 'success');
+                checkBadgesWithCelebration();
 
                 if (document.getElementById('profileDetailView').classList.contains('active')) {
                     viewProfile(userId);
@@ -5519,7 +5542,7 @@
                 }
             } catch (error) {
                 console.error('Error connecting:', error);
-                alert('Failed to connect: ' + error.message);
+                showToast('Failed to connect: ' + error.message, 'error');
             }
         }
 
@@ -5598,29 +5621,22 @@
                 let messagesData = [];
                 let partnerName = 'User';
 
-                // Handle mock users locally
-                if (String(userId).startsWith('00000000-')) {
-                    messagesData = localMessages[userId] || [];
-                    const partner = users.find(u => u.id === userId);
-                    partnerName = partner ? `${partner.firstName} ${partner.lastName}` : 'User';
-                } else {
-                    const { data, error } = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
-                        .order('created_at', { ascending: true });
+                const { data, error } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
+                    .order('created_at', { ascending: true });
 
-                    if (error) throw error;
-                    messagesData = data || [];
+                if (error) throw error;
+                messagesData = data || [];
 
-                    const { data: profile } = await supabaseClient
-                        .from('profiles')
-                        .select('first_name, last_name')
-                        .eq('id', userId)
-                        .maybeSingle();
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('first_name, last_name')
+                    .eq('id', userId)
+                    .maybeSingle();
 
-                    partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
-                }
+                partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
 
                 const icebreakers = getConversationStarters(userId);
                 const icebreakerHTML = (!messagesData || messagesData.length === 0) ? `
@@ -5665,22 +5681,17 @@
                     container.scrollTop = container.scrollHeight;
                 }
 
-                // Mark messages as read (only for real users)
-                if (!String(userId).startsWith('00000000-')) {
-                    await supabaseClient
-                        .from('messages')
-                        .update({ read: true })
-                        .eq('receiver_id', currentUser.id)
-                        .eq('sender_id', userId);
-                }
+                // Mark messages as read
+                await supabaseClient
+                    .from('messages')
+                    .update({ read: true })
+                    .eq('receiver_id', currentUser.id)
+                    .eq('sender_id', userId);
 
             } catch (error) {
                 console.error('Error selecting conversation:', error);
             }
         }
-
-        // Local storage for messages with mock users
-        const localMessages = {};
 
         async function sendMessage(userId) {
             if (!currentUser) return;
@@ -5688,21 +5699,6 @@
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             if (!text) return;
-
-            // Handle mock users locally (they don't exist in Supabase profiles table)
-            if (String(userId).startsWith('00000000-')) {
-                if (!localMessages[userId]) localMessages[userId] = [];
-                localMessages[userId].push({
-                    id: 'local-' + Date.now(),
-                    sender_id: currentUser.id,
-                    receiver_id: userId,
-                    content: text,
-                    created_at: new Date().toISOString()
-                });
-                input.value = '';
-                await selectConversation(userId);
-                return;
-            }
 
             try {
                 const { error } = await supabaseClient
@@ -5715,11 +5711,12 @@
 
                 if (error) throw error;
 
+                sentMessageCount++;
                 input.value = '';
                 await selectConversation(userId);
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Failed to send message: ' + error.message);
+                showToast('Failed to send message: ' + error.message, 'error');
             }
         }
 
@@ -5765,204 +5762,213 @@
         // Groups
         function renderGroups() {
             const list = document.getElementById('groupsList');
-            list.innerHTML = mockGroups.map(group => {
-                const isRecent = group.lastActivity && (Date.now() - new Date(group.lastActivity).getTime()) < 24 * 60 * 60 * 1000;
-                const memberAvatars = (group.memberList || []).slice(0, 3).map(initials =>
-                    `<div class="mini-avatar">${initials}</div>`
-                ).join('');
-                const extraMembers = group.members - (group.memberList || []).length;
-
+            list.innerHTML = groups.map(group => {
+                const joined = myGroupIds.has(group.id);
                 return `
                 <div class="group-card">
                     <div class="group-header">
                         <div>
                             <h3 style="margin-bottom: 0.25rem;">${group.name}</h3>
-                            <span class="industry-pill">${group.industry}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: ${isRecent ? '#4CAF50' : '#999'};">
-                            <span class="activity-dot ${isRecent ? 'active' : 'inactive'}"></span>
-                            ${isRecent ? 'Active' : 'Quiet'}
+                            <span class="industry-pill">${group.industry || ''}</span>
                         </div>
                     </div>
-                    <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">${group.description}</p>
-                    <div class="member-avatars">
-                        ${memberAvatars}
-                        ${extraMembers > 0 ? `<div class="mini-avatar more">+${extraMembers}</div>` : ''}
-                    </div>
+                    <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">${group.description || ''}</p>
                     <div class="group-meta">
-                        <span>&#128101; ${group.members} members</span>
-                        <span>&#128172; ${(group.posts || []).length} posts</span>
-                        ${group.lastActivity ? `<span>${getTimeAgo(group.lastActivity)}</span>` : ''}
+                        <span>&#128101; ${group.member_count || 0} members</span>
                     </div>
-                    ${group.userJoined ?
-                        `<button class="btn btn-accent" onclick="viewGroup(${group.id})" style="width: 100%; margin-top: 0.75rem;">View Group</button>` :
-                        `<button class="btn btn-primary" onclick="joinGroup(${group.id})" style="width: 100%; margin-top: 0.75rem;">Join Group</button>`
+                    ${joined ?
+                        `<button class="btn btn-accent" onclick="viewGroup('${group.id}')" style="width: 100%; margin-top: 0.75rem;">View Group</button>` :
+                        `<button class="btn btn-primary" onclick="joinGroup('${group.id}')" style="width: 100%; margin-top: 0.75rem;">Join Group</button>`
                     }
                 </div>`;
-            }).join('');
+            }).join('') || '<div class="empty-state"><p>No groups available yet</p></div>';
 
-            const myGroups = mockGroups.filter(g => g.userJoined);
+            const myGroups = groups.filter(g => myGroupIds.has(g.id));
             const myList = document.getElementById('myGroupsList');
             if (myGroups.length === 0) {
                 myList.innerHTML = '<div class="empty-state"><p>Join groups to connect with your community</p></div>';
             } else {
-                myList.innerHTML = myGroups.map(group => {
-                    const isRecent = group.lastActivity && (Date.now() - new Date(group.lastActivity).getTime()) < 24 * 60 * 60 * 1000;
-                    return `
-                    <div class="group-card" onclick="viewGroup(${group.id})" style="cursor: pointer; margin-bottom: 0.75rem;">
+                myList.innerHTML = myGroups.map(group => `
+                    <div class="group-card" onclick="viewGroup('${group.id}')" style="cursor: pointer; margin-bottom: 0.75rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h3 style="color: var(--primary); margin-bottom: 0.25rem;">&#10003; ${group.name}</h3>
                                 <div class="group-meta" style="margin: 0;">
-                                    <span>&#128101; ${group.members} members</span>
-                                    <span class="activity-dot ${isRecent ? 'active' : 'inactive'}" style="margin-left: 4px;"></span>
-                                    <span>${getTimeAgo(group.lastActivity)}</span>
+                                    <span>&#128101; ${group.member_count || 0} members</span>
                                 </div>
                             </div>
                             <span style="color: var(--accent); font-size: 18px;">&rarr;</span>
                         </div>
-                    </div>`;
-                }).join('');
+                    </div>`
+                ).join('');
             }
         }
 
-        function viewGroup(groupId) {
-            const group = mockGroups.find(g => g.id === groupId);
+        async function viewGroup(groupId) {
+            const group = groups.find(g => g.id === groupId);
             if (!group) return;
 
-            // Build member cards from initials
-            const memberCards = (group.memberList || []).map(initials => {
-                const userId = initialsToUserId[initials];
-                const user = userId ? users.find(u => u.id === userId) : null;
-                if (!user) return '';
-                const isConnected = connections.find(c =>
-                    (c.user_id === currentUser.id && c.connected_user_id === user.id) ||
-                    (c.connected_user_id === currentUser.id && c.user_id === user.id)
-                );
-                return `
-                    <div class="card compact" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
-                        <div class="person-avatar" style="width: 44px; height: 44px; font-size: 16px; flex-shrink: 0;">${user.firstName[0]}${user.lastName[0]}</div>
-                        <div style="flex: 1; min-width: 0;">
-                            <strong style="font-size: 14px;">${user.firstName} ${user.lastName}</strong>
-                            <p style="font-size: 12px; color: #999; margin: 0;">${user.role || user.industry}</p>
+            switchView('groupDetailView');
+            const content = document.getElementById('groupDetailContent');
+            content.innerHTML = '<div class="empty-state"><p>Loading group...</p></div>';
+
+            try {
+                // Load group posts with author profiles
+                const { data: postsData } = await supabaseClient
+                    .from('posts')
+                    .select('*, profiles!posts_author_id_fkey(first_name, last_name)')
+                    .eq('group_id', groupId)
+                    .order('created_at', { ascending: false });
+
+                // Load group members with profiles
+                const { data: membersData } = await supabaseClient
+                    .from('group_members')
+                    .select('user_id, profiles!group_members_user_id_fkey(id, first_name, last_name, industry, role, company)')
+                    .eq('group_id', groupId);
+
+                const memberCards = (membersData || []).map(m => {
+                    const p = m.profiles;
+                    if (!p) return '';
+                    const isConnected = connections.find(c =>
+                        (c.user_id === currentUser.id && c.connected_user_id === p.id) ||
+                        (c.connected_user_id === currentUser.id && c.user_id === p.id)
+                    );
+                    return `
+                        <div class="card compact" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                            <div class="person-avatar" style="width: 44px; height: 44px; font-size: 16px; flex-shrink: 0;">${p.first_name[0]}${p.last_name[0]}</div>
+                            <div style="flex: 1; min-width: 0;">
+                                <strong style="font-size: 14px;">${p.first_name} ${p.last_name}</strong>
+                                <p style="font-size: 12px; color: #999; margin: 0;">${p.role || p.industry || ''}</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                                <button class="btn btn-secondary btn-sm" onclick="viewProfile('${p.id}')" style="font-size: 11px; padding: 4px 10px;">View</button>
+                                ${p.id !== currentUser.id ? (isConnected ? `<span style="font-size: 11px; color: var(--success);">&#10003; Connected</span>` : `<button class="btn btn-primary btn-sm" onclick="connectUser('${p.id}')" style="font-size: 11px; padding: 4px 10px;">Connect</button>`) : ''}
+                            </div>
+                        </div>`;
+                }).join('');
+
+                const postsHTML = (postsData || []).map(post => {
+                    const authorName = post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Member';
+                    const timeAgo = post.created_at ? getTimeAgo(post.created_at) : '';
+                    return `
+                        <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <strong>${authorName}</strong>
+                                <span style="font-size: 11px; color: #999;">${timeAgo}</span>
+                            </div>
+                            <p style="color: #444; margin-bottom: 0.75rem;">${post.content}</p>
+                            <div class="post-actions" style="padding-top: 0.5rem; border-top: 1px solid var(--border);">
+                                <button class="post-action-btn" onclick="likeGroupPost('${post.id}', '${groupId}')">&#128077; ${post.likes_count || 0} Likes</button>
+                                <button class="post-action-btn" onclick="toggleGroupDetailComments('${post.id}')">&#128172; Comment</button>
+                            </div>
+                            <div id="gd-comments-${post.id}" style="display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+                                <div id="gd-comments-list-${post.id}" style="margin-bottom: 0.5rem;"></div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                    <input type="text" id="gci-${post.id}" placeholder="Write a comment..." style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 13px;" onkeypress="if(event.key==='Enter') submitGroupComment('${post.id}', '${groupId}')">
+                                    <button class="btn btn-primary btn-sm" onclick="submitGroupComment('${post.id}', '${groupId}')" style="font-size: 12px; padding: 4px 10px;">Post</button>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('') || '<p style="color: #999;">No posts yet. Start the conversation!</p>';
+
+                content.innerHTML = `
+                    <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
+                        <h1 style="margin-bottom: 0.5rem;">${group.name}</h1>
+                        <p style="color: #666; margin-bottom: 0.5rem;">${group.description || ''}</p>
+                        <div class="group-meta">
+                            <span>&#128101; ${group.member_count || 0} members</span>
+                            <span class="industry-pill">${group.industry || ''}</span>
                         </div>
-                        <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
-                            <button class="btn btn-secondary btn-sm" onclick="viewProfile('${user.id}')" style="font-size: 11px; padding: 4px 10px;">View</button>
-                            ${!isConnected ? `<button class="btn btn-primary btn-sm" onclick="connectUser('${user.id}')" style="font-size: 11px; padding: 4px 10px;">Connect</button>` : `<span style="font-size: 11px; color: var(--success);">&#10003; Connected</span>`}
+                    </div>
+
+                    <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Group Discussion</h3>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <input type="text" id="groupPostInput" placeholder="Share something with the group..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);" onkeypress="if(event.key==='Enter') postToGroup('${groupId}')">
+                            <button class="btn btn-primary btn-sm" onclick="postToGroup('${groupId}')">Post</button>
                         </div>
+                        <div id="groupPosts-${groupId}">${postsHTML}</div>
+                    </div>
+
+                    <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border);">
+                        <h3 style="margin-bottom: 1rem;">Members (${(membersData || []).length})</h3>
+                        ${memberCards || '<p style="color: #999;">No members yet</p>'}
                     </div>
                 `;
-            }).join('');
-
-            const content = document.getElementById('groupDetailContent');
-            content.innerHTML = `
-                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
-                    <h1 style="margin-bottom: 0.5rem;">${group.name}</h1>
-                    <p style="color: #666; margin-bottom: 0.5rem;">${group.description}</p>
-                    <div class="group-meta">
-                        <span>&#128101; ${group.members} members</span>
-                        <span class="industry-pill">${group.industry}</span>
-                        ${group.lastActivity ? `<span>${getTimeAgo(group.lastActivity)}</span>` : ''}
-                    </div>
-                </div>
-
-                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border); margin-bottom: 2rem;">
-                    <h3 style="margin-bottom: 1rem;">Group Discussion</h3>
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-                        <input type="text" id="groupPostInput" placeholder="Share something with the group..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);" onkeypress="if(event.key==='Enter') postToGroup(${group.id})">
-                        <button class="btn btn-primary btn-sm" onclick="postToGroup(${group.id})">Post</button>
-                    </div>
-                    <div id="groupPosts-${group.id}">
-                        ${(group.posts || []).map((post, idx) => {
-                            const postId = 'gp-' + group.id + '-' + idx;
-                            const likes = groupPostLikes[postId] || 0;
-                            const comments = groupPostComments[postId] || [];
-                            return `
-                            <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <strong>${post.author}</strong>
-                                    <span style="font-size: 11px; color: #999;">${post.time ? getTimeAgo(post.time) : ''}</span>
-                                </div>
-                                <p style="color: #444; margin-bottom: 0.75rem;">${post.content}</p>
-                                <div class="post-actions" style="padding-top: 0.5rem; border-top: 1px solid var(--border);">
-                                    <button class="post-action-btn" onclick="likeGroupPost('${postId}', ${group.id})">&#128077; ${likes} Likes</button>
-                                    <button class="post-action-btn" onclick="toggleGroupComments('${postId}')">&#128172; ${comments.length} Comments</button>
-                                    <button class="post-action-btn" onclick="shareGroupPost('${postId}', \`${post.content.replace(/`/g, "'")}\`)">&#128260; Share</button>
-                                </div>
-                                <div id="gc-${postId}" style="display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
-                                    <div id="gc-list-${postId}">
-                                        ${comments.map(c => `
-                                            <div style="padding: 0.5rem; background: var(--bg-light); border-radius: 6px; margin-bottom: 0.5rem;">
-                                                <strong style="font-size: 12px;">${c.author}</strong>
-                                                <p style="font-size: 13px; color: #444; margin: 0;">${c.text}</p>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                                        <input type="text" id="gci-${postId}" placeholder="Write a comment..." style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 13px;" onkeypress="if(event.key==='Enter') submitGroupComment('${postId}', ${group.id})">
-                                        <button class="btn btn-primary btn-sm" onclick="submitGroupComment('${postId}', ${group.id})" style="font-size: 12px; padding: 4px 10px;">Post</button>
-                                    </div>
-                                </div>
-                            </div>`;
-                        }).join('') || '<p style="color: #999;">No posts yet. Start the conversation!</p>'}
-                    </div>
-                </div>
-
-                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 1rem;">Members (${(group.memberList || []).length})</h3>
-                    ${memberCards || '<p style="color: #999;">No members to display</p>'}
-                </div>
-            `;
-
-            switchView('groupDetailView');
+            } catch (err) {
+                console.error('Error loading group:', err);
+                content.innerHTML = '<div class="empty-state"><p>Failed to load group. Please try again.</p></div>';
+            }
         }
 
-        function postToGroup(groupId) {
+        function toggleGroupDetailComments(postId) {
+            const el = document.getElementById(`gd-comments-${postId}`);
+            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function postToGroup(groupId) {
             const input = document.getElementById('groupPostInput');
             const text = input.value.trim();
             if (!text || !currentUser) return;
 
-            const group = mockGroups.find(g => g.id === groupId);
-            if (!group) return;
-            if (!group.posts) group.posts = [];
+            try {
+                const { error } = await supabaseClient
+                    .from('posts')
+                    .insert([{
+                        author_id: currentUser.id,
+                        content: text,
+                        group_id: groupId
+                    }]);
 
-            group.posts.unshift({
-                author: `${currentUser.firstName} ${currentUser.lastName}`,
-                content: text,
-                time: new Date()
-            });
-            group.lastActivity = new Date();
+                if (error) throw error;
 
-            input.value = '';
-            viewGroup(groupId);
-            showToast('Posted to group!', 'success');
-        }
-
-        function likeGroupPost(postId, groupId) {
-            groupPostLikes[postId] = (groupPostLikes[postId] || 0) + 1;
-            viewGroup(groupId);
-        }
-
-        function toggleGroupComments(postId) {
-            const section = document.getElementById('gc-' + postId);
-            if (section) {
-                section.style.display = section.style.display === 'none' ? 'block' : 'none';
+                input.value = '';
+                await viewGroup(groupId);
+                showToast('Posted to group!', 'success');
+            } catch (err) {
+                console.error('Error posting to group:', err);
+                showToast('Failed to post: ' + err.message, 'error');
             }
         }
 
-        function submitGroupComment(postId, groupId) {
-            const input = document.getElementById('gci-' + postId);
+        async function likeGroupPost(postId, groupId) {
+            if (!currentUser) return;
+            try {
+                const { data: existing } = await supabaseClient
+                    .from('post_likes')
+                    .select('id')
+                    .eq('post_id', postId)
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle();
+
+                if (existing) {
+                    await supabaseClient.from('post_likes').delete().eq('id', existing.id);
+                } else {
+                    await supabaseClient.from('post_likes').insert([{ post_id: postId, user_id: currentUser.id }]);
+                }
+                await viewGroup(groupId);
+            } catch (err) {
+                console.error('Error liking post:', err);
+            }
+        }
+
+        async function submitGroupComment(postId, groupId) {
+            const input = document.getElementById(`gci-${postId}`);
             if (!input) return;
             const text = input.value.trim();
             if (!text || !currentUser) return;
 
-            if (!groupPostComments[postId]) groupPostComments[postId] = [];
-            groupPostComments[postId].push({
-                author: `${currentUser.firstName} ${currentUser.lastName}`,
-                text: text
-            });
+            try {
+                const { error } = await supabaseClient
+                    .from('post_comments')
+                    .insert([{ post_id: postId, user_id: currentUser.id, content: text }]);
 
-            viewGroup(groupId);
+                if (error) throw error;
+                await viewGroup(groupId);
+            } catch (err) {
+                console.error('Error submitting comment:', err);
+                showToast('Failed to submit comment', 'error');
+            }
         }
 
         function shareGroupPost(postId, content) {
@@ -5975,14 +5981,32 @@
             }
         }
 
-        function joinGroup(groupId) {
-            const group = mockGroups.find(g => g.id === groupId);
-            if (!group.userJoined) {
-                group.userJoined = true;
-                group.members++;
+        async function joinGroup(groupId) {
+            const group = groups.find(g => g.id === groupId);
+            if (!group || myGroupIds.has(groupId)) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('group_members')
+                    .insert([{ group_id: groupId, user_id: currentUser.id }]);
+
+                if (error) throw error;
+
+                myGroupIds.add(groupId);
+                group.member_count = (group.member_count || 0) + 1;
+
+                // Update member_count in Supabase
+                await supabaseClient
+                    .from('groups')
+                    .update({ member_count: group.member_count })
+                    .eq('id', groupId);
+
                 renderGroups();
                 showToast(`Joined ${group.name}!`, 'success');
                 checkBadgesWithCelebration();
+            } catch (err) {
+                console.error('Error joining group:', err);
+                showToast('Failed to join group: ' + err.message, 'error');
             }
         }
 
@@ -6539,7 +6563,7 @@
             const feedPosts = document.getElementById('feedPosts');
 
             if (activeFeedTab === 'groups') {
-                renderGroupsFeedTab(feedPosts);
+                await renderGroupsFeedTab(feedPosts);
                 return;
             }
 
@@ -6606,9 +6630,8 @@
                 }).join('');
         }
 
-        function renderGroupsFeedTab(container) {
-            const joinedGroups = groups.filter(g => g.userJoined);
-            if (joinedGroups.length === 0) {
+        async function renderGroupsFeedTab(container) {
+            if (myGroupIds.size === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>
@@ -6618,89 +6641,121 @@
                 return;
             }
 
-            const allGroupPosts = [];
-            joinedGroups.forEach(g => {
-                (g.posts || []).forEach(p => {
-                    allGroupPosts.push({ ...p, groupName: g.name, groupId: g.id });
-                });
-            });
+            try {
+                const groupIdsList = Array.from(myGroupIds);
+                const { data: postsData, error } = await supabaseClient
+                    .from('posts')
+                    .select('*, profiles!posts_author_id_fkey(id, first_name, last_name), groups!posts_group_id_fkey(name)')
+                    .in('group_id', groupIdsList)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
 
-            if (allGroupPosts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">✍️</div>
-                        <p>No posts in your groups yet — be the first to share something!</p>
-                    </div>`;
-                return;
-            }
+                if (error) throw error;
 
-            const postKey = p => `gpost-${p.groupId}-${p.author}-${p.content.substring(0, 10)}`.replace(/\s/g, '_');
+                if (!postsData || postsData.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✍️</div>
+                            <p>No posts in your groups yet — be the first to share something!</p>
+                        </div>`;
+                    return;
+                }
 
-            container.innerHTML = allGroupPosts
-                .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0))
-                .map(post => {
-                    const timeAgo = post.time ? formatTimeAgo(new Date(post.time)) : 'Recently';
-                    const key = postKey(post);
-                    // Find the user matching this author name (for profile link)
-                    const postAuthorUser = users.find(u => `${u.firstName} ${u.lastName}` === post.author);
-                    const authorClickHandler = postAuthorUser ? `onclick="viewProfile('${postAuthorUser.id}')" style="cursor:pointer;"` : '';
+                container.innerHTML = postsData.map(post => {
+                    const authorName = post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Member';
+                    const groupName = post.groups ? post.groups.name : '';
+                    const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                    const authorId = post.profiles ? post.profiles.id : null;
                     return `
                         <div class="post-card">
                             <div class="post-header">
-                                <div style="display:flex;align-items:center;gap:1rem;" ${authorClickHandler}>
-                                    <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${(post.author||'?')[0]}</div>
+                                <div style="display:flex;align-items:center;gap:1rem;" ${authorId ? `onclick="viewProfile('${authorId}')" style="cursor:pointer;"` : ''}>
+                                    <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${authorName[0]}</div>
                                     <div>
-                                        <strong>${post.author || 'Member'}</strong>
-                                        <p class="post-meta">${timeAgo} · <span style="color:var(--primary);font-weight:600;">${post.groupName}</span></p>
+                                        <strong>${authorName}</strong>
+                                        <p class="post-meta">${timeAgo} · <span style="color:var(--primary);font-weight:600;">${groupName}</span></p>
                                     </div>
                                 </div>
                             </div>
                             <div class="post-content">${post.content}</div>
                             <div class="post-actions">
-                                <button class="post-action-btn" id="like-${key}" onclick="likeGroupPost('${key}', this)">👍 <span id="likecount-${key}">0</span> Likes</button>
-                                <button class="post-action-btn" onclick="toggleGroupComments('${key}')">💬 Comment</button>
+                                <button class="post-action-btn" id="gflike-${post.id}" onclick="likeFeedGroupPost('${post.id}', this)">👍 <span id="gflikecount-${post.id}">${post.likes_count || 0}</span> Likes</button>
+                                <button class="post-action-btn" onclick="toggleFeedGroupComments('${post.id}')">💬 Comment</button>
                             </div>
-                            <div id="gcomments-${key}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
-                                <div id="gcomments-list-${key}" style="margin-bottom:0.75rem;"></div>
+                            <div id="gfcomments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                                <div id="gfcomments-list-${post.id}" style="margin-bottom:0.75rem;"></div>
                                 <div style="display:flex;gap:0.5rem;">
-                                    <input type="text" id="gcomment-input-${key}" placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);" onkeypress="if(event.key==='Enter') submitGroupComment('${key}')">
-                                    <button class="btn btn-primary btn-sm" onclick="submitGroupComment('${key}')">Post</button>
+                                    <input type="text" id="gfcomment-input-${post.id}" placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);" onkeypress="if(event.key==='Enter') submitFeedGroupComment('${post.id}')">
+                                    <button class="btn btn-primary btn-sm" onclick="submitFeedGroupComment('${post.id}')">Post</button>
                                 </div>
                             </div>
                         </div>`;
                 }).join('');
+            } catch (err) {
+                console.error('Error loading group feed:', err);
+                container.innerHTML = '<div class="empty-state"><p>Failed to load group posts.</p></div>';
+            }
         }
 
-        const groupPostLikeCounts = {};
-        const groupPostCommentsList = {};
+        async function likeFeedGroupPost(postId, btn) {
+            if (!currentUser) return;
+            try {
+                const { data: existing } = await supabaseClient
+                    .from('post_likes')
+                    .select('id')
+                    .eq('post_id', postId)
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle();
 
-        function likeGroupPost(key, btn) {
-            groupPostLikeCounts[key] = (groupPostLikeCounts[key] || 0) + 1;
-            const countEl = document.getElementById(`likecount-${key}`);
-            if (countEl) countEl.textContent = groupPostLikeCounts[key];
-            btn.style.color = 'var(--primary)';
-            btn.style.fontWeight = '700';
+                if (existing) {
+                    await supabaseClient.from('post_likes').delete().eq('id', existing.id);
+                } else {
+                    await supabaseClient.from('post_likes').insert([{ post_id: postId, user_id: currentUser.id }]);
+                }
+
+                const countEl = document.getElementById(`gflikecount-${postId}`);
+                if (countEl) {
+                    const cur = parseInt(countEl.textContent) || 0;
+                    countEl.textContent = existing ? Math.max(0, cur - 1) : cur + 1;
+                }
+                if (btn) {
+                    btn.style.color = existing ? '' : 'var(--primary)';
+                    btn.style.fontWeight = existing ? '' : '700';
+                }
+            } catch (err) {
+                console.error('Error liking post:', err);
+            }
         }
 
-        function toggleGroupComments(key) {
-            const el = document.getElementById(`gcomments-${key}`);
+        function toggleFeedGroupComments(postId) {
+            const el = document.getElementById(`gfcomments-${postId}`);
             if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
         }
 
-        function submitGroupComment(key) {
-            const input = document.getElementById(`gcomment-input-${key}`);
+        async function submitFeedGroupComment(postId) {
+            if (!currentUser) return;
+            const input = document.getElementById(`gfcomment-input-${postId}`);
             if (!input || !input.value.trim()) return;
-            const listEl = document.getElementById(`gcomments-list-${key}`);
-            if (!groupPostCommentsList[key]) groupPostCommentsList[key] = [];
-            groupPostCommentsList[key].push(input.value.trim());
-            if (listEl) {
-                listEl.innerHTML = groupPostCommentsList[key].map(c =>
-                    `<div style="background:var(--bg-light);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px;">
-                        <strong>${currentUser.firstName}:</strong> ${c}
-                    </div>`
-                ).join('');
+            const text = input.value.trim();
+
+            try {
+                const { error } = await supabaseClient
+                    .from('post_comments')
+                    .insert([{ post_id: postId, user_id: currentUser.id, content: text }]);
+
+                if (error) throw error;
+
+                const listEl = document.getElementById(`gfcomments-list-${postId}`);
+                if (listEl) {
+                    listEl.innerHTML += `
+                        <div style="background:var(--bg-light);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px;">
+                            <strong>${currentUser.firstName}:</strong> ${text}
+                        </div>`;
+                }
+                input.value = '';
+            } catch (err) {
+                console.error('Error posting comment:', err);
             }
-            input.value = '';
         }
 
         // ===== SMART RECOMMENDATIONS =====
@@ -7197,8 +7252,8 @@
 
             const { percentage } = getProfileCompletion();
             const hasConnections = connections.length > 0;
-            const hasJoinedGroup = groups.some(g => g.userJoined);
-            const hasSentMessage = Object.keys(localMessages || {}).length > 0;
+            const hasJoinedGroup = myGroupIds.size > 0;
+            const hasSentMessage = sentMessageCount > 0;
             const hasMeeting = meetings.length > 0;
 
             const items = [
@@ -7341,8 +7396,8 @@
             { id: 'first-sip', name: 'First Sip', icon: '&#9749;', desc: 'Complete your profile', check: () => getProfileCompletion().percentage >= 50 },
             { id: 'regular', name: 'Regular', icon: '&#128260;', desc: '3-day login streak', check: () => getLoginStreak() >= 3 },
             { id: 'connoisseur', name: 'Connoisseur', icon: '&#127942;', desc: '10+ connections', check: () => connections.length >= 10 },
-            { id: 'connector', name: 'Connector', icon: '&#129309;', desc: 'Send 5+ messages', check: () => Object.values(localMessages || {}).reduce((sum, msgs) => sum + msgs.length, 0) >= 5 },
-            { id: 'butterfly', name: 'Social Butterfly', icon: '&#129419;', desc: 'Join 3+ groups', check: () => groups.filter(g => g.userJoined).length >= 3 },
+            { id: 'connector', name: 'Connector', icon: '&#129309;', desc: 'Send 5+ messages', check: () => sentMessageCount >= 5 },
+            { id: 'butterfly', name: 'Social Butterfly', icon: '&#129419;', desc: 'Join 3+ groups', check: () => myGroupIds.size >= 3 },
             { id: 'icebreaker', name: 'Icebreaker', icon: '&#129482;', desc: 'Use conversation starter', check: () => localStorage.getItem('usedIcebreaker') === 'true' },
             { id: 'profile-pro', name: 'Profile Pro', icon: '&#11088;', desc: '100% profile completion', check: () => getProfileCompletion().percentage === 100 }
         ];
