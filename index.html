@@ -973,6 +973,117 @@
             cursor: pointer; white-space: nowrap;
         }
 
+        /* ── MOCKUP PANELS ── */
+        .lp-mockup-panel {
+            display: none;
+            animation: lpPanelIn 0.3s ease both;
+        }
+        .lp-mockup-panel.active { display: block; }
+        @keyframes lpPanelIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Match bar */
+        .lp-match-bar-wrap {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 5px;
+        }
+        .lp-match-bar {
+            height: 4px; border-radius: 4px;
+            background: linear-gradient(90deg, var(--caramel), var(--caramel-light));
+            flex-shrink: 0;
+        }
+        .lp-match-pct {
+            font-size: 10px; font-weight: 700;
+            color: var(--caramel-light); white-space: nowrap;
+        }
+
+        /* Icebreaker panel */
+        .lp-ice-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .lp-ice-label {
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            color: rgba(245,240,232,0.4);
+            margin-bottom: 10px;
+        }
+        .lp-ice-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 12px; line-height: 1.5;
+            color: rgba(245,240,232,0.82);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .lp-ice-card:hover {
+            background: rgba(192,124,58,0.18);
+            border-color: rgba(192,124,58,0.35);
+        }
+
+        /* Groups panel */
+        .lp-group-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 14px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .lp-group-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .lp-group-badge {
+            font-size: 10px; font-weight: 700;
+            color: var(--sage);
+            background: rgba(138,158,133,0.15);
+            border: 1px solid rgba(138,158,133,0.3);
+            padding: 4px 8px; border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* Schedule panel */
+        .lp-sched-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .lp-sched-pill {
+            margin-left: auto;
+            font-size: 10px; font-weight: 700;
+            color: var(--caramel-light);
+            background: rgba(192,124,58,0.2);
+            border: 1px solid rgba(192,124,58,0.3);
+            padding: 4px 9px; border-radius: 20px;
+        }
+        .lp-sched-slot {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px; padding: 12px 14px;
+            margin-bottom: 8px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .lp-sched-slot--active {
+            background: rgba(192,124,58,0.12);
+            border-color: rgba(192,124,58,0.3);
+        }
+        .lp-sched-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--caramel); flex-shrink: 0;
+        }
+
         /* ── FOUNDER ── */
         .lp-founder { background: var(--cream); }
         .lp-founder-inner {
@@ -3201,28 +3312,28 @@
                             <div class="lp-feature-list reveal">
                                 <div class="lp-section-tag">What Makes Us Different</div>
                                 <h2>Built for students,<br/>not recruiters.</h2>
-                                <div class="lp-feature-item active">
+                                <div class="lp-feature-item active" data-feature="matching">
                                     <div class="lp-feature-icon">&#127919;</div>
                                     <div>
                                         <h3>Smart Matching</h3>
                                         <p>Matched by major, career goals, and genuine interests &mdash; not just who you already know.</p>
                                     </div>
                                 </div>
-                                <div class="lp-feature-item">
+                                <div class="lp-feature-item" data-feature="icebreakers">
                                     <div class="lp-feature-icon">&#128172;</div>
                                     <div>
                                         <h3>Built-In Icebreakers</h3>
                                         <p>Every chat comes with conversation starters based on your shared interests. No awkward silences.</p>
                                     </div>
                                 </div>
-                                <div class="lp-feature-item">
+                                <div class="lp-feature-item" data-feature="groups">
                                     <div class="lp-feature-icon">&#128101;</div>
                                     <div>
                                         <h3>Community Groups</h3>
                                         <p>Join groups for your major or career interest. Share advice, ask questions, find your people.</p>
                                     </div>
                                 </div>
-                                <div class="lp-feature-item">
+                                <div class="lp-feature-item" data-feature="schedule">
                                     <div class="lp-feature-icon">&#9201;&#65039;</div>
                                     <div>
                                         <h3>Fits Your Schedule</h3>
@@ -3230,40 +3341,143 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Mockup shell — panels swap inside -->
                             <div class="lp-app-mockup reveal">
                                 <div class="lp-mockup-bar">
                                     <div class="lp-mockup-dot r"></div>
                                     <div class="lp-mockup-dot y"></div>
                                     <div class="lp-mockup-dot g"></div>
                                 </div>
-                                <div class="lp-mockup-tabs">
-                                    <div class="lp-mockup-tab active">My Network</div>
-                                    <div class="lp-mockup-tab">My Groups</div>
-                                    <div class="lp-mockup-tab">My Chats</div>
-                                </div>
-                                <div class="lp-mockup-card">
-                                    <div class="lp-mc-av a1">JT</div>
-                                    <div class="lp-mc-info">
-                                        <div class="lp-mc-name">Jordan Torres</div>
-                                        <div class="lp-mc-meta">Finance Junior &middot; 92% match</div>
+
+                                <!-- PANEL 1: Smart Matching -->
+                                <div class="lp-mockup-panel active" id="lp-panel-matching">
+                                    <div class="lp-mockup-tabs">
+                                        <div class="lp-mockup-tab active">My Network</div>
+                                        <div class="lp-mockup-tab">Discover</div>
+                                        <div class="lp-mockup-tab">Requests</div>
                                     </div>
-                                    <div class="lp-mc-btn">&#9749; Chat</div>
-                                </div>
-                                <div class="lp-mockup-card">
-                                    <div class="lp-mc-av a2">AP</div>
-                                    <div class="lp-mc-info">
-                                        <div class="lp-mc-name">Anika Patel</div>
-                                        <div class="lp-mc-meta">CS Senior &middot; Same goals</div>
+                                    <div class="lp-mockup-card">
+                                        <div class="lp-mc-av a1">JT</div>
+                                        <div class="lp-mc-info">
+                                            <div class="lp-mc-name">Jordan Torres</div>
+                                            <div class="lp-mc-meta">Finance Junior</div>
+                                            <div class="lp-match-bar-wrap">
+                                                <div class="lp-match-bar" style="width:92%"></div>
+                                                <span class="lp-match-pct">92%</span>
+                                            </div>
+                                        </div>
+                                        <div class="lp-mc-btn">&#9749; Chat</div>
                                     </div>
-                                    <div class="lp-mc-btn">&#9749; Chat</div>
-                                </div>
-                                <div class="lp-mockup-card">
-                                    <div class="lp-mc-av a3">MR</div>
-                                    <div class="lp-mc-info">
-                                        <div class="lp-mc-name">Mike Reyes</div>
-                                        <div class="lp-mc-meta">Engineering &middot; Wants to connect</div>
+                                    <div class="lp-mockup-card">
+                                        <div class="lp-mc-av a2">AP</div>
+                                        <div class="lp-mc-info">
+                                            <div class="lp-mc-name">Anika Patel</div>
+                                            <div class="lp-mc-meta">CS Senior</div>
+                                            <div class="lp-match-bar-wrap">
+                                                <div class="lp-match-bar" style="width:88%"></div>
+                                                <span class="lp-match-pct">88%</span>
+                                            </div>
+                                        </div>
+                                        <div class="lp-mc-btn">&#9749; Chat</div>
                                     </div>
-                                    <div class="lp-mc-btn">&#9749; Chat</div>
+                                    <div class="lp-mockup-card">
+                                        <div class="lp-mc-av a3">MR</div>
+                                        <div class="lp-mc-info">
+                                            <div class="lp-mc-name">Mike Reyes</div>
+                                            <div class="lp-mc-meta">Engineering Soph.</div>
+                                            <div class="lp-match-bar-wrap">
+                                                <div class="lp-match-bar" style="width:76%"></div>
+                                                <span class="lp-match-pct">76%</span>
+                                            </div>
+                                        </div>
+                                        <div class="lp-mc-btn">&#9749; Chat</div>
+                                    </div>
+                                </div>
+
+                                <!-- PANEL 2: Icebreakers -->
+                                <div class="lp-mockup-panel" id="lp-panel-icebreakers">
+                                    <div class="lp-ice-header">
+                                        <div class="lp-mc-av a1" style="width:32px;height:32px;font-size:12px;">JT</div>
+                                        <div>
+                                            <div style="font-size:12px;font-weight:600;color:rgba(245,240,232,0.9);">Chat with Jordan T.</div>
+                                            <div style="font-size:10px;color:rgba(245,240,232,0.4);">Conversation starters ready</div>
+                                        </div>
+                                    </div>
+                                    <div class="lp-ice-label">&#127775; Try one of these</div>
+                                    <div class="lp-ice-card">&#128188; &ldquo;What was your very first internship like — and what surprised you most?&rdquo;</div>
+                                    <div class="lp-ice-card">&#127919; &ldquo;What&apos;s your biggest career goal before you graduate?&rdquo;</div>
+                                    <div class="lp-ice-card">&#127979; &ldquo;Which Rowan class actually changed how you think?&rdquo;</div>
+                                    <div class="lp-ice-card">&#9749; &ldquo;Virtual or grab coffee on campus — your pick!&rdquo;</div>
+                                </div>
+
+                                <!-- PANEL 3: Community Groups -->
+                                <div class="lp-mockup-panel" id="lp-panel-groups">
+                                    <div class="lp-mockup-tabs">
+                                        <div class="lp-mockup-tab active">My Groups</div>
+                                        <div class="lp-mockup-tab">Explore</div>
+                                    </div>
+                                    <div class="lp-group-card">
+                                        <div class="lp-group-icon" style="background:linear-gradient(135deg,#C07C3A,#D4964F);">&#128200;</div>
+                                        <div class="lp-mc-info">
+                                            <div class="lp-mc-name">Rowan Finance Society</div>
+                                            <div class="lp-mc-meta">48 members &middot; Active now</div>
+                                        </div>
+                                        <div class="lp-group-badge">Joined</div>
+                                    </div>
+                                    <div class="lp-group-card">
+                                        <div class="lp-group-icon" style="background:linear-gradient(135deg,#8A9E85,#6B8566);">&#128187;</div>
+                                        <div class="lp-mc-info">
+                                            <div class="lp-mc-name">CS Entrepreneurs</div>
+                                            <div class="lp-mc-meta">112 members &middot; 3 new posts</div>
+                                        </div>
+                                        <div class="lp-group-badge">Joined</div>
+                                    </div>
+                                    <div class="lp-group-card">
+                                        <div class="lp-group-icon" style="background:linear-gradient(135deg,#3D2B1A,#6B4A2E);">&#9878;&#65039;</div>
+                                        <div class="lp-mc-info">
+                                            <div class="lp-mc-name">Pre-Law Network</div>
+                                            <div class="lp-mc-meta">67 members &middot; Join to see posts</div>
+                                        </div>
+                                        <div class="lp-mc-btn" style="font-size:10px;padding:5px 10px;">+ Join</div>
+                                    </div>
+                                </div>
+
+                                <!-- PANEL 4: Schedule -->
+                                <div class="lp-mockup-panel" id="lp-panel-schedule">
+                                    <div class="lp-sched-header">
+                                        <div class="lp-mc-av a1" style="width:32px;height:32px;font-size:12px;">JT</div>
+                                        <div>
+                                            <div style="font-size:12px;font-weight:600;color:rgba(245,240,232,0.9);">Chat with Jordan T.</div>
+                                            <div style="font-size:10px;color:rgba(245,240,232,0.4);">30 min &middot; Virtual</div>
+                                        </div>
+                                        <div class="lp-sched-pill">30 min</div>
+                                    </div>
+                                    <div class="lp-ice-label">&#128197; Pick a time that works</div>
+                                    <div class="lp-sched-slot lp-sched-slot--active">
+                                        <div class="lp-sched-dot"></div>
+                                        <div>
+                                            <div style="font-size:12px;font-weight:600;color:rgba(245,240,232,0.9);">Tomorrow &mdash; 2:00 PM</div>
+                                            <div style="font-size:10px;color:rgba(245,240,232,0.45);">30 min &middot; Virtual</div>
+                                        </div>
+                                        <div class="lp-mc-btn" style="font-size:10px;padding:5px 10px;">Select</div>
+                                    </div>
+                                    <div class="lp-sched-slot">
+                                        <div class="lp-sched-dot"></div>
+                                        <div>
+                                            <div style="font-size:12px;font-weight:600;color:rgba(245,240,232,0.9);">Friday &mdash; 11:30 AM</div>
+                                            <div style="font-size:10px;color:rgba(245,240,232,0.45);">30 min &middot; Campus Caf&eacute;</div>
+                                        </div>
+                                        <div class="lp-mc-btn" style="font-size:10px;padding:5px 10px;">Select</div>
+                                    </div>
+                                    <div class="lp-sched-slot">
+                                        <div class="lp-sched-dot"></div>
+                                        <div>
+                                            <div style="font-size:12px;font-weight:600;color:rgba(245,240,232,0.9);">Monday &mdash; 4:00 PM</div>
+                                            <div style="font-size:10px;color:rgba(245,240,232,0.45);">30 min &middot; Virtual</div>
+                                        </div>
+                                        <div class="lp-mc-btn" style="font-size:10px;padding:5px 10px;">Select</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4219,11 +4433,15 @@
             }, { threshold: 0.1 });
             reveals.forEach(el => { el.classList.remove('visible'); obs.observe(el); });
 
-            // Feature item toggle
+            // Feature item toggle + panel swap
             document.querySelectorAll('#landingView .lp-feature-item').forEach(item => {
                 item.addEventListener('click', () => {
                     document.querySelectorAll('#landingView .lp-feature-item').forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
+                    const feature = item.dataset.feature;
+                    document.querySelectorAll('#landingView .lp-mockup-panel').forEach(p => p.classList.remove('active'));
+                    const panel = document.getElementById('lp-panel-' + feature);
+                    if (panel) panel.classList.add('active');
                 });
             });
         }
