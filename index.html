@@ -2543,6 +2543,9 @@
         .notification-item.unread {
             background: rgba(212, 165, 116, 0.08);
         }
+        .notification-item.notif-clickable:hover {
+            background: #FFF3E0;
+        }
         .notification-icon {
             width: 36px;
             height: 36px;
@@ -4241,6 +4244,8 @@
         let messages = [];
         let meetings = [];
         let connections = [];
+        let pendingRequests = []; // incoming: connected_user_id === currentUser.id, status === 'pending'
+        let sentRequests = [];    // outgoing: user_id === currentUser.id, status === 'pending'
         let posts = [];
         let selectedConversation = null;
         let selectedPerson = null;
@@ -4531,13 +4536,15 @@
             if (!currentUser) return;
 
             try {
-                // Load connections
+                // Load all connections (accepted + pending)
                 const { data: connectionsData } = await supabaseClient
                     .from('connections')
                     .select('*')
-                    .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`)
-                    .eq('status', 'accepted');
-                connections = connectionsData || [];
+                    .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
+                const allConns = connectionsData || [];
+                connections = allConns.filter(c => c.status === 'accepted');
+                pendingRequests = allConns.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
+                sentRequests = allConns.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
 
                 // Load posts for feed
                 const { data: postsData } = await supabaseClient
@@ -4958,6 +4965,32 @@
             const container = document.getElementById('hubNetworkFeed');
             if (!container) return;
 
+            // Pending incoming requests section
+            const pendingHTML = pendingRequests.length > 0 ? `
+                <div style="background: #FFF8F0; border: 1px solid var(--accent); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+                    <p style="font-weight: 700; font-size: 14px; color: var(--primary); margin-bottom: 0.75rem;">
+                        🤝 ${pendingRequests.length} Connection Request${pendingRequests.length > 1 ? 's' : ''}
+                    </p>
+                    ${pendingRequests.map(req => {
+                        const requester = users.find(u => u.id === req.user_id);
+                        if (!requester) return '';
+                        const fn = requester.firstName || '?';
+                        const ln = requester.lastName || '?';
+                        return `
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <div class="person-avatar" style="width: 40px; height: 40px; font-size: 15px; flex-shrink: 0;" onclick="viewProfile('${requester.id}')" style="cursor:pointer;">${fn[0]}${ln[0]}</div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <strong style="font-size: 13px;">${fn} ${ln}</strong>
+                                    <p style="font-size: 11px; color: #888; margin: 0;">${requester.role || requester.industry || ''}</p>
+                                </div>
+                                <div style="display: flex; gap: 0.4rem; flex-shrink: 0;">
+                                    <button class="btn btn-primary btn-sm" onclick="acceptConnection('${req.id}')" style="font-size: 11px; padding: 4px 10px;">Accept</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="rejectConnection('${req.id}')" style="font-size: 11px; padding: 4px 10px;">Decline</button>
+                                </div>
+                            </div>`;
+                    }).join('')}
+                </div>` : '';
+
             const connectedIds = new Set();
             connections.forEach(c => {
                 if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
@@ -4967,7 +5000,7 @@
             const connectedUsers = users.filter(u => connectedIds.has(u.id));
             const count = connectedUsers.length;
 
-            if (count === 0) {
+            if (count === 0 && pendingRequests.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🤝</div>
@@ -4977,18 +5010,20 @@
                 return;
             }
 
-            container.innerHTML = `
+            container.innerHTML = pendingHTML + (count > 0 ? `
                 <p style="font-weight:600;font-size:15px;color:var(--text-dark);margin-bottom:1rem;">
                     ${count} connection${count !== 1 ? 's' : ''}
                 </p>
                 ${connectedUsers.map(u => {
-                    const initials = `${u.firstName[0]}${u.lastName[0]}`;
+                    const fn = u.firstName || '?';
+                    const ln = u.lastName || '?';
+                    const initials = `${fn[0]}${ln[0]}`;
                     const roleLine = [u.role, u.industry].filter(Boolean).join(' · ');
                     return `
                         <div class="connection-card">
                             <div class="connection-card-avatar" onclick="viewProfile('${u.id}')" style="cursor:pointer;" title="View profile">${initials}</div>
                             <div class="connection-card-info">
-                                <div class="connection-card-name" onclick="viewProfile('${u.id}')" style="cursor:pointer;">${u.firstName} ${u.lastName}</div>
+                                <div class="connection-card-name" onclick="viewProfile('${u.id}')" style="cursor:pointer;">${fn} ${ln}</div>
                                 ${roleLine ? `<div class="connection-card-role">${roleLine}</div>` : ''}
                             </div>
                             <div class="connection-card-actions">
@@ -5003,7 +5038,7 @@
                         <div style="font-size:13px;color:#888;margin-top:3px;">Discover Rowan students who share your interests ✨</div>
                     </div>
                     <button class="btn btn-primary btn-sm" style="pointer-events:none;">Find Students →</button>
-                </div>`;
+                </div>` : '');
         }
 
         function renderHubGroupsFeed() {
@@ -5365,10 +5400,13 @@
             const searchCompany = document.getElementById('searchCompany')?.value.toLowerCase() || '';
 
             let filtered = users.filter(u => {
+                // Never show self
+                if (u.id === currentUser.id) return false;
+
                 // Name match
                 const matchName = !searchName ||
-                    u.firstName.toLowerCase().includes(searchName) ||
-                    u.lastName.toLowerCase().includes(searchName);
+                    (u.firstName || '').toLowerCase().includes(searchName) ||
+                    (u.lastName || '').toLowerCase().includes(searchName);
 
                 // Industry match
                 const matchIndustry = !filterIndustry || u.industry === filterIndustry;
@@ -5395,30 +5433,44 @@
 
             const grid = document.getElementById('discoverGrid');
             grid.innerHTML = filtered.map(user => {
-                const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === user.id || c.connected_user_id === currentUser.id && c.user_id === user.id);
-                const avatarHTML = user.profilePicture ? 
-                    `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;"><img src="${user.profilePicture}" alt="${user.firstName}"></div>` :
-                    `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${user.firstName[0]}${user.lastName[0]}</div>`;
-                
+                const fn = user.firstName || '?';
+                const ln = user.lastName || '?';
+                const isConnected = connections.find(c =>
+                    (c.user_id === currentUser.id && c.connected_user_id === user.id) ||
+                    (c.connected_user_id === currentUser.id && c.user_id === user.id));
+                const isPending = sentRequests.find(c => c.connected_user_id === user.id);
+                const hasRequestedMe = pendingRequests.find(c => c.user_id === user.id);
+                const avatarHTML = user.profilePicture ?
+                    `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;"><img src="${user.profilePicture}" alt="${fn}"></div>` :
+                    `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${fn[0]}${ln[0]}</div>`;
+
+                let actionBtn;
+                if (isConnected) {
+                    actionBtn = `<button class="btn btn-secondary btn-sm" onclick="startMessage('${user.id}')" style="flex: 1; justify-content: center;">Message</button>`;
+                } else if (hasRequestedMe) {
+                    actionBtn = `<button class="btn btn-accent btn-sm" onclick="acceptConnection('${hasRequestedMe.id}')" style="flex: 1; justify-content: center;">Accept Request</button>`;
+                } else if (isPending) {
+                    actionBtn = `<button class="btn btn-secondary btn-sm" disabled style="flex: 1; justify-content: center; opacity: 0.6;">Request Sent</button>`;
+                } else {
+                    actionBtn = `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1; justify-content: center;">Connect</button>`;
+                }
+
                 return `
                     <div class="card person-card">
                         ${avatarHTML}
-                        <h3>${user.firstName} ${user.lastName}</h3>
-                        ${user.role ? `<p class="role">${user.role}</p>` : `<p class="role">${user.industry}</p>`}
+                        <h3>${fn} ${ln}</h3>
+                        ${user.role ? `<p class="role">${user.role}</p>` : `<p class="role">${user.industry || ''}</p>`}
                         ${user.company ? `<p style="font-size: 12px; color: #999; margin-top: -0.25rem;">${user.company}</p>` : ''}
                         <div class="tags">
-                            ${user.interests.slice(0, 3).map(i => `<span class="tag">${i}</span>`).join('')}
+                            ${(user.interests || []).slice(0, 3).map(i => `<span class="tag">${i}</span>`).join('')}
                         </div>
                         <div class="profile-actions">
                             <button class="btn btn-primary btn-sm" onclick="viewProfile('${user.id}')" style="flex: 1; justify-content: center;">View Profile</button>
-                            ${isConnected ? 
-                                `<button class="btn btn-secondary btn-sm" onclick="startMessage('${user.id}')" style="flex: 1; justify-content: center;">Message</button>` :
-                                `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1; justify-content: center;">Connect</button>`
-                            }
+                            ${actionBtn}
                         </div>
                     </div>
                 `;
-            }).join('');
+            }).join('') || '<div class="empty-state"><p>No people found matching your filters.</p></div>';
         }
 
         function filterDiscovery() {
@@ -5546,23 +5598,21 @@
         }
 
         async function connectUser(userId) {
-            if (!currentUser) {
-                alert('Please log in to connect with users');
-                return;
-            }
+            if (!currentUser) return;
+            if (userId === currentUser.id) return; // never connect with self
 
             const user = users.find(u => u.id === userId);
 
-            // Check if already connected
-            const existing = connections.find(c =>
+            // Already connected?
+            const alreadyConnected = connections.find(c =>
                 (c.user_id === currentUser.id && c.connected_user_id === userId) ||
                 (c.user_id === userId && c.connected_user_id === currentUser.id)
             );
+            if (alreadyConnected) { showToast('Already connected!', 'info'); return; }
 
-            if (existing) {
-                alert('Already connected!');
-                return;
-            }
+            // Already sent a request?
+            const alreadySent = sentRequests.find(c => c.connected_user_id === userId);
+            if (alreadySent) { showToast('Request already sent!', 'info'); return; }
 
             try {
                 const { data, error } = await supabaseClient
@@ -5570,25 +5620,68 @@
                     .insert([{
                         user_id: currentUser.id,
                         connected_user_id: userId,
-                        status: 'accepted'
+                        status: 'pending'
                     }])
                     .select()
                     .single();
 
                 if (error) throw error;
 
-                connections.push(data);
-                showToast(`Connected with ${user ? user.firstName : 'user'}!`, 'success');
-                checkBadgesWithCelebration();
+                sentRequests.push(data);
+                showToast(`Request sent to ${user ? user.firstName : 'user'}!`, 'success');
 
                 if (document.getElementById('profileDetailView').classList.contains('active')) {
                     viewProfile(userId);
                 } else {
                     renderDiscovery();
                 }
-            } catch (error) {
-                console.error('Error connecting:', error);
-                showToast('Failed to connect: ' + error.message, 'error');
+            } catch (err) {
+                console.error('Error sending request:', err);
+                showToast('Failed to send request: ' + err.message, 'error');
+            }
+        }
+
+        async function acceptConnection(connectionId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('connections')
+                    .update({ status: 'accepted' })
+                    .eq('id', connectionId);
+
+                if (error) throw error;
+
+                const req = pendingRequests.find(r => r.id === connectionId);
+                if (req) {
+                    connections.push({ ...req, status: 'accepted' });
+                    pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
+                }
+                showToast('Connection accepted!', 'success');
+                checkBadgesWithCelebration();
+                renderHubNetworkFeed();
+                generateNotifications();
+                renderDiscovery();
+            } catch (err) {
+                console.error('Error accepting connection:', err);
+                showToast('Failed to accept: ' + err.message, 'error');
+            }
+        }
+
+        async function rejectConnection(connectionId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('connections')
+                    .delete()
+                    .eq('id', connectionId);
+
+                if (error) throw error;
+
+                pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
+                showToast('Request declined.', 'info');
+                renderHubNetworkFeed();
+                generateNotifications();
+            } catch (err) {
+                console.error('Error rejecting connection:', err);
+                showToast('Failed to decline: ' + err.message, 'error');
             }
         }
 
@@ -6858,7 +6951,7 @@
             const userHobbies = currentUser.hobbies || [];
             const userIndustry = currentUser.industry;
 
-            return users.map(user => {
+            return users.filter(u => u.id !== currentUser.id).map(user => {
                 let score = 0;
                 const reasons = [];
 
@@ -6943,10 +7036,27 @@
                     <div class="grid">
                         ${recommendations.slice(0, 3).map(item => {
                             const user = item.user;
-                            const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === user.id || c.connected_user_id === currentUser.id && c.user_id === user.id);
+                            const fn = user.firstName || '?';
+                            const ln = user.lastName || '?';
+                            const isConnected = connections.find(c =>
+                                (c.user_id === currentUser.id && c.connected_user_id === user.id) ||
+                                (c.connected_user_id === currentUser.id && c.user_id === user.id));
+                            const isPending = sentRequests.find(c => c.connected_user_id === user.id);
+                            const hasRequestedMe = pendingRequests.find(c => c.user_id === user.id);
                             const avatarContent = user.profilePicture
                                 ? `<img src="${user.profilePicture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
-                                : `${user.firstName[0]}${user.lastName[0]}`;
+                                : `${fn[0]}${ln[0]}`;
+
+                            let recActionBtn;
+                            if (isConnected) {
+                                recActionBtn = `<button class="btn btn-secondary btn-sm" onclick="startMessage('${user.id}')" style="flex: 1;">Message</button>`;
+                            } else if (hasRequestedMe) {
+                                recActionBtn = `<button class="btn btn-accent btn-sm" onclick="acceptConnection('${hasRequestedMe.id}')" style="flex: 1;">Accept Request</button>`;
+                            } else if (isPending) {
+                                recActionBtn = `<button class="btn btn-secondary btn-sm" disabled style="flex: 1; opacity: 0.6;">Request Sent</button>`;
+                            } else {
+                                recActionBtn = `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1;">Connect</button>`;
+                            }
 
                             return `
                                 <div class="card person-card">
@@ -6954,18 +7064,15 @@
                                         <p style="font-size: 11px; color: white; margin: 0; text-align: center;">⭐ ${item.score}% Match</p>
                                     </div>
                                     <div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${avatarContent}</div>
-                                    <h3>${user.firstName} ${user.lastName}</h3>
-                                    <p class="role">${user.role || user.industry}</p>
+                                    <h3>${fn} ${ln}</h3>
+                                    <p class="role">${user.role || user.industry || ''}</p>
                                     <div style="text-align: left; margin: 1rem 0; padding: 0.75rem; background: var(--bg-light); border-radius: 8px;">
-                                        <p style="font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Why we suggest ${user.firstName}:</p>
+                                        <p style="font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Why we suggest ${fn}:</p>
                                         ${item.reasons.map(reason => `<p style="font-size: 11px; color: #666; margin: 0.25rem 0;">• ${reason}</p>`).join('')}
                                     </div>
                                     <div class="profile-actions">
                                         <button class="btn btn-primary btn-sm" onclick="viewProfile('${user.id}')" style="flex: 1;">View Profile</button>
-                                        ${isConnected ?
-                                            `<button class="btn btn-secondary btn-sm" onclick="startMessage('${user.id}')" style="flex: 1;">Message</button>` :
-                                            `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1;">Connect</button>`
-                                        }
+                                        ${recActionBtn}
                                     </div>
                                 </div>
                             `;
@@ -7397,6 +7504,23 @@
                 }
             });
 
+            // Pending connection requests
+            if (pendingRequests.length > 0) {
+                pendingRequests.forEach(req => {
+                    const requester = users.find(u => u.id === req.user_id);
+                    const name = requester ? `${requester.firstName} ${requester.lastName}` : 'Someone';
+                    notifications.unshift({
+                        id: 'pending-' + req.id,
+                        type: 'connection',
+                        icon: '🤝',
+                        text: `${name} wants to connect with you`,
+                        time: new Date(req.created_at || now),
+                        unread: true,
+                        action: () => switchHubTab('network')
+                    });
+                });
+            }
+
             // Connection notifications
             if (connections.length > 0) {
                 notifications.push({
@@ -7448,15 +7572,17 @@
                 return;
             }
 
-            list.innerHTML = notifications.map(n => `
-                <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="markNotificationRead('${n.id}')">
+            list.innerHTML = notifications.map(n => {
+                const hasAction = !!n.action;
+                return `
+                <div class="notification-item ${n.unread ? 'unread' : ''}${hasAction ? ' notif-clickable' : ''}" onclick="handleNotifClick('${n.id}')">
                     <div class="notification-icon ${n.type}">${n.icon}</div>
                     <div class="notification-text">
                         <p>${n.text}</p>
                         <span class="notif-time">${getTimeAgo(n.time)}</span>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         function toggleNotifications() {
@@ -7472,6 +7598,15 @@
             const notif = notifications.find(n => n.id === id);
             if (notif) notif.unread = false;
             renderNotifications();
+        }
+
+        function handleNotifClick(id) {
+            markNotificationRead(id);
+            const notif = notifications.find(n => n.id === id);
+            if (notif && notif.action) {
+                notif.action();
+                toggleNotifications();
+            }
         }
 
         function clearAllNotifications() {
