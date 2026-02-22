@@ -7451,9 +7451,9 @@
             text.textContent = percentage + '%';
 
             if (percentage === 100) {
-                msg.textContent = 'Your profile is complete! Great job!';
-                ring.style.stroke = 'var(--success)';
+                if (card) card.style.display = 'none';
             } else {
+                if (card) card.style.display = 'flex';
                 msg.textContent = `Add: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? '...' : ''}`;
             }
         }
