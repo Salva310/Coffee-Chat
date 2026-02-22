@@ -3807,7 +3807,10 @@
 
             <!-- Groups View -->
             <div id="groupsView" class="content-view">
-                <h1>Communities & Groups</h1>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <h1 style="margin: 0;">Communities & Groups</h1>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('createGroupModal')" style="margin-top: 0.25rem; white-space: nowrap;">+ Create Group</button>
+                </div>
                 <p style="color: #999; margin-bottom: 2rem;">Join groups aligned with your industry and interests</p>
 
                 <h2 style="margin-top: 2rem;">Featured Groups</h2>
@@ -4173,6 +4176,49 @@
             <div style="display: flex; gap: 1rem;">
                 <button class="btn btn-secondary" onclick="closeModal('createPostModal')" style="flex: 1;">Cancel</button>
                 <button class="btn btn-primary" onclick="publishPost()" style="flex: 1;">Publish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin: 0;">Create a Group</h2>
+                <button class="modal-close" onclick="closeModal('createGroupModal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>Group Name <span style="color: var(--accent);">*</span></label>
+                <input type="text" id="newGroupName" placeholder="e.g. Product Managers at Big Tech" maxlength="80">
+            </div>
+            <div class="form-group">
+                <label>Industry / Focus Area <span style="color: var(--accent);">*</span></label>
+                <select id="newGroupIndustry">
+                    <option value="" disabled selected>Select a category…</option>
+                    <option>Technology</option>
+                    <option>Business/Finance</option>
+                    <option>Engineering</option>
+                    <option>Product Management</option>
+                    <option>Design/Creative</option>
+                    <option>Marketing</option>
+                    <option>Healthcare</option>
+                    <option>Law/Legal</option>
+                    <option>Education</option>
+                    <option>Research/Academia</option>
+                    <option>Entrepreneurship/Startups</option>
+                    <option>Data Science/AI</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description <span style="color: var(--accent);">*</span></label>
+                <textarea id="newGroupDescription" placeholder="What is this group about? Who should join?" rows="4" maxlength="300" oninput="document.getElementById('newGroupDescCount').textContent = this.value.length + ' / 300'"></textarea>
+                <div id="newGroupDescCount" style="font-size: 11px; color: #aaa; text-align: right; margin-top: 4px;">0 / 300</div>
+            </div>
+            <div id="createGroupError" style="display: none; color: #e53935; font-size: 13px; margin-bottom: 0.75rem;"></div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('createGroupModal')" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="createGroup()" style="flex: 1;" id="createGroupBtn">Create Group</button>
             </div>
         </div>
     </div>
@@ -6001,6 +6047,58 @@
             } catch (err) {
                 console.error('Error joining group:', err);
                 showToast('Failed to join group: ' + err.message, 'error');
+            }
+        }
+
+        async function createGroup() {
+            const name = document.getElementById('newGroupName').value.trim();
+            const industry = document.getElementById('newGroupIndustry').value;
+            const description = document.getElementById('newGroupDescription').value.trim();
+            const errEl = document.getElementById('createGroupError');
+            const btn = document.getElementById('createGroupBtn');
+
+            errEl.style.display = 'none';
+
+            if (!name) { errEl.textContent = 'Please enter a group name.'; errEl.style.display = 'block'; return; }
+            if (!industry) { errEl.textContent = 'Please select an industry/focus area.'; errEl.style.display = 'block'; return; }
+            if (!description) { errEl.textContent = 'Please add a short description.'; errEl.style.display = 'block'; return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating…';
+
+            try {
+                const { data: newGroup, error } = await supabaseClient
+                    .from('groups')
+                    .insert([{ name, industry, description, creator_id: currentUser.id, member_count: 1 }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // Auto-join the creator as admin
+                await supabaseClient
+                    .from('group_members')
+                    .insert([{ group_id: newGroup.id, user_id: currentUser.id, role: 'admin' }]);
+
+                groups.unshift(newGroup);
+                myGroupIds.add(newGroup.id);
+
+                // Reset form
+                document.getElementById('newGroupName').value = '';
+                document.getElementById('newGroupIndustry').value = '';
+                document.getElementById('newGroupDescription').value = '';
+                document.getElementById('newGroupDescCount').textContent = '0 / 300';
+
+                closeModal('createGroupModal');
+                renderGroups();
+                showToast(`"${newGroup.name}" created!`, 'success');
+            } catch (err) {
+                console.error('Error creating group:', err);
+                errEl.textContent = 'Failed to create group: ' + err.message;
+                errEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Group';
             }
         }
 
