@@ -4535,8 +4535,10 @@
         async function loadUserData() {
             if (!currentUser) return;
 
+            // Each section is independent — a failure in one never blocks the others
+
+            // Load all connections (accepted + pending)
             try {
-                // Load all connections (accepted + pending)
                 const { data: connectionsData } = await supabaseClient
                     .from('connections')
                     .select('*')
@@ -4545,36 +4547,43 @@
                 connections = allConns.filter(c => c.status === 'accepted');
                 pendingRequests = allConns.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
                 sentRequests = allConns.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
+            } catch (e) { console.error('loadUserData connections:', e); }
 
-                // Load posts for feed
+            // Load posts for feed
+            try {
                 const { data: postsData } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .is('group_id', null)
                     .order('created_at', { ascending: false });
                 posts = postsData || [];
+            } catch (e) { console.error('loadUserData posts:', e); }
 
-                // Load meetings
+            // Load meetings
+            try {
                 const { data: meetingsData } = await supabaseClient
                     .from('meetings')
                     .select('*')
                     .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
                     .order('start_time', { ascending: true });
                 meetings = meetingsData || [];
+            } catch (e) { console.error('loadUserData meetings:', e); }
 
-                // Load all other profiles for discovery
-                const { data: profilesData } = await supabaseClient
+            // Load all other profiles for discovery — most critical
+            try {
+                const { data: profilesData, error: profilesError } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .neq('id', currentUser.id);
+                if (profilesError) console.error('Profiles query error:', profilesError);
                 users = (profilesData || []).map(p => ({
                     id: p.id,
-                    firstName: p.first_name,
-                    lastName: p.last_name,
-                    email: p.email,
+                    firstName: p.first_name || '',
+                    lastName: p.last_name || '',
+                    email: p.email || '',
                     industry: p.industry || '',
-                    interests: p.interests || [],
-                    hobbies: p.hobbies || [],
+                    interests: Array.isArray(p.interests) ? p.interests : [],
+                    hobbies: Array.isArray(p.hobbies) ? p.hobbies : [],
                     goals: p.goals || '',
                     bio: p.bio || '',
                     role: p.role || '',
@@ -4584,31 +4593,36 @@
                     resume: p.resume_url ? { url: p.resume_url, name: 'Resume.pdf' } : null,
                     posts: []
                 }));
+                console.log(`Loaded ${users.length} profiles for discovery`);
+            } catch (e) { console.error('loadUserData profiles:', e); }
 
-                // Load groups
+            // Load groups
+            try {
                 const { data: groupsData } = await supabaseClient
                     .from('groups')
                     .select('*')
                     .order('member_count', { ascending: false });
                 groups = groupsData || [];
+            } catch (e) { console.error('loadUserData groups:', e); }
 
-                // Load user's group memberships
+            // Load user's group memberships
+            try {
                 const { data: membershipsData } = await supabaseClient
                     .from('group_members')
                     .select('group_id')
                     .eq('user_id', currentUser.id);
                 myGroupIds = new Set((membershipsData || []).map(m => m.group_id));
+            } catch (e) { console.error('loadUserData memberships:', e); }
 
-                // Count sent messages for checklist / badges
+            // Count sent messages for checklist / badges
+            try {
                 const { count } = await supabaseClient
                     .from('messages')
                     .select('id', { count: 'exact', head: true })
                     .eq('sender_id', currentUser.id);
                 sentMessageCount = count || 0;
+            } catch (e) { console.error('loadUserData messages:', e); }
 
-            } catch (error) {
-                console.error('Error loading user data:', error);
-            }
         }
 
         function saveToStorage() {
@@ -5387,10 +5401,15 @@
 
         // Discovery
         function renderDiscovery() {
-            // Render smart recommendations
+            // Render smart recommendations (isolated — never blocks main grid)
             const recSection = document.getElementById('recommendationsSection');
             if (recSection) {
-                recSection.innerHTML = renderRecommendations();
+                try {
+                    recSection.innerHTML = renderRecommendations();
+                } catch (e) {
+                    console.warn('Recommendations render error:', e);
+                    recSection.innerHTML = '';
+                }
             }
 
             const searchName = document.getElementById('searchName')?.value.toLowerCase() || '';
@@ -5432,6 +5451,7 @@
             });
 
             const grid = document.getElementById('discoverGrid');
+            try {
             grid.innerHTML = filtered.map(user => {
                 const fn = user.firstName || '?';
                 const ln = user.lastName || '?';
@@ -5471,6 +5491,10 @@
                     </div>
                 `;
             }).join('') || '<div class="empty-state"><p>No people found matching your filters.</p></div>';
+            } catch (e) {
+                console.error('Discover grid render error:', e);
+                grid.innerHTML = '<div class="empty-state"><p>Could not load profiles. Please refresh.</p></div>';
+            }
         }
 
         function filterDiscovery() {
