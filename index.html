@@ -4878,7 +4878,36 @@
             document.querySelectorAll('.content-view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
 
-            if (viewId === 'discoverView') renderDiscovery();
+            if (viewId === 'discoverView') {
+                // Always re-fetch profiles so newly created accounts appear immediately
+                renderDiscovery(); // render with current data right away
+                if (currentUser) {
+                    supabaseClient.from('profiles').select('*').neq('id', currentUser.id)
+                        .then(({ data, error }) => {
+                            if (error) { console.error('Discover profile refresh:', error); return; }
+                            if (data) {
+                                users = data.map(p => ({
+                                    id: p.id,
+                                    firstName: p.first_name || '',
+                                    lastName: p.last_name || '',
+                                    email: p.email || '',
+                                    industry: p.industry || '',
+                                    interests: Array.isArray(p.interests) ? p.interests : [],
+                                    hobbies: Array.isArray(p.hobbies) ? p.hobbies : [],
+                                    goals: p.goals || '',
+                                    bio: p.bio || '',
+                                    role: p.role || '',
+                                    company: p.company || '',
+                                    location: p.location || '',
+                                    profilePicture: p.profile_picture || null,
+                                    resume: p.resume_url || null,
+                                    posts: []
+                                }));
+                                renderDiscovery(); // re-render with fresh data
+                            }
+                        });
+                }
+            }
             if (viewId === 'feedView') renderFeed();
             if (viewId === 'groupsView') renderGroups();
             if (viewId === 'messagesView') renderMessages();
@@ -7056,8 +7085,7 @@
                     reasons
                 };
             })
-            .filter(item => item.score > 0) // Only show users with some match
-            .sort((a, b) => b.score - a.score); // Sort by score
+            .sort((a, b) => b.score - a.score); // Sort by score descending; show all
         }
 
         function renderRecommendations() {
@@ -7096,7 +7124,7 @@
                             return `
                                 <div class="card person-card">
                                     <div style="background: linear-gradient(135deg, var(--accent), var(--primary)); padding: 0.5rem; border-radius: 8px; margin-bottom: 1rem;">
-                                        <p style="font-size: 11px; color: white; margin: 0; text-align: center;">⭐ ${item.score}% Match</p>
+                                        <p style="font-size: 11px; color: white; margin: 0; text-align: center;">${item.score > 0 ? `⭐ ${item.score}% Match` : '👋 New Member'}</p>
                                     </div>
                                     <div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${avatarContent}</div>
                                     <h3>${fn} ${ln}</h3>
