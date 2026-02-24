@@ -320,6 +320,11 @@
             display: block;
         }
 
+        #dashboardView.active {
+            display: flex;
+            flex-direction: column;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -4701,6 +4706,556 @@
             .db-setup-bar { padding-left: 20px; padding-right: 20px; }
             .db-grid-3 { grid-template-columns: 1fr; }
         }
+
+        /* ===================================================
+           SHARED VIEW HEADER  (reused across new view shells)
+           =================================================== */
+        .view-header {
+            margin-bottom: 28px;
+        }
+        .view-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--caramel);
+            margin-bottom: 4px;
+        }
+        .view-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(22px, 3vw, 30px);
+            font-weight: 700;
+            color: var(--espresso);
+            line-height: 1.18;
+            margin: 0 0 5px;
+        }
+        .view-title em { font-style: italic; color: var(--caramel); }
+        .view-subtitle {
+            font-size: 13.5px;
+            color: var(--muted);
+            margin: 0;
+        }
+        .view-header-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* Shared back button */
+        .pv-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 0;
+            margin-bottom: 20px;
+            font-family: 'DM Sans', sans-serif;
+            transition: color .15s;
+        }
+        .pv-back:hover { color: var(--caramel); }
+
+        /* ===================================================
+           DISCOVER VIEW  (dv-*)
+           =================================================== */
+        #discoverView { padding-bottom: 2rem; }
+
+        .dv-filter-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+        }
+        .dv-filter-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 0 0 14px;
+        }
+        .dv-search-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .dv-filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .dv-input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            font-family: 'DM Sans', sans-serif;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--warm-white);
+            color: var(--espresso);
+            box-sizing: border-box;
+            transition: border-color .15s;
+            outline: none;
+        }
+        .dv-input:focus { border-color: var(--caramel); }
+        .dv-input::placeholder { color: var(--muted); opacity: .7; }
+        .dv-filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .dv-btn-primary {
+            padding: 9px 22px;
+            background: var(--caramel);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .dv-btn-primary:hover { background: var(--caramel-light); }
+        .dv-btn-secondary {
+            padding: 9px 22px;
+            background: var(--latte-soft);
+            color: var(--espresso);
+            border: none;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .dv-btn-secondary:hover { background: var(--latte); }
+
+        /* ===================================================
+           FEED VIEW  (fv-*)
+           =================================================== */
+        #feedView { padding-bottom: 2rem; }
+
+        .fv-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+        .fv-tabs {
+            display: flex;
+            background: var(--latte-soft);
+            border-radius: 100px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .fv-tab {
+            padding: 7px 18px;
+            border: none;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: all .15s;
+        }
+        .fv-tab.active, .fv-tab:focus {
+            background: var(--espresso);
+            color: #fff;
+            outline: none;
+        }
+        .fv-tab:hover:not(.active) { color: var(--espresso); }
+        .fv-create-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 20px;
+            background: var(--caramel);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .fv-create-btn:hover { background: var(--caramel-light); }
+
+        /* ===================================================
+           GROUPS VIEW  (gv-*)
+           =================================================== */
+        #groupsView { padding-bottom: 2rem; }
+
+        .gv-header-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+        .gv-create-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            background: var(--caramel);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background .15s;
+            flex-shrink: 0;
+        }
+        .gv-create-btn:hover { background: var(--caramel-light); }
+        .gv-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 28px 0 14px;
+            padding-bottom: 10px;
+            border-bottom: 1.5px solid var(--border);
+        }
+        .gv-section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--espresso);
+            margin: 0;
+        }
+        .gv-section-title:first-child { margin-top: 0; }
+
+        /* ===================================================
+           AVAILABILITY VIEW  (av-*)
+           =================================================== */
+        #availabilityView { padding-bottom: 2rem; }
+
+        .av-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+            max-width: 820px;
+            box-shadow: var(--shadow);
+        }
+        .av-slots-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--espresso);
+            margin: 0 0 16px;
+        }
+        .av-divider {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 24px 0;
+        }
+        .av-add-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--espresso);
+            margin: 0 0 16px;
+        }
+        .av-form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .av-input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            font-family: 'DM Sans', sans-serif;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--warm-white);
+            color: var(--espresso);
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color .15s;
+            appearance: none;
+        }
+        .av-input:focus { border-color: var(--caramel); }
+        .av-time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .av-btn {
+            padding: 10px 26px;
+            background: var(--caramel);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .av-btn:hover { background: var(--caramel-light); }
+
+        /* ===================================================
+           SCHEDULE VIEW  (sv-*)
+           =================================================== */
+        #scheduleView { padding-bottom: 2rem; }
+
+        .sv-shell {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .sv-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .sv-card-header {
+            background: var(--espresso);
+            padding: 26px 28px 22px;
+            position: relative;
+        }
+        .sv-card-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--caramel);
+            margin-bottom: 4px;
+        }
+        .sv-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--cream);
+            margin: 0;
+        }
+        .sv-card-with {
+            font-size: 13px;
+            color: rgba(245,237,227,.55);
+            margin-top: 6px;
+        }
+        .sv-card-with strong {
+            color: var(--latte);
+            font-weight: 600;
+        }
+        .sv-card-body {
+            padding: 24px 28px 28px;
+        }
+        .sv-form-label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+        .sv-input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            font-family: 'DM Sans', sans-serif;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--warm-white);
+            color: var(--espresso);
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color .15s;
+            appearance: none;
+        }
+        .sv-input:focus { border-color: var(--caramel); }
+        .sv-form-group { margin-bottom: 18px; }
+        .sv-form-hint {
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .sv-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--caramel);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background .15s;
+        }
+        .sv-btn:hover { background: var(--caramel-light); }
+
+        /* ===================================================
+           CALL VIEW  (cv-*)
+           =================================================== */
+        #callView {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #0e0a06;
+        }
+        #callView.active {
+            display: flex;
+        }
+        .cv-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(255,255,255,.04);
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            flex-shrink: 0;
+        }
+        .cv-logo {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--caramel);
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: .02em;
+        }
+        .cv-end-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 18px;
+            background: rgba(192,60,60,.85);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .cv-end-btn:hover { background: rgba(220,60,60,1); }
+        .cv-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 0;
+        }
+        .cv-video-main {
+            background: #1a1008;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.08);
+            width: 100%;
+            max-width: 680px;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cv-video-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--caramel), var(--brown));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            color: #fff;
+            flex-direction: column;
+        }
+        .cv-video-local {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            width: 110px;
+            aspect-ratio: 9/16;
+            background: #2a1c10;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .cv-info {
+            text-align: center;
+        }
+        .cv-person-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--cream);
+            margin: 0 0 4px;
+        }
+        .cv-timer {
+            font-size: 13px;
+            color: rgba(245,237,227,.45);
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: .05em;
+        }
+        .cv-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+            padding-bottom: 28px;
+        }
+        .cv-ctrl {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s;
+        }
+        .cv-ctrl-mic  { background: rgba(192,124,58,.2); color: var(--caramel); }
+        .cv-ctrl-mic:hover  { background: rgba(192,124,58,.35); }
+        .cv-ctrl-vid  { background: rgba(192,124,58,.2); color: var(--caramel); }
+        .cv-ctrl-vid:hover  { background: rgba(192,124,58,.35); }
+        .cv-ctrl-end  { background: rgba(192,60,60,.8); color: #fff; width: 64px; height: 64px; font-size: 26px; }
+        .cv-ctrl-end:hover  { background: rgba(220,60,60,1); }
+        .cv-ctrl.muted { background: rgba(255,255,255,.08); color: rgba(245,237,227,.35); }
+
+        /* ===================================================
+           PROFILE / GROUP DETAIL SHELLS
+           =================================================== */
+        .pv-shell { padding-bottom: 2rem; }
     </style>
 </head>
 <body>
@@ -5374,7 +5929,7 @@
             </div>
 
             <!-- Dashboard -->
-            <div id="dashboardView" class="content-view" style="padding:0; overflow-y:auto; display:flex; flex-direction:column;">
+            <div id="dashboardView" class="content-view" style="padding:0; overflow-y:auto;">
 
                 <!-- HERO BANNER -->
                 <div class="db-hero">
@@ -5542,17 +6097,19 @@
 
             <!-- Discover View -->
             <div id="discoverView" class="content-view">
-                <h1>Discover People</h1>
-                <p style="color: #999; margin-bottom: 1.5rem;">Find Rowan students and alumni who share your interests</p>
+                <div class="view-header">
+                    <div class="view-eyebrow">Rowan University</div>
+                    <h1 class="view-title">Find Your <em>People</em></h1>
+                    <p class="view-subtitle">Browse students and alumni who share your interests and goals</p>
+                </div>
 
-                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 1rem; font-size: 16px;">Find People</h3>
-                    <div style="position: relative; margin-bottom: 1rem;">
-                        <input type="text" id="searchName" placeholder="Search by name..." onkeyup="filterDiscovery()" style="width: 100%; padding: 12px 16px; font-size: 16px; border-radius: 10px; border: 2px solid var(--border); box-sizing: border-box;">
+                <div class="dv-filter-card">
+                    <div class="dv-filter-title">Search &amp; Filter</div>
+                    <div class="dv-search-row">
+                        <input type="text" id="searchName" class="dv-input" placeholder="Search by name…" onkeyup="filterDiscovery()">
                     </div>
-                    <p style="font-size: 13px; color: #999; margin-bottom: 0.75rem;">Filter by:</p>
-                    <div class="search-bar" style="margin-bottom: 0;">
-                        <select id="filterIndustry" onchange="filterDiscovery()">
+                    <div class="dv-filter-row">
+                        <select id="filterIndustry" class="dv-input" onchange="filterDiscovery()">
                             <option value="">All Majors</option>
                             <option value="Business/Finance">Business / Finance</option>
                             <option value="Computer Science/Tech">Computer Science / Tech</option>
@@ -5561,15 +6118,15 @@
                             <option value="Liberal Arts/Humanities">Liberal Arts / Humanities</option>
                             <option value="Undecided/Exploring">Undecided / Exploring</option>
                         </select>
-                        <input type="text" id="searchLocation" placeholder="Grad year..." onkeyup="filterDiscovery()">
+                        <input type="text" id="searchLocation" class="dv-input" placeholder="Grad year…" onkeyup="filterDiscovery()">
                     </div>
-                    <div class="search-bar" style="margin-top: 0.75rem; margin-bottom: 0;">
-                        <input type="text" id="searchInterests" placeholder="Interests (e.g., AI, Startups)..." onkeyup="filterDiscovery()">
-                        <input type="text" id="searchCompany" placeholder="School..." onkeyup="filterDiscovery()">
+                    <div class="dv-filter-row">
+                        <input type="text" id="searchInterests" class="dv-input" placeholder="Interests (e.g. AI, Startups)…" onkeyup="filterDiscovery()">
+                        <input type="text" id="searchCompany" class="dv-input" placeholder="School or company…" onkeyup="filterDiscovery()">
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary btn-sm" onclick="filterDiscovery()">Search</button>
-                        <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear All Filters</button>
+                    <div class="dv-filter-actions">
+                        <button class="dv-btn-primary" onclick="filterDiscovery()">Search</button>
+                        <button class="dv-btn-secondary" onclick="clearFilters()">Clear Filters</button>
                     </div>
                 </div>
 
@@ -5578,13 +6135,13 @@
             </div>
 
             <!-- Profile Detail View -->
-            <div id="profileDetailView" class="content-view">
-                <button class="btn btn-secondary btn-sm" onclick="goBack()" style="margin-bottom: 1.5rem;">← Back</button>
+            <div id="profileDetailView" class="content-view pv-shell">
+                <button class="pv-back" onclick="goBack()">← Back</button>
                 <div id="profileDetailContent" class="profile-detail"></div>
             </div>
 
             <!-- My Profile View (LinkedIn-style) -->
-            <div id="myProfileView" class="content-view">
+            <div id="myProfileView" class="content-view pv-shell">
                 <div id="myProfileContent"></div>
             </div>
 
@@ -5592,22 +6149,29 @@
 
             <!-- Groups View -->
             <div id="groupsView" class="content-view">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <h1 style="margin: 0;">Communities & Groups</h1>
-                    <button class="btn btn-primary btn-sm" onclick="openModal('createGroupModal')" style="margin-top: 0.25rem; white-space: nowrap;">+ Create Group</button>
+                <div class="gv-header-row">
+                    <div>
+                        <div class="view-eyebrow">First Sip</div>
+                        <h1 class="view-title" style="margin-bottom:4px;">Communities &amp; <em>Groups</em></h1>
+                        <p class="view-subtitle">Join groups aligned with your industry and interests</p>
+                    </div>
+                    <button class="gv-create-btn" onclick="openModal('createGroupModal')">+ Create Group</button>
                 </div>
-                <p style="color: #999; margin-bottom: 2rem;">Join groups aligned with your industry and interests</p>
 
-                <h2 style="margin-top: 2rem;">Featured Groups</h2>
+                <div class="gv-section-head">
+                    <h2 class="gv-section-title">Featured Groups</h2>
+                </div>
                 <div id="groupsList" class="grid"></div>
 
-                <h2 style="margin-top: 2rem;">Your Groups</h2>
+                <div class="gv-section-head" style="margin-top:32px;">
+                    <h2 class="gv-section-title">Your Groups</h2>
+                </div>
                 <div id="myGroupsList"></div>
             </div>
 
             <!-- Group Detail View -->
-            <div id="groupDetailView" class="content-view">
-                <button class="btn btn-secondary btn-sm" onclick="switchView('groupsView')" style="margin-bottom: 1.5rem;">&larr; Back to Groups</button>
+            <div id="groupDetailView" class="content-view pv-shell">
+                <button class="pv-back" onclick="switchView('groupsView')">← Back to Groups</button>
                 <div id="groupDetailContent"></div>
             </div>
 
@@ -5753,101 +6317,106 @@
 
             <!-- Video Call View -->
             <div id="callView" class="content-view">
-                <button class="btn btn-secondary btn-sm" onclick="endCall()" style="margin-bottom: 1.5rem;">← End Call</button>
-                <div class="call-container">
-                    <div class="video-box local">
-                        <div class="video-placeholder">
-                            <div class="avatar-large">👤</div>
+                <div class="cv-topbar">
+                    <span class="cv-logo">☕ First Sip</span>
+                    <button class="cv-end-btn" onclick="endCall()">✕ End Call</button>
+                </div>
+                <div class="cv-stage">
+                    <div class="cv-video-main">
+                        <div class="cv-video-avatar">
+                            <div id="remoteName" style="font-size:40px;line-height:1;"></div>
+                            <div id="remotePerson" style="font-size:13px;color:rgba(245,237,227,.5);margin-top:6px;font-family:'DM Sans',sans-serif;"></div>
                         </div>
+                        <div class="cv-video-local">👤</div>
                     </div>
-                    <div class="video-grid">
-                        <div class="video-box">
-                            <div class="video-placeholder">
-                                <div class="avatar-large" id="remoteName"></div>
-                                <p id="remotePerson"></p>
-                            </div>
-                        </div>
+                    <div class="cv-info">
+                        <h2 class="cv-person-name" id="callPersonName"></h2>
+                        <div class="cv-timer"><span id="callTimer">00:00</span></div>
                     </div>
-                    <div class="call-info">
-                        <h2 id="callPersonName"></h2>
-                        <p class="call-duration"><span id="callTimer">00:00</span></p>
-                    </div>
-                    <div class="call-controls">
-                        <button class="control-btn mic" id="micBtn" onclick="toggleMic()">🎤</button>
-                        <button class="control-btn video" id="videoBtn" onclick="toggleVideo()">📹</button>
-                        <button class="control-btn end" onclick="endCall()">☎️</button>
-                    </div>
+                </div>
+                <div class="cv-controls">
+                    <button class="cv-ctrl cv-ctrl-mic" id="micBtn" onclick="toggleMic()">🎤</button>
+                    <button class="cv-ctrl cv-ctrl-end" onclick="endCall()">☎</button>
+                    <button class="cv-ctrl cv-ctrl-vid" id="videoBtn" onclick="toggleVideo()">📹</button>
                 </div>
             </div>
 
             <!-- Schedule Meeting View -->
             <div id="scheduleView" class="content-view">
-                <button class="btn btn-secondary btn-sm" onclick="goBack()" style="margin-bottom: 1.5rem;">← Back</button>
-                <div class="profile-detail">
-                    <h1 style="text-align: center; margin-bottom: 2rem;">Schedule a Coffee Chat</h1>
-                    
-                    <div class="form-group">
-                        <label>With: <strong id="scheduleName"></strong></label>
-                    </div>
+                <button class="pv-back" onclick="goBack()">← Back</button>
+                <div class="sv-shell">
+                    <div class="sv-card">
+                        <div class="sv-card-header">
+                            <div class="sv-card-eyebrow">☕ First Sip</div>
+                            <h1 class="sv-card-title">Schedule a Chat</h1>
+                            <div class="sv-card-with">With <strong id="scheduleName">—</strong></div>
+                        </div>
+                        <div class="sv-card-body">
 
-                    <div class="form-group">
-                        <label>Select Date</label>
-                        <input type="date" id="scheduleDate">
-                    </div>
+                            <div class="sv-form-group">
+                                <label class="sv-form-label">Select Date</label>
+                                <input type="date" id="scheduleDate" class="sv-input">
+                            </div>
 
-                    <div class="form-group">
-                        <label>Select Time</label>
-                        <div class="time-slots" id="timeSlots"></div>
-                    </div>
+                            <div class="sv-form-group">
+                                <label class="sv-form-label">Select Time</label>
+                                <div class="time-slots" id="timeSlots"></div>
+                            </div>
 
-                    <div class="form-group">
-                        <label>Duration</label>
-                        <select id="scheduleDuration">
-                            <option value="15">15 minutes</option>
-                            <option value="30" selected>30 minutes</option>
-                            <option value="60">1 hour</option>
-                        </select>
-                    </div>
+                            <div class="sv-form-group">
+                                <label class="sv-form-label">Duration</label>
+                                <select id="scheduleDuration" class="sv-input">
+                                    <option value="15">15 minutes</option>
+                                    <option value="30" selected>30 minutes</option>
+                                    <option value="60">1 hour</option>
+                                </select>
+                            </div>
 
-                    <div class="form-group">
-                        <label>Topic/Purpose</label>
-                        <textarea id="scheduleTopic" placeholder="What would you like to discuss?"></textarea>
-                    </div>
+                            <div class="sv-form-group">
+                                <label class="sv-form-label">Topic / Purpose</label>
+                                <textarea id="scheduleTopic" class="sv-input" style="resize:vertical; min-height:80px;" placeholder="What would you like to discuss?"></textarea>
+                            </div>
 
-                    <div class="form-group">
-                        <label>Meeting Type</label>
-                        <select id="scheduleType" onchange="updateMeetingDetails()">
-                            <option value="video">Video Call</option>
-                            <option value="zoom">Zoom Meeting</option>
-                            <option value="facetime">FaceTime</option>
-                            <option value="phone">Phone Call</option>
-                            <option value="coffee">First Sip (In-person)</option>
-                        </select>
-                    </div>
+                            <div class="sv-form-group">
+                                <label class="sv-form-label">Meeting Type</label>
+                                <select id="scheduleType" class="sv-input" onchange="updateMeetingDetails()">
+                                    <option value="video">Video Call</option>
+                                    <option value="zoom">Zoom Meeting</option>
+                                    <option value="facetime">FaceTime</option>
+                                    <option value="phone">Phone Call</option>
+                                    <option value="coffee">First Sip (In-person)</option>
+                                </select>
+                            </div>
 
-                    <div id="meetingDetailsSection">
-                        <div class="form-group" id="meetingLinkGroup">
-                            <label id="meetingDetailLabel">Video Call Link</label>
-                            <input type="text" id="meetingDetailInput" placeholder="Paste your video call link here">
-                            <p style="font-size: 12px; color: #999; margin-top: 0.25rem;" id="meetingDetailHint">e.g., Google Meet, Teams, or other video call link</p>
+                            <div id="meetingDetailsSection">
+                                <div class="sv-form-group" id="meetingLinkGroup">
+                                    <label class="sv-form-label" id="meetingDetailLabel">Video Call Link</label>
+                                    <input type="text" id="meetingDetailInput" class="sv-input" placeholder="Paste your video call link here">
+                                    <p class="sv-form-hint" id="meetingDetailHint">e.g., Google Meet, Teams, or other video call link</p>
+                                </div>
+                            </div>
+
+                            <button class="sv-btn" onclick="sendMeetingRequest()">Send Meeting Request ☕</button>
                         </div>
                     </div>
-
-                    <button class="btn btn-primary" onclick="sendMeetingRequest()" style="width: 100%;">Send Meeting Request</button>
                 </div>
             </div>
 
             <!-- Feed View -->
             <div id="feedView" class="content-view">
-                <h1>Feed</h1>
-                <p style="color: #999; margin-bottom: 1.25rem;">See what's happening in your world</p>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.75rem;">
-                    <div class="feed-subtab-bar">
-                        <button id="feedTabConnections" class="feed-subtab active" onclick="switchFeedTab('connections')">Connections</button>
-                        <button id="feedTabGroups" class="feed-subtab" onclick="switchFeedTab('groups')">Groups</button>
+                <div class="view-header-row" style="margin-bottom:22px;">
+                    <div>
+                        <div class="view-eyebrow">Your Network</div>
+                        <h1 class="view-title" style="margin-bottom:0;">The <em>Feed</em></h1>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="createPost()">✍️ Create Post</button>
+                </div>
+
+                <div class="fv-toolbar">
+                    <div class="fv-tabs">
+                        <button id="feedTabConnections" class="fv-tab active" onclick="switchFeedTab('connections')">Connections</button>
+                        <button id="feedTabGroups" class="fv-tab" onclick="switchFeedTab('groups')">Groups</button>
+                    </div>
+                    <button class="fv-create-btn" onclick="createPost()">✍️ Create Post</button>
                 </div>
 
                 <div id="feedPosts"></div>
@@ -5855,42 +6424,45 @@
 
             <!-- Availability View -->
             <div id="availabilityView" class="content-view">
-                <h1>Set Your Availability</h1>
-                <p style="color: #999; margin-bottom: 2rem;">Let people know when you're available for coffee chats</p>
+                <div class="view-header">
+                    <div class="view-eyebrow">Settings</div>
+                    <h1 class="view-title">Your <em>Availability</em></h1>
+                    <p class="view-subtitle">Let people know when you're free for a coffee chat</p>
+                </div>
 
-                <div class="card" style="max-width: 800px; margin: 0 auto;">
-                    <h3 style="margin-bottom: 1.5rem;">Weekly Availability</h3>
+                <div class="av-card">
+                    <h3 class="av-slots-title">Weekly Schedule</h3>
+                    <div id="availabilitySlots"></div>
 
-                    <div id="availabilitySlots">
-                        <!-- Availability slots will be rendered here -->
+                    <hr class="av-divider">
+
+                    <h3 class="av-add-title">Add a Time Slot</h3>
+
+                    <div style="margin-bottom:16px;">
+                        <label class="av-form-label">Day of Week</label>
+                        <select id="availabilityDay" class="av-input">
+                            <option value="0">Sunday</option>
+                            <option value="1">Monday</option>
+                            <option value="2">Tuesday</option>
+                            <option value="3">Wednesday</option>
+                            <option value="4">Thursday</option>
+                            <option value="5">Friday</option>
+                            <option value="6">Saturday</option>
+                        </select>
                     </div>
 
-                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-                        <h3 style="margin-bottom: 1rem;">Add Time Slot</h3>
-                        <div class="form-group">
-                            <label>Day of Week</label>
-                            <select id="availabilityDay">
-                                <option value="0">Sunday</option>
-                                <option value="1">Monday</option>
-                                <option value="2">Tuesday</option>
-                                <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
-                                <option value="5">Friday</option>
-                                <option value="6">Saturday</option>
-                            </select>
+                    <div class="av-time-grid">
+                        <div>
+                            <label class="av-form-label">Start Time</label>
+                            <input type="time" id="availabilityStartTime" class="av-input" value="09:00">
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div class="form-group">
-                                <label>Start Time</label>
-                                <input type="time" id="availabilityStartTime" value="09:00">
-                            </div>
-                            <div class="form-group">
-                                <label>End Time</label>
-                                <input type="time" id="availabilityEndTime" value="17:00">
-                            </div>
+                        <div>
+                            <label class="av-form-label">End Time</label>
+                            <input type="time" id="availabilityEndTime" class="av-input" value="17:00">
                         </div>
-                        <button class="btn btn-primary" onclick="addAvailabilitySlot()">Add Availability</button>
                     </div>
+
+                    <button class="av-btn" onclick="addAvailabilitySlot()">Add Availability</button>
                 </div>
             </div>
         </div>
