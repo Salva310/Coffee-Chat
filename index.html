@@ -488,6 +488,345 @@
         }
 
         /* Auth Screens */
+        /* ===== AUTH PAGES ===== */
+        .auth-page {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+
+        /* Left panel */
+        .auth-left {
+            background: #1a0e07;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 56px;
+        }
+
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 80%, rgba(181,101,29,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 80% 20%, rgba(212,137,74,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .auth-grain {
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .auth-left-logo {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-logo-mark {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #d4894a, #b5651d);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .auth-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #f5ede3;
+            letter-spacing: -0.3px;
+        }
+
+        .auth-left-hero {
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-eyebrow {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #d4894a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-eyebrow::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 1px;
+            background: #d4894a;
+        }
+
+        .auth-hero-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            line-height: 1.1;
+            color: #f5ede3;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .auth-hero-headline em {
+            font-style: italic;
+            color: #d4894a;
+        }
+
+        .auth-hero-body {
+            font-size: 14px;
+            line-height: 1.65;
+            color: rgba(245,237,227,0.6);
+            max-width: 320px;
+            margin-bottom: 36px;
+        }
+
+        .auth-testimonial {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(181,101,29,0.2);
+            border-radius: 16px;
+            padding: 22px;
+            backdrop-filter: blur(10px);
+            max-width: 360px;
+        }
+
+        .auth-testimonial-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            font-style: italic;
+            color: #f5ede3;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .auth-testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-author-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #b5651d, #d4894a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .auth-author-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #f5ede3;
+        }
+
+        .auth-author-role {
+            font-size: 11px;
+            color: #c9a98a;
+        }
+
+        .auth-decor-circles {
+            position: absolute;
+            bottom: 60px;
+            right: -20px;
+            z-index: 1;
+        }
+
+        .auth-decor-circle {
+            border-radius: 50%;
+            border: 1px solid rgba(181,101,29,0.2);
+            position: absolute;
+        }
+
+        .auth-decor-circle:nth-child(1) { width: 120px; height: 120px; bottom: 0; right: 30px; }
+        .auth-decor-circle:nth-child(2) { width: 70px; height: 70px; bottom: 40px; right: 0; }
+        .auth-decor-circle:nth-child(3) { width: 40px; height: 40px; bottom: 80px; right: 60px; border-color: rgba(212,137,74,0.3); }
+
+        /* Right panel */
+        .auth-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 72px;
+            background: #faf6f1;
+            position: relative;
+        }
+
+        .auth-right::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #b5651d, #d4894a, transparent);
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 380px;
+            animation: authFadeUp 0.5s ease both;
+        }
+
+        @keyframes authFadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-form-header { margin-bottom: 36px; }
+
+        .auth-form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a0e07;
+            margin-bottom: 6px;
+            line-height: 1.15;
+        }
+
+        .auth-form-subtitle {
+            font-size: 14px;
+            color: #8b6a52;
+            line-height: 1.5;
+        }
+
+        .auth-form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #8b6a52;
+            margin-bottom: 8px;
+        }
+
+        .auth-input-wrapper { position: relative; }
+
+        .auth-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #c9a98a;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .auth-form-input {
+            width: 100%;
+            padding: 13px 14px 13px 40px;
+            border: 1.5px solid #e8d5c0;
+            border-radius: 12px;
+            background: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: #1a0e07;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .auth-form-input::placeholder { color: #c9a98a; }
+
+        .auth-form-input:focus {
+            border-color: #b5651d;
+            box-shadow: 0 0 0 3px rgba(181,101,29,0.1);
+        }
+
+        .auth-btn-primary {
+            width: 100%;
+            margin-top: 8px;
+            padding: 15px;
+            background: #1a0e07;
+            color: #f5ede3;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.2px;
+        }
+
+        .auth-btn-primary:hover {
+            background: #2c1a0e;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(26,14,7,0.25);
+        }
+
+        .auth-btn-primary:active { transform: translateY(0); }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13.5px;
+            color: #8b6a52;
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #b5651d;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            transition: color 0.2s;
+        }
+
+        .auth-toggle button:hover { color: #5c3317; }
+
+        .auth-stat-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 32px;
+            padding-top: 28px;
+            border-top: 1px solid #e8d5c0;
+        }
+
+        .auth-stat-item { text-align: center; flex: 1; }
+
+        .auth-stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a0e07;
+        }
+
+        .auth-stat-label {
+            font-size: 11px;
+            color: #8b6a52;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 860px) {
+            .auth-page { grid-template-columns: 1fr; }
+            .auth-left { display: none; }
+            .auth-right { padding: 48px 28px; background: #faf6f1; min-height: 100vh; }
+        }
+
+        /* Legacy signup container (still used for signupView) */
         .auth-container {
             max-width: 500px;
             margin: 4rem auto;
@@ -3538,23 +3877,75 @@
 
             <!-- Auth Screens -->
             <div id="loginView" class="content-view">
-                <div class="auth-container">
-                    <h1>Welcome Back</h1>
-                    <p class="auth-subtitle">Connect and grow with Rowan students who share your goals</p>
-                    
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="loginEmail" placeholder="you@example.com">
+                <div class="auth-page">
+                    <!-- Left panel -->
+                    <div class="auth-left">
+                        <div class="auth-grain"></div>
+                        <div class="auth-left-logo">
+                            <div class="auth-logo-mark">☕</div>
+                            <span class="auth-logo-text">First Sip</span>
+                        </div>
+                        <div class="auth-left-hero">
+                            <div class="auth-eyebrow">Rowan University Network</div>
+                            <h1 class="auth-hero-headline">Networking that feels<br><em>human</em> for once.</h1>
+                            <p class="auth-hero-body">Meet fellow Profs and Rowan alumni over a real 30-minute conversation. No cold messages. No awkward events. Just authentic connection over coffee.</p>
+                            <div class="auth-testimonial">
+                                <p class="auth-testimonial-quote">"I landed my internship through a First Sip chat. It felt less like networking and more like making a real friend."</p>
+                                <div class="auth-testimonial-author">
+                                    <div class="auth-author-avatar">A</div>
+                                    <div>
+                                        <div class="auth-author-name">Anika P.</div>
+                                        <div class="auth-author-role">CS Senior · Rowan University</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="auth-decor-circles">
+                            <div class="auth-decor-circle"></div>
+                            <div class="auth-decor-circle"></div>
+                            <div class="auth-decor-circle"></div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••">
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="handleLogin()" style="width: 100%;">Sign In</button>
-                    
-                    <div class="toggle-auth">
-                        New to First Sip? <button onclick="switchView('signupView')">Create Account</button>
+                    <!-- Right panel -->
+                    <div class="auth-right">
+                        <div class="auth-form-container">
+                            <div class="auth-form-header">
+                                <h2 class="auth-form-title">Welcome back</h2>
+                                <p class="auth-form-subtitle">Sign in to continue building your real network at Rowan.</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="auth-form-label">Email Address</label>
+                                <div class="auth-input-wrapper">
+                                    <span class="auth-input-icon">✉</span>
+                                    <input type="email" id="loginEmail" class="auth-form-input" placeholder="you@rowan.edu">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="auth-form-label">Password</label>
+                                <div class="auth-input-wrapper">
+                                    <span class="auth-input-icon">🔒</span>
+                                    <input type="password" id="loginPassword" class="auth-form-input" placeholder="Enter your password">
+                                </div>
+                            </div>
+                            <button class="auth-btn-primary" onclick="handleLogin()">Sign In to First Sip ☕</button>
+                            <div class="auth-toggle">
+                                New to First Sip? <button onclick="switchView('signupView')">Create your account →</button>
+                            </div>
+                            <div class="auth-stat-row">
+                                <div class="auth-stat-item">
+                                    <div class="auth-stat-value">30m</div>
+                                    <div class="auth-stat-label">Avg chat length</div>
+                                </div>
+                                <div class="auth-stat-item">
+                                    <div class="auth-stat-value">100%</div>
+                                    <div class="auth-stat-label">Rowan-only</div>
+                                </div>
+                                <div class="auth-stat-item">
+                                    <div class="auth-stat-value">Free</div>
+                                    <div class="auth-stat-label">Always</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
