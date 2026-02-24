@@ -863,6 +863,414 @@
             font-weight: 600;
         }
 
+        /* ===== SIGNUP PAGE ===== */
+        .su-page {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            min-height: 100vh;
+        }
+
+        .su-left {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: #2c1a0e;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 44px 44px;
+            z-index: 2;
+        }
+
+        .su-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 100% 70% at -10% 100%, rgba(181,101,29,0.3) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 50% at 110% 0%, rgba(212,137,74,0.12) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .su-logo {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .su-logo-mark {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #d4894a, #b5651d);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .su-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #f5ede3;
+        }
+
+        .su-steps-area {
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .su-steps-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: 33px;
+            line-height: 1.15;
+            color: #f5ede3;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .su-steps-headline em {
+            font-style: italic;
+            color: #d4894a;
+        }
+
+        .su-steps-tagline {
+            font-size: 13px;
+            color: rgba(245,237,227,0.5);
+            margin-bottom: 32px;
+            line-height: 1.55;
+        }
+
+        .su-step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .su-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+        }
+
+        .su-step-item.su-active {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(181,101,29,0.2);
+        }
+
+        .su-step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(181,101,29,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 500;
+            color: #c9a98a;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .su-step-item.su-active .su-step-num {
+            background: linear-gradient(135deg, #b5651d, #d4894a);
+            border-color: transparent;
+            color: white;
+        }
+
+        .su-step-title {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #f5ede3;
+            margin-bottom: 2px;
+        }
+
+        .su-step-desc {
+            font-size: 11.5px;
+            color: rgba(245,237,227,0.42);
+        }
+
+        .su-bottom-pill {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(181,101,29,0.2);
+            border-radius: 100px;
+            padding: 9px 15px;
+            font-size: 12px;
+            color: rgba(245,237,227,0.65);
+            align-self: flex-start;
+        }
+
+        .su-pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: suPulse 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes suPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(0.8); }
+        }
+
+        /* Right panel */
+        .su-right {
+            padding: 56px 72px 72px;
+            background: #faf6f1;
+            position: relative;
+        }
+
+        .su-right::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #b5651d, #d4894a, transparent 65%);
+        }
+
+        .su-form-wrapper {
+            max-width: 520px;
+            animation: authFadeUp 0.5s ease both;
+        }
+
+        .su-form-header { margin-bottom: 32px; }
+
+        .su-form-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(181,101,29,0.1);
+            border: 1px solid rgba(181,101,29,0.2);
+            border-radius: 100px;
+            padding: 5px 12px;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #b5651d;
+            margin-bottom: 14px;
+        }
+
+        .su-form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 600;
+            color: #1a0e07;
+            line-height: 1.12;
+            margin-bottom: 8px;
+        }
+
+        .su-form-subtitle {
+            font-size: 14px;
+            color: #8b6a52;
+            line-height: 1.5;
+        }
+
+        .su-section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 28px 0 18px;
+        }
+
+        .su-section-label {
+            font-size: 10.5px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #c9a98a;
+            white-space: nowrap;
+        }
+
+        .su-section-line {
+            flex: 1;
+            height: 1px;
+            background: #e8d5c0;
+        }
+
+        .su-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .su-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #8b6a52;
+            margin-bottom: 7px;
+        }
+
+        .su-input-wrap { position: relative; }
+
+        .su-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #c9a98a;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .su-input {
+            width: 100%;
+            padding: 12px 13px 12px 40px;
+            border: 1.5px solid #e8d5c0;
+            border-radius: 11px;
+            background: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            color: #1a0e07;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .su-input.su-no-icon { padding-left: 13px; }
+
+        .su-input::placeholder { color: #c9a98a; }
+
+        .su-input:focus {
+            border-color: #b5651d;
+            box-shadow: 0 0 0 3px rgba(181,101,29,0.1);
+        }
+
+        select.su-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a98a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 13px center;
+        }
+
+        textarea.su-input {
+            resize: vertical;
+            min-height: 82px;
+            padding-top: 11px;
+            line-height: 1.5;
+        }
+
+        .su-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .su-chip {
+            padding: 7px 13px;
+            border-radius: 100px;
+            border: 1.5px solid #e8d5c0;
+            background: white;
+            font-size: 12.5px;
+            font-family: 'DM Sans', sans-serif;
+            color: #8b6a52;
+            cursor: pointer;
+            transition: all 0.18s;
+            user-select: none;
+        }
+
+        .su-chip:hover { border-color: #b5651d; color: #b5651d; }
+
+        .su-chip.su-chip-sel {
+            background: #1a0e07;
+            border-color: #1a0e07;
+            color: #f5ede3;
+        }
+
+        .su-strength-bars {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .su-bar {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: #e8d5c0;
+            transition: background 0.3s;
+        }
+
+        .su-bar.su-s1 { background: #e74c3c; }
+        .su-bar.su-s2 { background: #e67e22; }
+        .su-bar.su-s3 { background: #f1c40f; }
+        .su-bar.su-s4 { background: #2ecc71; }
+
+        .su-btn {
+            width: 100%;
+            margin-top: 4px;
+            padding: 15px;
+            background: #1a0e07;
+            color: #f5ede3;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.2px;
+        }
+
+        .su-btn:hover {
+            background: #2c1a0e;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(26,14,7,0.25);
+        }
+
+        .su-btn:active { transform: translateY(0); }
+
+        .su-benefits {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 32px;
+            padding-top: 28px;
+            border-top: 1px solid #e8d5c0;
+        }
+
+        .su-benefit-card {
+            background: white;
+            border: 1px solid #e8d5c0;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .su-benefit-icon { font-size: 20px; margin-bottom: 5px; }
+        .su-benefit-title { font-size: 11.5px; font-weight: 500; color: #1a0e07; margin-bottom: 2px; }
+        .su-benefit-desc { font-size: 10.5px; color: #8b6a52; line-height: 1.4; }
+
+        @media (max-width: 1000px) {
+            .su-right { padding: 44px 44px 56px; }
+        }
+
+        @media (max-width: 820px) {
+            .su-page { grid-template-columns: 1fr; }
+            .su-left { position: static; height: auto; }
+            .su-steps-area { margin: 24px 0; }
+            .su-right { padding: 32px 22px 48px; }
+            .su-grid-2 { grid-template-columns: 1fr; }
+            .su-benefits { grid-template-columns: 1fr 1fr; }
+        }
+
         /* === LANDING PAGE === */
         .sidebar-hidden .sidebar { display: none; }
         .sidebar-hidden .main-content { margin-left: 0; padding: 0; width: 100%; }
@@ -3951,78 +4359,203 @@
             </div>
 
             <div id="signupView" class="content-view">
-                <div class="auth-container">
-                    <h1>Join First Sip</h1>
-                    <p class="auth-subtitle">Join Rowan's founding cohort &mdash; start building real connections</p>
+                <div class="su-page">
 
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" id="signupFirstName" placeholder="Jane">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" id="signupLastName" placeholder="Smith">
-                    </div>
-                    <div class="form-group">
-                        <label>Current Status</label>
-                        <select id="signupStatus">
-                            <option value="">Select your year</option>
-                            <option value="Freshman">Freshman</option>
-                            <option value="Sophomore">Sophomore</option>
-                            <option value="Junior">Junior</option>
-                            <option value="Senior">Senior</option>
-                            <option value="Recent Grad">Recent Grad</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Graduation Year</label>
-                        <select id="signupGradYear">
-                            <option value="">Select year</option>
-                            <option value="2030">2030</option>
-                            <option value="2029">2029</option>
-                            <option value="2028">2028</option>
-                            <option value="2027">2027</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
-                            <option value="2024">2024 (Recent Grad)</option>
-                            <option value="2023">2023 (Recent Grad)</option>
-                            <option value="2022">2022 (Recent Grad)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>What are you studying / interested in?</label>
-                        <select id="signupIndustry">
-                            <option value="">Select your major or interest</option>
-                            <option value="Business/Finance">Business / Finance</option>
-                            <option value="Computer Science/Tech">Computer Science / Tech</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Pre-Med/Healthcare">Pre-Med / Healthcare</option>
-                            <option value="Liberal Arts/Humanities">Liberal Arts / Humanities</option>
-                            <option value="Undecided/Exploring">Undecided / Exploring</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Interests &amp; Passions</label>
-                        <textarea id="signupInterests" placeholder="e.g., investment banking, product management, startups, pre-law..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Career Goals</label>
-                        <textarea id="signupGoals" placeholder="e.g., break into consulting, land a tech internship, get into med school..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="signupEmail" placeholder="you@university.edu">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="signupPassword" placeholder="••••••••">
+                    <!-- Left sticky panel -->
+                    <div class="su-left">
+                        <div class="auth-grain"></div>
+                        <div class="su-logo">
+                            <div class="su-logo-mark">☕</div>
+                            <span class="su-logo-text">First Sip</span>
+                        </div>
+                        <div class="su-steps-area">
+                            <h2 class="su-steps-headline">Your real<br><em>network</em> starts<br>with one sip.</h2>
+                            <p class="su-steps-tagline">Join Rowan's founding cohort and connect with students and alumni who actually want to help.</p>
+                            <div class="su-step-list">
+                                <div class="su-step-item su-active">
+                                    <div class="su-step-num">1</div>
+                                    <div>
+                                        <div class="su-step-title">Create your profile</div>
+                                        <div class="su-step-desc">Tell us who you are and where you're headed</div>
+                                    </div>
+                                </div>
+                                <div class="su-step-item">
+                                    <div class="su-step-num">2</div>
+                                    <div>
+                                        <div class="su-step-title">Discover connections</div>
+                                        <div class="su-step-desc">Browse people who share your goals</div>
+                                    </div>
+                                </div>
+                                <div class="su-step-item">
+                                    <div class="su-step-num">3</div>
+                                    <div>
+                                        <div class="su-step-title">Schedule your first sip</div>
+                                        <div class="su-step-desc">Book a 30-min chat — virtual or on campus</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="su-bottom-pill">
+                            <div class="su-pulse-dot"></div>
+                            Rowan students joining now
+                        </div>
                     </div>
 
-                    <button class="btn btn-primary" onclick="handleSignup()" style="width: 100%;">Join Rowan's Founding Cohort</button>
+                    <!-- Right form panel -->
+                    <div class="su-right">
+                        <div class="su-form-wrapper">
 
-                    <div class="toggle-auth">
-                        Already have an account? <button onclick="switchView('loginView')">Sign In</button>
+                            <div class="su-form-header">
+                                <div class="su-form-badge">🎓 Rowan University · Founding Cohort</div>
+                                <h1 class="su-form-title">Create your<br>account</h1>
+                                <p class="su-form-subtitle">Join for free. No spam, no recruiters — just real Rowan connections.</p>
+                            </div>
+
+                            <!-- The basics -->
+                            <div class="su-section-divider">
+                                <span class="su-section-label">The basics</span>
+                                <div class="su-section-line"></div>
+                            </div>
+
+                            <div class="su-grid-2">
+                                <div class="form-group">
+                                    <label class="su-label">First Name</label>
+                                    <div class="su-input-wrap">
+                                        <span class="su-icon">👤</span>
+                                        <input type="text" id="signupFirstName" class="su-input" placeholder="Jane">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="su-label">Last Name</label>
+                                    <div class="su-input-wrap">
+                                        <span class="su-icon">👤</span>
+                                        <input type="text" id="signupLastName" class="su-input" placeholder="Smith">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="su-label">Rowan Email</label>
+                                <div class="su-input-wrap">
+                                    <span class="su-icon">✉</span>
+                                    <input type="email" id="signupEmail" class="su-input" placeholder="you@rowan.edu">
+                                </div>
+                            </div>
+
+                            <!-- Rowan journey -->
+                            <div class="su-section-divider">
+                                <span class="su-section-label">Your Rowan journey</span>
+                                <div class="su-section-line"></div>
+                            </div>
+
+                            <div class="su-grid-2">
+                                <div class="form-group">
+                                    <label class="su-label">Current Status</label>
+                                    <select id="signupStatus" class="su-input su-no-icon">
+                                        <option value="">Select year</option>
+                                        <option value="Freshman">Freshman</option>
+                                        <option value="Sophomore">Sophomore</option>
+                                        <option value="Junior">Junior</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="Recent Grad">Recent Grad</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="su-label">Grad Year</label>
+                                    <select id="signupGradYear" class="su-input su-no-icon">
+                                        <option value="">Select year</option>
+                                        <option value="2030">2030</option>
+                                        <option value="2029">2029</option>
+                                        <option value="2028">2028</option>
+                                        <option value="2027">2027</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="su-label">Area of Study</label>
+                                <div class="su-chips">
+                                    <div class="su-chip" onclick="suSelectChip(this,'Business/Finance')">💼 Business / Finance</div>
+                                    <div class="su-chip" onclick="suSelectChip(this,'Computer Science/Tech')">💻 Computer Science</div>
+                                    <div class="su-chip" onclick="suSelectChip(this,'Engineering')">⚙️ Engineering</div>
+                                    <div class="su-chip" onclick="suSelectChip(this,'Pre-Med/Healthcare')">🩺 Pre-Med</div>
+                                    <div class="su-chip" onclick="suSelectChip(this,'Liberal Arts/Humanities')">📚 Liberal Arts</div>
+                                    <div class="su-chip" onclick="suSelectChip(this,'Undecided/Exploring')">🔍 Exploring</div>
+                                </div>
+                                <!-- Hidden select keeps handleSignup() working unchanged -->
+                                <select id="signupIndustry" style="display:none;">
+                                    <option value="">Select your major or interest</option>
+                                    <option value="Business/Finance">Business / Finance</option>
+                                    <option value="Computer Science/Tech">Computer Science / Tech</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Pre-Med/Healthcare">Pre-Med / Healthcare</option>
+                                    <option value="Liberal Arts/Humanities">Liberal Arts / Humanities</option>
+                                    <option value="Undecided/Exploring">Undecided / Exploring</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="su-label">Interests &amp; Passions</label>
+                                <textarea id="signupInterests" class="su-input su-no-icon" placeholder="e.g., investment banking, product management, startups, pre-law..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="su-label">Career Goals</label>
+                                <textarea id="signupGoals" class="su-input su-no-icon" placeholder="e.g., break into consulting, land a tech internship, get into med school..."></textarea>
+                            </div>
+
+                            <!-- Account -->
+                            <div class="su-section-divider">
+                                <span class="su-section-label">Secure your account</span>
+                                <div class="su-section-line"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="su-label">Password</label>
+                                <div class="su-input-wrap">
+                                    <span class="su-icon">🔒</span>
+                                    <input type="password" id="signupPassword" class="su-input" placeholder="Create a strong password" oninput="suUpdateStrength(this.value)">
+                                </div>
+                                <div class="su-strength-bars">
+                                    <div class="su-bar" id="suBar1"></div>
+                                    <div class="su-bar" id="suBar2"></div>
+                                    <div class="su-bar" id="suBar3"></div>
+                                    <div class="su-bar" id="suBar4"></div>
+                                </div>
+                            </div>
+
+                            <button class="su-btn" onclick="handleSignup()">Join Rowan's Founding Cohort ☕</button>
+
+                            <div class="auth-toggle" style="margin-top: 20px;">
+                                Already have an account? <button onclick="switchView('loginView')">Sign in →</button>
+                            </div>
+
+                            <div class="su-benefits">
+                                <div class="su-benefit-card">
+                                    <div class="su-benefit-icon">☕</div>
+                                    <div class="su-benefit-title">Real Conversations</div>
+                                    <div class="su-benefit-desc">No cold DMs. Book actual 30-min chats.</div>
+                                </div>
+                                <div class="su-benefit-card">
+                                    <div class="su-benefit-icon">🎯</div>
+                                    <div class="su-benefit-title">Smart Matching</div>
+                                    <div class="su-benefit-desc">Matched by goals, not just connections.</div>
+                                </div>
+                                <div class="su-benefit-card">
+                                    <div class="su-benefit-icon">🏫</div>
+                                    <div class="su-benefit-title">Rowan Only</div>
+                                    <div class="su-benefit-desc">Students and alumni who get your journey.</div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -4833,6 +5366,25 @@
             }
 
             renderCalendar();
+        }
+
+        function suSelectChip(el, value) {
+            // Single-select: deselect all chips, then select clicked one
+            el.closest('.su-chips').querySelectorAll('.su-chip').forEach(c => c.classList.remove('su-chip-sel'));
+            el.classList.add('su-chip-sel');
+            document.getElementById('signupIndustry').value = value;
+        }
+
+        function suUpdateStrength(val) {
+            const bars = [1, 2, 3, 4].map(i => document.getElementById('suBar' + i));
+            bars.forEach(b => { b.className = 'su-bar'; });
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const cls = ['su-s1', 'su-s2', 'su-s3', 'su-s4'];
+            for (let i = 0; i < score; i++) bars[i].classList.add(cls[score - 1]);
         }
 
         function showLandingSignup() {
