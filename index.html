@@ -5180,6 +5180,8 @@
         let connections = [];
         let pendingRequests = []; // incoming: connected_user_id === currentUser.id, status === 'pending'
         let sentRequests = [];    // outgoing: user_id === currentUser.id, status === 'pending'
+        let realtimeChannels = [];
+        let pollingTimer = null;
         let posts = [];
         let selectedConversation = null;
         let selectedPerson = null;
@@ -5576,6 +5578,9 @@
                 sentMessageCount = count || 0;
             } catch (e) { console.error('loadUserData messages:', e); }
 
+            // Start real-time subscriptions and polling after all data is loaded
+            setupRealtime();
+            startPolling();
         }
 
         function saveToStorage() {
@@ -5720,10 +5725,172 @@
             }
         }
 
+        // ===== REAL-TIME & POLLING =====
+
+        function pushLiveNotification(notif) {
+            if (notifications.find(n => n.id === notif.id)) return; // dedupe
+            notifications.unshift(notif);
+            renderNotifications();
+        }
+
+        function setupRealtime() {
+            if (!currentUser) return;
+            // Remove any existing channels first
+            realtimeChannels.forEach(ch => { try { supabaseClient.removeChannel(ch); } catch(e){} });
+            realtimeChannels = [];
+
+            // 1. Incoming connection requests
+            const chConnIn = supabaseClient
+                .channel('conn-in-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'connections',
+                    filter: `connected_user_id=eq.${currentUser.id}`
+                }, async (payload) => {
+                    const req = payload.new;
+                    if (req.status !== 'pending' || pendingRequests.find(r => r.id === req.id)) return;
+                    pendingRequests.push(req);
+                    let name = 'Someone';
+                    const cached = users.find(u => u.id === req.user_id);
+                    if (cached) { name = `${cached.firstName} ${cached.lastName}`; }
+                    else {
+                        try {
+                            const { data: p } = await supabaseClient.from('profiles').select('first_name,last_name').eq('id', req.user_id).single();
+                            if (p) name = `${p.first_name} ${p.last_name}`;
+                        } catch(e) {}
+                    }
+                    pushLiveNotification({ id: 'pending-' + req.id, type: 'connection', icon: '🤝',
+                        text: `${name} wants to connect with you`, time: new Date(), unread: true,
+                        action: () => switchView('dashboardView') });
+                    showToast(`${name} sent you a connection request!`, 'info');
+                    if (document.getElementById('dashboardView').classList.contains('active')) updateDashboard();
+                })
+                .subscribe();
+            realtimeChannels.push(chConnIn);
+
+            // 2. My outgoing request accepted
+            const chConnAccepted = supabaseClient
+                .channel('conn-accepted-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'UPDATE', schema: 'public', table: 'connections',
+                    filter: `user_id=eq.${currentUser.id}`
+                }, (payload) => {
+                    const updated = payload.new;
+                    if (updated.status !== 'accepted') return;
+                    sentRequests = sentRequests.filter(r => r.id !== updated.id);
+                    if (!connections.find(c => c.id === updated.id)) connections.push(updated);
+                    const partner = users.find(u => u.id === updated.connected_user_id);
+                    const name = partner ? `${partner.firstName} ${partner.lastName}` : 'Someone';
+                    pushLiveNotification({ id: 'accepted-' + updated.id, type: 'connection', icon: '🎉',
+                        text: `${name} accepted your connection request!`, time: new Date(), unread: true });
+                    showToast(`${name} accepted your connection request! 🎉`, 'success');
+                    if (document.getElementById('dashboardView').classList.contains('active')) updateDashboard();
+                    renderDiscovery();
+                })
+                .subscribe();
+            realtimeChannels.push(chConnAccepted);
+
+            // 3. Incoming meeting invites
+            const chMeetingIn = supabaseClient
+                .channel('meeting-in-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'meetings',
+                    filter: `participant_id=eq.${currentUser.id}`
+                }, async (payload) => {
+                    const meeting = payload.new;
+                    if (meetings.find(m => m.id === meeting.id)) return;
+                    meetings.push(meeting);
+                    let name = 'Someone';
+                    const organizer = users.find(u => u.id === meeting.organizer_id);
+                    if (organizer) { name = `${organizer.firstName} ${organizer.lastName}`; }
+                    else {
+                        try {
+                            const { data: p } = await supabaseClient.from('profiles').select('first_name,last_name').eq('id', meeting.organizer_id).single();
+                            if (p) name = `${p.first_name} ${p.last_name}`;
+                        } catch(e) {}
+                    }
+                    pushLiveNotification({ id: 'meeting-invite-' + meeting.id, type: 'meeting', icon: '📅',
+                        text: `${name} invited you to a coffee chat!`, time: new Date(), unread: true,
+                        action: () => switchView('dashboardView') });
+                    showToast(`${name} invited you to a coffee chat! ☕`, 'info');
+                    if (document.getElementById('dashboardView').classList.contains('active')) updateDashboard();
+                })
+                .subscribe();
+            realtimeChannels.push(chMeetingIn);
+        }
+
+        function startPolling() {
+            if (pollingTimer) clearInterval(pollingTimer);
+            pollingTimer = setInterval(async () => {
+                if (!currentUser) return;
+
+                try {
+                    const { data: connsData } = await supabaseClient
+                        .from('connections').select('*')
+                        .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
+                    if (connsData) {
+                        const newPending = connsData.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
+                        const newAccepted = connsData.filter(c => c.status === 'accepted');
+
+                        // Surface newly arrived pending requests
+                        newPending.forEach(req => {
+                            if (!pendingRequests.find(r => r.id === req.id)) {
+                                pendingRequests.push(req);
+                                const cached = users.find(u => u.id === req.user_id);
+                                const name = cached ? `${cached.firstName} ${cached.lastName}` : 'Someone';
+                                pushLiveNotification({ id: 'pending-' + req.id, type: 'connection', icon: '🤝',
+                                    text: `${name} wants to connect with you`, time: new Date(req.created_at), unread: true,
+                                    action: () => switchView('dashboardView') });
+                            }
+                        });
+
+                        // Surface newly accepted connections
+                        newAccepted.forEach(conn => {
+                            if (conn.user_id === currentUser.id && !connections.find(c => c.id === conn.id)) {
+                                const partner = users.find(u => u.id === conn.connected_user_id);
+                                const name = partner ? `${partner.firstName} ${partner.lastName}` : 'Someone';
+                                pushLiveNotification({ id: 'accepted-' + conn.id, type: 'connection', icon: '🎉',
+                                    text: `${name} accepted your connection request!`, time: new Date(conn.updated_at || conn.created_at), unread: true });
+                            }
+                        });
+
+                        connections = newAccepted;
+                        pendingRequests = newPending;
+                        sentRequests = connsData.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
+                    }
+                } catch(e) {}
+
+                try {
+                    const { data: meetingsData } = await supabaseClient
+                        .from('meetings').select('*')
+                        .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
+                        .order('start_time', { ascending: true });
+                    if (meetingsData) {
+                        meetingsData.forEach(m => {
+                            if (m.participant_id === currentUser.id && !meetings.find(ex => ex.id === m.id)) {
+                                const organizer = users.find(u => u.id === m.organizer_id);
+                                const name = organizer ? `${organizer.firstName} ${organizer.lastName}` : 'Someone';
+                                pushLiveNotification({ id: 'meeting-invite-' + m.id, type: 'meeting', icon: '📅',
+                                    text: `${name} invited you to a coffee chat!`, time: new Date(m.created_at), unread: true,
+                                    action: () => switchView('dashboardView') });
+                            }
+                        });
+                        meetings = meetingsData;
+                    }
+                } catch(e) {}
+
+                if (document.getElementById('dashboardView').classList.contains('active')) updateDashboard();
+            }, 30000);
+        }
+
         async function handleLogout() {
             try {
                 const { error } = await supabaseClient.auth.signOut();
                 if (error) throw error;
+
+                // Tear down real-time channels and polling
+                realtimeChannels.forEach(ch => { try { supabaseClient.removeChannel(ch); } catch(e){} });
+                realtimeChannels = [];
+                if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
 
                 currentUser = null;
                 connections = [];
@@ -6340,7 +6507,7 @@
             selectedModalTime = time;
         }
 
-        function sendModalMeetingRequest() {
+        async function sendModalMeetingRequest() {
             const date = document.getElementById('modalScheduleDate').value;
             const duration = document.getElementById('modalScheduleDuration').value;
             const topic = document.getElementById('modalScheduleTopic').value.trim();
@@ -6351,24 +6518,36 @@
             if (!topic) { alert('Please add a note about what you\'d like to discuss'); return; }
             if (!selectedPerson) { alert('Please select a person to chat with'); return; }
 
-            const meeting = {
-                id: meetings.length + 1,
-                personId: selectedPerson.id,
-                personName: `${selectedPerson.firstName} ${selectedPerson.lastName}`,
-                date,
-                time: selectedModalTime,
-                duration,
-                topic,
-                type,
-                status: 'pending',
-                createdAt: new Date()
-            };
+            const startTime = new Date(`${date}T${selectedModalTime}:00`);
+            const endTime = new Date(startTime.getTime() + parseInt(duration) * 60000);
 
-            meetings.push(meeting);
-            closeModal('scheduleChatModal');
-            selectedModalTime = null;
-            alert(`Chat request sent to ${selectedPerson.firstName}! 🎉 They'll confirm a time that works.`);
-            updateDashboard();
+            try {
+                const { data, error } = await supabaseClient
+                    .from('meetings')
+                    .insert([{
+                        organizer_id: currentUser.id,
+                        participant_id: selectedPerson.id,
+                        title: `Coffee Chat with ${selectedPerson.firstName} ${selectedPerson.lastName}`,
+                        description: topic,
+                        meeting_type: type,
+                        start_time: startTime.toISOString(),
+                        end_time: endTime.toISOString(),
+                        status: 'pending'
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                meetings.push(data);
+                closeModal('scheduleChatModal');
+                selectedModalTime = null;
+                showToast(`Chat request sent to ${selectedPerson.firstName}! ☕`, 'success');
+                updateDashboard();
+            } catch (err) {
+                console.error('Error sending meeting request:', err);
+                alert('Failed to send chat request: ' + err.message);
+            }
         }
 
         function formatTimeAgo(date) {
