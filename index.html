@@ -2027,6 +2027,16 @@
             background: linear-gradient(135deg, rgba(111, 78, 55, 0.1), rgba(212, 165, 116, 0.1));
         }
 
+        .conversation-name-link {
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .conversation-name-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
         .chat-window {
             background: white;
             border-radius: 12px;
@@ -5573,13 +5583,13 @@
                 ${user.resume ? `
                     <div class="resume-section">
                         <h3 style="margin-bottom: 1rem;">Resume</h3>
-                        <a href="${user.resume}" class="resume-link" download>
+                        <div class="resume-link" onclick="openResume('${user.resume}')" style="cursor: pointer;">
                             <div class="resume-icon">📄</div>
                             <div>
                                 <p style="font-weight: 600; margin: 0;">${user.firstName}'s Resume</p>
-                                <p style="font-size: 12px; color: #999; margin: 0;">Click to download PDF</p>
+                                <p style="font-size: 12px; color: #999; margin: 0;">Click to view PDF</p>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 ` : ''}
 
@@ -5782,17 +5792,25 @@
                         // Get partner profile
                         const { data: profile } = await supabaseClient
                             .from('profiles')
-                            .select('first_name, last_name')
+                            .select('first_name, last_name, profile_picture')
                             .eq('id', partnerId)
                             .single();
 
                         const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
+                        const fn = profile ? profile.first_name[0] : '?';
+                        const ln = profile ? profile.last_name[0] : '?';
+                        const avatarHTML = profile?.profile_picture
+                            ? `<img src="${profile.profile_picture}" alt="${partnerName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">`
+                            : `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0;">${fn}${ln}</div>`;
                         const lastMessage = msgs[0].content.substring(0, 50);
 
                         return `
-                            <div class="conversation-item ${selectedConversation === partnerId ? 'active' : ''}" onclick="selectConversation('${partnerId}')">
-                                <h4>${partnerName}</h4>
-                                <p style="font-size: 12px; color: #999;">${lastMessage}${msgs[0].content.length > 50 ? '...' : ''}</p>
+                            <div class="conversation-item ${selectedConversation === partnerId ? 'active' : ''}" onclick="selectConversation('${partnerId}')" style="display: flex; align-items: center; gap: 0.75rem;">
+                                ${avatarHTML}
+                                <div style="flex: 1; min-width: 0;">
+                                    <h4 style="margin: 0;" onclick="event.stopPropagation(); viewProfile('${partnerId}')" class="conversation-name-link">${partnerName}</h4>
+                                    <p style="font-size: 12px; color: #999; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage}${msgs[0].content.length > 50 ? '...' : ''}</p>
+                                </div>
                             </div>
                         `;
                     })
@@ -6586,6 +6604,21 @@
             reader.readAsDataURL(file);
         }
 
+        function openResume(dataUrl) {
+            try {
+                const parts = dataUrl.split(',');
+                const mime = parts[0].split(':')[1].split(';')[0];
+                const binary = atob(parts[1]);
+                const arr = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+                const blob = new Blob([arr], { type: mime });
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            } catch (e) {
+                alert('Could not open resume. Try downloading it instead.');
+            }
+        }
+
         function handleResumeUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -7015,7 +7048,13 @@
             const userHobbies = currentUser.hobbies || [];
             const userIndustry = currentUser.industry;
 
-            return users.filter(u => u.id !== currentUser.id).map(user => {
+            return users.filter(u => {
+                if (u.id === currentUser.id) return false;
+                const isConnected = connections.find(c =>
+                    (c.user_id === currentUser.id && c.connected_user_id === u.id) ||
+                    (c.connected_user_id === currentUser.id && c.user_id === u.id));
+                return !isConnected;
+            }).map(user => {
                 let score = 0;
                 const reasons = [];
 
