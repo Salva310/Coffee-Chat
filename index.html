@@ -3887,6 +3887,820 @@
             background: var(--caramel-light) !important;
             transform: translateY(-2px) !important;
         }
+
+        /* ══════════════════════════════════
+           MY CHATS — Redesigned View
+        ══════════════════════════════════ */
+
+        /* Extra tokens used in this view */
+        #messagesView {
+            --mc-steam:       #faf6f1;
+            --mc-latte-light: #f0e4d4;
+            --mc-honey:       #d4894a;
+            --mc-dark-roast:  #2c1a0e;
+            --mc-medium-roast:#5c3317;
+            --mc-green:       #2d7a4f;
+            --mc-green-bg:    #eaf6ef;
+            --mc-red:         #c0392b;
+            --mc-red-bg:      #fdecea;
+            --mc-blue:        #2563eb;
+            --mc-blue-bg:     #eff4ff;
+            --mc-text-muted:  #8b6a52;
+            --mc-text-light:  #c9a98a;
+        }
+
+        /* Page header */
+        .mc-page-header {
+            padding: 28px 36px 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .mc-page-eyebrow {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--caramel);
+            margin-bottom: 5px;
+        }
+        .mc-page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--espresso);
+            line-height: 1.1;
+        }
+        .mc-page-title em { font-style: italic; color: var(--caramel); }
+        .mc-btn-schedule {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: var(--espresso);
+            color: var(--cream);
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .mc-btn-schedule:hover { background: var(--mc-dark-roast); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,14,7,0.2); }
+
+        /* Stats row */
+        .mc-stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            padding: 20px 36px 0;
+        }
+        .mc-stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .mc-stat-card:hover { border-color: var(--caramel); box-shadow: 0 4px 16px rgba(192,124,58,0.09); }
+        .mc-stat-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+        }
+        .mc-stat-icon.orange { background: rgba(192,124,58,0.1); }
+        .mc-stat-icon.green  { background: var(--mc-green-bg); }
+        .mc-stat-icon.cream  { background: var(--latte-soft); }
+        .mc-stat-icon.blue   { background: var(--mc-blue-bg); }
+        .mc-stat-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; font-weight: 700;
+            color: var(--espresso); line-height: 1;
+        }
+        .mc-stat-lbl { font-size: 11.5px; color: var(--mc-text-muted); margin-top: 2px; }
+
+        /* Content grid */
+        .mc-content-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 22px;
+            padding: 20px 36px 48px;
+            align-items: start;
+        }
+
+        /* Tabs */
+        .mc-tabs-bar {
+            display: flex;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 18px;
+            width: fit-content;
+            gap: 0;
+        }
+        .mc-tab-btn {
+            padding: 7px 16px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--mc-text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .mc-tab-btn.active {
+            background: var(--espresso);
+            color: var(--cream);
+            box-shadow: 0 2px 8px rgba(26,14,7,0.15);
+        }
+        .mc-tab-btn:hover:not(.active) { color: var(--espresso); }
+
+        /* Chat cards */
+        .mc-chat-list { display: flex; flex-direction: column; gap: 13px; }
+        .mc-chat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .mc-chat-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            border-radius: 3px 0 0 3px;
+            background: transparent;
+            transition: background 0.2s;
+        }
+        .mc-chat-card:hover { border-color: var(--caramel); box-shadow: 0 4px 20px rgba(192,124,58,0.1); transform: translateY(-1px); }
+        .mc-chat-card:hover::before { background: var(--caramel); }
+        .mc-chat-card.upcoming::before { background: var(--caramel); }
+        .mc-chat-card.completed::before { background: var(--mc-green); }
+        .mc-chat-card.pending::before { background: var(--mc-honey); }
+
+        .mc-card-top { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; }
+
+        .mc-avatar-wrap { position: relative; flex-shrink: 0; }
+        .mc-avatar {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700; color: white;
+        }
+        .mc-avatar-status {
+            position: absolute;
+            bottom: 1px; right: 1px;
+            width: 11px; height: 11px;
+            border-radius: 50%;
+            border: 2px solid var(--card);
+        }
+        .mc-avatar-status.online  { background: var(--mc-green); }
+        .mc-avatar-status.offline { background: var(--latte); }
+
+        .mc-chat-name { font-size: 14.5px; font-weight: 600; color: var(--espresso); margin-bottom: 3px; }
+        .mc-chat-meta {
+            font-size: 12px; color: var(--mc-text-muted);
+            display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+        }
+        .mc-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--mc-text-light); }
+        .mc-chat-topic { font-size: 12.5px; color: var(--mc-text-muted); margin-top: 5px; }
+
+        .mc-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+        .mc-status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 10.5px; font-weight: 500;
+            border-radius: 100px;
+            padding: 3px 10px;
+        }
+        .mc-status-badge.upcoming  { background: rgba(192,124,58,0.1); color: var(--caramel); }
+        .mc-status-badge.completed { background: var(--mc-green-bg); color: var(--mc-green); }
+        .mc-status-badge.pending   { background: rgba(212,150,74,0.12); color: #b37a00; }
+        .mc-status-badge.cancelled { background: var(--mc-red-bg); color: var(--mc-red); }
+
+        .mc-chat-date  { font-size: 11.5px; color: var(--mc-text-muted); text-align: right; }
+        .mc-chat-time  { font-size: 12.5px; font-weight: 600; color: var(--espresso); }
+
+        /* Card actions */
+        .mc-card-actions {
+            display: flex; gap: 7px;
+            margin-top: 14px;
+            padding-top: 13px;
+            border-top: 1px solid var(--mc-latte-light);
+            flex-wrap: wrap;
+        }
+        .mc-btn-sm {
+            padding: 6px 13px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.18s;
+        }
+        .mc-btn-sm.primary { background: var(--espresso); color: var(--cream); }
+        .mc-btn-sm.primary:hover { background: var(--mc-dark-roast); }
+        .mc-btn-sm.secondary { background: var(--mc-steam); color: var(--mc-text-muted); border: 1px solid var(--border); }
+        .mc-btn-sm.secondary:hover { border-color: var(--caramel); color: var(--caramel); }
+        .mc-btn-sm.danger { background: transparent; color: var(--mc-red); border: 1px solid var(--border); margin-left: auto; }
+        .mc-btn-sm.danger:hover { border-color: var(--mc-red); background: var(--mc-red-bg); }
+
+        /* Icebreakers block */
+        .mc-icebreakers {
+            background: var(--mc-steam);
+            border-radius: 10px;
+            padding: 11px 13px;
+            margin-top: 13px;
+        }
+        .mc-icebr-label {
+            font-size: 10px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--caramel); margin-bottom: 7px;
+        }
+        .mc-icebr-item {
+            font-size: 12px; color: var(--mc-text-muted);
+            padding: 5px 10px;
+            background: var(--card);
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .mc-icebr-item:last-child { margin-bottom: 0; }
+        .mc-icebr-item:hover { border-color: var(--caramel); color: var(--espresso); }
+
+        /* Right column widgets */
+        .mc-right-col { display: flex; flex-direction: column; gap: 18px; }
+        .mc-widget {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .mc-widget-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--mc-latte-light);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .mc-widget-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px; font-weight: 700; color: var(--espresso);
+        }
+        .mc-widget-action {
+            font-size: 11.5px; color: var(--caramel);
+            cursor: pointer; font-weight: 500;
+            background: none; border: none; font-family: 'DM Sans', sans-serif;
+        }
+        .mc-widget-action:hover { color: var(--mc-medium-roast); }
+
+        /* Mini calendar */
+        .mc-cal-wrap { padding: 14px 18px 18px; }
+        .mc-cal-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .mc-cal-nav-btn {
+            width: 26px; height: 26px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            font-size: 12px; color: var(--mc-text-muted);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .mc-cal-nav-btn:hover { border-color: var(--caramel); color: var(--caramel); }
+        .mc-cal-month { font-size: 13px; font-weight: 600; color: var(--espresso); }
+        .mc-cal-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            gap: 1px;
+        }
+        .mc-cal-day-name {
+            font-size: 9.5px; font-weight: 600;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            color: var(--mc-text-light);
+            padding: 4px 0 6px;
+        }
+        .mc-cal-day {
+            aspect-ratio: 1;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11.5px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--mc-text-muted);
+            transition: background 0.15s, color 0.15s;
+            position: relative;
+        }
+        .mc-cal-day:hover { background: var(--latte-soft); color: var(--espresso); }
+        .mc-cal-day.today {
+            background: var(--espresso);
+            color: var(--cream);
+            font-weight: 600;
+        }
+        .mc-cal-day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 2px; left: 50%; transform: translateX(-50%);
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: var(--caramel);
+        }
+        .mc-cal-day.today.has-event::after { background: var(--mc-honey); }
+        .mc-cal-day.other-month { color: var(--mc-text-light); opacity: 0.5; }
+
+        /* Upcoming quick list */
+        .mc-upcoming-list { padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+        .mc-upcoming-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 11px 13px;
+            background: var(--latte-soft);
+            border-radius: 11px;
+            border: 1px solid var(--mc-latte-light);
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .mc-upcoming-item:hover { border-color: var(--caramel); }
+        .mc-udb {
+            min-width: 38px;
+            text-align: center;
+            padding: 5px 7px;
+            background: var(--cream);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .mc-udb-month { font-size: 8.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--caramel); }
+        .mc-udb-day { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--espresso); line-height: 1; }
+        .mc-upcoming-info { flex: 1; min-width: 0; }
+        .mc-upcoming-name { font-size: 13px; font-weight: 600; color: var(--espresso); margin-bottom: 1px; }
+        .mc-upcoming-time { font-size: 11px; color: var(--mc-text-muted); }
+        .mc-upcoming-mode {
+            font-size: 10px; font-weight: 500;
+            background: var(--cream); color: var(--caramel);
+            border-radius: 100px;
+            padding: 2px 8px; white-space: nowrap;
+            border: 1px solid var(--border);
+        }
+
+        /* Tips widget */
+        .mc-tips-widget {
+            background: linear-gradient(135deg, var(--espresso) 0%, var(--mc-dark-roast) 100%);
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .mc-tips-widget::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 80% 80% at 100% 0%, rgba(212,137,74,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .mc-tips-body {
+            padding: 20px;
+            position: relative; z-index: 1;
+        }
+        .mc-tips-icon { font-size: 26px; margin-bottom: 9px; }
+        .mc-tips-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px; font-weight: 700;
+            color: var(--cream); margin-bottom: 6px;
+        }
+        .mc-tips-text { font-size: 12px; line-height: 1.5; color: rgba(245,237,227,0.6); margin-bottom: 13px; }
+        .mc-tips-tip {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(192,124,58,0.25);
+            border-radius: 9px;
+            padding: 10px 12px;
+            font-size: 12px; color: rgba(245,237,227,0.8);
+            line-height: 1.5; font-style: italic;
+        }
+
+        /* Empty state within My Chats */
+        .mc-empty {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center;
+            padding: 48px 20px;
+            background: var(--card);
+            border: 1.5px dashed var(--border);
+            border-radius: 16px;
+        }
+        .mc-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
+        .mc-empty-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px; color: var(--espresso); margin-bottom: 7px;
+        }
+        .mc-empty-desc { font-size: 13px; color: var(--mc-text-muted); max-width: 240px; line-height: 1.5; margin-bottom: 18px; }
+
+        /* Direct messages tab (inside My Chats) */
+        .mc-messages-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            min-height: 420px;
+        }
+        .mc-conv-list {
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+        .mc-conv-list-header {
+            padding: 14px 16px 10px;
+            font-size: 11px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--mc-text-muted);
+            border-bottom: 1px solid var(--mc-latte-light);
+        }
+        .mc-chat-win {
+            display: flex; flex-direction: column;
+        }
+
+        @media (max-width: 1100px) {
+            .mc-content-grid { grid-template-columns: 1fr; }
+            .mc-right-col { display: grid; grid-template-columns: 1fr 1fr; }
+            .mc-stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 760px) {
+            .mc-page-header, .mc-stats-row, .mc-content-grid { padding-left: 16px; padding-right: 16px; }
+            .mc-right-col { grid-template-columns: 1fr; }
+            .mc-stats-row { grid-template-columns: repeat(2, 1fr); }
+            .mc-messages-wrapper { grid-template-columns: 1fr; }
+            .mc-conv-list { border-right: none; border-bottom: 1px solid var(--border); max-height: 200px; }
+        }
+
+        /* ══════════════════════════════════
+           DASHBOARD — Redesigned View
+        ══════════════════════════════════ */
+
+        /* extra tokens for dashboard */
+        #dashboardView {
+            --db-steam:       #faf6f1;
+            --db-latte-light: #f0e4d4;
+            --db-honey:       #d4894a;
+            --db-dark-roast:  #2c1a0e;
+            --db-medium-roast:#5c3317;
+            --db-green:       #2d7a4f;
+            --db-green-bg:    #eaf6ef;
+            --db-blue:        #2563eb;
+            --db-blue-bg:     #eff4ff;
+            --db-text-muted:  #8b6a52;
+            --db-text-light:  #c9a98a;
+        }
+
+        /* ── Hero Banner ── */
+        .db-hero {
+            background: var(--espresso);
+            position: relative; overflow: hidden;
+            padding: 36px 44px;
+            flex-shrink: 0;
+        }
+        .db-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 100% at -5% 100%, rgba(192,124,58,.35) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 80% at 105% -10%, rgba(212,137,74,.12) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .db-grain {
+            position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+            pointer-events: none; opacity: .5;
+        }
+        .db-hero-inner {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 24px; flex-wrap: wrap;
+        }
+        .db-greeting {
+            font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase;
+            color: var(--db-honey); margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .db-greeting::before { content: ''; display: block; width: 20px; height: 1px; background: var(--db-honey); }
+        .db-hero-title {
+            font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700;
+            color: var(--cream); line-height: 1.15; margin-bottom: 10px;
+        }
+        .db-hero-title em { font-style: italic; color: var(--db-honey); }
+        .db-hero-sub { font-size: 13.5px; color: rgba(245,237,227,.55); max-width: 380px; line-height: 1.55; }
+        .db-hero-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+        .db-hero-stat {
+            background: rgba(255,255,255,.06); border: 1px solid rgba(192,124,58,.2);
+            border-radius: 14px; padding: 16px 20px; text-align: center; min-width: 90px;
+            backdrop-filter: blur(8px);
+        }
+        .db-stat-val {
+            font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700;
+            color: var(--cream); line-height: 1;
+        }
+        .db-stat-lbl { font-size: 11px; color: rgba(245,237,227,.5); margin-top: 4px; }
+
+        /* ── Setup Bar ── */
+        .db-setup-bar {
+            background: var(--card); border-bottom: 1px solid var(--border);
+            padding: 12px 44px;
+            display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .db-setup-label { font-size: 12.5px; font-weight: 600; color: var(--espresso); white-space: nowrap; }
+        .db-setup-steps { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+        .db-setup-step {
+            display: flex; align-items: center; gap: 7px;
+            padding: 6px 12px; border-radius: 100px;
+            font-size: 11.5px; font-weight: 500;
+            border: 1.5px solid var(--border); background: var(--latte-soft); color: var(--muted);
+            cursor: pointer; transition: all .2s; white-space: nowrap;
+        }
+        .db-setup-step.done { background: var(--db-green-bg); border-color: var(--db-green); color: var(--db-green); }
+        .db-setup-step.active { background: var(--cream); border-color: var(--caramel); color: var(--caramel); }
+        .db-step-num {
+            width: 17px; height: 17px; border-radius: 50%;
+            background: var(--latte); color: var(--muted);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9.5px; font-weight: 700; flex-shrink: 0;
+        }
+        .db-setup-step.done .db-step-num { background: var(--db-green); color: white; }
+        .db-setup-step.active .db-step-num { background: var(--caramel); color: white; }
+        .db-setup-cta {
+            padding: 8px 16px; background: var(--espresso); color: var(--cream);
+            border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 500; cursor: pointer;
+            white-space: nowrap; transition: background .2s;
+        }
+        .db-setup-cta:hover { background: var(--db-dark-roast); }
+
+        /* ── Content ── */
+        .db-content { padding: 26px 44px 60px; display: flex; flex-direction: column; gap: 26px; }
+
+        /* Section heading */
+        .db-sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+        .db-sec-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--espresso); }
+        .db-sec-title em { font-style: italic; color: var(--caramel); }
+        .db-sec-link {
+            font-size: 12.5px; color: var(--caramel); font-weight: 500;
+            cursor: pointer; text-decoration: none; background: none; border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .db-sec-link:hover { color: var(--db-medium-roast); }
+
+        /* Grid layouts */
+        .db-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .db-grid-main { display: grid; grid-template-columns: 1fr 330px; gap: 22px; align-items: start; }
+        .db-left-col { display: flex; flex-direction: column; gap: 22px; }
+        .db-right-col { display: flex; flex-direction: column; gap: 18px; }
+
+        /* Card base */
+        .db-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .db-card:hover { border-color: var(--caramel); box-shadow: 0 4px 20px rgba(192,124,58,.08); }
+
+        /* Quick action cards */
+        .db-quick-card {
+            padding: 18px; display: flex; flex-direction: column; gap: 9px; cursor: pointer;
+        }
+        .db-qc-icon {
+            width: 42px; height: 42px; border-radius: 11px;
+            display: flex; align-items: center; justify-content: center; font-size: 19px;
+        }
+        .db-qc-icon.orange { background: rgba(192,124,58,.1); }
+        .db-qc-icon.green  { background: var(--db-green-bg); }
+        .db-qc-icon.cream  { background: var(--latte-soft); }
+        .db-qc-icon.blue   { background: var(--db-blue-bg); }
+        .db-qc-title { font-size: 14px; font-weight: 600; color: var(--espresso); }
+        .db-qc-desc  { font-size: 12px; color: var(--db-text-muted); line-height: 1.45; }
+        .db-qc-arrow { font-size: 12.5px; color: var(--caramel); margin-top: auto; font-weight: 500; }
+
+        /* ── Upcoming Chat Card (dark) ── */
+        .db-upcoming-card {
+            background: var(--espresso); border-radius: 16px; padding: 22px 24px;
+            position: relative; overflow: hidden; cursor: pointer;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .db-upcoming-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(26,14,7,.25); }
+        .db-upcoming-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 80% 80% at 100% 0%, rgba(212,137,74,.18) 0%, transparent 55%);
+            pointer-events: none;
+        }
+        .db-ucc-inner { position: relative; z-index: 1; }
+        .db-ucc-eyebrow {
+            font-size: 9.5px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--db-honey); margin-bottom: 12px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .db-ucc-eyebrow::before { content: ''; display: block; width: 14px; height: 1px; background: var(--db-honey); }
+        .db-countdown-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(212,137,74,.15); border: 1px solid rgba(212,137,74,.3);
+            border-radius: 100px; padding: 4px 12px; font-size: 12px;
+            color: var(--db-honey); font-weight: 500; margin-bottom: 14px;
+        }
+        .db-pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--db-honey); animation: dbPulse 2s ease-in-out infinite; }
+        @keyframes dbPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+        .db-ucc-person { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .db-ucc-avatar {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--caramel), var(--db-honey));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700; color: white;
+            border: 2px solid rgba(255,255,255,.15); flex-shrink: 0;
+        }
+        .db-ucc-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--cream); }
+        .db-ucc-role { font-size: 12px; color: rgba(245,237,227,.55); }
+        .db-ucc-details { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .db-ucc-detail {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 12px; color: rgba(245,237,227,.7);
+            background: rgba(255,255,255,.06); border: 1px solid rgba(192,124,58,.2);
+            padding: 4px 11px; border-radius: 100px;
+        }
+        .db-ucc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .db-ucc-btn-primary {
+            flex: 1; padding: 10px; min-width: 120px;
+            background: linear-gradient(135deg, var(--caramel), var(--db-honey));
+            color: white; border: none; border-radius: 9px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: opacity .2s, transform .2s;
+        }
+        .db-ucc-btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+        .db-ucc-btn-secondary {
+            padding: 10px 16px;
+            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+            color: rgba(245,237,227,.7); border-radius: 9px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px;
+            cursor: pointer; transition: background .2s;
+        }
+        .db-ucc-btn-secondary:hover { background: rgba(255,255,255,.12); }
+
+        /* No upcoming chat empty */
+        .db-no-sip {
+            background: var(--card); border: 1.5px dashed var(--border);
+            border-radius: 16px; padding: 36px 24px;
+            text-align: center;
+        }
+        .db-no-sip-icon { font-size: 36px; margin-bottom: 10px; opacity: .6; }
+        .db-no-sip-title { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--espresso); margin-bottom: 6px; }
+        .db-no-sip-desc { font-size: 12.5px; color: var(--db-text-muted); margin-bottom: 16px; }
+        .db-no-sip-btn {
+            padding: 9px 18px; background: var(--espresso); color: var(--cream);
+            border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s;
+        }
+        .db-no-sip-btn:hover { background: var(--db-dark-roast); transform: translateY(-1px); }
+
+        /* ── Suggested Match cards ── */
+        .db-match-row {
+            display: flex; align-items: center; gap: 13px;
+            padding: 14px 18px; cursor: pointer;
+            border-bottom: 1px solid var(--db-latte-light);
+            position: relative; overflow: hidden;
+            transition: background .15s;
+        }
+        .db-match-row:last-child { border-bottom: none; }
+        .db-match-row:hover { background: var(--db-steam); }
+        .db-match-row::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: transparent; transition: background .2s;
+        }
+        .db-match-row:hover::before { background: var(--caramel); }
+        .db-match-av {
+            width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700; color: white;
+            position: relative;
+        }
+        .db-match-online {
+            position: absolute; bottom: 1px; right: 1px;
+            width: 11px; height: 11px; border-radius: 50%;
+            background: var(--db-green); border: 2px solid var(--card);
+        }
+        .db-match-info { flex: 1; min-width: 0; }
+        .db-match-name { font-size: 14px; font-weight: 600; color: var(--espresso); margin-bottom: 2px; }
+        .db-match-meta { font-size: 11.5px; color: var(--db-text-muted); margin-bottom: 5px; }
+        .db-match-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+        .db-tag { font-size: 10.5px; padding: 2px 8px; border-radius: 100px; background: var(--cream); color: var(--caramel); font-weight: 500; }
+        .db-match-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+        .db-pct-ring { width: 40px; height: 40px; position: relative; }
+        .db-pct-ring svg { transform: rotate(-90deg); }
+        .db-pct-ring circle.bg { fill: none; stroke: var(--latte); stroke-width: 3; }
+        .db-pct-ring circle.fill { fill: none; stroke: var(--caramel); stroke-width: 3; stroke-linecap: round; }
+        .db-pct-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--caramel); }
+        .db-btn-chat {
+            padding: 6px 13px; background: var(--espresso); color: var(--cream);
+            border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 500; cursor: pointer; transition: all .2s;
+            white-space: nowrap;
+        }
+        .db-btn-chat:hover { background: var(--db-dark-roast); transform: translateY(-1px); }
+
+        /* ── Activity feed ── */
+        .db-activity-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 13px 18px; border-bottom: 1px solid var(--db-latte-light);
+            transition: background .15s; cursor: pointer;
+        }
+        .db-activity-item:last-child { border-bottom: none; }
+        .db-activity-item:hover { background: var(--db-steam); }
+        .db-act-icon {
+            width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .db-act-icon.orange { background: rgba(192,124,58,.1); }
+        .db-act-icon.green  { background: var(--db-green-bg); }
+        .db-act-icon.blue   { background: var(--db-blue-bg); }
+        .db-act-icon.cream  { background: var(--latte-soft); }
+        .db-act-main { font-size: 13px; color: var(--espresso); line-height: 1.4; }
+        .db-act-main strong { font-weight: 600; }
+        .db-act-time { font-size: 11px; color: var(--db-text-light); margin-top: 3px; }
+        .db-act-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--caramel); flex-shrink: 0; margin-top: 5px; }
+
+        /* ── Widget header ── */
+        .db-widget-header {
+            padding: 14px 18px; border-bottom: 1px solid var(--db-latte-light);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .db-widget-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--espresso); }
+        .db-widget-action {
+            font-size: 11.5px; color: var(--caramel); font-weight: 500;
+            background: none; border: none; font-family: 'DM Sans', sans-serif; cursor: pointer;
+        }
+        .db-widget-action:hover { color: var(--db-medium-roast); }
+
+        /* ── Groups widget ── */
+        .db-group-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 11px 18px; border-bottom: 1px solid var(--db-latte-light);
+            cursor: pointer; transition: background .15s;
+        }
+        .db-group-item:last-child { border-bottom: none; }
+        .db-group-item:hover { background: var(--db-steam); }
+        .db-group-icon {
+            width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 17px;
+            background: var(--cream); border: 1px solid var(--border);
+        }
+        .db-group-name { font-size: 13px; font-weight: 600; color: var(--espresso); margin-bottom: 1px; }
+        .db-group-meta { font-size: 11px; color: var(--db-text-muted); }
+        .db-group-badge {
+            margin-left: auto; background: var(--cream); border: 1px solid var(--border);
+            color: var(--caramel); font-size: 10px; font-weight: 600;
+            border-radius: 100px; padding: 2px 9px; white-space: nowrap;
+        }
+        .db-group-badge.new { background: rgba(192,124,58,.1); border-color: rgba(192,124,58,.2); }
+
+        /* ── Badges grid ── */
+        .db-badges-grid {
+            display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px 18px;
+        }
+
+        /* ── Tip card ── */
+        .db-tip-card {
+            background: var(--espresso); border-radius: 16px;
+            padding: 20px; position: relative; overflow: hidden;
+        }
+        .db-tip-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 80% 80% at 100% 0%, rgba(212,137,74,.18) 0%, transparent 55%);
+            pointer-events: none;
+        }
+        .db-tip-inner { position: relative; z-index: 1; }
+        .db-tip-icon { font-size: 26px; margin-bottom: 9px; }
+        .db-tip-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--cream); margin-bottom: 8px; }
+        .db-tip-text { font-size: 12.5px; line-height: 1.55; color: rgba(245,237,227,.6); font-style: italic; }
+
+        /* Responsive */
+        @media (max-width: 1100px) { .db-grid-main { grid-template-columns: 1fr; } }
+        @media (max-width: 900px)  { .db-grid-3 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 760px)  {
+            .db-hero, .db-content { padding-left: 20px; padding-right: 20px; }
+            .db-setup-bar { padding-left: 20px; padding-right: 20px; }
+            .db-grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -4560,134 +5374,168 @@
             </div>
 
             <!-- Dashboard -->
-            <div id="dashboardView" class="content-view">
+            <div id="dashboardView" class="content-view" style="padding:0; overflow-y:auto; display:flex; flex-direction:column;">
 
-                <!-- Greeting -->
-                <div style="margin-bottom: 24px;">
-                    <h2 style="font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--espresso); margin-bottom:4px;">Good morning, <span id="userName"></span> ☕</h2>
-                    <p style="font-size:14px; color:var(--muted); font-weight:300;">Here's what's happening in your network today.</p>
-                </div>
-
-                <!-- Streak badge (subtle, top right) -->
-                <div id="streakBadge" style="display:none; text-align: right; margin-bottom: 0.75rem;">
-                    <span class="streak-counter" id="streakDisplay">0</span>
-                </div>
-
-                <!-- Getting Started card (dark) — hidden after dismissed -->
-                <div class="getting-started" id="gettingStarted" style="background:var(--espresso); border-radius:18px; padding:28px 32px; margin-bottom:24px; position:relative; overflow:hidden; display:none;">
-                    <div style="position:absolute; right:28px; top:50%; transform:translateY(-50%); font-size:72px; opacity:0.07; pointer-events:none;">☕</div>
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-                        <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--cream);">Your First Sip journey starts here</div>
-                        <button class="dismiss-btn" onclick="dismissGettingStarted()" title="Dismiss" style="background:none;border:none;color:rgba(245,240,232,0.4);font-size:20px;cursor:pointer;line-height:1;padding:0;flex-shrink:0;">&times;</button>
-                    </div>
-                    <div style="font-size:13px; color:rgba(245,240,232,0.55); margin-bottom:20px; font-weight:300;">Complete these steps to get the most out of First Sip</div>
-                    <ul class="checklist" id="checklistItems" style="list-style:none; display:flex; gap:12px; flex-wrap:wrap; margin:0; padding:0;"></ul>
-                </div>
-
-                <!-- Welcome Empty State (shown on very first login) -->
-                <div id="welcomeEmptyState" style="display: none; background: var(--card); border-radius: 16px; padding: 2.5rem; border: 1px solid var(--border); margin-bottom: 2rem; text-align: center;">
-                    <div style="font-size: 48px; margin-bottom: 1rem;">&#9749;</div>
-                    <h2 style="font-size: 22px; margin-bottom: 0.5rem; color: var(--espresso);">Welcome to First Sip!</h2>
-                    <p style="color: var(--muted); margin-bottom: 2rem; max-width: 460px; margin-left: auto; margin-right: auto;">You're part of Rowan's founding cohort. Let's get you set up so you can start making real connections.</p>
-                    <div style="max-width: 360px; margin: 0 auto; text-align: left;">
-                        <div id="onboardStep1" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--latte-soft); cursor: pointer;" onclick="editMyProfile()">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--caramel); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">1</span>
-                            <div><strong style="font-size: 14px; color:var(--espresso);">Complete your profile</strong><br><span style="font-size: 12px; color: var(--muted);">Takes about 5 minutes</span></div>
+                <!-- HERO BANNER -->
+                <div class="db-hero">
+                    <div class="db-grain"></div>
+                    <div class="db-hero-inner">
+                        <div>
+                            <div class="db-greeting" id="dbGreeting">Good morning</div>
+                            <h1 class="db-hero-title">Welcome back,<br><em id="userName">there</em>.</h1>
+                            <p class="db-hero-sub">Here's what's happening in your Rowan network today.</p>
                         </div>
-                        <div id="onboardStep2" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--latte-soft); cursor: pointer;" onclick="switchView('discoverView')">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--latte); color: var(--caramel); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">2</span>
-                            <div><strong style="font-size: 14px; color:var(--espresso);">Discover your first connection</strong><br><span style="font-size: 12px; color: var(--muted);">Browse students who share your interests</span></div>
-                        </div>
-                        <div id="onboardStep3" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; background: var(--latte-soft); cursor: pointer;" onclick="switchView('groupsView')">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--latte); color: var(--caramel); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">3</span>
-                            <div><strong style="font-size: 14px; color:var(--espresso);">Join a community group</strong><br><span style="font-size: 12px; color: var(--muted);">Find your people by major or interest</span></div>
-                        </div>
-                        <div id="onboardStep4" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--latte-soft); cursor: pointer;" onclick="switchView('scheduleView')">
-                            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--latte); color: var(--caramel); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0;">4</span>
-                            <div><strong style="font-size: 14px; color:var(--espresso);">Schedule your first coffee chat</strong><br><span style="font-size: 12px; color: var(--muted);">15-30 min, virtual or in-person</span></div>
+                        <div class="db-hero-stats">
+                            <div class="db-hero-stat">
+                                <div class="db-stat-val" id="dbStatConnections">0</div>
+                                <div class="db-stat-lbl">Connections</div>
+                            </div>
+                            <div class="db-hero-stat">
+                                <div class="db-stat-val" id="dbStatUpcoming">0</div>
+                                <div class="db-stat-lbl">Upcoming Chats</div>
+                            </div>
+                            <div class="db-hero-stat">
+                                <div class="db-stat-val" id="dbStatCompleted">0</div>
+                                <div class="db-stat-lbl">Chats Completed</div>
+                            </div>
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="editMyProfile()" style="margin-top: 1.5rem;">Complete Your Profile</button>
                 </div>
 
-                <!-- Profile Completion Bar -->
-                <div class="completion-card" id="completionCard" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:16px;">
-                    <div class="progress-ring-container" style="position:relative; flex-shrink:0; width:56px; height:56px;">
+                <!-- SETUP BAR -->
+                <div class="db-setup-bar" id="dbSetupBar">
+                    <span class="db-setup-label">Get started ↓</span>
+                    <div class="db-setup-steps" id="dbSetupSteps"></div>
+                    <button class="db-setup-cta" id="dbSetupCta" onclick="editMyProfile()">Finish Profile →</button>
+                </div>
+
+                <!-- MAIN CONTENT -->
+                <div class="db-content">
+
+                    <!-- QUICK ACTIONS -->
+                    <div>
+                        <div class="db-sec-head">
+                            <h2 class="db-sec-title">Quick <em>Actions</em></h2>
+                        </div>
+                        <div class="db-grid-3">
+                            <div class="db-card db-quick-card" onclick="switchView('discoverView')">
+                                <div class="db-qc-icon orange">🔍</div>
+                                <div class="db-qc-title">Discover People</div>
+                                <div class="db-qc-desc">Browse Rowan students and alumni matched to your goals.</div>
+                                <div class="db-qc-arrow">Browse matches →</div>
+                            </div>
+                            <div class="db-card db-quick-card" onclick="openScheduleChatModal()">
+                                <div class="db-qc-icon cream">☕</div>
+                                <div class="db-qc-title">Schedule a Sip</div>
+                                <div class="db-qc-desc">Book a 30-min coffee chat with someone in your network.</div>
+                                <div class="db-qc-arrow">Schedule now →</div>
+                            </div>
+                            <div class="db-card db-quick-card" onclick="switchView('groupsView')">
+                                <div class="db-qc-icon green">👥</div>
+                                <div class="db-qc-title">Join a Group</div>
+                                <div class="db-qc-desc">Find your people in Finance, CS, and more communities.</div>
+                                <div class="db-qc-arrow">Explore groups →</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MAIN SPLIT -->
+                    <div class="db-grid-main">
+
+                        <!-- LEFT COLUMN -->
+                        <div class="db-left-col">
+
+                            <!-- UPCOMING NEXT CHAT -->
+                            <div>
+                                <div class="db-sec-head">
+                                    <h2 class="db-sec-title">Your Next <em>Sip</em></h2>
+                                    <button class="db-sec-link" onclick="switchView('messagesView')">All chats →</button>
+                                </div>
+                                <div id="dbNextSipCard"></div>
+                            </div>
+
+                            <!-- SUGGESTED MATCHES -->
+                            <div>
+                                <div class="db-sec-head">
+                                    <h2 class="db-sec-title">People You Should <em>Meet</em></h2>
+                                    <button class="db-sec-link" onclick="switchView('discoverView')">See all →</button>
+                                </div>
+                                <div class="db-card" style="overflow:hidden;" id="dbMatchesList"></div>
+                            </div>
+
+                            <!-- ACTIVITY FEED -->
+                            <div>
+                                <div class="db-sec-head">
+                                    <h2 class="db-sec-title">Recent <em>Activity</em></h2>
+                                </div>
+                                <div class="db-card" style="overflow:hidden;">
+                                    <div id="dbActivityFeed"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="db-right-col">
+
+                            <!-- MY GROUPS -->
+                            <div class="db-card">
+                                <div class="db-widget-header">
+                                    <span class="db-widget-title">My Groups</span>
+                                    <button class="db-widget-action" onclick="switchView('groupsView')">Explore →</button>
+                                </div>
+                                <div id="dbGroupsList"></div>
+                            </div>
+
+                            <!-- BADGES -->
+                            <div class="db-card">
+                                <div class="db-widget-header">
+                                    <span class="db-widget-title">Your Badges</span>
+                                    <span class="db-widget-action" id="dbBadgesCount" style="cursor:default;"></span>
+                                </div>
+                                <div class="db-badges-grid" id="dashboardBadges"></div>
+                            </div>
+
+                            <!-- TIP -->
+                            <div class="db-tip-card">
+                                <div class="db-tip-inner">
+                                    <div class="db-tip-icon">💡</div>
+                                    <div class="db-tip-title">Today's tip</div>
+                                    <div class="db-tip-text">"The best networkers aren't the most outgoing — they're the most curious. Go into your next chat with one genuinely thoughtful question."</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden legacy elements kept for JS compatibility -->
+                <div style="display:none;" aria-hidden="true">
+                    <div id="streakBadge"><span id="streakDisplay"></span></div>
+                    <div id="gettingStarted"><ul id="checklistItems"></ul></div>
+                    <div id="welcomeEmptyState"></div>
+                    <div id="zeroCTAs"></div>
+                    <div id="hubPanel">
+                        <button id="tabNetwork"></button><button id="tabGroups"></button><button id="tabChats"></button>
+                        <div id="hubNetworkPanel"><div id="hubNetworkFeed"></div></div>
+                        <div id="hubGroupsPanel"><div id="hubGroupsFeed"></div></div>
+                        <div id="hubChatsPanel"><div id="hubChatsContent"></div></div>
+                    </div>
+                    <div id="statConnections"></div>
+                    <div id="statChats"></div>
+                    <div id="statGroups"></div>
+                    <div id="dashboardStats"></div>
+                    <div id="onboardStep1"></div><div id="onboardStep2"></div>
+                    <div id="onboardStep3"></div><div id="onboardStep4"></div>
+                    <!-- Profile completion ring (needed by renderProfileCompletion) -->
+                    <div id="completionCard">
                         <svg width="56" height="56" viewBox="0 0 80 80">
                             <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
                             <circle class="progress-ring-fill" id="progressRing" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
                         </svg>
-                        <span class="progress-text" id="progressPercent" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:700;color:var(--espresso);">0%</span>
+                        <span id="progressPercent"></span>
+                        <div id="completionMsg"></div>
                     </div>
-                    <div class="completion-info" style="flex:1;">
-                        <div style="font-size:13px; font-weight:600; color:var(--espresso); margin-bottom:2px;">Profile Completion</div>
-                        <div id="completionMsg" style="font-size:12px; color:var(--muted); font-weight:300; margin-bottom:8px;">Complete your profile to get better matches</div>
-                        <button class="btn btn-accent btn-sm" onclick="editMyProfile()" style="font-size:12px; padding:6px 14px;">Complete Profile</button>
-                    </div>
-                </div>
-
-                <!-- Stats Row -->
-                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px;" id="dashboardStats">
-                    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;">
-                        <div style="font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Connections</div>
-                        <div id="statConnections" style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--espresso); margin-bottom:4px;">0</div>
-                        <div style="font-size:12px; color:var(--muted); font-weight:300; cursor:pointer;" onclick="switchView('discoverView')">Discover people to connect →</div>
-                    </div>
-                    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;">
-                        <div style="font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Chats Completed</div>
-                        <div id="statChats" style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--espresso); margin-bottom:4px;">0</div>
-                        <div style="font-size:12px; color:var(--muted); font-weight:300; cursor:pointer;" onclick="openScheduleModal()">Schedule your first sip →</div>
-                    </div>
-                    <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;">
-                        <div style="font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Groups Joined</div>
-                        <div id="statGroups" style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--espresso); margin-bottom:4px;">0</div>
-                        <div style="font-size:12px; color:var(--muted); font-weight:300; cursor:pointer;" onclick="switchView('groupsView')">Browse communities →</div>
-                    </div>
-                </div>
-
-                <!-- Zero-state CTA cards (shown when no activity) -->
-                <div id="zeroCTAs" style="display:none;">
-                    <div class="cta-cards-grid">
-                        <div class="cta-card" onclick="switchView('discoverView')">
-                            <div class="cta-icon">🤝</div>
-                            <h3>Meet your first connection</h3>
-                            <p>Browse Rowan students who share your interests and goals</p>
-                        </div>
-                        <div class="cta-card" onclick="switchView('groupsView')">
-                            <div class="cta-icon">👥</div>
-                            <h3>Find your people</h3>
-                            <p>Join groups for your major, career path, or campus interests</p>
-                        </div>
-                        <div class="cta-card" onclick="openScheduleModal()">
-                            <div class="cta-icon">☕</div>
-                            <h3>Schedule your first chat</h3>
-                            <p>Find someone to connect with, then kick off a 30-min coffee chat</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hub Tabs (shown when user has any activity) -->
-                <div id="hubPanel" style="display:none;">
-                    <div class="hub-tab-bar">
-                        <button id="tabNetwork" class="hub-tab active" onclick="switchHubTab('network')">My Network</button>
-                        <button id="tabGroups" class="hub-tab" onclick="switchHubTab('groups')">My Groups</button>
-                        <button id="tabChats" class="hub-tab" onclick="switchHubTab('chats')">My Chats</button>
-                    </div>
-                    <div id="hubNetworkPanel" class="hub-panel-content active">
-                        <div id="hubNetworkFeed"></div>
-                    </div>
-                    <div id="hubGroupsPanel" class="hub-panel-content">
-                        <div id="hubGroupsFeed"></div>
-                    </div>
-                    <div id="hubChatsPanel" class="hub-panel-content">
-                        <div id="hubChatsContent"></div>
-                    </div>
-                </div>
-
-                <!-- Badges Section -->
-                <div style="background: var(--card); border-radius: 14px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.5rem;">
-                    <h3 style="margin-bottom: 0.75rem; font-size:14px; font-weight:600; color:var(--espresso);">Your Badges</h3>
-                    <div class="badge-grid" id="dashboardBadges"></div>
                 </div>
 
             </div>
@@ -4793,16 +5641,112 @@
                 </div>
             </div>
 
-            <!-- Messages View -->
+            <!-- My Chats View (redesigned) -->
             <div id="messagesView" class="content-view">
-                <h1>Messages</h1>
-                <p style="color: #999; margin-bottom: 1.5rem;">Connect with your network</p>
-                <div class="messages-wrapper">
-                    <div id="conversationList" class="conversation-list"></div>
-                    <div id="chatWindow" class="chat-window">
-                        <div class="chat-header">
-                            <h3>Select a conversation</h3>
+
+                <!-- Page Header -->
+                <div class="mc-page-header">
+                    <div>
+                        <div class="mc-page-eyebrow">Your Connections</div>
+                        <h1 class="mc-page-title">My <em>Coffee Chats</em></h1>
+                    </div>
+                    <button class="mc-btn-schedule" onclick="openScheduleChatModal()">☕ Schedule a Sip</button>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="mc-stats-row" id="mcStatsRow">
+                    <div class="mc-stat-card">
+                        <div class="mc-stat-icon orange">☕</div>
+                        <div><div class="mc-stat-val" id="mcStatTotal">0</div><div class="mc-stat-lbl">Total Chats</div></div>
+                    </div>
+                    <div class="mc-stat-card">
+                        <div class="mc-stat-icon green">✅</div>
+                        <div><div class="mc-stat-val" id="mcStatCompleted">0</div><div class="mc-stat-lbl">Completed</div></div>
+                    </div>
+                    <div class="mc-stat-card">
+                        <div class="mc-stat-icon cream">📅</div>
+                        <div><div class="mc-stat-val" id="mcStatUpcoming">0</div><div class="mc-stat-lbl">Upcoming</div></div>
+                    </div>
+                    <div class="mc-stat-card">
+                        <div class="mc-stat-icon blue">⏱️</div>
+                        <div><div class="mc-stat-val" id="mcStatAvg">—</div><div class="mc-stat-lbl">Avg Duration</div></div>
+                    </div>
+                </div>
+
+                <!-- Content grid: left (tabs+cards) / right (widgets) -->
+                <div class="mc-content-grid">
+
+                    <!-- LEFT -->
+                    <div>
+                        <!-- Tabs -->
+                        <div class="mc-tabs-bar">
+                            <button class="mc-tab-btn active" onclick="switchChatTab(this,'mc-tab-upcoming')">Upcoming</button>
+                            <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-past')">Past Chats</button>
+                            <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-pending')">Pending</button>
+                            <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-messages')">💬 Messages</button>
                         </div>
+
+                        <!-- Tab: Upcoming -->
+                        <div id="mc-tab-upcoming" class="mc-chat-list"></div>
+
+                        <!-- Tab: Past Chats -->
+                        <div id="mc-tab-past" class="mc-chat-list" style="display:none;"></div>
+
+                        <!-- Tab: Pending -->
+                        <div id="mc-tab-pending" style="display:none;"></div>
+
+                        <!-- Tab: Messages (direct messages) -->
+                        <div id="mc-tab-messages" style="display:none;">
+                            <div class="mc-messages-wrapper">
+                                <div class="mc-conv-list">
+                                    <div class="mc-conv-list-header">Conversations</div>
+                                    <div id="conversationList" class="conversation-list" style="padding: 8px;"></div>
+                                </div>
+                                <div id="chatWindow" class="chat-window mc-chat-win">
+                                    <div class="chat-header">
+                                        <h3>Select a conversation</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="mc-right-col">
+
+                        <!-- Mini Calendar -->
+                        <div class="mc-widget">
+                            <div class="mc-widget-header">
+                                <span class="mc-widget-title">Calendar</span>
+                            </div>
+                            <div class="mc-cal-wrap">
+                                <div class="mc-cal-nav">
+                                    <button class="mc-cal-nav-btn" onclick="miniCalPrev()">‹</button>
+                                    <span class="mc-cal-month" id="miniCalMonth"></span>
+                                    <button class="mc-cal-nav-btn" onclick="miniCalNext()">›</button>
+                                </div>
+                                <div class="mc-cal-days-grid" id="miniCalGrid"></div>
+                            </div>
+                        </div>
+
+                        <!-- Next Up -->
+                        <div class="mc-widget">
+                            <div class="mc-widget-header">
+                                <span class="mc-widget-title">Next Up</span>
+                            </div>
+                            <div class="mc-upcoming-list" id="mcNextUpList"></div>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="mc-tips-widget">
+                            <div class="mc-tips-body">
+                                <div class="mc-tips-icon">💡</div>
+                                <div class="mc-tips-title">Make the most of your sip</div>
+                                <div class="mc-tips-text">Quick tips to turn a 30-minute chat into a lasting connection.</div>
+                                <div class="mc-tips-tip">"Do your homework first — check their profile and have one specific question ready. People love talking about their own journey."</div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -5937,7 +6881,6 @@
                     { id: 'feedView', icon: '📰', label: 'Feed' },
                     { id: 'groupsView', icon: '👥', label: 'Communities' },
                     { id: 'messagesView', icon: '☕', label: 'My Chats' },
-                    { id: 'calendarView', icon: '📅', label: 'Calendar' },
                 ];
 
                 // Label: Main
@@ -6030,7 +6973,7 @@
             }
             if (viewId === 'feedView') renderFeed();
             if (viewId === 'groupsView') renderGroups();
-            if (viewId === 'messagesView') renderMessages();
+            if (viewId === 'messagesView') renderMyChatView();
             if (viewId === 'dashboardView') updateDashboard();
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
@@ -6050,58 +6993,340 @@
 
         // Dashboard
         function updateDashboard() {
-            document.getElementById('userName').textContent = currentUser.firstName;
+            if (!currentUser) return;
 
-            const connectionCount = connections.length;
-            const groupCount = myGroupIds.size;
+            // ── Greeting ──
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('dbGreeting');
+            if (greetingEl) greetingEl.textContent = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+            // ── Hero name ──
+            const userNameEl = document.getElementById('userName');
+            if (userNameEl) userNameEl.textContent = currentUser.firstName + '.';
+
+            // ── Counts ──
+            const connectionCount  = connections.length;
+            const groupCount       = myGroupIds.size;
             const completedMeetings = meetings.filter(m => m.status === 'completed').length;
-            const meetingCount = meetings.filter(m => m.status !== 'completed').length;
-            const totalActivity = connectionCount + groupCount + meetingCount;
+            const upcomingMeetings = meetings.filter(m => m.status !== 'completed');
 
-            // Update stat counters
-            const statConnections = document.getElementById('statConnections');
-            const statChats = document.getElementById('statChats');
-            const statGroups = document.getElementById('statGroups');
-            if (statConnections) statConnections.textContent = connectionCount;
-            if (statChats) statChats.textContent = completedMeetings;
-            if (statGroups) statGroups.textContent = groupCount;
+            // Hero stats
+            const el = id => document.getElementById(id);
+            if (el('dbStatConnections'))  el('dbStatConnections').textContent  = connectionCount;
+            if (el('dbStatUpcoming'))     el('dbStatUpcoming').textContent     = upcomingMeetings.length;
+            if (el('dbStatCompleted'))    el('dbStatCompleted').textContent    = completedMeetings;
 
-            // Show welcome empty state only when no activity
-            const welcomeEl = document.getElementById('welcomeEmptyState');
-            if (welcomeEl) {
-                welcomeEl.style.display = totalActivity === 0 ? 'block' : 'none';
-            }
+            // ── Setup bar ──
+            renderDbSetupBar();
 
-            // Show zero CTAs or hub tabs
-            const zeroCTAs = document.getElementById('zeroCTAs');
-            const hubPanel = document.getElementById('hubPanel');
-            if (totalActivity === 0) {
-                if (zeroCTAs) zeroCTAs.style.display = 'block';
-                if (hubPanel) hubPanel.style.display = 'none';
-            } else {
-                if (zeroCTAs) zeroCTAs.style.display = 'none';
-                if (hubPanel) hubPanel.style.display = 'block';
-                renderActiveHubTab();
-            }
+            // ── Next Sip card ──
+            renderDbNextSip();
 
-            // Streak badge
-            const streak = getLoginStreak();
-            const streakBadge = document.getElementById('streakBadge');
-            const streakDisplay = document.getElementById('streakDisplay');
-            if (streakDisplay) streakDisplay.innerHTML = `&#128293; ${streak} day streak`;
-            if (streakBadge) streakBadge.style.display = streak > 1 ? 'block' : 'none';
+            // ── Suggested matches ──
+            renderDbMatches();
 
-            // Profile completion
-            renderProfileCompletion();
+            // ── Activity feed ──
+            renderDbActivity();
 
-            // Getting started checklist
-            renderGettingStarted();
+            // ── Groups widget ──
+            renderDbGroups();
 
-            // Badges
+            // ── Badges ──
             renderDashboardBadges();
+            const badges = (typeof checkBadges === 'function') ? checkBadges() : [];
+            const earned = badges.filter(b => b.earned).length;
+            if (el('dbBadgesCount')) el('dbBadgesCount').textContent = `${earned} / ${badges.length} earned`;
 
-            // Notifications
+            // Keep legacy helpers running (hidden elements)
+            renderProfileCompletion();
+            renderGettingStarted();
             generateNotifications();
+        }
+
+        function renderDbSetupBar() {
+            const { percentage } = getProfileCompletion();
+            const hasConnection = connections.length > 0;
+            const hasGroup      = myGroupIds.size > 0;
+            const hasMeeting    = meetings.length > 0;
+
+            const steps = [
+                { label: 'Create account', done: true, action: null },
+                { label: 'Complete profile', done: percentage >= 80, action: 'editMyProfile()' },
+                { label: 'First connection', done: hasConnection, action: "switchView('discoverView')" },
+                { label: 'Schedule a sip',  done: hasMeeting, action: 'openScheduleChatModal()' },
+            ];
+
+            const stepsEl = document.getElementById('dbSetupSteps');
+            const ctaEl   = document.getElementById('dbSetupCta');
+            const bar     = document.getElementById('dbSetupBar');
+            if (!stepsEl) return;
+
+            const allDone = steps.every(s => s.done);
+            if (bar) bar.style.display = allDone ? 'none' : 'flex';
+
+            // Determine which step is next active
+            let activeIdx = steps.findIndex(s => !s.done);
+            stepsEl.innerHTML = steps.map((s, i) => {
+                const cls = s.done ? 'done' : i === activeIdx ? 'active' : '';
+                const num = s.done ? '✓' : i + 1;
+                const action = s.action ? `onclick="${s.action}"` : '';
+                return `<div class="db-setup-step ${cls}" ${action}><div class="db-step-num">${num}</div>${s.label}</div>`;
+            }).join('');
+
+            // Update CTA
+            if (ctaEl) {
+                if (!hasConnection && activeIdx === 2) { ctaEl.textContent = 'Find People →'; ctaEl.onclick = () => switchView('discoverView'); }
+                else if (!hasMeeting && activeIdx === 3) { ctaEl.textContent = 'Schedule a Sip →'; ctaEl.onclick = () => openScheduleChatModal(); }
+                else { ctaEl.textContent = 'Finish Profile →'; ctaEl.onclick = () => editMyProfile(); }
+            }
+        }
+
+        function renderDbNextSip() {
+            const container = document.getElementById('dbNextSipCard');
+            if (!container) return;
+
+            const next = meetings
+                .filter(m => m.status !== 'completed' && new Date(m.start_time || m.date) >= new Date())
+                .sort((a, b) => new Date(a.start_time || a.date) - new Date(b.start_time || b.date))[0];
+
+            if (!next) {
+                container.innerHTML = `
+                    <div class="db-no-sip">
+                        <div class="db-no-sip-icon">☕</div>
+                        <div class="db-no-sip-title">No chats scheduled yet</div>
+                        <div class="db-no-sip-desc">Schedule your first coffee sip with someone in your network.</div>
+                        <button class="db-no-sip-btn" onclick="openScheduleChatModal()">Schedule a Sip ↗</button>
+                    </div>`;
+                return;
+            }
+
+            const isOrganizer = next.organizer_id === currentUser.id;
+            const partnerId   = isOrganizer ? next.participant_id : next.organizer_id;
+            const partner     = users.find(u => u.id === partnerId);
+            const pFirst      = partner?.firstName || 'Someone';
+            const pLast       = partner?.lastName  || '';
+            const initials    = (pFirst[0]||'') + (pLast[0]||'');
+            const role        = partner?.role    || '';
+            const company     = partner?.company || '';
+
+            const dtRaw = next.start_time || next.date;
+            let countdownStr = '';
+            let dateTimeStr  = '';
+            if (dtRaw) {
+                const dt   = new Date(dtRaw);
+                const now  = new Date();
+                const diff = dt - now;
+                const hoursAway = Math.round(diff / 3600000);
+                const today = new Date(); today.setHours(0,0,0,0);
+                const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+                const dayLabel = dt.toDateString() === today.toDateString() ? 'Today' : dt.toDateString() === tomorrow.toDateString() ? 'Tomorrow' : dt.toLocaleDateString('en-US',{weekday:'long'});
+                const timeStr  = next.time || dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+                dateTimeStr  = `${dayLabel} at ${timeStr}`;
+                countdownStr = diff > 0 ? ` · ${hoursAway < 1 ? 'very soon' : hoursAway + 'h away'}` : '';
+            }
+
+            const meetType = next.meeting_type || next.type || 'Video Call';
+            const duration = next.duration ? `${next.duration} min` : '30 min';
+            const topic    = next.topic || 'Coffee Chat';
+            const metaLine = [role, company].filter(Boolean).join(' · ');
+
+            container.innerHTML = `
+                <div class="db-upcoming-card">
+                    <div class="db-ucc-inner">
+                        <div class="db-countdown-pill">
+                            <span class="db-pulse"></span>
+                            ${dateTimeStr}${countdownStr}
+                        </div>
+                        <div class="db-ucc-person">
+                            <div class="db-ucc-avatar">${initials || '?'}</div>
+                            <div>
+                                <div class="db-ucc-name">${pFirst} ${pLast}</div>
+                                <div class="db-ucc-role">${metaLine || 'Rowan University'}</div>
+                            </div>
+                        </div>
+                        <div class="db-ucc-details">
+                            <div class="db-ucc-detail">📹 ${meetType}</div>
+                            <div class="db-ucc-detail">⏱️ ${duration}</div>
+                            ${topic ? `<div class="db-ucc-detail">💼 ${topic.substring(0,30)}${topic.length>30?'…':''}</div>` : ''}
+                        </div>
+                        <div class="db-ucc-actions">
+                            <button class="db-ucc-btn-primary" onclick="startCall('${pFirst} ${pLast}','${initials}')">Join Video Call ↗</button>
+                            <button class="db-ucc-btn-secondary" onclick="switchView('messagesView')">Reschedule</button>
+                            <button class="db-ucc-btn-secondary" onclick="openChatWith('${partnerId}')">Message</button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderDbMatches() {
+            const container = document.getElementById('dbMatchesList');
+            if (!container) return;
+
+            // Get IDs of already-connected / pending users
+            const connectedIds = new Set();
+            connections.forEach(c => {
+                connectedIds.add(c.user_id);
+                connectedIds.add(c.connected_user_id);
+            });
+            sentRequests.forEach(r => connectedIds.add(r.connected_user_id));
+
+            const suggestions = users
+                .filter(u => u.id !== currentUser.id && !connectedIds.has(u.id))
+                .slice(0, 3);
+
+            if (suggestions.length === 0) {
+                container.innerHTML = `<div style="padding:24px;text-align:center;font-size:13px;color:var(--muted);">You've connected with everyone so far!<br><button class="db-btn-chat" onclick="switchView('discoverView')" style="margin-top:12px;">Find More People</button></div>`;
+                return;
+            }
+
+            const gradients = [
+                'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                'linear-gradient(135deg,#2d7a4f,#52c887)',
+                'linear-gradient(135deg,#7e3ff2,#c084fc)',
+                'linear-gradient(135deg,#b5651d,#d4894a)',
+                'linear-gradient(135deg,#be185d,#f472b6)',
+            ];
+
+            container.innerHTML = suggestions.map((u, i) => {
+                const fn       = u.firstName || '?';
+                const ln       = u.lastName  || '?';
+                const initials = fn[0] + ln[0];
+                const gradient = gradients[i % gradients.length];
+                const roleLine = [u.role, u.company].filter(Boolean).join(' · ') || u.industry || 'Rowan University';
+                const tags     = [...(u.interests||[]).slice(0,2), u.industry].filter(Boolean).slice(0,3);
+                // simple match % based on shared interests
+                const sharedInterests = (u.interests||[]).filter(i => (currentUser.interests||[]).includes(i)).length;
+                const pct = Math.min(99, 60 + sharedInterests * 10 + (u.industry === currentUser.industry ? 12 : 0));
+                const circ  = 2 * Math.PI * 16;
+                const offset = circ - (pct / 100) * circ;
+                const isLast = i === suggestions.length - 1;
+
+                return `
+                    <div class="db-match-row" onclick="viewProfile('${u.id}')" style="${!isLast ? 'border-bottom:1px solid var(--border)' : ''}">
+                        <div class="db-match-av" style="background:${gradient}">
+                            ${initials}
+                            ${i === 0 ? '<span class="db-match-online"></span>' : ''}
+                        </div>
+                        <div class="db-match-info">
+                            <div class="db-match-name">${fn} ${ln}</div>
+                            <div class="db-match-meta">${roleLine}</div>
+                            <div class="db-match-tags">${tags.map(t=>`<span class="db-tag">${t}</span>`).join('')}</div>
+                        </div>
+                        <div class="db-match-right">
+                            <div class="db-pct-ring">
+                                <svg width="40" height="40" viewBox="0 0 40 40">
+                                    <circle class="bg" cx="20" cy="20" r="16"/>
+                                    <circle class="fill" cx="20" cy="20" r="16"
+                                        stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/>
+                                </svg>
+                                <div class="db-pct-label">${pct}%</div>
+                            </div>
+                            <button class="db-btn-chat" onclick="event.stopPropagation();openScheduleForUser('${u.id}')">☕ Chat</button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderDbActivity() {
+            const container = document.getElementById('dbActivityFeed');
+            if (!container) return;
+
+            const items = [];
+
+            // Upcoming meetings
+            meetings
+                .filter(m => m.status !== 'completed')
+                .sort((a,b) => new Date(a.start_time||a.date) - new Date(b.start_time||b.date))
+                .slice(0,2)
+                .forEach(m => {
+                    const isOrg = m.organizer_id === currentUser.id;
+                    const pid   = isOrg ? m.participant_id : m.organizer_id;
+                    const p     = users.find(u => u.id === pid);
+                    const name  = p ? `${p.firstName} ${p.lastName}` : 'Someone';
+                    const dtRaw = m.start_time || m.date;
+                    const dateStr = dtRaw ? new Date(dtRaw).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : 'soon';
+                    items.push({ icon: '☕', cls: 'orange', main: `<strong>${name}</strong> – coffee chat confirmed for ${dateStr}.`, time: 'Upcoming', unread: true });
+                });
+
+            // Recent connections
+            connections.slice(0, 2).forEach(c => {
+                const pid = c.user_id === currentUser.id ? c.connected_user_id : c.user_id;
+                const p   = users.find(u => u.id === pid);
+                const name = p ? `${p.firstName} ${p.lastName}` : 'Someone';
+                items.push({ icon: '🤝', cls: 'green', main: `<strong>${name}</strong> is now in your network.`, time: 'Recent', unread: false });
+            });
+
+            // Groups
+            const joinedGroups = groups.filter(g => myGroupIds.has(g.id)).slice(0, 1);
+            joinedGroups.forEach(g => {
+                items.push({ icon: '👥', cls: 'blue', main: `You joined <strong>${g.name}</strong>.`, time: 'Recent', unread: false });
+            });
+
+            // Completed chats
+            meetings.filter(m => m.status === 'completed').slice(0,1).forEach(m => {
+                const pid = m.organizer_id === currentUser.id ? m.participant_id : m.organizer_id;
+                const p   = users.find(u => u.id === pid);
+                const name = p ? `${p.firstName} ${p.lastName}` : 'Someone';
+                items.push({ icon: '⭐', cls: 'cream', main: `Coffee chat with <strong>${name}</strong> completed! ☕`, time: 'Past', unread: false });
+            });
+
+            if (items.length === 0) {
+                container.innerHTML = `<div class="db-activity-item"><div style="padding:12px 0;font-size:13px;color:var(--muted);">No activity yet. Start by discovering people or joining a group!</div></div>`;
+                return;
+            }
+
+            container.innerHTML = items.slice(0, 4).map((it, i) => `
+                <div class="db-activity-item">
+                    <div class="db-act-icon ${it.cls}">${it.icon}</div>
+                    <div style="flex:1;">
+                        <div class="db-act-main">${it.main}</div>
+                        <div class="db-act-time">${it.time}</div>
+                    </div>
+                    ${it.unread ? '<div class="db-act-dot"></div>' : ''}
+                </div>`).join('');
+        }
+
+        function renderDbGroups() {
+            const container = document.getElementById('dbGroupsList');
+            if (!container) return;
+
+            const joinedGroups = groups.filter(g => myGroupIds.has(g.id));
+
+            if (joinedGroups.length === 0) {
+                const allGroups = groups.slice(0, 3);
+                if (allGroups.length === 0) {
+                    container.innerHTML = `<div style="padding:16px 18px;font-size:13px;color:var(--muted);">No groups yet. <button style="background:none;border:none;color:var(--caramel);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;" onclick="switchView('groupsView')">Browse communities →</button></div>`;
+                    return;
+                }
+                // Show suggestable groups
+                container.innerHTML = allGroups.map((g, i) => {
+                    const isLast = i === allGroups.length - 1;
+                    return `
+                        <div class="db-group-item" onclick="switchView('groupsView')" style="${!isLast?'':''}">
+                            <div class="db-group-icon">👥</div>
+                            <div>
+                                <div class="db-group-name">${g.name}</div>
+                                <div class="db-group-meta">${g.member_count||0} members</div>
+                            </div>
+                            <span class="db-group-badge">+ Join</span>
+                        </div>`;
+                }).join('');
+                return;
+            }
+
+            container.innerHTML = joinedGroups.slice(0, 3).map((g, i) => {
+                const isLast = i === Math.min(joinedGroups.length, 3) - 1;
+                const icon = g.icon || '👥';
+                return `
+                    <div class="db-group-item" onclick="viewGroup('${g.id}')" style="${!isLast ? 'border-bottom:1px solid var(--border)' : ''}">
+                        <div class="db-group-icon">${icon}</div>
+                        <div>
+                            <div class="db-group-name">${g.name}</div>
+                            <div class="db-group-meta">${g.member_count||0} members</div>
+                        </div>
+                        <span class="db-group-badge new">Active</span>
+                    </div>`;
+            }).join('');
         }
 
         // ===== HUB TABS =====
@@ -6356,6 +7581,8 @@
 
         function openChatWith(userId) {
             switchView('messagesView');
+            const msgTabBtn = document.querySelector('.mc-tabs-bar .mc-tab-btn:last-child');
+            if (msgTabBtn) switchChatTab(msgTabBtn, 'mc-tab-messages');
             selectConversation(userId);
         }
 
@@ -6904,10 +8131,258 @@
         // Messages
         async function startMessage(userId) {
             switchView('messagesView');
-            await renderMessages();
+            // Switch to the Messages tab within My Chats
+            const msgTabBtn = document.querySelector('.mc-tabs-bar .mc-tab-btn:last-child');
+            if (msgTabBtn) switchChatTab(msgTabBtn, 'mc-tab-messages');
             await selectConversation(userId);
         }
 
+        // ─── My Chats redesigned view ───────────────────────────────────
+
+        let miniCalDate = new Date();
+
+        function switchChatTab(btn, tabId) {
+            document.querySelectorAll('.mc-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const panels = ['mc-tab-upcoming','mc-tab-past','mc-tab-pending','mc-tab-messages'];
+            panels.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            const target = document.getElementById(tabId);
+            if (target) target.style.display = tabId === 'mc-tab-upcoming' || tabId === 'mc-tab-past' ? 'flex' : 'block';
+            // Load messages pane lazily
+            if (tabId === 'mc-tab-messages') renderMessages();
+        }
+
+        async function renderMyChatView() {
+            if (!currentUser) return;
+
+            // ── Stats ──
+            const total     = meetings.length;
+            const completed = meetings.filter(m => m.status === 'completed').length;
+            const upcoming  = meetings.filter(m => m.status !== 'completed').length;
+            const durations = meetings.map(m => Number(m.duration) || 0).filter(d => d > 0);
+            const avgDur    = durations.length ? Math.round(durations.reduce((a,b)=>a+b,0)/durations.length) : 0;
+
+            document.getElementById('mcStatTotal').textContent     = total;
+            document.getElementById('mcStatCompleted').textContent = completed;
+            document.getElementById('mcStatUpcoming').textContent  = upcoming;
+            document.getElementById('mcStatAvg').textContent       = avgDur ? avgDur + 'm' : '—';
+
+            // ── Card lists ──
+            await renderMeetingCards();
+
+            // ── Mini calendar ──
+            renderMiniCal();
+
+            // ── Next Up sidebar ──
+            renderNextUp();
+        }
+
+        async function renderMeetingCards() {
+            const upcomingEl = document.getElementById('mc-tab-upcoming');
+            const pastEl     = document.getElementById('mc-tab-past');
+            const pendingEl  = document.getElementById('mc-tab-pending');
+            if (!upcomingEl || !pastEl || !pendingEl) return;
+
+            const upcomingMtgs = meetings.filter(m => m.status !== 'completed').sort((a,b)=>new Date(a.start_time||a.date)-new Date(b.start_time||b.date));
+            const pastMtgs     = meetings.filter(m => m.status === 'completed').sort((a,b)=>new Date(b.start_time||b.date)-new Date(a.start_time||a.date));
+            const pendingMtgs  = meetings.filter(m => m.status === 'pending');
+
+            upcomingEl.innerHTML = upcomingMtgs.length ? upcomingMtgs.map((m,i) => buildChatCard(m, 'upcoming', i===0)).join('') : emptyMcState('📅','No upcoming chats','Schedule your next coffee chat to get started.','upcoming');
+            pastEl.innerHTML     = pastMtgs.length     ? pastMtgs.map(m => buildChatCard(m,'completed',false)).join('') : emptyMcState('☕','No past chats yet','Your completed chats will appear here.','');
+            pendingEl.innerHTML  = pendingMtgs.length  ? pendingMtgs.map(m => buildChatCard(m,'pending',false)).join('') : emptyMcState('⏳','No pending requests','When you send or receive a chat request it will appear here.','pending');
+        }
+
+        function buildChatCard(m, status, featured) {
+            // Resolve partner info
+            const isOrganizer = m.organizer_id === currentUser?.id;
+            const partnerId   = isOrganizer ? m.participant_id : m.organizer_id;
+            const partner     = users.find(u => u.id === partnerId);
+            const pFirst      = partner?.firstName || 'Unknown';
+            const pLast       = partner?.lastName  || '';
+            const initials    = (pFirst[0]||'') + (pLast[0]||'');
+            const role        = partner?.role    || '';
+            const company     = partner?.company || '';
+            const topic       = m.topic || '';
+
+            // Date / time
+            const dtRaw = m.start_time || m.date;
+            let dateStr = '—', timeStr = '';
+            if (dtRaw) {
+                const dt = new Date(dtRaw);
+                const today = new Date();
+                const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+                if (dt.toDateString() === today.toDateString())    dateStr = 'Today';
+                else if (dt.toDateString() === tomorrow.toDateString()) dateStr = 'Tomorrow';
+                else dateStr = dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+                timeStr = m.time || dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+            }
+
+            const gradients = [
+                'linear-gradient(135deg,#5c3317,#b5651d)',
+                'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                'linear-gradient(135deg,#2d7a4f,#52c887)',
+                'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                'linear-gradient(135deg,#be185d,#f472b6)',
+            ];
+            const gradIdx = (partnerId || '').split('').reduce((acc,c)=>acc+c.charCodeAt(0),0) % gradients.length;
+            const gradient = gradients[gradIdx];
+
+            const statusLabel = status === 'completed' ? '✓ Completed' : status === 'pending' ? '⏳ Pending' : 'Upcoming';
+            const iceHTML = featured && status === 'upcoming' ? buildIcebreakers(partnerId) : '';
+            const meetType = m.meeting_type || m.type || 'virtual';
+
+            let actionsHTML = '';
+            if (status === 'upcoming') {
+                actionsHTML = `
+                    <div class="mc-card-actions">
+                        <button class="mc-btn-sm primary" onclick="startCall('${pFirst} ${pLast}','${initials}')">📹 Join Call</button>
+                        <button class="mc-btn-sm secondary">📅 Reschedule</button>
+                        <button class="mc-btn-sm secondary" onclick="event.stopPropagation();switchChatTab(document.querySelector('.mc-tabs-bar .mc-tab-btn:last-child'),'mc-tab-messages')">✉ Message</button>
+                        <button class="mc-btn-sm danger" onclick="event.stopPropagation()">Cancel</button>
+                    </div>`;
+            } else if (status === 'completed') {
+                actionsHTML = `
+                    <div class="mc-card-actions">
+                        <button class="mc-btn-sm secondary">⭐ Leave a Review</button>
+                        <button class="mc-btn-sm secondary">🔄 Schedule Again</button>
+                        <button class="mc-btn-sm secondary">✉ Message</button>
+                    </div>`;
+            } else {
+                actionsHTML = `
+                    <div class="mc-card-actions">
+                        <button class="mc-btn-sm primary">✓ Accept</button>
+                        <button class="mc-btn-sm secondary">📅 Propose Time</button>
+                        <button class="mc-btn-sm danger" onclick="event.stopPropagation()">Decline</button>
+                    </div>`;
+            }
+
+            return `
+                <div class="mc-chat-card ${status}">
+                    <div class="mc-card-top">
+                        <div class="mc-avatar-wrap">
+                            <div class="mc-avatar" style="background:${gradient}">${initials || '?'}</div>
+                        </div>
+                        <div>
+                            <div class="mc-chat-name">${pFirst} ${pLast}</div>
+                            <div class="mc-chat-meta">
+                                ${role ? `<span>${role}</span>` : ''}
+                                ${role && company ? '<span class="mc-meta-dot"></span>' : ''}
+                                ${company ? `<span>${company}</span>` : ''}
+                                ${(role||company) && meetType ? '<span class="mc-meta-dot"></span>' : ''}
+                                ${meetType ? `<span>${meetType}</span>` : ''}
+                            </div>
+                            ${topic ? `<div class="mc-chat-topic">${topic}</div>` : ''}
+                        </div>
+                        <div class="mc-card-right">
+                            <span class="mc-status-badge ${status}">${statusLabel}</span>
+                            <div class="mc-chat-date">${dateStr}</div>
+                            ${timeStr ? `<div class="mc-chat-time">${timeStr}</div>` : ''}
+                        </div>
+                    </div>
+                    ${iceHTML}
+                    ${actionsHTML}
+                </div>`;
+        }
+
+        function buildIcebreakers(partnerId) {
+            const starters = getConversationStarters(partnerId).slice(0, 3);
+            if (!starters.length) return '';
+            const items = starters.map(s => `<div class="mc-icebr-item">💬 "${s}"</div>`).join('');
+            return `<div class="mc-icebreakers"><div class="mc-icebr-label">✨ Conversation Starters</div>${items}</div>`;
+        }
+
+        function emptyMcState(icon, title, desc, tab) {
+            const btn = tab ? `<button class="mc-btn-sm primary" onclick="openScheduleChatModal()">☕ Schedule a Chat</button>` : '';
+            return `<div class="mc-empty"><div class="mc-empty-icon">${icon}</div><div class="mc-empty-title">${title}</div><div class="mc-empty-desc">${desc}</div>${btn}</div>`;
+        }
+
+        // ── Mini Calendar ──
+        function renderMiniCal() {
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const monthEl = document.getElementById('miniCalMonth');
+            const gridEl  = document.getElementById('miniCalGrid');
+            if (!monthEl || !gridEl) return;
+
+            monthEl.textContent = `${monthNames[miniCalDate.getMonth()]} ${miniCalDate.getFullYear()}`;
+
+            const firstDay   = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth(), 1);
+            const lastDay    = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth()+1, 0);
+            const startDow   = firstDay.getDay();
+            const today      = new Date();
+
+            let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="mc-cal-day-name">${d}</div>`).join('');
+            for (let i=0; i<startDow; i++) {
+                const prevDay = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth(), 0-startDow+i+1);
+                html += `<div class="mc-cal-day other-month">${prevDay.getDate()}</div>`;
+            }
+            for (let day=1; day<=lastDay.getDate(); day++) {
+                const date = new Date(miniCalDate.getFullYear(), miniCalDate.getMonth(), day);
+                const isToday   = today.toDateString() === date.toDateString();
+                const hasEvent  = meetings.some(m => { const d=new Date(m.start_time||m.date); return d.toDateString()===date.toDateString(); });
+                html += `<div class="mc-cal-day${isToday?' today':''}${hasEvent?' has-event':''}">${day}</div>`;
+            }
+            // Fill trailing cells
+            const totalCells = startDow + lastDay.getDate();
+            const remainder = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let i=1; i<=remainder; i++) html += `<div class="mc-cal-day other-month">${i}</div>`;
+
+            gridEl.innerHTML = html;
+        }
+
+        function miniCalPrev() { miniCalDate.setMonth(miniCalDate.getMonth()-1); renderMiniCal(); }
+        function miniCalNext() { miniCalDate.setMonth(miniCalDate.getMonth()+1); renderMiniCal(); }
+
+        // ── Next Up sidebar list ──
+        function renderNextUp() {
+            const el = document.getElementById('mcNextUpList');
+            if (!el) return;
+            const monthAbbr = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+            const upcoming = meetings
+                .filter(m => m.status !== 'completed')
+                .sort((a,b)=>new Date(a.start_time||a.date)-new Date(b.start_time||b.date))
+                .slice(0,3);
+
+            if (!upcoming.length) { el.innerHTML = '<div style="padding:12px 18px;font-size:13px;color:var(--muted);">No upcoming chats</div>'; return; }
+
+            el.innerHTML = upcoming.map(m => {
+                const isOrganizer = m.organizer_id === currentUser?.id;
+                const partnerId   = isOrganizer ? m.participant_id : m.organizer_id;
+                const partner     = users.find(u => u.id === partnerId);
+                const name        = partner ? `${partner.firstName} ${partner.lastName}` : 'Unknown';
+                const dtRaw       = m.start_time || m.date;
+                let dayNum='—', monStr='', timeStr='';
+                if (dtRaw) {
+                    const dt = new Date(dtRaw);
+                    dayNum  = dt.getDate();
+                    monStr  = monthAbbr[dt.getMonth()];
+                    timeStr = m.time || dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+                }
+                const dur  = m.duration ? ` · ${m.duration}m` : '';
+                const mode = m.meeting_type || m.type || 'Virtual';
+                return `
+                    <div class="mc-upcoming-item">
+                        <div class="mc-udb">
+                            <div class="mc-udb-month">${monStr}</div>
+                            <div class="mc-udb-day">${dayNum}</div>
+                        </div>
+                        <div class="mc-upcoming-info">
+                            <div class="mc-upcoming-name">${name}</div>
+                            <div class="mc-upcoming-time">${timeStr}${dur}</div>
+                        </div>
+                        <span class="mc-upcoming-mode">${mode}</span>
+                    </div>`;
+            }).join('');
+        }
+
+        // ── Helper: open the schedule modal (routes to existing scheduleChatModal) ──
+        function openScheduleChatModal() {
+            openModal('scheduleChatModal');
+        }
+
+        // ─── (original renderMessages — now only called for DM tab) ───────
         async function renderMessages() {
             if (!currentUser) return;
 
@@ -7636,8 +9111,7 @@
 
         function endCall() {
             if (callInterval) clearInterval(callInterval);
-            switchView('calendarView');
-            renderMeetingsList();
+            switchView('messagesView');
         }
 
         function toggleMic() {
@@ -8774,7 +10248,7 @@
                 { label: 'Discover people to connect with', done: hasConnections, action: "switchView('discoverView')" },
                 { label: 'Join a community', done: hasJoinedGroup, action: "switchView('groupsView')" },
                 { label: 'Send your first message', done: hasSentMessage, action: "switchView('messagesView')" },
-                { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('calendarView')" }
+                { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('messagesView')" }
             ];
 
             list.innerHTML = items.map(item => `
