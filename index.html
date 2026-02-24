@@ -5255,6 +5255,375 @@
            PROFILE / GROUP DETAIL SHELLS
            =================================================== */
         .pv-shell { padding-bottom: 2rem; }
+
+        /* ===================================================
+           SETTINGS VIEW  (st-*)
+           =================================================== */
+        #settingsView { padding: 0; overflow-y: auto; }
+        #settingsView.active { display: flex; flex-direction: column; }
+
+        .st-layout {
+            display: grid;
+            grid-template-columns: 230px 1fr;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Inner settings nav */
+        .st-nav {
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+        }
+        .st-nav-header {
+            padding: 0 18px 18px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 6px;
+        }
+        .st-nav-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--espresso);
+        }
+        .st-nav-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+        .st-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 18px;
+            font-size: 13.5px;
+            color: var(--muted);
+            background: none;
+            border: none;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+            transition: background .15s, color .15s;
+        }
+        .st-nav-item:hover { background: var(--latte-soft); color: var(--espresso); }
+        .st-nav-item.active { background: var(--latte-soft); color: var(--caramel); font-weight: 600; border-left-color: var(--caramel); }
+        .st-nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+        .st-nav-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+        .st-nav-danger { color: var(--danger) !important; }
+        .st-nav-danger:hover { background: #fdecea !important; }
+        .st-nav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; }
+
+        /* Content area */
+        .st-content {
+            padding: 36px 44px 80px;
+            max-width: 740px;
+        }
+
+        /* Section panels */
+        .st-section { display: none; flex-direction: column; gap: 26px; animation: fadeIn .25s ease; }
+        .st-section.active { display: flex; }
+
+        .st-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--caramel);
+            margin-bottom: 5px;
+        }
+        .st-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(22px, 3vw, 28px);
+            font-weight: 700;
+            color: var(--espresso);
+            line-height: 1.1;
+            margin: 0 0 6px;
+        }
+        .st-title em { font-style: italic; color: var(--caramel); }
+        .st-title.danger { color: var(--danger); }
+        .st-title.danger em { color: var(--danger); }
+        .st-desc { font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+        /* Cards */
+        .st-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .st-card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .st-card-title { font-size: 14.5px; font-weight: 600; color: var(--espresso); }
+        .st-card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .st-card-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .st-card-body.no-gap { gap: 0; }
+        .st-card-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--latte-soft);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Form elements */
+        .st-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .st-form-group { display: flex; flex-direction: column; gap: 5px; }
+        .st-form-group.full { grid-column: 1 / -1; }
+        .st-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .st-hint { font-size: 11.5px; color: var(--muted); opacity: .8; }
+        .st-input {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--warm-white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            color: var(--espresso);
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color .15s;
+            appearance: none;
+        }
+        .st-input:focus { border-color: var(--caramel); }
+        .st-input::placeholder { color: var(--muted); opacity: .6; }
+        textarea.st-input { resize: vertical; min-height: 85px; line-height: 1.5; }
+        select.st-input {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c9a98a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+        }
+
+        /* Avatar upload */
+        .st-avatar-wrap { display: flex; align-items: center; gap: 18px; }
+        .st-avatar {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--caramel), var(--caramel-light));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: 700; color: #fff;
+            border: 3px solid var(--latte); position: relative; cursor: pointer; flex-shrink: 0;
+            overflow: hidden;
+        }
+        .st-avatar-overlay {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: rgba(28,18,8,.5); display: flex; align-items: center;
+            justify-content: center; opacity: 0; transition: opacity .2s; font-size: 18px;
+        }
+        .st-avatar:hover .st-avatar-overlay { opacity: 1; }
+        .st-avatar-info-name { font-size: 14px; font-weight: 600; color: var(--espresso); margin-bottom: 2px; }
+        .st-avatar-info-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+        .st-btn-upload {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px; background: var(--latte-soft);
+            border: 1.5px solid var(--border); border-radius: 8px;
+            font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+            color: var(--muted); cursor: pointer; transition: all .15s;
+        }
+        .st-btn-upload:hover { border-color: var(--caramel); color: var(--caramel); }
+
+        /* Tags input */
+        .st-tags-wrap {
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+            padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 10px;
+            background: var(--warm-white); min-height: 44px; cursor: text;
+            transition: border-color .15s;
+        }
+        .st-tags-wrap:focus-within { border-color: var(--caramel); }
+        .st-tag-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--latte-soft); border: 1px solid var(--border);
+            color: var(--caramel); font-size: 12px; font-weight: 500;
+            border-radius: 100px; padding: 3px 9px;
+        }
+        .st-tag-chip button {
+            background: none; border: none; cursor: pointer;
+            color: var(--muted); font-size: 12px; line-height: 1; padding: 0;
+            transition: color .15s;
+        }
+        .st-tag-chip button:hover { color: var(--danger); }
+        .st-tags-input {
+            border: none; background: transparent;
+            font-family: 'DM Sans', sans-serif; font-size: 13px;
+            color: var(--espresso); outline: none; min-width: 80px; flex: 1;
+        }
+        .st-tags-input::placeholder { color: var(--muted); opacity: .6; }
+
+        /* Toggle switch */
+        .st-toggle-row {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 16px; padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .st-toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .st-toggle-row:first-child { padding-top: 0; }
+        .st-toggle-label { font-size: 13.5px; font-weight: 500; color: var(--espresso); margin-bottom: 2px; }
+        .st-toggle-desc { font-size: 12px; color: var(--muted); line-height: 1.45; max-width: 380px; }
+        .st-toggle { position: relative; width: 42px; height: 23px; flex-shrink: 0; margin-top: 2px; }
+        .st-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+        .st-toggle-track {
+            position: absolute; inset: 0; border-radius: 100px;
+            background: var(--latte); cursor: pointer; transition: background .2s;
+        }
+        .st-toggle input:checked ~ .st-toggle-track { background: var(--caramel); }
+        .st-toggle-thumb {
+            position: absolute; top: 3px; left: 3px;
+            width: 17px; height: 17px; border-radius: 50%;
+            background: white; box-shadow: 0 1px 4px rgba(0,0,0,.15);
+            transition: transform .2s; pointer-events: none;
+        }
+        .st-toggle input:checked ~ .st-toggle-track .st-toggle-thumb { transform: translateX(19px); }
+
+        /* Privacy select rows */
+        .st-priv-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--border);
+        }
+        .st-priv-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .st-priv-row:first-child { padding-top: 0; }
+        .st-priv-label { font-size: 13.5px; font-weight: 500; color: var(--espresso); margin-bottom: 2px; }
+        .st-priv-desc { font-size: 12px; color: var(--muted); }
+        .st-priv-select {
+            padding: 7px 28px 7px 11px; border: 1.5px solid var(--border); border-radius: 8px;
+            background: var(--warm-white); font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+            color: var(--espresso); cursor: pointer; outline: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c9a98a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 9px center;
+            flex-shrink: 0; min-width: 130px; transition: border-color .15s;
+        }
+        .st-priv-select:focus { border-color: var(--caramel); }
+
+        /* Security items */
+        .st-sec-item {
+            display: flex; align-items: center; gap: 13px;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .st-sec-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .st-sec-item:first-child { padding-top: 0; }
+        .st-sec-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+        }
+        .st-sec-icon.green { background: #eaf6ef; }
+        .st-sec-icon.orange { background: rgba(192,124,58,.12); }
+        .st-sec-icon.blue { background: #eff4ff; }
+        .st-sec-info { flex: 1; }
+        .st-sec-title { font-size: 13.5px; font-weight: 600; color: var(--espresso); margin-bottom: 2px; }
+        .st-sec-desc { font-size: 12px; color: var(--muted); }
+        .st-sec-badge {
+            font-size: 11px; font-weight: 600; border-radius: 100px; padding: 3px 10px; flex-shrink: 0;
+        }
+        .st-sec-badge.ok { background: #eaf6ef; color: #2d7a4f; }
+        .st-sec-badge.off { background: var(--latte-soft); color: var(--muted); }
+
+        /* Availability slots list */
+        .st-avail-slot {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 11px 14px; background: var(--latte-soft);
+            border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px;
+        }
+        .st-avail-slot-day { font-size: 13.5px; font-weight: 600; color: var(--espresso); }
+        .st-avail-slot-time { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+        .st-avail-add {
+            background: var(--latte-soft); border: 1.5px dashed var(--border);
+            border-radius: 12px; padding: 16px 18px; margin-top: 4px;
+        }
+        .st-avail-add-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+        .st-avail-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: flex-end; }
+
+        /* Danger zone */
+        .st-danger-card {
+            background: var(--card);
+            border: 1.5px solid #f5c6c2;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .st-danger-header {
+            padding: 14px 20px;
+            background: #fdecea;
+            border-bottom: 1px solid #f5c6c2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .st-danger-header-title { font-size: 14.5px; font-weight: 600; color: var(--danger); }
+        .st-danger-header-desc { font-size: 12px; color: #a93226; margin-top: 1px; }
+        .st-danger-body { padding: 0 20px; }
+        .st-danger-item {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 16px; padding: 16px 0; border-bottom: 1px solid #f5c6c2;
+        }
+        .st-danger-item:last-child { border-bottom: none; }
+        .st-danger-label { font-size: 13.5px; font-weight: 600; color: var(--espresso); margin-bottom: 3px; }
+        .st-danger-desc { font-size: 12px; color: var(--muted); max-width: 360px; line-height: 1.45; }
+
+        /* Buttons */
+        .st-btn-primary {
+            padding: 9px 20px; background: var(--espresso); color: var(--cream);
+            border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+        }
+        .st-btn-primary:hover { background: var(--brown); }
+        .st-btn-secondary {
+            padding: 9px 18px; background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 9px; font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .15s;
+        }
+        .st-btn-secondary:hover { border-color: var(--caramel); color: var(--caramel); }
+        .st-btn-danger {
+            padding: 8px 15px; background: white; border: 1.5px solid #f5c6c2;
+            border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+            font-weight: 500; color: var(--danger); cursor: pointer; transition: all .15s;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .st-btn-danger:hover { background: #fdecea; border-color: var(--danger); }
+
+        /* Saved toast */
+        .st-toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: var(--espresso); color: var(--cream);
+            padding: 12px 20px; border-radius: 12px;
+            font-size: 13.5px; font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 8px 24px rgba(28,18,8,.25);
+            transform: translateY(80px); opacity: 0;
+            transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+            z-index: 9999; pointer-events: none;
+        }
+        .st-toast.show { transform: translateY(0); opacity: 1; }
+
+        /* Appearance theme cards */
+        .st-theme-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .st-theme-option {
+            border: 1.5px solid var(--border); border-radius: 12px;
+            padding: 14px 18px; background: var(--latte-soft);
+            text-align: center; min-width: 105px; cursor: pointer;
+            transition: border-color .15s;
+        }
+        .st-theme-option.selected { border-color: var(--caramel); }
+        .st-theme-icon { font-size: 22px; margin-bottom: 6px; }
+        .st-theme-label { font-size: 13px; font-weight: 600; color: var(--muted); }
+        .st-theme-label.active-theme { color: var(--caramel); }
+        .st-theme-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        @media (max-width: 900px) { .st-layout { grid-template-columns: 1fr; } .st-nav { display: none; } }
+        @media (max-width: 640px) { .st-content { padding: 24px 18px 60px; } .st-form-row { grid-template-columns: 1fr; } .st-avail-row { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
@@ -6467,6 +6836,541 @@
         </div>
     </div>
 
+    <!-- Settings View -->
+    <div id="settingsView" class="content-view">
+        <div class="st-layout">
+
+            <!-- Inner Settings Nav -->
+            <nav class="st-nav">
+                <div class="st-nav-header">
+                    <div class="st-nav-title">Settings</div>
+                    <div class="st-nav-sub">Manage your account</div>
+                </div>
+                <button class="st-nav-item active" onclick="switchStSection(this,'st-profile')">
+                    <span class="st-nav-icon">👤</span> Profile
+                </button>
+                <button class="st-nav-item" onclick="switchStSection(this,'st-account')">
+                    <span class="st-nav-icon">🔑</span> Account &amp; Security
+                </button>
+                <button class="st-nav-item" onclick="switchStSection(this,'st-notifications')">
+                    <span class="st-nav-icon">🔔</span> Notifications
+                </button>
+                <button class="st-nav-item" onclick="switchStSection(this,'st-privacy')">
+                    <span class="st-nav-icon">🛡️</span> Privacy
+                </button>
+                <button class="st-nav-item" onclick="switchStSection(this,'st-availability')">
+                    <span class="st-nav-icon">📅</span> Availability
+                </button>
+                <button class="st-nav-item" onclick="switchStSection(this,'st-appearance')">
+                    <span class="st-nav-icon">🎨</span> Appearance
+                </button>
+                <div class="st-nav-divider"></div>
+                <button class="st-nav-item st-nav-danger" onclick="switchStSection(this,'st-danger')">
+                    <span class="st-nav-icon">⚠️</span> Danger Zone
+                </button>
+            </nav>
+
+            <!-- Settings Content -->
+            <div class="st-content">
+
+                <!-- ── PROFILE ── -->
+                <div class="st-section active" id="st-profile">
+                    <div>
+                        <div class="st-eyebrow">Who you are</div>
+                        <h1 class="st-title">Your <em>Profile</em></h1>
+                        <p class="st-desc">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
+                    </div>
+
+                    <!-- Avatar -->
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div>
+                                <div class="st-card-title">Profile Photo</div>
+                                <div class="st-card-sub">JPG or PNG, max 5 MB</div>
+                            </div>
+                        </div>
+                        <div class="st-card-body">
+                            <div class="st-avatar-wrap">
+                                <div class="st-avatar" id="stAvatarPreview">
+                                    <span id="stAvatarInitials">?</span>
+                                    <div class="st-avatar-overlay">📷</div>
+                                    <input type="file" id="stAvatarFile" accept="image/*" style="display:none;" onchange="uploadStAvatar(this)">
+                                </div>
+                                <div>
+                                    <div class="st-avatar-info-name" id="stAvatarName">—</div>
+                                    <div class="st-avatar-info-sub" id="stAvatarSub">—</div>
+                                    <button class="st-btn-upload" onclick="document.getElementById('stAvatarFile').click()">📁 Upload new photo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Info -->
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Basic Info</div></div>
+                        <div class="st-card-body">
+                            <div class="st-form-row">
+                                <div class="st-form-group">
+                                    <label class="st-label">First Name</label>
+                                    <input type="text" id="stFirstName" class="st-input">
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Last Name</label>
+                                    <input type="text" id="stLastName" class="st-input">
+                                </div>
+                            </div>
+                            <div class="st-form-row">
+                                <div class="st-form-group">
+                                    <label class="st-label">Current Status</label>
+                                    <select id="stStatus" class="st-input">
+                                        <option value="Freshman">Freshman</option>
+                                        <option value="Sophomore">Sophomore</option>
+                                        <option value="Junior">Junior</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="Recent Grad">Recent Grad</option>
+                                        <option value="Alumni">Alumni</option>
+                                        <option value="Graduate Student">Graduate Student</option>
+                                    </select>
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Graduation Year</label>
+                                    <select id="stGradYear" class="st-input">
+                                        <option>2025</option><option>2026</option><option>2027</option>
+                                        <option>2028</option><option>2029</option><option>2030</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">Bio</label>
+                                <textarea id="stBio" class="st-input" placeholder="Tell people a little about yourself…"></textarea>
+                                <div class="st-hint">A genuine bio gets more chats than a resume bullet.</div>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-secondary" onclick="renderSettingsView()">Discard</button>
+                            <button class="st-btn-primary" onclick="saveStBasic()">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <!-- Academic & Career -->
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Academic &amp; Career</div></div>
+                        <div class="st-card-body">
+                            <div class="st-form-row">
+                                <div class="st-form-group">
+                                    <label class="st-label">Major / Field</label>
+                                    <select id="stIndustry" class="st-input">
+                                        <option value="Business/Finance">Business / Finance</option>
+                                        <option value="Computer Science/Tech">Computer Science / Tech</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Pre-Med/Healthcare">Pre-Med / Healthcare</option>
+                                        <option value="Liberal Arts/Humanities">Liberal Arts / Humanities</option>
+                                        <option value="Undecided/Exploring">Undecided / Exploring</option>
+                                    </select>
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Role / Title</label>
+                                    <input type="text" id="stRole" class="st-input" placeholder="e.g. Finance Intern">
+                                </div>
+                            </div>
+                            <div class="st-form-row">
+                                <div class="st-form-group">
+                                    <label class="st-label">Company / School</label>
+                                    <input type="text" id="stCompany" class="st-input" placeholder="e.g. Rowan University">
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Location</label>
+                                    <input type="text" id="stLocation" class="st-input" placeholder="e.g. Glassboro, NJ">
+                                </div>
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">Career Goals</label>
+                                <textarea id="stGoals" class="st-input" style="min-height:70px;" placeholder="Where do you want to go?"></textarea>
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">Interests &amp; Passions</label>
+                                <div class="st-tags-wrap" id="stInterestTags" onclick="document.getElementById('stInterestInput').focus()">
+                                    <input id="stInterestInput" class="st-tags-input" placeholder="Type and press Enter…" onkeydown="handleStTag(event,'stInterestTags','stInterestInput')">
+                                </div>
+                                <div class="st-hint">Press Enter or comma to add a tag.</div>
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">Resume</label>
+                                <button class="st-btn-upload" onclick="document.getElementById('stResumeFile').click()">📄 Upload Resume (PDF, max 10 MB)</button>
+                                <input type="file" id="stResumeFile" accept=".pdf" style="display:none;" onchange="uploadStResume(this)">
+                                <div class="st-hint" id="stResumeHint"></div>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-secondary" onclick="renderSettingsView()">Discard</button>
+                            <button class="st-btn-primary" onclick="saveStCareer()">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── ACCOUNT & SECURITY ── -->
+                <div class="st-section" id="st-account">
+                    <div>
+                        <div class="st-eyebrow">Your credentials</div>
+                        <h1 class="st-title">Account &amp; <em>Security</em></h1>
+                        <p class="st-desc">Keep your account secure and up to date.</p>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Email Address</div></div>
+                        <div class="st-card-body">
+                            <div class="st-form-group">
+                                <label class="st-label">Current Email</label>
+                                <input type="email" id="stCurrentEmail" class="st-input" readonly style="opacity:.65; cursor:default;">
+                                <div class="st-hint">Must be a Rowan email address.</div>
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">New Email</label>
+                                <input type="email" id="stNewEmail" class="st-input" placeholder="new@rowan.edu">
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-secondary" onclick="document.getElementById('stNewEmail').value=''">Cancel</button>
+                            <button class="st-btn-primary" onclick="saveStEmail()">Update Email</button>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Change Password</div></div>
+                        <div class="st-card-body">
+                            <div class="st-form-group">
+                                <label class="st-label">New Password</label>
+                                <input type="password" id="stNewPassword" class="st-input" placeholder="Min 8 characters">
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">Confirm New Password</label>
+                                <input type="password" id="stConfirmPassword" class="st-input" placeholder="Repeat new password">
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-secondary" onclick="document.getElementById('stNewPassword').value='';document.getElementById('stConfirmPassword').value=''">Cancel</button>
+                            <button class="st-btn-primary" onclick="saveStPassword()">Update Password</button>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Security Overview</div></div>
+                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
+                            <div class="st-sec-item">
+                                <div class="st-sec-icon green">✉️</div>
+                                <div class="st-sec-info">
+                                    <div class="st-sec-title">Email Verified</div>
+                                    <div class="st-sec-desc" id="stVerifiedEmail">—</div>
+                                </div>
+                                <span class="st-sec-badge ok">Verified</span>
+                            </div>
+                            <div class="st-sec-item">
+                                <div class="st-sec-icon orange">📱</div>
+                                <div class="st-sec-info">
+                                    <div class="st-sec-title">Two-Factor Authentication</div>
+                                    <div class="st-sec-desc">Add an extra layer of security to your account.</div>
+                                </div>
+                                <span class="st-sec-badge off">Coming soon</span>
+                            </div>
+                            <div class="st-sec-item">
+                                <div class="st-sec-icon blue">🖥️</div>
+                                <div class="st-sec-info">
+                                    <div class="st-sec-title">Active Sessions</div>
+                                    <div class="st-sec-desc">1 active session on this device.</div>
+                                </div>
+                                <button class="st-btn-danger" onclick="handleLogout()">Sign out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── NOTIFICATIONS ── -->
+                <div class="st-section" id="st-notifications">
+                    <div>
+                        <div class="st-eyebrow">Stay in the loop</div>
+                        <h1 class="st-title">Notification <em>Preferences</em></h1>
+                        <p class="st-desc">Choose when and how First Sip reaches out to you.</p>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div>
+                                <div class="st-card-title">Email Notifications</div>
+                                <div class="st-card-sub" id="stNotifEmailSub">—</div>
+                            </div>
+                        </div>
+                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">New connection requests</div><div class="st-toggle-desc">When someone sends you a connection request.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfConnReq" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Chat requests</div><div class="st-toggle-desc">When someone wants to schedule a coffee chat with you.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfChatReq" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Chat reminders</div><div class="st-toggle-desc">A reminder 1 hour before your scheduled coffee chat.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfReminder" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">New messages</div><div class="st-toggle-desc">When you receive a direct message from a connection.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfMessages" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Group activity</div><div class="st-toggle-desc">New posts and announcements in groups you've joined.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfGroups"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Weekly digest</div><div class="st-toggle-desc">A Sunday summary of who's active and who you should meet.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfDigest" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Notification preferences saved!')">Save Preferences</button>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">In-App Notifications</div></div>
+                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Connection accepted</div><div class="st-toggle-desc">When someone accepts your connection request.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfConnAccepted" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">New match suggestions</div><div class="st-toggle-desc">When new people matching your profile join First Sip.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfMatches" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Chat reviews received</div><div class="st-toggle-desc">When someone leaves a review after your coffee chat.</div></div>
+                                <label class="st-toggle"><input type="checkbox" id="ntfReviews" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Notification preferences saved!')">Save Preferences</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PRIVACY ── -->
+                <div class="st-section" id="st-privacy">
+                    <div>
+                        <div class="st-eyebrow">Your control</div>
+                        <h1 class="st-title">Privacy <em>Settings</em></h1>
+                        <p class="st-desc">Control who can see your profile and how people can connect with you.</p>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Profile Visibility</div></div>
+                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
+                            <div class="st-priv-row">
+                                <div><div class="st-priv-label">Who can see your full profile</div><div class="st-priv-desc">Name, bio, interests, and career goals</div></div>
+                                <select class="st-priv-select"><option selected>All Rowan members</option><option>Connections only</option><option>Nobody</option></select>
+                            </div>
+                            <div class="st-priv-row">
+                                <div><div class="st-priv-label">Who can send you connection requests</div><div class="st-priv-desc">Control who can initiate a connection</div></div>
+                                <select class="st-priv-select"><option selected>Everyone</option><option>Mutual connections</option><option>Nobody</option></select>
+                            </div>
+                            <div class="st-priv-row">
+                                <div><div class="st-priv-label">Who can request a coffee chat</div><div class="st-priv-desc">Direct chat requests without connecting first</div></div>
+                                <select class="st-priv-select"><option>Everyone</option><option selected>Connections only</option><option>Nobody</option></select>
+                            </div>
+                            <div class="st-priv-row">
+                                <div><div class="st-priv-label">Show online status</div><div class="st-priv-desc">Let others see when you're active on First Sip</div></div>
+                                <select class="st-priv-select"><option selected>Connections only</option><option>Everyone</option><option>Nobody</option></select>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Privacy settings saved!')">Save Privacy Settings</button>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Discovery &amp; Matching</div></div>
+                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Appear in Discover</div><div class="st-toggle-desc">Allow other Rowan members to find you on the Discover page.</div></div>
+                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Show match percentage</div><div class="st-toggle-desc">Display your compatibility score on your profile card.</div></div>
+                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Include in alumni recommendations</div><div class="st-toggle-desc">Let alumni find you when they filter by your major or career goals.</div></div>
+                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Privacy settings saved!')">Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── AVAILABILITY ── -->
+                <div class="st-section" id="st-availability">
+                    <div>
+                        <div class="st-eyebrow">Your schedule</div>
+                        <h1 class="st-title">Chat <em>Availability</em></h1>
+                        <p class="st-desc">Let people know when you're open for coffee chats.</p>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div>
+                                <div class="st-card-title">Weekly Availability</div>
+                                <div class="st-card-sub">Your saved time windows</div>
+                            </div>
+                        </div>
+                        <div class="st-card-body">
+                            <div id="stAvailList"></div>
+                            <div class="st-avail-add">
+                                <div class="st-avail-add-title">Add a Time Slot</div>
+                                <div class="st-avail-row">
+                                    <div class="st-form-group">
+                                        <label class="st-label">Day</label>
+                                        <select id="stAvailDay" class="st-input">
+                                            <option value="0">Sunday</option><option value="1">Monday</option>
+                                            <option value="2">Tuesday</option><option value="3">Wednesday</option>
+                                            <option value="4">Thursday</option><option value="5">Friday</option>
+                                            <option value="6">Saturday</option>
+                                        </select>
+                                    </div>
+                                    <div class="st-form-group">
+                                        <label class="st-label">Start</label>
+                                        <input type="time" id="stAvailStart" class="st-input" value="09:00">
+                                    </div>
+                                    <div class="st-form-group">
+                                        <label class="st-label">End</label>
+                                        <input type="time" id="stAvailEnd" class="st-input" value="17:00">
+                                    </div>
+                                    <div class="st-form-group">
+                                        <label class="st-label" style="opacity:0;">Add</label>
+                                        <button class="st-btn-primary" onclick="addStAvailSlot()">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Chat Preferences</div></div>
+                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Open to virtual chats</div><div class="st-toggle-desc">Video calls, Zoom, or phone.</div></div>
+                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Open to in-person chats</div><div class="st-toggle-desc">Campus café or other Rowan locations.</div></div>
+                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                            <div class="st-toggle-row">
+                                <div><div class="st-toggle-label">Limit to 2 chats per week</div><div class="st-toggle-desc">Automatically pause new requests once you hit your weekly limit.</div></div>
+                                <label class="st-toggle"><input type="checkbox"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Chat preferences saved!')">Save Preferences</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── APPEARANCE ── -->
+                <div class="st-section" id="st-appearance">
+                    <div>
+                        <div class="st-eyebrow">Make it yours</div>
+                        <h1 class="st-title">Appearance &amp; <em>Display</em></h1>
+                        <p class="st-desc">Customize how First Sip looks and feels for you.</p>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Theme</div></div>
+                        <div class="st-card-body">
+                            <div class="st-form-group">
+                                <label class="st-label">Color Mode</label>
+                                <div class="st-theme-grid">
+                                    <div class="st-theme-option selected">
+                                        <div class="st-theme-icon">☀️</div>
+                                        <div class="st-theme-label active-theme">Light</div>
+                                        <div class="st-theme-note">Current</div>
+                                    </div>
+                                    <div class="st-theme-option">
+                                        <div class="st-theme-icon">🌙</div>
+                                        <div class="st-theme-label">Dark</div>
+                                        <div class="st-theme-note">Coming soon</div>
+                                    </div>
+                                    <div class="st-theme-option">
+                                        <div class="st-theme-icon">💻</div>
+                                        <div class="st-theme-label">System</div>
+                                        <div class="st-theme-note">Coming soon</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header"><div class="st-card-title">Language &amp; Region</div></div>
+                        <div class="st-card-body">
+                            <div class="st-form-row">
+                                <div class="st-form-group">
+                                    <label class="st-label">Language</label>
+                                    <select class="st-input"><option selected>English (US)</option><option>Español</option><option>Português</option></select>
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Time Zone</label>
+                                    <select class="st-input"><option selected>Eastern Time (ET)</option><option>Central Time (CT)</option><option>Pacific Time (PT)</option></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Preferences saved!')">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── DANGER ZONE ── -->
+                <div class="st-section" id="st-danger">
+                    <div>
+                        <div class="st-eyebrow">Permanent actions</div>
+                        <h1 class="st-title danger">Danger <em>Zone</em></h1>
+                        <p class="st-desc">These actions are irreversible. Please read carefully before proceeding.</p>
+                    </div>
+
+                    <div class="st-danger-card">
+                        <div class="st-danger-header">
+                            <span style="font-size:18px;">⚠️</span>
+                            <div>
+                                <div class="st-danger-header-title">Irreversible Actions</div>
+                                <div class="st-danger-header-desc">These cannot be undone. Take a breath first.</div>
+                            </div>
+                        </div>
+                        <div class="st-danger-body">
+                            <div class="st-danger-item">
+                                <div>
+                                    <div class="st-danger-label">Sign Out of All Devices</div>
+                                    <div class="st-danger-desc">End all active sessions. You'll need to sign in again on every device.</div>
+                                </div>
+                                <button class="st-btn-danger" onclick="handleLogout()">Sign Out All</button>
+                            </div>
+                            <div class="st-danger-item">
+                                <div>
+                                    <div class="st-danger-label">Delete Your Account</div>
+                                    <div class="st-danger-desc">Permanently remove your profile, connections, and all data from First Sip. This cannot be undone.</div>
+                                </div>
+                                <button class="st-btn-danger" style="border-color:var(--danger);color:var(--danger);" onclick="confirmDeleteAccount()">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /st-content -->
+        </div><!-- /st-layout -->
+
+        <!-- Saved Toast -->
+        <div class="st-toast" id="stToast">✓ Changes saved</div>
+    </div>
+
     <!-- Schedule Chat Modal -->
     <div id="scheduleChatModal" class="modal">
         <div class="modal-content" style="max-width:560px;">
@@ -7487,6 +8391,12 @@
                 profileBtn.innerHTML = `<span class="nav-icon">👤</span>My Profile`;
                 profileBtn.onclick = () => switchView('myProfileView');
                 navMenu.appendChild(profileBtn);
+
+                const settingsBtn = document.createElement('button');
+                settingsBtn.className = 'nav-item';
+                settingsBtn.innerHTML = `<span class="nav-icon">⚙️</span>Settings`;
+                settingsBtn.onclick = () => switchView('settingsView');
+                navMenu.appendChild(settingsBtn);
             } else {
                 // Hide topbar, sidebar, bell
                 document.body.classList.remove('app-mode');
@@ -7549,6 +8459,7 @@
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
             if (viewId === 'myProfileView') renderMyProfile();
+            if (viewId === 'settingsView') renderSettingsView();
             if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
 
             updateNavActive(viewId);
@@ -11076,6 +11987,296 @@
         }
 
         init();
+
+        // ===================================================
+        //  SETTINGS PAGE
+        // ===================================================
+
+        function renderSettingsView() {
+            if (!currentUser) return;
+
+            // Avatar
+            const avatarEl = document.getElementById('stAvatarPreview');
+            const initialsEl = document.getElementById('stAvatarInitials');
+            if (currentUser.profilePicture) {
+                initialsEl.style.display = 'none';
+                const img = avatarEl.querySelector('img') || document.createElement('img');
+                img.src = currentUser.profilePicture;
+                img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;position:absolute;inset:0;';
+                if (!avatarEl.querySelector('img')) avatarEl.insertBefore(img, avatarEl.firstChild);
+            } else {
+                initialsEl.style.display = '';
+                initialsEl.textContent = ((currentUser.firstName || '?')[0] + (currentUser.lastName || '?')[0]).toUpperCase();
+                const img = avatarEl.querySelector('img');
+                if (img) img.remove();
+            }
+            const nameEl = document.getElementById('stAvatarName');
+            const subEl  = document.getElementById('stAvatarSub');
+            if (nameEl) nameEl.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            if (subEl)  subEl.textContent  = [currentUser.role, currentUser.company].filter(Boolean).join(' · ') || 'Rowan University';
+
+            // Basic Info
+            const fv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            fv('stFirstName', currentUser.firstName);
+            fv('stLastName',  currentUser.lastName);
+            fv('stBio',       currentUser.bio);
+            fv('stStatus',    currentUser.status);
+            fv('stGradYear',  currentUser.gradYear);
+
+            // Career
+            fv('stIndustry', currentUser.industry);
+            fv('stRole',     currentUser.role);
+            fv('stCompany',  currentUser.company);
+            fv('stLocation', currentUser.location);
+            fv('stGoals',    currentUser.goals);
+
+            // Resume hint
+            const resumeHint = document.getElementById('stResumeHint');
+            if (resumeHint) resumeHint.textContent = currentUser.resume ? 'Resume uploaded ✓' : '';
+
+            // Interests tags
+            const tagsWrap = document.getElementById('stInterestTags');
+            if (tagsWrap) {
+                const input = document.getElementById('stInterestInput');
+                tagsWrap.innerHTML = '';
+                tagsWrap.appendChild(input);
+                (currentUser.interests || []).forEach(tag => {
+                    const chip = document.createElement('span');
+                    chip.className = 'st-tag-chip';
+                    chip.innerHTML = `${tag} <button onclick="removeStTag(this)" type="button">×</button>`;
+                    tagsWrap.insertBefore(chip, input);
+                });
+            }
+
+            // Account: email
+            const emailEl = document.getElementById('stCurrentEmail');
+            if (emailEl) emailEl.value = currentUser.email || '';
+            const verifiedEl = document.getElementById('stVerifiedEmail');
+            if (verifiedEl) verifiedEl.textContent = currentUser.email || '—';
+
+            // Notifications email sub
+            const notifSub = document.getElementById('stNotifEmailSub');
+            if (notifSub) notifSub.textContent = `Sent to ${currentUser.email || '—'}`;
+
+            // Load availability
+            renderStAvailability();
+        }
+
+        function switchStSection(btn, sectionId) {
+            document.querySelectorAll('.st-nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.st-section').forEach(s => s.classList.remove('active'));
+            const sec = document.getElementById(sectionId);
+            if (sec) sec.classList.add('active');
+            if (sectionId === 'st-availability') renderStAvailability();
+        }
+
+        async function saveStBasic() {
+            if (!currentUser) return;
+            const firstName  = document.getElementById('stFirstName').value.trim();
+            const lastName   = document.getElementById('stLastName').value.trim();
+            const bio        = document.getElementById('stBio').value.trim();
+            const status     = document.getElementById('stStatus').value;
+            const gradYear   = document.getElementById('stGradYear').value;
+            if (!firstName || !lastName) { showStToast('Please enter your name.'); return; }
+            try {
+                const { error } = await supabaseClient.from('profiles').update({
+                    first_name: firstName, last_name: lastName, bio,
+                    status, grad_year: gradYear, updated_at: new Date().toISOString()
+                }).eq('id', currentUser.id);
+                if (error) throw error;
+                currentUser.firstName = firstName;
+                currentUser.lastName  = lastName;
+                currentUser.bio       = bio;
+                currentUser.status    = status;
+                currentUser.gradYear  = gradYear;
+                renderSettingsView();
+                showStToast('Profile saved!');
+            } catch (e) { showStToast('Error: ' + e.message); }
+        }
+
+        async function saveStCareer() {
+            if (!currentUser) return;
+            const industry = document.getElementById('stIndustry').value;
+            const role     = document.getElementById('stRole').value.trim();
+            const company  = document.getElementById('stCompany').value.trim();
+            const location = document.getElementById('stLocation').value.trim();
+            const goals    = document.getElementById('stGoals').value.trim();
+            // Collect tag chips
+            const chips = document.querySelectorAll('#stInterestTags .st-tag-chip');
+            const interests = Array.from(chips).map(c => c.textContent.replace('×','').trim());
+            try {
+                const { error } = await supabaseClient.from('profiles').update({
+                    industry, role, company, location, goals, interests,
+                    updated_at: new Date().toISOString()
+                }).eq('id', currentUser.id);
+                if (error) throw error;
+                currentUser.industry  = industry;
+                currentUser.role      = role;
+                currentUser.company   = company;
+                currentUser.location  = location;
+                currentUser.goals     = goals;
+                currentUser.interests = interests;
+                showStToast('Career info saved!');
+            } catch (e) { showStToast('Error: ' + e.message); }
+        }
+
+        async function saveStEmail() {
+            const newEmail = document.getElementById('stNewEmail').value.trim();
+            if (!newEmail) { showStToast('Please enter a new email.'); return; }
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
+                if (error) throw error;
+                showStToast('Confirmation sent — check your inbox!');
+                document.getElementById('stNewEmail').value = '';
+            } catch (e) { showStToast('Error: ' + e.message); }
+        }
+
+        async function saveStPassword() {
+            const pw  = document.getElementById('stNewPassword').value;
+            const pw2 = document.getElementById('stConfirmPassword').value;
+            if (!pw || pw.length < 8) { showStToast('Password must be at least 8 characters.'); return; }
+            if (pw !== pw2) { showStToast('Passwords do not match.'); return; }
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: pw });
+                if (error) throw error;
+                document.getElementById('stNewPassword').value = '';
+                document.getElementById('stConfirmPassword').value = '';
+                showStToast('Password updated!');
+            } catch (e) { showStToast('Error: ' + e.message); }
+        }
+
+        async function renderStAvailability() {
+            const container = document.getElementById('stAvailList');
+            if (!container || !currentUser) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('availability').select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('day_of_week').order('start_time');
+                if (error) throw error;
+                const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;">No availability set yet — add your first time slot below.</div>`;
+                    return;
+                }
+                container.innerHTML = data.map(slot => `
+                    <div class="st-avail-slot">
+                        <div>
+                            <div class="st-avail-slot-day">${days[slot.day_of_week]}</div>
+                            <div class="st-avail-slot-time">${slot.start_time} – ${slot.end_time}</div>
+                        </div>
+                        <button class="st-btn-danger" onclick="deleteStAvailSlot('${slot.id}')">Remove</button>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function addStAvailSlot() {
+            if (!currentUser) return;
+            const day   = document.getElementById('stAvailDay').value;
+            const start = document.getElementById('stAvailStart').value;
+            const end   = document.getElementById('stAvailEnd').value;
+            if (!start || !end || start >= end) { showStToast('Please set a valid start and end time.'); return; }
+            try {
+                const { error } = await supabaseClient.from('availability').insert([{
+                    user_id: currentUser.id, day_of_week: parseInt(day),
+                    start_time: start, end_time: end, is_available: true
+                }]);
+                if (error) throw error;
+                await renderStAvailability();
+                showStToast('Availability added!');
+            } catch (e) { showStToast('Error: ' + e.message); }
+        }
+
+        async function deleteStAvailSlot(slotId) {
+            if (!confirm('Remove this time slot?')) return;
+            try {
+                const { error } = await supabaseClient.from('availability').delete().eq('id', slotId);
+                if (error) throw error;
+                await renderStAvailability();
+                showStToast('Slot removed.');
+            } catch (e) { showStToast('Error: ' + e.message); }
+        }
+
+        async function uploadStAvatar(input) {
+            if (!input.files || !input.files[0] || !currentUser) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) { showStToast('Image must be under 5 MB.'); return; }
+            try {
+                const ext  = file.name.split('.').pop();
+                const path = `avatars/${currentUser.id}.${ext}`;
+                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(path, file, { upsert: true });
+                if (upErr) throw upErr;
+                const { data: urlData } = supabaseClient.storage.from('profiles').getPublicUrl(path);
+                const publicUrl = urlData.publicUrl;
+                await supabaseClient.from('profiles').update({ profile_picture: publicUrl }).eq('id', currentUser.id);
+                currentUser.profilePicture = publicUrl;
+                renderSettingsView();
+                showStToast('Photo updated!');
+            } catch (e) { showStToast('Upload failed: ' + e.message); }
+        }
+
+        async function uploadStResume(input) {
+            if (!input.files || !input.files[0] || !currentUser) return;
+            const file = input.files[0];
+            if (file.size > 10 * 1024 * 1024) { showStToast('Resume must be under 10 MB.'); return; }
+            try {
+                const path = `resumes/${currentUser.id}.pdf`;
+                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(path, file, { upsert: true });
+                if (upErr) throw upErr;
+                const { data: urlData } = supabaseClient.storage.from('profiles').getPublicUrl(path);
+                const publicUrl = urlData.publicUrl;
+                await supabaseClient.from('profiles').update({ resume_url: publicUrl }).eq('id', currentUser.id);
+                currentUser.resume = publicUrl;
+                document.getElementById('stResumeHint').textContent = 'Resume uploaded ✓';
+                showStToast('Resume uploaded!');
+            } catch (e) { showStToast('Upload failed: ' + e.message); }
+        }
+
+        function handleStTag(event, wrapperId, inputId) {
+            if (event.key !== 'Enter' && event.key !== ',') return;
+            event.preventDefault();
+            const input = document.getElementById(inputId);
+            const val   = input.value.replace(',','').trim();
+            if (!val) return;
+            const wrap  = document.getElementById(wrapperId);
+            const chip  = document.createElement('span');
+            chip.className = 'st-tag-chip';
+            chip.innerHTML = `${val} <button onclick="removeStTag(this)" type="button">×</button>`;
+            wrap.insertBefore(chip, input);
+            input.value = '';
+        }
+
+        function removeStTag(btn) {
+            btn.closest('.st-tag-chip').remove();
+        }
+
+        function confirmDeleteAccount() {
+            if (!confirm('Are you absolutely sure? This will permanently delete your account and all your data. This cannot be undone.')) return;
+            if (!confirm('Last chance — this is permanent. Delete my account?')) return;
+            deleteStAccount();
+        }
+
+        async function deleteStAccount() {
+            try {
+                // Delete profile (cascade will handle related data if RLS allows)
+                await supabaseClient.from('profiles').delete().eq('id', currentUser.id);
+                await supabaseClient.auth.signOut();
+                location.reload();
+            } catch (e) { showStToast('Could not delete account: ' + e.message); }
+        }
+
+        let stToastTimer = null;
+        function showStToast(msg) {
+            const toast = document.getElementById('stToast');
+            if (!toast) return;
+            toast.textContent = '✓ ' + msg;
+            toast.classList.add('show');
+            if (stToastTimer) clearTimeout(stToastTimer);
+            stToastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
     </script>
 
     <!-- Notification Panel -->
