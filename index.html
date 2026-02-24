@@ -6384,25 +6384,39 @@
         // Discovery
         function renderDiscovery() {
             // Render smart recommendations (isolated — never blocks main grid)
-            const recSection = document.getElementById('recommendationsSection');
-            if (recSection) {
-                try {
-                    recSection.innerHTML = renderRecommendations();
-                } catch (e) {
-                    console.warn('Recommendations render error:', e);
-                    recSection.innerHTML = '';
-                }
-            }
-
             const searchName = document.getElementById('searchName')?.value.toLowerCase() || '';
             const filterIndustry = document.getElementById('filterIndustry')?.value || '';
             const searchLocation = document.getElementById('searchLocation')?.value.toLowerCase() || '';
             const searchInterests = document.getElementById('searchInterests')?.value.toLowerCase() || '';
             const searchCompany = document.getElementById('searchCompany')?.value.toLowerCase() || '';
 
+            const filtersActive = searchName || filterIndustry || searchLocation || searchInterests || searchCompany;
+
+            // Render recommendations (only when no filters active)
+            const recSection = document.getElementById('recommendationsSection');
+            if (recSection) {
+                try {
+                    recSection.innerHTML = filtersActive ? '' : renderRecommendations();
+                } catch (e) {
+                    console.warn('Recommendations render error:', e);
+                    recSection.innerHTML = '';
+                }
+            }
+
+            // Collect recommended user IDs so we don't show them again in the main grid
+            let recommendedIds = new Set();
+            if (!filtersActive) {
+                try {
+                    getSmartRecommendations().slice(0, 3).forEach(item => recommendedIds.add(item.user.id));
+                } catch (e) { /* ignore */ }
+            }
+
             let filtered = users.filter(u => {
                 // Never show self
                 if (u.id === currentUser.id) return false;
+
+                // Hide users already shown in the recommendations section
+                if (recommendedIds.has(u.id)) return false;
 
                 // Name match
                 const matchName = !searchName ||
@@ -6642,8 +6656,25 @@
                     renderDiscovery();
                 }
             } catch (err) {
-                console.error('Error sending request:', err);
-                showToast('Failed to send request: ' + err.message, 'error');
+                // Duplicate key = request already exists in DB but local state was stale
+                if (err.code === '23505' || (err.message && err.message.includes('duplicate key'))) {
+                    // Re-sync connection state from DB so UI reflects reality
+                    try {
+                        const { data: connsData } = await supabaseClient
+                            .from('connections')
+                            .select('*')
+                            .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
+                        const allConns = connsData || [];
+                        connections = allConns.filter(c => c.status === 'accepted');
+                        pendingRequests = allConns.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
+                        sentRequests = allConns.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
+                    } catch (e) { /* ignore refresh error */ }
+                    showToast('Request already sent!', 'info');
+                    renderDiscovery();
+                } else {
+                    console.error('Error sending request:', err);
+                    showToast('Failed to send request: ' + err.message, 'error');
+                }
             }
         }
 
