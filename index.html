@@ -5630,12 +5630,52 @@
         .st-theme-label.active-theme { color: var(--caramel); }
         .st-theme-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
+        /* Mobile tab bar for settings (replaces sidebar nav) */
+        .st-mobile-tabs {
+            display: none;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 16px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            gap: 6px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            flex-shrink: 0;
+        }
+        .st-mobile-tabs::-webkit-scrollbar { display: none; }
+        .st-mobile-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--muted);
+            background: var(--latte-soft);
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: 'DM Sans', sans-serif;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+        .st-mobile-tab.active {
+            background: var(--caramel);
+            color: white;
+            border-color: var(--caramel);
+            font-weight: 600;
+        }
+        .st-mobile-tab.danger { color: var(--danger); }
+        .st-mobile-tab.danger.active { background: var(--danger); border-color: var(--danger); color: white; }
+
         @media (max-width: 900px) {
-            .st-layout { grid-template-columns: 1fr; }
+            .st-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; }
             .st-nav { display: none; }
-            .main-content:has(#settingsView.active) { overflow-y: auto; }
-            #settingsView.active { height: auto; overflow-y: auto; }
-            .st-content { height: auto; overflow-y: visible; }
+            .st-mobile-tabs { display: flex; }
+            #settingsView.active { display: flex; flex-direction: column; height: 100%; }
+            .main-content:has(#settingsView.active) { overflow-y: hidden; }
+            .st-content { flex: 1; overflow-y: auto; height: auto; min-height: 0; }
         }
         @media (max-width: 640px) {
             .st-content { padding: 20px 16px 60px; }
@@ -6855,6 +6895,18 @@
 
     <!-- Settings View -->
     <div id="settingsView" class="content-view">
+
+        <!-- Mobile horizontal tab bar (visible on screens < 900px) -->
+        <div class="st-mobile-tabs" id="stMobileTabs">
+            <button class="st-mobile-tab active" onclick="switchStSection(this,'st-profile','stMobileTabs')">👤 Profile</button>
+            <button class="st-mobile-tab" onclick="switchStSection(this,'st-account','stMobileTabs')">🔑 Account</button>
+            <button class="st-mobile-tab" onclick="switchStSection(this,'st-notifications','stMobileTabs')">🔔 Notifications</button>
+            <button class="st-mobile-tab" onclick="switchStSection(this,'st-privacy','stMobileTabs')">🛡️ Privacy</button>
+            <button class="st-mobile-tab" onclick="switchStSection(this,'st-availability','stMobileTabs')">📅 Availability</button>
+            <button class="st-mobile-tab" onclick="switchStSection(this,'st-appearance','stMobileTabs')">🎨 Appearance</button>
+            <button class="st-mobile-tab danger" onclick="switchStSection(this,'st-danger','stMobileTabs')">⚠️ Danger</button>
+        </div>
+
         <div class="st-layout">
 
             <!-- Inner Settings Nav -->
@@ -12091,9 +12143,20 @@
             renderStAvailability();
         }
 
-        function switchStSection(btn, sectionId) {
+        function switchStSection(btn, sectionId, navContainerId) {
+            // Sync sidebar nav items
             document.querySelectorAll('.st-nav-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            // Sync mobile tab buttons
+            document.querySelectorAll('.st-mobile-tab').forEach(b => b.classList.remove('active'));
+            // Mark the clicked button active (works for either nav type)
+            if (btn) btn.classList.add('active');
+            // Also sync the matching button in the other nav
+            const allNavBtns = document.querySelectorAll('.st-nav-item, .st-mobile-tab');
+            allNavBtns.forEach(b => {
+                const onclickAttr = b.getAttribute('onclick') || '';
+                if (onclickAttr.includes("'" + sectionId + "'")) b.classList.add('active');
+            });
+            // Switch section
             document.querySelectorAll('.st-section').forEach(s => s.classList.remove('active'));
             const sec = document.getElementById(sectionId);
             if (sec) sec.classList.add('active');
