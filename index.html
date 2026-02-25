@@ -7896,7 +7896,9 @@
                     company: profile.company,
                     location: profile.location,
                     profilePicture: profile.profile_picture || null,
-                    resume: profile.resume_url || null
+                    resume: profile.resume_url || null,
+                    status: profile.status || '',
+                    gradYear: profile.grad_year || ''
                 };
 
                 // Load user's data
@@ -8055,7 +8057,9 @@
                     company: profile.company,
                     location: profile.location,
                     profilePicture: profile.profile_picture || null,
-                    resume: profile.resume_url || null
+                    resume: profile.resume_url || null,
+                    status: profile.status || '',
+                    gradYear: profile.grad_year || ''
                 };
 
                 document.querySelector('.app-container').classList.remove('sidebar-hidden');
@@ -10713,18 +10717,25 @@
             reader.readAsDataURL(file);
         }
 
-        function openResume(dataUrl) {
-            try {
-                const parts = dataUrl.split(',');
-                const mime = parts[0].split(':')[1].split(';')[0];
-                const binary = atob(parts[1]);
-                const arr = new Uint8Array(binary.length);
-                for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
-                const blob = new Blob([arr], { type: mime });
-                const url = URL.createObjectURL(blob);
+        function openResume(url) {
+            if (!url) return;
+            if (url.startsWith('data:')) {
+                // base64 data URL — decode to blob first (browsers block data: navigation)
+                try {
+                    const parts = url.split(',');
+                    const mime = parts[0].split(':')[1].split(';')[0];
+                    const binary = atob(parts[1]);
+                    const arr = new Uint8Array(binary.length);
+                    for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+                    const blob = new Blob([arr], { type: mime });
+                    const blobUrl = URL.createObjectURL(blob);
+                    window.open(blobUrl, '_blank');
+                } catch (e) {
+                    alert('Could not open resume.');
+                }
+            } else {
+                // Regular public URL
                 window.open(url, '_blank');
-            } catch (e) {
-                alert('Could not open resume. Try downloading it instead.');
             }
         }
 
@@ -11537,13 +11548,13 @@
                 ${currentUser.resume ? `
                 <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);margin-bottom:24px;">
                     <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:16px;">📄 Resume</div>
-                    <a href="${currentUser.resume}" download="${currentUser.firstName}_${currentUser.lastName}_Resume.pdf" class="mp-resume-link" style="display:inline-flex;align-items:center;gap:14px;padding:14px 20px;background:var(--latte-soft);border:1.5px solid var(--latte);border-radius:12px;text-decoration:none;color:var(--espresso);">
+                    <button onclick="openResume(currentUser.resume)" class="mp-resume-link" style="display:inline-flex;align-items:center;gap:14px;padding:14px 20px;background:var(--latte-soft);border:1.5px solid var(--latte);border-radius:12px;color:var(--espresso);cursor:pointer;font-family:'DM Sans',sans-serif;">
                         <span style="font-size:28px;">📄</span>
                         <div>
                             <div style="font-weight:600;font-size:14px;">${currentUser.firstName} ${currentUser.lastName} — Resume</div>
-                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Click to download</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Click to view</div>
                         </div>
-                    </a>
+                    </button>
                 </div>
                 ` : ''}
 
@@ -12217,21 +12228,27 @@
             } catch (e) { showStToast('Upload failed: ' + e.message); }
         }
 
-        async function uploadStResume(input) {
+        function uploadStResume(input) {
             if (!input.files || !input.files[0] || !currentUser) return;
             const file = input.files[0];
             if (file.size > 10 * 1024 * 1024) { showStToast('Resume must be under 10 MB.'); return; }
-            try {
-                const path = `resumes/${currentUser.id}.pdf`;
-                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(path, file, { upsert: true });
-                if (upErr) throw upErr;
-                const { data: urlData } = supabaseClient.storage.from('profiles').getPublicUrl(path);
-                const publicUrl = urlData.publicUrl;
-                await supabaseClient.from('profiles').update({ resume_url: publicUrl }).eq('id', currentUser.id);
-                currentUser.resume = publicUrl;
-                document.getElementById('stResumeHint').textContent = 'Resume uploaded ✓';
-                showStToast('Resume uploaded!');
-            } catch (e) { showStToast('Upload failed: ' + e.message); }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const dataUrl = e.target.result;
+                try {
+                    const { error } = await supabaseClient.from('profiles')
+                        .update({ resume_url: dataUrl, updated_at: new Date().toISOString() })
+                        .eq('id', currentUser.id);
+                    if (error) throw error;
+                    currentUser.resume = dataUrl;
+                    const hint = document.getElementById('stResumeHint');
+                    if (hint) hint.textContent = 'Resume uploaded ✓';
+                    showStToast('Resume uploaded!');
+                } catch (err) {
+                    showStToast('Upload failed: ' + err.message);
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         function handleStTag(event, wrapperId, inputId) {
