@@ -8015,6 +8015,34 @@
                 meetings = meetingsData || [];
             } catch (e) { console.error('loadUserData meetings:', e); }
 
+            // Load persisted notifications from DB
+            try {
+                const { data: notifsData } = await supabaseClient
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(30);
+                if (notifsData && notifsData.length > 0) {
+                    const typeIcon = { connection_request: '🤝', connection_accepted: '🎉', meeting_request: '📅', meeting_response: '☕' };
+                    notifsData.forEach(n => {
+                        const mapped = {
+                            id: 'db-' + n.id,
+                            dbId: n.id,
+                            type: n.type || 'info',
+                            icon: typeIcon[n.type] || '🔔',
+                            text: n.title || '',
+                            time: new Date(n.created_at),
+                            unread: !n.read
+                        };
+                        if (!notifications.find(existing => existing.id === mapped.id)) {
+                            notifications.push(mapped);
+                        }
+                    });
+                    notifications.sort((a, b) => new Date(b.time) - new Date(a.time));
+                }
+            } catch (e) { console.error('loadUserData notifications:', e); }
+
             // Load all other profiles for discovery — most critical
             try {
                 const { data: profilesData, error: profilesError } = await supabaseClient
@@ -8309,6 +8337,55 @@
                 })
                 .subscribe();
             realtimeChannels.push(chMeetingIn);
+
+            // 4. Notifications table — persist and show DB-generated notifications
+            const chNotifs = supabaseClient
+                .channel('notifs-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'notifications',
+                    filter: `user_id=eq.${currentUser.id}`
+                }, (payload) => {
+                    const n = payload.new;
+                    const typeIcon = { connection_request: '🤝', connection_accepted: '🎉', meeting_request: '📅', meeting_response: '☕' };
+                    pushLiveNotification({
+                        id: 'db-' + n.id,
+                        dbId: n.id,
+                        type: n.type || 'info',
+                        icon: typeIcon[n.type] || '🔔',
+                        text: n.title || '',
+                        time: new Date(n.created_at),
+                        unread: true
+                    });
+                })
+                .subscribe();
+            realtimeChannels.push(chNotifs);
+
+            // 5. Meeting updates — organizer learns when their invite is accepted/declined
+            const chMeetingUpdate = supabaseClient
+                .channel('meeting-update-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'UPDATE', schema: 'public', table: 'meetings',
+                    filter: `organizer_id=eq.${currentUser.id}`
+                }, (payload) => {
+                    const updated = payload.new;
+                    const idx = meetings.findIndex(m => m.id === updated.id);
+                    if (idx >= 0) meetings[idx] = updated; else meetings.push(updated);
+                    const partner = users.find(u => u.id === updated.participant_id);
+                    const name = partner ? `${partner.firstName} ${partner.lastName}` : 'Someone';
+                    if (updated.status === 'accepted') {
+                        pushLiveNotification({ id: 'mtg-acc-' + updated.id, type: 'meeting', icon: '🎉',
+                            text: `${name} accepted your coffee chat invite!`, time: new Date(), unread: true });
+                        showToast(`${name} accepted your chat invite! ☕🎉`, 'success');
+                    } else if (updated.status === 'declined') {
+                        pushLiveNotification({ id: 'mtg-dec-' + updated.id, type: 'meeting', icon: '😔',
+                            text: `${name} declined your coffee chat invite.`, time: new Date(), unread: true });
+                        showToast(`${name} declined your chat invite.`, 'info');
+                    }
+                    if (document.getElementById('dashboardView')?.classList.contains('active')) updateDashboard();
+                    renderMeetingCards();
+                })
+                .subscribe();
+            realtimeChannels.push(chMeetingUpdate);
         }
 
         function startPolling() {
@@ -9684,6 +9761,59 @@
             }
         }
 
+        // ── Meeting invite actions ──
+
+        async function acceptMeetingInvite(meetingId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('meetings')
+                    .update({ status: 'accepted' })
+                    .eq('id', meetingId);
+                if (error) throw error;
+                const idx = meetings.findIndex(m => m.id === meetingId);
+                if (idx >= 0) meetings[idx] = { ...meetings[idx], status: 'accepted' };
+                showToast('Chat accepted! ☕', 'success');
+                renderMeetingCards();
+                updateDashboard();
+            } catch (err) {
+                console.error('acceptMeetingInvite:', err);
+                showToast('Failed to accept: ' + err.message, 'error');
+            }
+        }
+
+        async function declineMeetingInvite(meetingId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('meetings')
+                    .update({ status: 'declined' })
+                    .eq('id', meetingId);
+                if (error) throw error;
+                meetings = meetings.filter(m => m.id !== meetingId);
+                showToast('Invite declined.', 'info');
+                renderMeetingCards();
+            } catch (err) {
+                console.error('declineMeetingInvite:', err);
+                showToast('Failed to decline: ' + err.message, 'error');
+            }
+        }
+
+        async function cancelMeetingRequest(meetingId) {
+            if (!confirm('Cancel this chat request?')) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('meetings')
+                    .delete()
+                    .eq('id', meetingId);
+                if (error) throw error;
+                meetings = meetings.filter(m => m.id !== meetingId);
+                showToast('Chat request cancelled.', 'info');
+                renderMeetingCards();
+            } catch (err) {
+                console.error('cancelMeetingRequest:', err);
+                showToast('Failed to cancel: ' + err.message, 'error');
+            }
+        }
+
         // Messages
         async function startMessage(userId) {
             switchView('messagesView');
@@ -9761,7 +9891,7 @@
             const initials    = (pFirst[0]||'') + (pLast[0]||'');
             const role        = partner?.role    || '';
             const company     = partner?.company || '';
-            const topic       = m.topic || '';
+            const topic       = m.description || m.topic || '';
 
             // Date / time
             const dtRaw = m.start_time || m.date;
@@ -9807,12 +9937,19 @@
                         <button class="mc-btn-sm secondary">✉ Message</button>
                     </div>`;
             } else {
-                actionsHTML = `
-                    <div class="mc-card-actions">
-                        <button class="mc-btn-sm primary">✓ Accept</button>
-                        <button class="mc-btn-sm secondary">📅 Propose Time</button>
-                        <button class="mc-btn-sm danger" onclick="event.stopPropagation()">Decline</button>
-                    </div>`;
+                if (isOrganizer) {
+                    actionsHTML = `
+                        <div class="mc-card-actions">
+                            <span style="font-size:12px;color:var(--muted);padding:4px 8px;flex:1;">⏳ Waiting for response…</span>
+                            <button class="mc-btn-sm danger" onclick="event.stopPropagation();cancelMeetingRequest('${m.id}')">Cancel</button>
+                        </div>`;
+                } else {
+                    actionsHTML = `
+                        <div class="mc-card-actions">
+                            <button class="mc-btn-sm primary" onclick="event.stopPropagation();acceptMeetingInvite('${m.id}')">✓ Accept</button>
+                            <button class="mc-btn-sm danger" onclick="event.stopPropagation();declineMeetingInvite('${m.id}')">✗ Decline</button>
+                        </div>`;
+                }
             }
 
             return `
@@ -11835,7 +11972,8 @@
         let notifications = [];
 
         function generateNotifications() {
-            notifications = [];
+            // Keep DB-persisted notifications; rebuild the in-memory generated ones
+            notifications = notifications.filter(n => n.dbId);
             const now = new Date();
 
             // Upcoming meeting reminders
@@ -11899,15 +12037,16 @@
 
         function renderNotifications() {
             const list = document.getElementById('notifList');
-            const badge = document.getElementById('bellBadge');
             if (!list) return;
 
             const unreadCount = notifications.filter(n => n.unread).length;
 
-            if (badge) {
-                badge.textContent = unreadCount;
-                badge.classList.toggle('hidden', unreadCount === 0);
-            }
+            // Update the dot indicator on the bell
+            const dot = document.getElementById('notifDot');
+            if (dot) dot.style.display = unreadCount > 0 ? 'block' : 'none';
+            // Also update bellBadge if it exists
+            const badge = document.getElementById('bellBadge');
+            if (badge) { badge.textContent = unreadCount; badge.classList.toggle('hidden', unreadCount === 0); }
 
             // Shake bell if new notifications
             if (unreadCount > 0) {
@@ -11943,6 +12082,19 @@
             const isOpen = panel.classList.contains('open');
             panel.classList.toggle('open');
             overlay.classList.toggle('open');
+            // When opening: mark all as read locally and in DB
+            if (!isOpen) {
+                const unreadDbIds = notifications.filter(n => n.unread && n.dbId).map(n => n.dbId);
+                notifications.forEach(n => { n.unread = false; });
+                renderNotifications();
+                if (unreadDbIds.length > 0 && currentUser) {
+                    supabaseClient.from('notifications')
+                        .update({ read: true })
+                        .in('id', unreadDbIds)
+                        .eq('user_id', currentUser.id)
+                        .then(({ error }) => { if (error) console.error('mark notifs read:', error); });
+                }
+            }
         }
 
         function markNotificationRead(id) {
