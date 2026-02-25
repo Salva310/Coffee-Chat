@@ -5259,13 +5259,21 @@
         /* ===================================================
            SETTINGS VIEW  (st-*)
            =================================================== */
-        #settingsView { padding: 0; overflow-y: auto; }
-        #settingsView.active { display: flex; flex-direction: column; }
+        /* Strip main-content padding so settings fills the full panel */
+        .main-content:has(#settingsView.active) {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #settingsView { padding: 0; overflow: hidden; }
+        #settingsView.active { display: flex; flex-direction: column; height: 100%; }
 
         .st-layout {
             display: grid;
             grid-template-columns: 230px 1fr;
-            min-height: calc(100vh - 56px);
+            flex: 1;
+            height: 100%;
+            min-height: 0;
         }
 
         /* Inner settings nav */
@@ -5273,9 +5281,7 @@
             background: var(--card);
             border-right: 1px solid var(--border);
             padding: 24px 0;
-            position: sticky;
-            top: 0;
-            height: calc(100vh - 56px);
+            height: 100%;
             overflow-y: auto;
         }
         .st-nav-header {
@@ -5316,8 +5322,10 @@
 
         /* Content area */
         .st-content {
-            padding: 36px 44px 80px;
-            max-width: 740px;
+            padding: 36px 48px 80px;
+            overflow-y: auto;
+            height: 100%;
+            min-width: 0;
         }
 
         /* Section panels */
@@ -5622,8 +5630,18 @@
         .st-theme-label.active-theme { color: var(--caramel); }
         .st-theme-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-        @media (max-width: 900px) { .st-layout { grid-template-columns: 1fr; } .st-nav { display: none; } }
-        @media (max-width: 640px) { .st-content { padding: 24px 18px 60px; } .st-form-row { grid-template-columns: 1fr; } .st-avail-row { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 900px) {
+            .st-layout { grid-template-columns: 1fr; }
+            .st-nav { display: none; }
+            .main-content:has(#settingsView.active) { overflow-y: auto; }
+            #settingsView.active { height: auto; overflow-y: auto; }
+            .st-content { height: auto; overflow-y: visible; }
+        }
+        @media (max-width: 640px) {
+            .st-content { padding: 20px 16px 60px; }
+            .st-form-row { grid-template-columns: 1fr; }
+            .st-avail-row { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
