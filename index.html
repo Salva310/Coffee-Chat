@@ -7667,12 +7667,14 @@
         let messages = [];
         let meetings = [];
         let connections = [];
-        let pendingRequests = []; // incoming: connected_user_id === currentUser.id, status === 'pending'
+        let pendingRequests = []; // incoming connection requests (from pending_requests view)
         let sentRequests = [];    // outgoing: user_id === currentUser.id, status === 'pending'
+        let chatInvites = [];     // incoming coffee chat invites (from pending_requests view, type === 'chat_invite')
         let realtimeChannels = [];
         let pollingTimer = null;
         let posts = [];
         let selectedConversation = null;
+        let selectedConversationId = null; // conversation_id from conversations table
         let selectedPerson = null;
         let previousView = 'dashboardView';
         let callDuration = 0;
@@ -8009,7 +8011,7 @@
 
             // Each section is independent — a failure in one never blocks the others
 
-            // Load all connections (accepted + pending)
+            // Load accepted connections and sent requests
             try {
                 const { data: connectionsData } = await supabaseClient
                     .from('connections')
@@ -8017,9 +8019,18 @@
                     .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
                 const allConns = connectionsData || [];
                 connections = allConns.filter(c => c.status === 'accepted');
-                pendingRequests = allConns.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
                 sentRequests = allConns.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
             } catch (e) { console.error('loadUserData connections:', e); }
+
+            // Load incoming pending requests (connections + chat invites) via the pending_requests view
+            try {
+                const { data: pendingData } = await supabaseClient
+                    .from('pending_requests')
+                    .select('*');
+                const allPending = pendingData || [];
+                pendingRequests = allPending.filter(p => p.type === 'connection');
+                chatInvites = allPending.filter(p => p.type === 'chat_invite');
+            } catch (e) { console.error('loadUserData pending_requests:', e); }
 
             // Load posts for feed
             try {
@@ -8417,6 +8428,83 @@
                 })
                 .subscribe();
             realtimeChannels.push(chMeetingUpdate);
+
+            // 6. Incoming chat invites
+            const chChatInvite = supabaseClient
+                .channel('chat-invite-in-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'chat_invites',
+                    filter: `receiver_id=eq.${currentUser.id}`
+                }, async (payload) => {
+                    const invite = payload.new;
+                    if (invite.status !== 'pending' || chatInvites.find(i => i.id === invite.id)) return;
+                    chatInvites.push(invite);
+                    let name = 'Someone';
+                    const cached = users.find(u => u.id === invite.sender_id);
+                    if (cached) { name = `${cached.firstName} ${cached.lastName}`; }
+                    else {
+                        try {
+                            const { data: p } = await supabaseClient.from('profiles').select('first_name,last_name').eq('id', invite.sender_id).single();
+                            if (p) name = `${p.first_name} ${p.last_name}`;
+                        } catch(e) {}
+                    }
+                    pushLiveNotification({ id: 'cinvite-' + invite.id, type: 'chat_invite', icon: '☕',
+                        text: `${name} wants to have a coffee chat!`, time: new Date(), unread: true,
+                        action: () => switchView('dashboardView') });
+                    showToast(`${name} sent you a coffee chat request! ☕`, 'info');
+                    renderHubNetworkFeed();
+                    generateNotifications();
+                })
+                .subscribe();
+            realtimeChannels.push(chChatInvite);
+
+            // 7. Incoming messages — live delivery when receiver
+            const chMsgsIn = supabaseClient
+                .channel('msgs-in-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'messages',
+                    filter: `receiver_id=eq.${currentUser.id}`
+                }, async (payload) => {
+                    const msg = payload.new;
+                    // If the chat window for this sender is open, refresh the conversation
+                    if (selectedConversation === msg.sender_id) {
+                        await selectConversation(msg.sender_id, msg.conversation_id);
+                    } else {
+                        let name = 'Someone';
+                        const cached = users.find(u => u.id === msg.sender_id);
+                        if (cached) name = `${cached.firstName} ${cached.lastName}`;
+                        showToast(`New message from ${name}`, 'info');
+                    }
+                    // Refresh the inbox list to update unread counts
+                    if (document.getElementById('messagesView')?.classList.contains('active')) {
+                        renderMessages();
+                    }
+                })
+                .subscribe();
+            realtimeChannels.push(chMsgsIn);
+
+            // 8. Conversation updates — when participant_b receives a new thread
+            const chConvA = supabaseClient
+                .channel('conv-as-a-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'conversations',
+                    filter: `participant_a=eq.${currentUser.id}`
+                }, () => {
+                    if (document.getElementById('messagesView')?.classList.contains('active')) renderMessages();
+                })
+                .subscribe();
+            realtimeChannels.push(chConvA);
+
+            const chConvB = supabaseClient
+                .channel('conv-as-b-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'conversations',
+                    filter: `participant_b=eq.${currentUser.id}`
+                }, () => {
+                    if (document.getElementById('messagesView')?.classList.contains('active')) renderMessages();
+                })
+                .subscribe();
+            realtimeChannels.push(chConvB);
         }
 
         function startPolling() {
@@ -8429,20 +8517,7 @@
                         .from('connections').select('*')
                         .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
                     if (connsData) {
-                        const newPending = connsData.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
                         const newAccepted = connsData.filter(c => c.status === 'accepted');
-
-                        // Surface newly arrived pending requests
-                        newPending.forEach(req => {
-                            if (!pendingRequests.find(r => r.id === req.id)) {
-                                pendingRequests.push(req);
-                                const cached = users.find(u => u.id === req.user_id);
-                                const name = cached ? `${cached.firstName} ${cached.lastName}` : 'Someone';
-                                pushLiveNotification({ id: 'pending-' + req.id, type: 'connection', icon: '🤝',
-                                    text: `${name} wants to connect with you`, time: new Date(req.created_at), unread: true,
-                                    action: () => switchView('dashboardView') });
-                            }
-                        });
 
                         // Surface newly accepted connections
                         newAccepted.forEach(conn => {
@@ -8455,8 +8530,43 @@
                         });
 
                         connections = newAccepted;
-                        pendingRequests = newPending;
                         sentRequests = connsData.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
+                    }
+                } catch(e) {}
+
+                // Refresh incoming pending requests (connections + chat invites) via view
+                try {
+                    const { data: pendingData } = await supabaseClient
+                        .from('pending_requests').select('*');
+                    if (pendingData) {
+                        const newConnReqs = pendingData.filter(p => p.type === 'connection');
+                        const newChatInvites = pendingData.filter(p => p.type === 'chat_invite');
+
+                        // Surface newly arrived connection requests
+                        newConnReqs.forEach(req => {
+                            if (!pendingRequests.find(r => r.id === req.id)) {
+                                const senderId = req.sender_id || req.user_id;
+                                const cached = users.find(u => u.id === senderId);
+                                const name = cached ? `${cached.firstName} ${cached.lastName}` : 'Someone';
+                                pushLiveNotification({ id: 'pending-' + req.id, type: 'connection', icon: '🤝',
+                                    text: `${name} wants to connect with you`, time: new Date(req.created_at), unread: true,
+                                    action: () => switchView('dashboardView') });
+                            }
+                        });
+
+                        // Surface newly arrived chat invites
+                        newChatInvites.forEach(invite => {
+                            if (!chatInvites.find(i => i.id === invite.id)) {
+                                const cached = users.find(u => u.id === invite.sender_id);
+                                const name = cached ? `${cached.firstName} ${cached.lastName}` : 'Someone';
+                                pushLiveNotification({ id: 'cinvite-' + invite.id, type: 'chat_invite', icon: '☕',
+                                    text: `${name} wants to have a coffee chat!`, time: new Date(invite.created_at), unread: true,
+                                    action: () => switchView('dashboardView') });
+                            }
+                        });
+
+                        pendingRequests = newConnReqs;
+                        chatInvites = newChatInvites;
                     }
                 } catch(e) {}
 
@@ -8498,6 +8608,11 @@
                 messages = [];
                 meetings = [];
                 posts = [];
+                pendingRequests = [];
+                sentRequests = [];
+                chatInvites = [];
+                selectedConversation = null;
+                selectedConversationId = null;
                 document.querySelector('.app-container').classList.add('sidebar-hidden');
                 switchView('landingView');
                 renderNav();
@@ -9024,20 +9139,48 @@
                         🤝 ${pendingRequests.length} Connection Request${pendingRequests.length > 1 ? 's' : ''}
                     </p>
                     ${pendingRequests.map(req => {
-                        const requester = users.find(u => u.id === req.user_id);
+                        const senderId = req.sender_id || req.user_id;
+                        const requester = users.find(u => u.id === senderId);
                         if (!requester) return '';
                         const fn = requester.firstName || '?';
                         const ln = requester.lastName || '?';
                         return `
                             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                                <div class="person-avatar" style="width: 40px; height: 40px; font-size: 15px; flex-shrink: 0;" onclick="viewProfile('${requester.id}')" style="cursor:pointer;">${fn[0]}${ln[0]}</div>
+                                <div class="person-avatar" style="width: 40px; height: 40px; font-size: 15px; flex-shrink: 0; cursor:pointer;" onclick="viewProfile('${requester.id}')">${fn[0]}${ln[0]}</div>
                                 <div style="flex: 1; min-width: 0;">
                                     <strong style="font-size: 13px;">${fn} ${ln}</strong>
                                     <p style="font-size: 11px; color: #888; margin: 0;">${requester.role || requester.industry || ''}</p>
+                                    ${req.note ? `<p style="font-size: 11px; color: #666; margin: 2px 0 0; font-style: italic;">"${req.note}"</p>` : ''}
                                 </div>
                                 <div style="display: flex; gap: 0.4rem; flex-shrink: 0;">
                                     <button class="btn btn-primary btn-sm" onclick="acceptConnection('${req.id}')" style="font-size: 11px; padding: 4px 10px;">Accept</button>
                                     <button class="btn btn-secondary btn-sm" onclick="rejectConnection('${req.id}')" style="font-size: 11px; padding: 4px 10px;">Decline</button>
+                                </div>
+                            </div>`;
+                    }).join('')}
+                </div>` : '';
+
+            const chatInviteHTML = chatInvites.length > 0 ? `
+                <div style="background: #F0F8FF; border: 1px solid #A8D0E8; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+                    <p style="font-weight: 700; font-size: 14px; color: #3A7CA5; margin-bottom: 0.75rem;">
+                        ☕ ${chatInvites.length} Coffee Chat Request${chatInvites.length > 1 ? 's' : ''}
+                    </p>
+                    ${chatInvites.map(invite => {
+                        const requester = users.find(u => u.id === invite.sender_id);
+                        if (!requester) return '';
+                        const fn = requester.firstName || '?';
+                        const ln = requester.lastName || '?';
+                        return `
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <div class="person-avatar" style="width: 40px; height: 40px; font-size: 15px; flex-shrink: 0; cursor:pointer;" onclick="viewProfile('${requester.id}')">${fn[0]}${ln[0]}</div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <strong style="font-size: 13px;">${fn} ${ln}</strong>
+                                    ${invite.topic ? `<p style="font-size: 11px; color: #555; margin: 2px 0 0;">Topic: ${invite.topic}</p>` : ''}
+                                    ${invite.note ? `<p style="font-size: 11px; color: #888; margin: 2px 0 0; font-style: italic;">"${invite.note}"</p>` : ''}
+                                </div>
+                                <div style="display: flex; gap: 0.4rem; flex-shrink: 0;">
+                                    <button class="btn btn-primary btn-sm" onclick="acceptChatInvite('${invite.id}')" style="font-size: 11px; padding: 4px 10px;">Accept</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="declineChatInvite('${invite.id}')" style="font-size: 11px; padding: 4px 10px;">Decline</button>
                                 </div>
                             </div>`;
                     }).join('')}
@@ -9052,7 +9195,7 @@
             const connectedUsers = users.filter(u => connectedIds.has(u.id));
             const count = connectedUsers.length;
 
-            if (count === 0 && pendingRequests.length === 0) {
+            if (count === 0 && pendingRequests.length === 0 && chatInvites.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🤝</div>
@@ -9062,7 +9205,7 @@
                 return;
             }
 
-            container.innerHTML = pendingHTML + (count > 0 ? `
+            container.innerHTML = pendingHTML + chatInviteHTML + (count > 0 ? `
                 <p style="font-weight:600;font-size:15px;color:var(--text-dark);margin-bottom:1rem;">
                     ${count} connection${count !== 1 ? 's' : ''}
                 </p>
@@ -9182,27 +9325,23 @@
                         </div>`;
                 }).join('');
             } else {
-                // Try to load real conversations from Supabase
+                // Try to load real conversations from Supabase via inbox view
                 try {
-                    const { data: msgsData } = await supabaseClient
-                        .from('messages')
-                        .select('*')
-                        .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-                        .order('created_at', { ascending: false });
+                    const { data: inboxData } = await supabaseClient
+                        .from('inbox')
+                        .select('*, other_profile:profiles!inner(first_name, last_name, profile_picture)');
 
-                    if (msgsData && msgsData.length > 0) {
-                        const partnerIds = [...new Set(msgsData.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id))];
-                        const partnerProfiles = await Promise.all(partnerIds.map(pid =>
-                            supabaseClient.from('profiles').select('id,first_name,last_name').eq('id', pid).maybeSingle().then(r => r.data)
-                        ));
-                        conversationsHTML = partnerProfiles.filter(Boolean).map(p => {
-                            const lastMessage = msgsData.find(m => m.sender_id === p.id || m.receiver_id === p.id);
-                            const preview = lastMessage ? lastMessage.content.substring(0, 45) : 'Start a conversation';
+                    if (inboxData && inboxData.length > 0) {
+                        conversationsHTML = inboxData.map(conv => {
+                            const p = conv.other_profile;
+                            const preview = (conv.last_message || 'Start a conversation').substring(0, 45);
+                            const fn = p?.first_name?.[0] || '?';
+                            const ln = p?.last_name?.[0] || '?';
                             return `
-                                <div class="chat-inbox-item" onclick="openChatWith('${p.id}')">
-                                    <div class="chat-inbox-avatar">${p.first_name[0]}${p.last_name[0]}</div>
+                                <div class="chat-inbox-item" onclick="openChatWith('${conv.other_user_id}')">
+                                    <div class="chat-inbox-avatar">${fn}${ln}</div>
                                     <div class="chat-inbox-info">
-                                        <div class="chat-inbox-name">${p.first_name} ${p.last_name}</div>
+                                        <div class="chat-inbox-name">${p ? `${p.first_name} ${p.last_name}` : 'User'}</div>
                                         <div class="chat-inbox-preview">${preview}${preview.length >= 45 ? '…' : ''}</div>
                                     </div>
                                 </div>`;
@@ -9420,6 +9559,7 @@
                         participant_id: selectedPerson.id,
                         title: `Coffee Chat with ${selectedPerson.firstName} ${selectedPerson.lastName}`,
                         description: topic,
+                        note: topic,
                         meeting_type: type,
                         start_time: startTime.toISOString(),
                         end_time: endTime.toISOString(),
@@ -9525,7 +9665,7 @@
                     (c.user_id === currentUser.id && c.connected_user_id === user.id) ||
                     (c.connected_user_id === currentUser.id && c.user_id === user.id));
                 const isPending = sentRequests.find(c => c.connected_user_id === user.id);
-                const hasRequestedMe = pendingRequests.find(c => c.user_id === user.id);
+                const hasRequestedMe = pendingRequests.find(c => (c.sender_id || c.user_id) === user.id);
                 const avatarHTML = user.profilePicture ?
                     `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;"><img src="${user.profilePicture}" alt="${fn}"></div>` :
                     `<div class="person-avatar" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 1rem;">${fn[0]}${ln[0]}</div>`;
@@ -9704,13 +9844,16 @@
             const alreadySent = sentRequests.find(c => c.connected_user_id === userId);
             if (alreadySent) { showToast('Request already sent!', 'info'); return; }
 
+            const noteText = prompt(`Add a personal note to ${user ? user.firstName : 'this person'} (optional):`, '') ?? '';
+
             try {
                 const { data, error } = await supabaseClient
                     .from('connections')
                     .insert([{
                         user_id: currentUser.id,
                         connected_user_id: userId,
-                        status: 'pending'
+                        status: 'pending',
+                        note: noteText
                     }])
                     .select()
                     .single();
@@ -9736,7 +9879,6 @@
                             .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
                         const allConns = connsData || [];
                         connections = allConns.filter(c => c.status === 'accepted');
-                        pendingRequests = allConns.filter(c => c.status === 'pending' && c.connected_user_id === currentUser.id);
                         sentRequests = allConns.filter(c => c.status === 'pending' && c.user_id === currentUser.id);
                     } catch (e) { /* ignore refresh error */ }
                     showToast('Request already sent!', 'info');
@@ -9757,11 +9899,14 @@
 
                 if (error) throw error;
 
-                const req = pendingRequests.find(r => r.id === connectionId);
-                if (req) {
-                    connections.push({ ...req, status: 'accepted' });
-                    pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
-                }
+                pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
+                // Re-fetch accepted connections to ensure correct structure
+                try {
+                    const { data: connsData } = await supabaseClient
+                        .from('connections').select('*')
+                        .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
+                    if (connsData) connections = connsData.filter(c => c.status === 'accepted');
+                } catch(e) {}
                 showToast('Connection accepted!', 'success');
                 checkBadgesWithCelebration();
                 renderHubNetworkFeed();
@@ -9824,6 +9969,66 @@
                 renderMeetingCards();
             } catch (err) {
                 console.error('declineMeetingInvite:', err);
+                showToast('Failed to decline: ' + err.message, 'error');
+            }
+        }
+
+        // ── Chat Invite actions (chat_invites table) ──
+
+        async function sendChatInvite(userId, note = '', topic = '') {
+            if (!currentUser) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('chat_invites')
+                    .insert([{
+                        sender_id: currentUser.id,
+                        receiver_id: userId,
+                        note: note,
+                        topic: topic,
+                        status: 'pending'
+                    }]);
+                if (error) throw error;
+                const partner = users.find(u => u.id === userId);
+                showToast(`Chat invite sent to ${partner ? partner.firstName : 'user'}! ☕`, 'success');
+            } catch (err) {
+                console.error('sendChatInvite:', err);
+                showToast('Failed to send chat invite: ' + err.message, 'error');
+            }
+        }
+
+        async function acceptChatInvite(inviteId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('chat_invites')
+                    .update({ status: 'accepted' })
+                    .eq('id', inviteId);
+                if (error) throw error;
+                const invite = chatInvites.find(i => i.id === inviteId);
+                chatInvites = chatInvites.filter(i => i.id !== inviteId);
+                showToast('Coffee chat invite accepted! ☕', 'success');
+                renderHubNetworkFeed();
+                generateNotifications();
+                // Open a chat thread with the sender
+                if (invite) openChatWith(invite.sender_id);
+            } catch (err) {
+                console.error('acceptChatInvite:', err);
+                showToast('Failed to accept: ' + err.message, 'error');
+            }
+        }
+
+        async function declineChatInvite(inviteId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('chat_invites')
+                    .update({ status: 'declined' })
+                    .eq('id', inviteId);
+                if (error) throw error;
+                chatInvites = chatInvites.filter(i => i.id !== inviteId);
+                showToast('Invite declined.', 'info');
+                renderHubNetworkFeed();
+                generateNotifications();
+            } catch (err) {
+                console.error('declineChatInvite:', err);
                 showToast('Failed to decline: ' + err.message, 'error');
             }
         }
@@ -10106,91 +10311,83 @@
             openModal('scheduleChatModal');
         }
 
-        // ─── (original renderMessages — now only called for DM tab) ───────
+        // ─── renderMessages — loads inbox via the `inbox` view ───────
         async function renderMessages() {
             if (!currentUser) return;
 
             try {
-                // Get all conversations (messages where user is sender or receiver)
-                const { data: messagesData, error } = await supabaseClient
-                    .from('messages')
-                    .select('*')
-                    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-                    .order('created_at', { ascending: false });
+                const { data: inboxData, error } = await supabaseClient
+                    .from('inbox')
+                    .select('*, other_profile:profiles!inner(first_name, last_name, profile_picture)');
 
                 if (error) throw error;
 
-                // Group messages by conversation partner
-                const conversations = {};
-                messagesData.forEach(msg => {
-                    const partnerId = msg.sender_id === currentUser.id ? msg.receiver_id : msg.sender_id;
-                    if (!conversations[partnerId]) {
-                        conversations[partnerId] = [];
-                    }
-                    conversations[partnerId].push(msg);
-                });
-
                 const list = document.getElementById('conversationList');
 
-                if (Object.keys(conversations).length === 0) {
+                if (!inboxData || inboxData.length === 0) {
                     list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No conversations yet</p></div>';
                     document.getElementById('chatWindow').innerHTML = '<div class="chat-header"><h3>Start a conversation</h3></div>';
                     return;
                 }
 
-                // Render conversation list
-                const conversationHTML = await Promise.all(
-                    Object.entries(conversations).map(async ([partnerId, msgs]) => {
-                        // Get partner profile
-                        const { data: profile } = await supabaseClient
-                            .from('profiles')
-                            .select('first_name, last_name, profile_picture')
-                            .eq('id', partnerId)
-                            .single();
+                list.innerHTML = inboxData.map(conv => {
+                    const profile = conv.other_profile;
+                    const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
+                    const fn = profile?.first_name?.[0] || '?';
+                    const ln = profile?.last_name?.[0] || '?';
+                    const avatarHTML = profile?.profile_picture
+                        ? `<img src="${profile.profile_picture}" alt="${partnerName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">`
+                        : `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0;">${fn}${ln}</div>`;
+                    const lastMessage = (conv.last_message || '').substring(0, 50);
+                    const unreadBadge = (conv.unread_count > 0)
+                        ? `<span style="background:var(--primary);color:white;border-radius:50%;min-width:20px;padding:2px 6px;font-size:11px;font-weight:700;text-align:center;">${conv.unread_count}</span>`
+                        : '';
 
-                        const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
-                        const fn = profile ? profile.first_name[0] : '?';
-                        const ln = profile ? profile.last_name[0] : '?';
-                        const avatarHTML = profile?.profile_picture
-                            ? `<img src="${profile.profile_picture}" alt="${partnerName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">`
-                            : `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0;">${fn}${ln}</div>`;
-                        const lastMessage = msgs[0].content.substring(0, 50);
-
-                        return `
-                            <div class="conversation-item ${selectedConversation === partnerId ? 'active' : ''}" onclick="selectConversation('${partnerId}')" style="display: flex; align-items: center; gap: 0.75rem;">
-                                ${avatarHTML}
-                                <div style="flex: 1; min-width: 0;">
-                                    <h4 style="margin: 0;" onclick="event.stopPropagation(); viewProfile('${partnerId}')" class="conversation-name-link">${partnerName}</h4>
-                                    <p style="font-size: 12px; color: #999; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage}${msgs[0].content.length > 50 ? '...' : ''}</p>
-                                </div>
+                    return `
+                        <div class="conversation-item ${selectedConversation === conv.other_user_id ? 'active' : ''}" onclick="selectConversation('${conv.other_user_id}', '${conv.id}')" style="display: flex; align-items: center; gap: 0.75rem;">
+                            ${avatarHTML}
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 style="margin: 0;" onclick="event.stopPropagation(); viewProfile('${conv.other_user_id}')" class="conversation-name-link">${partnerName}</h4>
+                                <p style="font-size: 12px; color: #999; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage}${lastMessage.length >= 50 ? '...' : ''}</p>
                             </div>
-                        `;
-                    })
-                );
-
-                list.innerHTML = conversationHTML.join('');
+                            ${unreadBadge}
+                        </div>
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Error rendering messages:', error);
             }
         }
 
-        async function selectConversation(userId) {
+        async function selectConversation(userId, conversationId = null) {
             if (!currentUser) return;
 
             selectedConversation = userId;
+            selectedConversationId = conversationId;
 
             try {
                 let messagesData = [];
                 let partnerName = 'User';
 
-                const { data, error } = await supabaseClient
-                    .from('messages')
-                    .select('*')
-                    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
-                    .order('created_at', { ascending: true });
+                // Look up conversation_id if not provided
+                if (!selectedConversationId) {
+                    const { data: convRow } = await supabaseClient
+                        .from('conversations')
+                        .select('id')
+                        .or(`and(participant_a.eq.${currentUser.id},participant_b.eq.${userId}),and(participant_a.eq.${userId},participant_b.eq.${currentUser.id})`)
+                        .maybeSingle();
+                    selectedConversationId = convRow?.id || null;
+                }
 
-                if (error) throw error;
-                messagesData = data || [];
+                if (selectedConversationId) {
+                    const { data, error } = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('conversation_id', selectedConversationId)
+                        .order('created_at', { ascending: true });
+                    if (error) throw error;
+                    messagesData = data || [];
+                }
 
                 const { data: profile } = await supabaseClient
                     .from('profiles')
@@ -10244,11 +10441,19 @@
                 }
 
                 // Mark messages as read
-                await supabaseClient
-                    .from('messages')
-                    .update({ read: true })
-                    .eq('receiver_id', currentUser.id)
-                    .eq('sender_id', userId);
+                if (selectedConversationId) {
+                    await supabaseClient
+                        .from('messages')
+                        .update({ read: true })
+                        .eq('conversation_id', selectedConversationId)
+                        .eq('receiver_id', currentUser.id);
+                } else {
+                    await supabaseClient
+                        .from('messages')
+                        .update({ read: true })
+                        .eq('receiver_id', currentUser.id)
+                        .eq('sender_id', userId);
+                }
 
             } catch (error) {
                 console.error('Error selecting conversation:', error);
@@ -10263,19 +10468,36 @@
             if (!text) return;
 
             try {
+                // Step 1: upsert conversation to get/create the thread
+                const { data: convData, error: convError } = await supabaseClient
+                    .from('conversations')
+                    .upsert(
+                        { participant_a: currentUser.id, participant_b: userId },
+                        { onConflict: 'least(participant_a::text,participant_b::text),greatest(participant_a::text,participant_b::text)' }
+                    )
+                    .select('id')
+                    .single();
+
+                if (convError) throw convError;
+                const conversationId = convData.id;
+                selectedConversationId = conversationId;
+
+                // Step 2: insert message with conversation_id
                 const { error } = await supabaseClient
                     .from('messages')
                     .insert([{
                         sender_id: currentUser.id,
                         receiver_id: userId,
-                        content: text
+                        conversation_id: conversationId,
+                        content: text,
+                        message_type: 'text'
                     }]);
 
                 if (error) throw error;
 
                 sentMessageCount++;
                 input.value = '';
-                await selectConversation(userId);
+                await selectConversation(userId, conversationId);
             } catch (error) {
                 console.error('Error sending message:', error);
                 showToast('Failed to send message: ' + error.message, 'error');
@@ -11502,7 +11724,7 @@
                                 (c.user_id === currentUser.id && c.connected_user_id === user.id) ||
                                 (c.connected_user_id === currentUser.id && c.user_id === user.id));
                             const isPending = sentRequests.find(c => c.connected_user_id === user.id);
-                            const hasRequestedMe = pendingRequests.find(c => c.user_id === user.id);
+                            const hasRequestedMe = pendingRequests.find(c => (c.sender_id || c.user_id) === user.id);
                             const avatarContent = user.profilePicture
                                 ? `<img src="${user.profilePicture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
                                 : `${fn[0]}${ln[0]}`;
@@ -12027,7 +12249,8 @@
             // Pending connection requests
             if (pendingRequests.length > 0) {
                 pendingRequests.forEach(req => {
-                    const requester = users.find(u => u.id === req.user_id);
+                    const senderId = req.sender_id || req.user_id;
+                    const requester = users.find(u => u.id === senderId);
                     const name = requester ? `${requester.firstName} ${requester.lastName}` : 'Someone';
                     notifications.unshift({
                         id: 'pending-' + req.id,
@@ -12035,6 +12258,23 @@
                         icon: '🤝',
                         text: `${name} wants to connect with you`,
                         time: new Date(req.created_at || now),
+                        unread: true,
+                        action: () => switchHubTab('network')
+                    });
+                });
+            }
+
+            // Pending chat invites
+            if (chatInvites.length > 0) {
+                chatInvites.forEach(invite => {
+                    const requester = users.find(u => u.id === invite.sender_id);
+                    const name = requester ? `${requester.firstName} ${requester.lastName}` : 'Someone';
+                    notifications.unshift({
+                        id: 'cinvite-' + invite.id,
+                        type: 'chat_invite',
+                        icon: '☕',
+                        text: `${name} wants to have a coffee chat!`,
+                        time: new Date(invite.created_at || now),
                         unread: true,
                         action: () => switchHubTab('network')
                     });
