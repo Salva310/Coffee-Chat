@@ -294,6 +294,37 @@
 
         .logout-btn:hover { background: var(--latte-soft); color: var(--espresso); }
 
+        /* ── Sidebar user info ── */
+        .sidebar-user-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 8px 14px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .sidebar-user-av {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--caramel), var(--caramel-light));
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--espresso);
+            line-height: 1.2;
+        }
+        .sidebar-user-status {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+
         /* ─── MAIN CONTENT ─── */
         .main-content {
             margin-left: var(--sidebar-w);
@@ -4707,6 +4738,234 @@
             .db-grid-3 { grid-template-columns: 1fr; }
         }
 
+        /* ── Redesigned Dashboard Layout ── */
+        .db-header {
+            padding: 28px 36px 0;
+            flex-shrink: 0;
+        }
+        .db-greeting-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .db-greeting-h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--espresso);
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+        .db-greeting-h1 em { font-style: italic; color: var(--caramel); }
+        .db-greeting-sub {
+            font-size: 14px;
+            color: var(--muted);
+        }
+        .db-alert-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .db-alert-pill:hover { border-color: var(--caramel); box-shadow: var(--shadow-hover); }
+        .db-alert-dot {
+            width: 8px; height: 8px;
+            background: var(--caramel);
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: dbAlertPulse 2s infinite;
+        }
+        @keyframes dbAlertPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        .db-alert-text { font-size: 13px; font-weight: 600; color: var(--espresso); }
+        .db-alert-sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+        .db-alert-arrow { font-size: 14px; color: var(--caramel); margin-left: 4px; }
+
+        /* Sections */
+        .db-section { padding: 20px 36px; }
+        .db-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .db-section-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: var(--muted);
+        }
+        .db-see-all {
+            font-size: 12.5px;
+            color: var(--caramel);
+            font-weight: 600;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.15s;
+        }
+        .db-see-all:hover { opacity: 0.7; }
+
+        /* Light Next Chat Card */
+        .db-next-chat-card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.15s;
+        }
+        .db-next-chat-card:hover { box-shadow: var(--shadow-hover); }
+        .db-ncc-avatar {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 700; color: white;
+            flex-shrink: 0;
+            border: 2.5px solid var(--caramel);
+        }
+        .db-ncc-info { flex: 1; min-width: 0; }
+        .db-ncc-name { font-size: 16px; font-weight: 600; color: var(--espresso); margin-bottom: 3px; }
+        .db-ncc-role { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+        .db-ncc-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+        .db-meta-chip {
+            display: flex; align-items: center; gap: 5px;
+            background: var(--latte-soft);
+            border-radius: 99px;
+            padding: 4px 10px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 500;
+            border: 1px solid var(--border);
+        }
+        .db-ncc-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+        .db-countdown-badge {
+            background: var(--db-green-bg);
+            color: var(--db-green);
+            font-size: 11.5px;
+            font-weight: 700;
+            border-radius: 99px;
+            padding: 4px 10px;
+            white-space: nowrap;
+        }
+        .db-ncc-btn-primary {
+            background: var(--espresso);
+            color: var(--cream);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .db-ncc-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+        .db-ncc-btn-secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .db-ncc-btn-secondary:hover { border-color: var(--caramel); color: var(--caramel); }
+
+        /* People grid */
+        .db-people-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        .db-person-card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 20px 16px 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.15s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .db-person-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+            border-color: var(--caramel);
+        }
+        .db-person-card-av {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            font-size: 18px; font-weight: 700; color: white;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--border);
+        }
+        .db-person-card-name { font-size: 14px; font-weight: 600; color: var(--espresso); margin-bottom: 2px; }
+        .db-person-card-role { font-size: 11.5px; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
+        .db-person-pct-badge {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: var(--latte-soft);
+            color: var(--caramel);
+            font-size: 10.5px;
+            font-weight: 700;
+            border-radius: 99px;
+            padding: 2px 7px;
+            border: 1px solid var(--border);
+        }
+        .db-person-card-btn {
+            width: 100%;
+            background: var(--latte-soft);
+            color: var(--brown);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.15s;
+        }
+        .db-person-card-btn:hover { background: var(--espresso); color: var(--cream); border-color: var(--espresso); }
+
+        @media (max-width: 900px) { .db-people-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .db-people-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 760px) {
+            .db-header { padding: 20px 16px 0; }
+            .db-section { padding: 16px; }
+            .db-next-chat-card { flex-wrap: wrap; }
+            .db-ncc-actions { flex-direction: row; width: 100%; }
+        }
+
         /* ===================================================
            SHARED VIEW HEADER  (reused across new view shells)
            =================================================== */
@@ -5711,6 +5970,13 @@
     <div class="app-container">
         <!-- Sidebar -->
         <div class="sidebar" id="appSidebar">
+            <div class="sidebar-user-section" id="sidebarUserSection" style="display:none;">
+                <div class="sidebar-user-av" id="sidebarUserAv">?</div>
+                <div>
+                    <div class="sidebar-user-name" id="sidebarUserName">—</div>
+                    <div class="sidebar-user-status" id="sidebarUserStatus"></div>
+                </div>
+            </div>
             <div class="sidebar-label" style="margin-top:0;">Main</div>
             <nav id="navMenu"></nav>
             <div class="sidebar-bottom">
@@ -6357,141 +6623,52 @@
             <!-- Dashboard -->
             <div id="dashboardView" class="content-view" style="padding:0; overflow-y:auto;">
 
-                <!-- HERO BANNER -->
-                <div class="db-hero">
-                    <div class="db-grain"></div>
-                    <div class="db-hero-inner">
-                        <div>
-                            <div class="db-greeting" id="dbGreeting">Good morning</div>
-                            <h1 class="db-hero-title">Welcome back,<br><em id="userName">there</em>.</h1>
-                            <p class="db-hero-sub">Here's what's happening in your Rowan network today.</p>
+                <!-- HEADER: Greeting + Alert Pill -->
+                <div class="db-header">
+                    <div class="db-greeting-row">
+                        <div class="db-greeting-text">
+                            <h1 class="db-greeting-h1"><span id="dbGreeting">Good morning</span>, <em id="userName">there</em> ☕</h1>
+                            <p class="db-greeting-sub">Here's what needs your attention today.</p>
                         </div>
-                        <div class="db-hero-stats">
-                            <div class="db-hero-stat">
-                                <div class="db-stat-val" id="dbStatConnections">0</div>
-                                <div class="db-stat-lbl">Connections</div>
+                        <div class="db-alert-pill" id="dbAlertPill" onclick="toggleNotifications()">
+                            <div class="db-alert-dot"></div>
+                            <div>
+                                <div class="db-alert-text" id="dbAlertText">Loading...</div>
+                                <div class="db-alert-sub" id="dbAlertSub"></div>
                             </div>
-                            <div class="db-hero-stat">
-                                <div class="db-stat-val" id="dbStatUpcoming">0</div>
-                                <div class="db-stat-lbl">Upcoming Chats</div>
-                            </div>
-                            <div class="db-hero-stat">
-                                <div class="db-stat-val" id="dbStatCompleted">0</div>
-                                <div class="db-stat-lbl">Chats Completed</div>
-                            </div>
+                            <span class="db-alert-arrow">→</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- SETUP BAR -->
-                <div class="db-setup-bar" id="dbSetupBar">
-                    <span class="db-setup-label">Get started ↓</span>
-                    <div class="db-setup-steps" id="dbSetupSteps"></div>
-                    <button class="db-setup-cta" id="dbSetupCta" onclick="editMyProfile()">Finish Profile →</button>
+                <!-- YOUR NEXT SIP -->
+                <div class="db-section">
+                    <div class="db-section-header">
+                        <div class="db-section-label">Your next sip</div>
+                        <button class="db-see-all" onclick="switchView('messagesView')">All chats →</button>
+                    </div>
+                    <div id="dbNextSipCard"></div>
                 </div>
 
-                <!-- MAIN CONTENT -->
-                <div class="db-content">
-
-                    <!-- QUICK ACTIONS -->
-                    <div>
-                        <div class="db-sec-head">
-                            <h2 class="db-sec-title">Quick <em>Actions</em></h2>
-                        </div>
-                        <div class="db-grid-3">
-                            <div class="db-card db-quick-card" onclick="switchView('discoverView')">
-                                <div class="db-qc-icon orange">🔍</div>
-                                <div class="db-qc-title">Discover People</div>
-                                <div class="db-qc-desc">Browse Rowan students and alumni matched to your goals.</div>
-                                <div class="db-qc-arrow">Browse matches →</div>
-                            </div>
-                            <div class="db-card db-quick-card" onclick="openScheduleChatModal()">
-                                <div class="db-qc-icon cream">☕</div>
-                                <div class="db-qc-title">Schedule a Sip</div>
-                                <div class="db-qc-desc">Book a 30-min coffee chat with someone in your network.</div>
-                                <div class="db-qc-arrow">Schedule now →</div>
-                            </div>
-                            <div class="db-card db-quick-card" onclick="switchView('groupsView')">
-                                <div class="db-qc-icon green">👥</div>
-                                <div class="db-qc-title">Join a Group</div>
-                                <div class="db-qc-desc">Find your people in Finance, CS, and more communities.</div>
-                                <div class="db-qc-arrow">Explore groups →</div>
-                            </div>
-                        </div>
+                <!-- PEOPLE YOU SHOULD MEET -->
+                <div class="db-section">
+                    <div class="db-section-header">
+                        <div class="db-section-label">People you should meet</div>
+                        <button class="db-see-all" onclick="switchView('discoverView')">See all →</button>
                     </div>
-
-                    <!-- MAIN SPLIT -->
-                    <div class="db-grid-main">
-
-                        <!-- LEFT COLUMN -->
-                        <div class="db-left-col">
-
-                            <!-- UPCOMING NEXT CHAT -->
-                            <div>
-                                <div class="db-sec-head">
-                                    <h2 class="db-sec-title">Your Next <em>Sip</em></h2>
-                                    <button class="db-sec-link" onclick="switchView('messagesView')">All chats →</button>
-                                </div>
-                                <div id="dbNextSipCard"></div>
-                            </div>
-
-                            <!-- SUGGESTED MATCHES -->
-                            <div>
-                                <div class="db-sec-head">
-                                    <h2 class="db-sec-title">People You Should <em>Meet</em></h2>
-                                    <button class="db-sec-link" onclick="switchView('discoverView')">See all →</button>
-                                </div>
-                                <div class="db-card" style="overflow:hidden;" id="dbMatchesList"></div>
-                            </div>
-
-                            <!-- ACTIVITY FEED -->
-                            <div>
-                                <div class="db-sec-head">
-                                    <h2 class="db-sec-title">Recent <em>Activity</em></h2>
-                                </div>
-                                <div class="db-card" style="overflow:hidden;">
-                                    <div id="dbActivityFeed"></div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- RIGHT COLUMN -->
-                        <div class="db-right-col">
-
-                            <!-- MY GROUPS -->
-                            <div class="db-card">
-                                <div class="db-widget-header">
-                                    <span class="db-widget-title">My Groups</span>
-                                    <button class="db-widget-action" onclick="switchView('groupsView')">Explore →</button>
-                                </div>
-                                <div id="dbGroupsList"></div>
-                            </div>
-
-                            <!-- BADGES -->
-                            <div class="db-card">
-                                <div class="db-widget-header">
-                                    <span class="db-widget-title">Your Badges</span>
-                                    <span class="db-widget-action" id="dbBadgesCount" style="cursor:default;"></span>
-                                </div>
-                                <div class="db-badges-grid" id="dashboardBadges"></div>
-                            </div>
-
-                            <!-- TIP -->
-                            <div class="db-tip-card">
-                                <div class="db-tip-inner">
-                                    <div class="db-tip-icon">💡</div>
-                                    <div class="db-tip-title">Today's tip</div>
-                                    <div class="db-tip-text">"The best networkers aren't the most outgoing — they're the most curious. Go into your next chat with one genuinely thoughtful question."</div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+                    <div class="db-people-grid" id="dbMatchesList"></div>
                 </div>
 
                 <!-- Hidden legacy elements kept for JS compatibility -->
                 <div style="display:none;" aria-hidden="true">
+                    <div id="dbStatConnections"></div>
+                    <div id="dbStatUpcoming"></div>
+                    <div id="dbStatCompleted"></div>
+                    <div id="dbSetupBar"><div id="dbSetupSteps"></div><button id="dbSetupCta"></button></div>
+                    <div id="dbActivityFeed"></div>
+                    <div id="dbGroupsList"></div>
+                    <div id="dbBadgesCount"></div>
+                    <div id="dashboardBadges"></div>
                     <div id="streakBadge"><span id="streakDisplay"></span></div>
                     <div id="gettingStarted"><ul id="checklistItems"></ul></div>
                     <div id="welcomeEmptyState"></div>
@@ -6508,7 +6685,6 @@
                     <div id="dashboardStats"></div>
                     <div id="onboardStep1"></div><div id="onboardStep2"></div>
                     <div id="onboardStep3"></div><div id="onboardStep4"></div>
-                    <!-- Profile completion ring (needed by renderProfileCompletion) -->
                     <div id="completionCard">
                         <svg width="56" height="56" viewBox="0 0 80 80">
                             <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
@@ -8653,6 +8829,22 @@
                     document.getElementById('topbarUserName').textContent = currentUser.firstName + ' ' + (currentUser.lastName ? currentUser.lastName[0] + '.' : '');
                 }
 
+                // Populate sidebar user section
+                const sidebarUserSection = document.getElementById('sidebarUserSection');
+                if (sidebarUserSection) {
+                    sidebarUserSection.style.display = 'flex';
+                    const initials = ((currentUser.firstName||'')[0]||'') + ((currentUser.lastName||'')[0]||'');
+                    const avEl = document.getElementById('sidebarUserAv');
+                    if (avEl) avEl.textContent = initials.toUpperCase() || '?';
+                    const nameEl = document.getElementById('sidebarUserName');
+                    if (nameEl) nameEl.textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+                    const statusEl = document.getElementById('sidebarUserStatus');
+                    if (statusEl) {
+                        const parts = [currentUser.industry, currentUser.status].filter(Boolean);
+                        statusEl.textContent = parts.join(' · ');
+                    }
+                }
+
                 // Build nav items with icons and labels
                 const mainItems = [
                     { id: 'dashboardView', icon: '🏠', label: 'Dashboard' },
@@ -8709,6 +8901,8 @@
                 if (topbar) topbar.classList.remove('visible');
                 if (bellContainer) bellContainer.style.display = 'none';
                 if (userChip) userChip.style.display = 'none';
+                const sidebarUserSection = document.getElementById('sidebarUserSection');
+                if (sidebarUserSection) sidebarUserSection.style.display = 'none';
             }
         }
 
@@ -8788,42 +8982,29 @@
             const greetingEl = document.getElementById('dbGreeting');
             if (greetingEl) greetingEl.textContent = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
-            // ── Hero name ──
+            // ── Name ──
             const userNameEl = document.getElementById('userName');
-            if (userNameEl) userNameEl.textContent = currentUser.firstName + '.';
+            if (userNameEl) userNameEl.textContent = currentUser.firstName;
 
-            // ── Counts ──
-            const connectionCount  = connections.length;
-            const groupCount       = myGroupIds.size;
-            const completedMeetings = meetings.filter(m => m.status === 'completed').length;
-            const upcomingMeetings = meetings.filter(m => m.status !== 'completed');
-
-            // Hero stats
-            const el = id => document.getElementById(id);
-            if (el('dbStatConnections'))  el('dbStatConnections').textContent  = connectionCount;
-            if (el('dbStatUpcoming'))     el('dbStatUpcoming').textContent     = upcomingMeetings.length;
-            if (el('dbStatCompleted'))    el('dbStatCompleted').textContent    = completedMeetings;
-
-            // ── Setup bar ──
-            renderDbSetupBar();
+            // ── Alert pill ──
+            const totalPending = (pendingRequests ? pendingRequests.length : 0) + (chatInvites ? chatInvites.length : 0);
+            const alertTextEl = document.getElementById('dbAlertText');
+            const alertSubEl  = document.getElementById('dbAlertSub');
+            if (alertTextEl) alertTextEl.textContent = totalPending > 0
+                ? `${totalPending} pending request${totalPending > 1 ? 's' : ''}`
+                : 'No pending requests';
+            if (alertSubEl) {
+                const parts = [];
+                if (pendingRequests && pendingRequests.length > 0) parts.push(`${pendingRequests.length} connection${pendingRequests.length > 1 ? 's' : ''}`);
+                if (chatInvites && chatInvites.length > 0) parts.push(`${chatInvites.length} chat invite${chatInvites.length > 1 ? 's' : ''}`);
+                alertSubEl.textContent = parts.length > 0 ? parts.join(' + ') : 'You\'re all caught up';
+            }
 
             // ── Next Sip card ──
             renderDbNextSip();
 
             // ── Suggested matches ──
             renderDbMatches();
-
-            // ── Activity feed ──
-            renderDbActivity();
-
-            // ── Groups widget ──
-            renderDbGroups();
-
-            // ── Badges ──
-            renderDashboardBadges();
-            const badges = (typeof checkBadges === 'function') ? checkBadges() : [];
-            const earned = badges.filter(b => b.earned).length;
-            if (el('dbBadgesCount')) el('dbBadgesCount').textContent = `${earned} / ${badges.length} earned`;
 
             // Keep legacy helpers running (hidden elements)
             renderProfileCompletion();
@@ -8918,30 +9099,24 @@
             const topic    = next.topic || 'Coffee Chat';
             const metaLine = [role, company].filter(Boolean).join(' · ');
 
+            const avatarColors = ['#6b3f2a','#8b5040','#2d6a4f','#1e4d8c','#7e3ff2'];
+            const avatarBg = avatarColors[Math.floor(Math.random() * avatarColors.length)];
             container.innerHTML = `
-                <div class="db-upcoming-card">
-                    <div class="db-ucc-inner">
-                        <div class="db-countdown-pill">
-                            <span class="db-pulse"></span>
-                            ${dateTimeStr}${countdownStr}
+                <div class="db-next-chat-card">
+                    <div class="db-ncc-avatar" style="background:${avatarBg}">${initials || '?'}</div>
+                    <div class="db-ncc-info">
+                        <div class="db-ncc-name">${pFirst} ${pLast}</div>
+                        <div class="db-ncc-role">${metaLine || 'Rowan University'}</div>
+                        <div class="db-ncc-meta">
+                            ${dateTimeStr ? `<span class="db-meta-chip">📅 ${dateTimeStr}</span>` : ''}
+                            <span class="db-meta-chip">⏱ ${duration}</span>
+                            <span class="db-meta-chip">💻 ${meetType}</span>
                         </div>
-                        <div class="db-ucc-person">
-                            <div class="db-ucc-avatar">${initials || '?'}</div>
-                            <div>
-                                <div class="db-ucc-name">${pFirst} ${pLast}</div>
-                                <div class="db-ucc-role">${metaLine || 'Rowan University'}</div>
-                            </div>
-                        </div>
-                        <div class="db-ucc-details">
-                            <div class="db-ucc-detail">📹 ${meetType}</div>
-                            <div class="db-ucc-detail">⏱️ ${duration}</div>
-                            ${topic ? `<div class="db-ucc-detail">💼 ${topic.substring(0,30)}${topic.length>30?'…':''}</div>` : ''}
-                        </div>
-                        <div class="db-ucc-actions">
-                            <button class="db-ucc-btn-primary" onclick="startCall('${pFirst} ${pLast}','${initials}')">Join Video Call ↗</button>
-                            <button class="db-ucc-btn-secondary" onclick="switchView('messagesView')">Reschedule</button>
-                            <button class="db-ucc-btn-secondary" onclick="openChatWith('${partnerId}')">Message</button>
-                        </div>
+                    </div>
+                    <div class="db-ncc-actions">
+                        ${countdownStr ? `<span class="db-countdown-badge">In${countdownStr.replace('·','').trim()}</span>` : ''}
+                        <button class="db-ncc-btn-primary" onclick="startCall('${pFirst} ${pLast}','${initials}')">Join / Prepare ☕</button>
+                        <button class="db-ncc-btn-secondary" onclick="openChatWith('${partnerId}')">Message</button>
                     </div>
                 </div>`;
         }
@@ -8963,54 +9138,28 @@
                 .slice(0, 3);
 
             if (suggestions.length === 0) {
-                container.innerHTML = `<div style="padding:24px;text-align:center;font-size:13px;color:var(--muted);">You've connected with everyone so far!<br><button class="db-btn-chat" onclick="switchView('discoverView')" style="margin-top:12px;">Find More People</button></div>`;
+                container.innerHTML = `<div style="grid-column:1/-1;padding:32px;text-align:center;font-size:13px;color:var(--muted);">You've connected with everyone so far!<br><button class="db-ncc-btn-primary" onclick="switchView('discoverView')" style="margin-top:12px;">Find More People</button></div>`;
                 return;
             }
 
-            const gradients = [
-                'linear-gradient(135deg,#2563eb,#5c9ef5)',
-                'linear-gradient(135deg,#2d7a4f,#52c887)',
-                'linear-gradient(135deg,#7e3ff2,#c084fc)',
-                'linear-gradient(135deg,#b5651d,#d4894a)',
-                'linear-gradient(135deg,#be185d,#f472b6)',
-            ];
+            const avatarColors = ['#6b3f2a','#2d6a4f','#1e4d8c','#7e3ff2','#be185d'];
 
             container.innerHTML = suggestions.map((u, i) => {
                 const fn       = u.firstName || '?';
                 const ln       = u.lastName  || '?';
-                const initials = fn[0] + ln[0];
-                const gradient = gradients[i % gradients.length];
+                const initials = (fn[0] || '') + (ln[0] || '');
+                const bgColor  = avatarColors[i % avatarColors.length];
                 const roleLine = [u.role, u.company].filter(Boolean).join(' · ') || u.industry || 'Rowan University';
-                const tags     = [...(u.interests||[]).slice(0,2), u.industry].filter(Boolean).slice(0,3);
-                // simple match % based on shared interests
-                const sharedInterests = (u.interests||[]).filter(i => (currentUser.interests||[]).includes(i)).length;
+                const sharedInterests = (u.interests||[]).filter(interest => (currentUser.interests||[]).includes(interest)).length;
                 const pct = Math.min(99, 60 + sharedInterests * 10 + (u.industry === currentUser.industry ? 12 : 0));
-                const circ  = 2 * Math.PI * 16;
-                const offset = circ - (pct / 100) * circ;
-                const isLast = i === suggestions.length - 1;
 
                 return `
-                    <div class="db-match-row" onclick="viewProfile('${u.id}')" style="${!isLast ? 'border-bottom:1px solid var(--border)' : ''}">
-                        <div class="db-match-av" style="background:${gradient}">
-                            ${initials}
-                            ${i === 0 ? '<span class="db-match-online"></span>' : ''}
-                        </div>
-                        <div class="db-match-info">
-                            <div class="db-match-name">${fn} ${ln}</div>
-                            <div class="db-match-meta">${roleLine}</div>
-                            <div class="db-match-tags">${tags.map(t=>`<span class="db-tag">${t}</span>`).join('')}</div>
-                        </div>
-                        <div class="db-match-right">
-                            <div class="db-pct-ring">
-                                <svg width="40" height="40" viewBox="0 0 40 40">
-                                    <circle class="bg" cx="20" cy="20" r="16"/>
-                                    <circle class="fill" cx="20" cy="20" r="16"
-                                        stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/>
-                                </svg>
-                                <div class="db-pct-label">${pct}%</div>
-                            </div>
-                            <button class="db-btn-chat" onclick="event.stopPropagation();openScheduleForUser('${u.id}')">☕ Chat</button>
-                        </div>
+                    <div class="db-person-card" onclick="viewProfile('${u.id}')">
+                        <span class="db-person-pct-badge">${pct}% match</span>
+                        <div class="db-person-card-av" style="background:${bgColor}">${initials}</div>
+                        <div class="db-person-card-name">${fn} ${ln}</div>
+                        <div class="db-person-card-role">${roleLine}</div>
+                        <button class="db-person-card-btn" onclick="event.stopPropagation();openScheduleForUser('${u.id}')">☕ Chat</button>
                     </div>`;
             }).join('');
         }
