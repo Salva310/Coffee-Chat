@@ -7857,6 +7857,32 @@
             }
 
             renderCalendar();
+
+            // Detect auth changes from other tabs (e.g. a different user logs in,
+            // replacing the localStorage token — which would cause sender_id ≠ auth.uid() on writes)
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_OUT' && currentUser) {
+                    // Another tab signed out — sync this tab
+                    currentUser = null;
+                    connections = []; meetings = []; posts = []; notifications = [];
+                    realtimeChannels.forEach(ch => { try { supabaseClient.removeChannel(ch); } catch(e){} });
+                    realtimeChannels = [];
+                    if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
+                    document.querySelector('.app-container').classList.add('sidebar-hidden');
+                    switchView('loginView');
+                    showToast('You have been signed out.', 'info');
+                } else if (event === 'SIGNED_IN' && session && currentUser && session.user.id !== currentUser.id) {
+                    // A different user signed in (another tab replaced the auth token)
+                    currentUser = null;
+                    connections = []; meetings = []; posts = []; notifications = [];
+                    realtimeChannels.forEach(ch => { try { supabaseClient.removeChannel(ch); } catch(e){} });
+                    realtimeChannels = [];
+                    if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
+                    document.querySelector('.app-container').classList.add('sidebar-hidden');
+                    switchView('loginView');
+                    showToast('Another account signed in. Please log in again.', 'info');
+                }
+            });
         }
 
         function suSelectChip(el, value) {
