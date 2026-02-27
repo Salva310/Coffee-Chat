@@ -8160,6 +8160,11 @@
                     gradYear: profile.grad_year || ''
                 };
 
+                // Load all user data and wire up real-time subscriptions
+                await loadUserData();
+                setupRealtime();
+                startPolling();
+
                 document.querySelector('.app-container').classList.remove('sidebar-hidden');
                 recordLogin();
                 renderNav();
