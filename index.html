@@ -8273,8 +8273,17 @@
                     company: school,
                     location: gradYear,
                     profilePicture: null,
-                    resume: null
+                    resume: null,
+                    status: status,
+                    gradYear: gradYear
                 };
+
+                // Write status and grad_year to dedicated columns (trigger only sets role/location)
+                try {
+                    await supabaseClient.from('profiles')
+                        .update({ status, grad_year: gradYear })
+                        .eq('id', data.user.id);
+                } catch(e) { console.warn('Could not set status/grad_year on signup:', e); }
 
                 document.querySelector('.app-container').classList.remove('sidebar-hidden');
                 recordLogin();
@@ -9621,9 +9630,20 @@
                 } catch (e) { /* ignore */ }
             }
 
+            // Build set of IDs to hide: self, connected, sent-pending, recommendations
+            const connectedOrPendingIds = new Set();
+            connections.forEach(c => {
+                connectedOrPendingIds.add(c.user_id);
+                connectedOrPendingIds.add(c.connected_user_id);
+            });
+            sentRequests.forEach(r => connectedOrPendingIds.add(r.connected_user_id));
+
             let filtered = users.filter(u => {
                 // Never show self
                 if (u.id === currentUser.id) return false;
+
+                // Hide already-connected or pending-sent users
+                if (connectedOrPendingIds.has(u.id)) return false;
 
                 // Hide users already shown in the recommendations section
                 if (recommendedIds.has(u.id)) return false;
@@ -12595,19 +12615,24 @@
             const gradYear   = document.getElementById('stGradYear').value;
             if (!firstName || !lastName) { showStToast('Please enter your name.'); return; }
             try {
-                const { error } = await supabaseClient.from('profiles').update({
-                    first_name: firstName, last_name: lastName, bio,
-                    status, grad_year: gradYear, updated_at: new Date().toISOString()
-                }).eq('id', currentUser.id);
+                const { data: updated, error } = await supabaseClient
+                    .from('profiles')
+                    .update({ first_name: firstName, last_name: lastName, bio, status, grad_year: gradYear })
+                    .eq('id', currentUser.id)
+                    .select('first_name, last_name, bio, status, grad_year')
+                    .single();
                 if (error) throw error;
-                currentUser.firstName = firstName;
-                currentUser.lastName  = lastName;
-                currentUser.bio       = bio;
-                currentUser.status    = status;
-                currentUser.gradYear  = gradYear;
+                currentUser.firstName = updated.first_name;
+                currentUser.lastName  = updated.last_name;
+                currentUser.bio       = updated.bio;
+                currentUser.status    = updated.status;
+                currentUser.gradYear  = updated.grad_year;
                 renderSettingsView();
                 showStToast('Profile saved!');
-            } catch (e) { showStToast('Error: ' + e.message); }
+            } catch (e) {
+                console.error('saveStBasic error:', e);
+                showStToast('Error saving: ' + e.message);
+            }
         }
 
         async function saveStCareer() {
