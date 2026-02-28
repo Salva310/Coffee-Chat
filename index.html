@@ -3879,6 +3879,8 @@
                 padding: 1.5rem;
             }
 
+            body.app-mode #settingsView.active { margin-left: 0; width: 100%; }
+
             .messages-wrapper {
                 grid-template-columns: 1fr;
                 height: auto;
@@ -5526,6 +5528,8 @@
 
         #settingsView { padding: 0; overflow: hidden; }
         #settingsView.active { display: flex; flex-direction: column; height: 100%; }
+        /* Push settings view past the fixed app sidebar */
+        body.app-mode #settingsView.active { margin-left: var(--sidebar-w); width: calc(100% - var(--sidebar-w)); }
 
         .st-layout {
             display: grid;
