@@ -7729,10 +7729,17 @@
                             </div>
                             <div class="st-danger-item">
                                 <div>
-                                    <div class="st-danger-label">Pause Account</div>
-                                    <div class="st-danger-desc">Hide your profile from Discover so no new chat requests come in. You can re-enable this in Privacy settings.</div>
+                                    <div class="st-danger-label">Clear All Notifications</div>
+                                    <div class="st-danger-desc">Permanently delete all your notifications from First Sip. This cannot be undone.</div>
                                 </div>
-                                <button class="st-btn-secondary" onclick="pauseStAccount()">Pause Account</button>
+                                <button class="st-btn-secondary" onclick="clearAllNotifsDanger()">Clear Notifications</button>
+                            </div>
+                            <div class="st-danger-item">
+                                <div>
+                                    <div class="st-danger-label">Pause Account</div>
+                                    <div class="st-danger-desc">Hide your profile from Discover so no new chat requests come in. You can re-enable this anytime.</div>
+                                </div>
+                                <button class="st-btn-secondary" id="stPauseBtn" onclick="pauseStAccount()">Pause Account</button>
                             </div>
                             <div class="st-danger-item">
                                 <div>
@@ -8407,6 +8414,7 @@
                     });
                     notifications.sort((a, b) => new Date(b.time) - new Date(a.time));
                 }
+                refreshBellBadge();
             } catch (e) { console.error('loadUserData notifications:', e); }
 
             // Load all other profiles for discovery — most critical
@@ -11511,25 +11519,28 @@
             reader.readAsDataURL(file);
         }
 
-        function openResume(url) {
-            if (!url) return;
-            if (url.startsWith('data:')) {
-                // base64 data URL — decode to blob first (browsers block data: navigation)
+        async function openResume(urlOrPath) {
+            if (!urlOrPath) return;
+            if (urlOrPath.startsWith('data:')) {
+                // Legacy base64 data URL
                 try {
-                    const parts = url.split(',');
+                    const parts = urlOrPath.split(',');
                     const mime = parts[0].split(':')[1].split(';')[0];
                     const binary = atob(parts[1]);
                     const arr = new Uint8Array(binary.length);
                     for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
                     const blob = new Blob([arr], { type: mime });
-                    const blobUrl = URL.createObjectURL(blob);
-                    window.open(blobUrl, '_blank');
-                } catch (e) {
-                    alert('Could not open resume.');
-                }
+                    window.open(URL.createObjectURL(blob), '_blank');
+                } catch (e) { alert('Could not open resume.'); }
+            } else if (urlOrPath.startsWith('http')) {
+                window.open(urlOrPath, '_blank');
             } else {
-                // Regular public URL
-                window.open(url, '_blank');
+                // Storage path — generate 1-hour signed URL (resumes bucket is private)
+                try {
+                    const { data, error } = await supabaseClient.storage.from('resumes').createSignedUrl(urlOrPath, 3600);
+                    if (error) throw error;
+                    window.open(data.signedUrl, '_blank');
+                } catch (e) { showToast('Could not open resume: ' + e.message, 'error'); }
             }
         }
 
@@ -12214,14 +12225,52 @@
             const container = document.getElementById('myProfileContent');
             if (!container) return;
 
-            const { percentage, completed } = getProfileCompletion();
+            // Fetch fresh profile from Supabase
+            let profile = { ...currentUser };
+            try {
+                const { data: profileData } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+                if (profileData) {
+                    profile = {
+                        ...currentUser,
+                        firstName:      profileData.first_name    || currentUser.firstName,
+                        lastName:       profileData.last_name     || currentUser.lastName,
+                        headline:       profileData.headline      ?? currentUser.headline,
+                        bio:            profileData.bio           ?? currentUser.bio,
+                        interests:      Array.isArray(profileData.interests) ? profileData.interests : (currentUser.interests || []),
+                        hobbies:        Array.isArray(profileData.hobbies)   ? profileData.hobbies   : (currentUser.hobbies   || []),
+                        goals:          profileData.goals         ?? currentUser.goals,
+                        location:       profileData.location      ?? currentUser.location,
+                        linkedinUrl:    profileData.linkedin_url  ?? currentUser.linkedinUrl,
+                        profilePicture: profileData.profile_picture ?? currentUser.profilePicture,
+                        resume:         profileData.resume_url    ?? currentUser.resume,
+                        avatarColor:    profileData.avatar_color  || null,
+                        major:          profileData.major         ?? currentUser.major,
+                        industry:       profileData.industry      ?? currentUser.industry,
+                        role:           profileData.role          ?? currentUser.role,
+                        company:        profileData.company       ?? currentUser.company,
+                        gradYear:       profileData.grad_year     ?? currentUser.gradYear,
+                        isOnline:       profileData.is_online,
+                        chatOpen:       profileData.chat_open,
+                    };
+                }
+            } catch(e) { console.error('renderMyProfile fetch profile:', e); }
+
+            // Use profile_completeness RPC for accurate percentage
+            let percentage = getProfileCompletion().percentage;
+            try {
+                const { data: pctData } = await supabaseClient.rpc('profile_completeness', { profile_id: currentUser.id });
+                if (pctData !== null && pctData !== undefined) percentage = pctData;
+            } catch(e) { console.error('profile_completeness RPC:', e); }
+
             const now = new Date();
             const chatsCompleted = meetings.filter(m => new Date(m.date || m.start_time) < now).length;
             const upcomingCount  = meetings.filter(m => new Date(m.date || m.start_time) >= now).length;
 
-            const initials = `${(currentUser.firstName || '?')[0]}${(currentUser.lastName || '?')[0]}`.toUpperCase();
-            const avatarInner = currentUser.profilePicture
-                ? `<img src="${currentUser.profilePicture}" alt="${currentUser.firstName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+            const initials = `${(profile.firstName || '?')[0]}${(profile.lastName || '?')[0]}`.toUpperCase();
+            const avatarBg = profile.profilePicture ? 'none'
+                : (profile.avatarColor || 'linear-gradient(135deg,var(--caramel),var(--espresso))');
+            const avatarInner = profile.profilePicture
+                ? `<img src="${profile.profilePicture}" alt="${profile.firstName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
                 : initials;
 
             // Fetch availability
@@ -12258,27 +12307,27 @@
                 </div>`).join('');
 
             // Interests + hobbies tags
-            const allTags = [...(currentUser.interests || []), ...(currentUser.hobbies || [])];
+            const allTags = [...(profile.interests || []), ...(profile.hobbies || [])];
             const tagsHtml = allTags.length
                 ? allTags.map(t => `<span style="background:var(--latte-soft);border:1px solid var(--latte);color:var(--brown);border-radius:8px;padding:5px 12px;font-size:12.5px;font-weight:500;">${t}</span>`).join('')
                 : `<span style="font-size:13px;color:var(--muted);font-style:italic;">No interests added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;font-style:normal;font-weight:600;">Add some →</span></span>`;
 
             // Completion checklist
             const compItems = [
-                { label: 'Photo uploaded',   done: !!currentUser.profilePicture },
-                { label: 'Bio written',      done: !!(currentUser.bio && currentUser.bio.trim()) },
-                { label: 'Interests added',  done: !!(currentUser.interests && currentUser.interests.length > 0) },
+                { label: 'Photo uploaded',   done: !!profile.profilePicture },
+                { label: 'Bio written',      done: !!(profile.bio && profile.bio.trim()) },
+                { label: 'Interests added',  done: !!(profile.interests && profile.interests.length > 0) },
                 { label: 'Availability set', done: availRows.length > 0 },
-                { label: 'LinkedIn URL',     done: !!(currentUser.linkedinUrl && currentUser.linkedinUrl.trim()) },
-                { label: 'Resume uploaded',  done: !!currentUser.resume },
-                { label: 'Career goals',     done: !!(currentUser.goals && currentUser.goals.trim()) },
+                { label: 'LinkedIn URL',     done: !!(profile.linkedinUrl && profile.linkedinUrl.trim()) },
+                { label: 'Resume uploaded',  done: !!profile.resume },
+                { label: 'Career goals',     done: !!(profile.goals && profile.goals.trim()) },
             ];
 
             // Hero chips
             const chips = [
-                currentUser.company  ? `🎓 ${currentUser.company}`                           : null,
-                currentUser.gradYear ? `📅 Class of ${currentUser.gradYear}`                 : null,
-                (currentUser.major || currentUser.industry) ? `💼 ${currentUser.major || currentUser.industry}` : null,
+                profile.company  ? `🎓 ${profile.company}`                         : null,
+                profile.gradYear ? `📅 Class of ${profile.gradYear}`               : null,
+                (profile.major || profile.industry) ? `💼 ${profile.major || profile.industry}` : null,
             ].filter(Boolean);
 
             container.innerHTML = `
@@ -12318,7 +12367,7 @@
                     </div>
                     <div style="padding:0 28px 0;position:relative;">
                         <div style="display:inline-block;margin-top:-36px;margin-bottom:12px;position:relative;">
-                            <div onclick="editMyProfile()" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--caramel),var(--espresso));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;border:3px solid var(--card);box-shadow:0 2px 10px rgba(107,63,42,.22);cursor:pointer;overflow:hidden;position:relative;"
+                            <div onclick="editMyProfile()" style="width:72px;height:72px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;border:3px solid var(--card);box-shadow:0 2px 10px rgba(107,63,42,.22);cursor:pointer;overflow:hidden;position:relative;"
                                 onmouseover="this.querySelector('.av-ov').style.opacity=1"
                                 onmouseout="this.querySelector('.av-ov').style.opacity=0">
                                 ${avatarInner}
@@ -12328,8 +12377,8 @@
                         </div>
                         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:20px;">
                             <div>
-                                <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--espresso);line-height:1.2;margin-bottom:3px;">${currentUser.firstName} ${currentUser.lastName}</div>
-                                <div style="font-size:13.5px;color:var(--brown);font-weight:500;margin-bottom:8px;">${currentUser.headline || [currentUser.role, currentUser.industry].filter(Boolean).join(' · ') || 'Add a headline in Settings'}</div>
+                                <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--espresso);line-height:1.2;margin-bottom:3px;">${profile.firstName} ${profile.lastName}</div>
+                                <div style="font-size:13.5px;color:var(--brown);font-weight:500;margin-bottom:8px;">${profile.headline || [profile.role, profile.industry].filter(Boolean).join(' · ') || 'Add a headline in Settings'}</div>
                                 <div style="display:flex;flex-wrap:wrap;gap:6px;">
                                     ${chips.map(c => `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">${c}</span>`).join('')}
                                     <span style="display:inline-flex;align-items:center;gap:4px;background:#eaf4ee;border:1px solid #b7dfc9;border-radius:99px;padding:3px 10px;font-size:12px;color:#2d6a4f;font-weight:500;">🟢 Open to chats</span>
@@ -12371,8 +12420,8 @@
                                 <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
                             </div>
                             <div style="padding:20px 22px;">
-                                ${currentUser.bio
-                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;">${currentUser.bio}</p>`
+                                ${profile.bio
+                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;">${profile.bio}</p>`
                                     : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No bio added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add one →</span></p>`}
                             </div>
                         </div>
@@ -12391,8 +12440,8 @@
                                 <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
                             </div>
                             <div style="padding:20px 22px;">
-                                ${currentUser.goals
-                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;border-left:3px solid var(--caramel);padding-left:14px;">${currentUser.goals}</p>`
+                                ${profile.goals
+                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;border-left:3px solid var(--caramel);padding-left:14px;">${profile.goals}</p>`
                                     : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add yours →</span></p>`}
                             </div>
                         </div>
@@ -12453,14 +12502,14 @@
                         <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
                             <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
                                 <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Resume</h3>
-                                ${currentUser.resume ? `<button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Replace</button>` : ''}
+                                ${profile.resume ? `<button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Replace</button>` : ''}
                             </div>
                             <div style="padding:20px 22px;">
-                                ${currentUser.resume
-                                    ? `<div class="mp2-resume" onclick="openResume('${currentUser.resume}')" style="display:flex;align-items:center;gap:12px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .15s;">
+                                ${profile.resume
+                                    ? `<div class="mp2-resume" onclick="openResume('${profile.resume}')" style="display:flex;align-items:center;gap:12px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .15s;">
                                         <span style="font-size:22px;">📄</span>
                                         <div>
-                                            <div style="font-size:13.5px;font-weight:600;color:var(--espresso);">${currentUser.firstName} ${currentUser.lastName} — Resume</div>
+                                            <div style="font-size:13.5px;font-weight:600;color:var(--espresso);">${profile.firstName} ${profile.lastName} — Resume</div>
                                             <div style="font-size:11.5px;color:var(--muted);margin-top:1px;">Click to view</div>
                                         </div>
                                        </div>
@@ -12813,10 +12862,32 @@
             }
         }
 
-        function clearAllNotifications() {
+        async function clearAllNotifications() {
+            if (currentUser) {
+                try {
+                    await supabaseClient.from('notifications')
+                        .delete().eq('user_id', currentUser.id).eq('read', true);
+                } catch (e) { console.error('clearAllNotifications:', e); }
+            }
             notifications = [];
             renderNotifications();
             showToast('Notifications cleared', 'info');
+        }
+
+        async function refreshBellBadge() {
+            if (!currentUser) return;
+            try {
+                const { data } = await supabaseClient
+                    .from('unread_notification_counts')
+                    .select('unread_count')
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle();
+                const count = data ? (data.unread_count || 0) : 0;
+                const badge = document.getElementById('bellBadge');
+                if (badge) { badge.textContent = count; badge.classList.toggle('hidden', count === 0); }
+                const dot = document.getElementById('notifDot');
+                if (dot) dot.style.display = count > 0 ? 'block' : 'none';
+            } catch (e) { console.error('refreshBellBadge:', e); }
         }
 
         // ============================================
@@ -13066,6 +13137,7 @@
                 if (sectionId === 'st-notifications') loadStNotifications();
                 if (sectionId === 'st-privacy')       loadStPrivacy();
                 if (sectionId === 'st-availability')  loadStAvailability();
+                if (sectionId === 'st-danger')        loadStDanger();
             }
         }
 
@@ -13354,23 +13426,10 @@
             if (file.size > 10 * 1024 * 1024) { showStToast('Resume must be under 10 MB.', 'error'); return; }
             try {
                 const path = `${currentUser.id}/resume.pdf`;
-                const { error: upErr } = await supabaseClient.storage.from('resumes').upload(path, file, { upsert: true });
-                if (upErr) {
-                    // Fallback: store as data URL in profile
-                    const reader = new FileReader();
-                    reader.onload = async ev => {
-                        await supabaseClient.from('profiles').update({ resume_url: ev.target.result }).eq('id', currentUser.id);
-                        currentUser.resume = ev.target.result;
-                        const hint = document.getElementById('stResumeHint');
-                        if (hint) hint.textContent = 'Resume uploaded ✓';
-                        showStToast('Resume uploaded!');
-                    };
-                    reader.readAsDataURL(file);
-                    return;
-                }
-                const { data: urlData } = supabaseClient.storage.from('resumes').getPublicUrl(path);
-                await supabaseClient.from('profiles').update({ resume_url: urlData.publicUrl }).eq('id', currentUser.id);
-                currentUser.resume = urlData.publicUrl;
+                const { error: upErr } = await supabaseClient.storage.from('resumes').upload(path, file, { upsert: true, contentType: 'application/pdf' });
+                if (upErr) throw upErr;
+                await supabaseClient.from('profiles').update({ resume_url: path }).eq('id', currentUser.id);
+                currentUser.resume = path;
                 const hint = document.getElementById('stResumeHint');
                 if (hint) hint.textContent = 'Resume uploaded ✓';
                 showStToast('Resume uploaded!');
@@ -13401,14 +13460,55 @@
             showStToast('Data export coming soon — we\'ll email you a download link!');
         }
 
+        async function loadStDanger() {
+            if (!currentUser) return;
+            try {
+                const { data } = await supabaseClient.from('user_preferences')
+                    .select('privacy_appear_in_discover').eq('user_id', currentUser.id).maybeSingle();
+                const isPaused = data && data.privacy_appear_in_discover === false;
+                const btn = document.getElementById('stPauseBtn');
+                if (btn) {
+                    btn.textContent = isPaused ? 'Resume Account' : 'Pause Account';
+                    btn.onclick = isPaused ? resumeStAccount : pauseStAccount;
+                }
+            } catch (e) { console.error('loadStDanger:', e); }
+        }
+
         async function pauseStAccount() {
             if (!currentUser) return;
             try {
                 const { error } = await supabaseClient.from('user_preferences').update({ privacy_appear_in_discover: false }).eq('user_id', currentUser.id);
                 if (error) throw error;
-                showStToast('Account paused — you\'re hidden from Discover.');
+                showStToast('Your profile is now hidden from Discover.');
+                const btn = document.getElementById('stPauseBtn');
+                if (btn) { btn.textContent = 'Resume Account'; btn.onclick = resumeStAccount; }
                 const el = document.getElementById('privacy_appear_in_discover');
                 if (el) el.checked = false;
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+        }
+
+        async function resumeStAccount() {
+            if (!currentUser) return;
+            try {
+                const { error } = await supabaseClient.from('user_preferences').update({ privacy_appear_in_discover: true }).eq('user_id', currentUser.id);
+                if (error) throw error;
+                showStToast('Account resumed — your profile is visible in Discover.');
+                const btn = document.getElementById('stPauseBtn');
+                if (btn) { btn.textContent = 'Pause Account'; btn.onclick = pauseStAccount; }
+                const el = document.getElementById('privacy_appear_in_discover');
+                if (el) el.checked = true;
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+        }
+
+        async function clearAllNotifsDanger() {
+            if (!currentUser) return;
+            if (!confirm('Delete all notifications? This cannot be undone.')) return;
+            try {
+                const { error } = await supabaseClient.from('notifications').delete().eq('user_id', currentUser.id);
+                if (error) throw error;
+                notifications = notifications.filter(n => !n.dbId);
+                renderNotifications();
+                showStToast('All notifications cleared.');
             } catch (e) { showStToast('Error: ' + e.message, 'error'); }
         }
 
@@ -13438,7 +13538,7 @@
         }
 
         function confirmDeleteAccount() {
-            showStToast('To delete your account please email support@firstsip.app — our team will process your request within 48 hours.');
+            showStToast('To delete your account, email Sal.FirstSip@Outlook.com — we\'ll process it within 24 hours.');
         }
 
         let stToastTimer = null;
