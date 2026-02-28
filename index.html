@@ -5516,6 +5516,7 @@
            PROFILE / GROUP DETAIL SHELLS
            =================================================== */
         .pv-shell { padding-bottom: 2rem; }
+        #myProfileView { max-width: 900px; }
 
         /* ===================================================
            SETTINGS VIEW  (st-*)
@@ -12208,171 +12209,267 @@
         // MY PROFILE (LinkedIn-style)
         // ============================================
 
-        function renderMyProfile() {
+        async function renderMyProfile() {
             if (!currentUser) return;
             const container = document.getElementById('myProfileContent');
             if (!container) return;
 
-            const { percentage, missing } = getProfileCompletion();
-            const streak = getLoginStreak();
-            const myPosts = posts.filter(p => p.author_id === currentUser.id);
-            const chatsCompleted = meetings.filter(m => new Date(m.date) < new Date()).length;
+            const { percentage, completed } = getProfileCompletion();
+            const now = new Date();
+            const chatsCompleted = meetings.filter(m => new Date(m.date || m.start_time) < now).length;
+            const upcomingCount  = meetings.filter(m => new Date(m.date || m.start_time) >= now).length;
 
             const initials = `${(currentUser.firstName || '?')[0]}${(currentUser.lastName || '?')[0]}`.toUpperCase();
-            const avatarHTML = currentUser.profilePicture
+            const avatarInner = currentUser.profilePicture
                 ? `<img src="${currentUser.profilePicture}" alt="${currentUser.firstName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
                 : initials;
 
-            const allTags = [
-                ...(currentUser.interests || []).map(i => `<span style="padding:7px 15px;background:var(--latte-soft);border:1.5px solid var(--latte);border-radius:100px;font-size:13px;font-weight:500;color:var(--brown);">${i}</span>`),
-                ...(currentUser.hobbies || []).map(h => `<span style="padding:7px 15px;background:var(--latte-soft);border:1.5px solid var(--latte);border-radius:100px;font-size:13px;font-weight:500;color:var(--brown);">${h}</span>`)
-            ].join('');
+            // Fetch availability
+            let availRows = [];
+            try {
+                const { data } = await supabaseClient
+                    .from('availability')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('day_of_week');
+                availRows = (data || []).filter(r => r.is_available);
+            } catch(e) {}
+
+            // Build availability rows HTML
+            const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const fmt = t => {
+                if (!t) return '';
+                const [h, m] = t.split(':');
+                const hr = parseInt(h);
+                return `${hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr)}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+            };
+            const openDaysHtml = availRows.map(r => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--latte-soft);font-size:13px;">
+                    <span style="font-weight:600;width:36px;color:var(--brown);">${dayNames[r.day_of_week]}</span>
+                    <span style="color:var(--muted);font-size:12.5px;">${fmt(r.start_time)} – ${fmt(r.end_time)}</span>
+                    <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#eaf4ee;color:#2d6a4f;">Open</span>
+                </div>`).join('');
+            const openDayNums = new Set(availRows.map(r => r.day_of_week));
+            const closedHtml  = [0,1,2,3,4,5,6].filter(d => !openDayNums.has(d)).slice(0, 2).map(d => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--latte-soft);font-size:13px;">
+                    <span style="font-weight:600;width:36px;color:var(--brown);">${dayNames[d]}</span>
+                    <span style="color:var(--muted);font-size:12.5px;">—</span>
+                    <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--latte-soft);color:var(--muted);">Closed</span>
+                </div>`).join('');
+
+            // Interests + hobbies tags
+            const allTags = [...(currentUser.interests || []), ...(currentUser.hobbies || [])];
+            const tagsHtml = allTags.length
+                ? allTags.map(t => `<span style="background:var(--latte-soft);border:1px solid var(--latte);color:var(--brown);border-radius:8px;padding:5px 12px;font-size:12.5px;font-weight:500;">${t}</span>`).join('')
+                : `<span style="font-size:13px;color:var(--muted);font-style:italic;">No interests added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;font-style:normal;font-weight:600;">Add some →</span></span>`;
+
+            // Completion checklist
+            const compItems = [
+                { label: 'Photo uploaded',   done: !!currentUser.profilePicture },
+                { label: 'Bio written',      done: !!(currentUser.bio && currentUser.bio.trim()) },
+                { label: 'Interests added',  done: !!(currentUser.interests && currentUser.interests.length > 0) },
+                { label: 'Availability set', done: availRows.length > 0 },
+                { label: 'LinkedIn URL',     done: !!(currentUser.linkedinUrl && currentUser.linkedinUrl.trim()) },
+                { label: 'Resume uploaded',  done: !!currentUser.resume },
+                { label: 'Career goals',     done: !!(currentUser.goals && currentUser.goals.trim()) },
+            ];
+
+            // Hero chips
+            const chips = [
+                currentUser.company  ? `🎓 ${currentUser.company}`                           : null,
+                currentUser.gradYear ? `📅 Class of ${currentUser.gradYear}`                 : null,
+                (currentUser.major || currentUser.industry) ? `💼 ${currentUser.major || currentUser.industry}` : null,
+            ].filter(Boolean);
 
             container.innerHTML = `
                 <style>
                     @keyframes mpFillBar { from { width:0% } to { width:${percentage}%; } }
-                    .mp-btn {
-                        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-                    }
-                    .mp-btn:hover {
-                        transform: translateY(-3px) scale(1.03);
-                        box-shadow: 0 10px 28px rgba(28,18,8,0.28) !important;
-                    }
-                    .mp-btn:active { transform: translateY(-1px) scale(1.01); }
-                    .mp-resume-link {
-                        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-                    }
-                    .mp-resume-link:hover {
-                        transform: translateY(-3px);
-                        box-shadow: 0 8px 24px rgba(192,124,58,0.22);
-                        border-color: var(--caramel) !important;
+                    .mp2-btn  { transition: transform .18s, box-shadow .18s; }
+                    .mp2-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(28,18,8,.22) !important; }
+                    .mp2-ghost { transition: border-color .15s, color .15s; }
+                    .mp2-ghost:hover { border-color: var(--caramel) !important; color: var(--caramel) !important; }
+                    .mp2-card  { transition: box-shadow .15s; }
+                    .mp2-card:hover  { box-shadow: 0 6px 28px rgba(107,63,42,.14) !important; }
+                    .mp2-stat:hover  { background: var(--latte-soft) !important; }
+                    .mp2-resume:hover { border-color: var(--caramel) !important; background: #fef3e2 !important; }
+                    @media (max-width: 720px) {
+                        .mp2-lower { grid-template-columns: 1fr !important; }
+                        .mp2-stats { flex-wrap: wrap; }
+                        .mp2-stats > div { min-width: 33%; }
                     }
                 </style>
 
+                <!-- Page header -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:4px;">Your presence on First Sip</div>
+                        <h1 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--espresso);line-height:1.2;">My <em style="font-style:italic;color:var(--caramel);">Profile</em></h1>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="mp2-ghost" onclick="showToast('Preview coming soon','info')" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:9px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;">👁 Preview</button>
+                        <button class="mp2-btn" onclick="editMyProfile()" style="padding:10px 20px;background:var(--espresso);color:var(--cream);border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 3px 12px rgba(28,18,8,.2);">✏️ Edit Profile</button>
+                    </div>
+                </div>
+
                 <!-- HERO CARD -->
-                <div style="background:var(--card);border-radius:24px;border:1.5px solid var(--border);box-shadow:0 4px 24px rgba(28,18,8,0.08);overflow:hidden;margin-bottom:24px;">
-                    <div style="height:110px;background:linear-gradient(130deg,var(--espresso) 0%,var(--brown) 55%,var(--caramel) 100%);"></div>
-                    <div style="padding:0 36px 36px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:-44px;position:relative;">
-                        <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--caramel),var(--brown));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;border:4px solid var(--card);box-shadow:0 4px 20px rgba(28,18,8,0.2);flex-shrink:0;">${avatarHTML}</div>
-                        <div style="padding-top:52px;flex:1;min-width:180px;">
-                            <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--espresso);line-height:1.1;margin:0;">${currentUser.firstName} ${currentUser.lastName}</h1>
-                            <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
-                                <span style="padding:5px 14px;border-radius:100px;font-size:12.5px;font-weight:600;background:var(--latte-soft);color:var(--brown);border:1.5px solid var(--latte);">${currentUser.industry || 'Add Major'}</span>
-                                <span style="padding:5px 14px;border-radius:100px;font-size:12.5px;font-weight:600;background:linear-gradient(90deg,#E8620A,var(--caramel));color:#fff;box-shadow:0 2px 10px rgba(232,98,10,0.3);">🔥 ${streak} day streak</span>
+                <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:20px;">
+                    <div style="height:96px;background:linear-gradient(135deg,var(--espresso) 0%,var(--caramel) 60%,#e8c49a 100%);position:relative;">
+                        <div style="position:absolute;inset:0;opacity:.12;background-image:radial-gradient(circle at 20% 50%,#fff 1px,transparent 1px),radial-gradient(circle at 80% 30%,#fff 1px,transparent 1px),radial-gradient(circle at 50% 80%,#fff 1px,transparent 1px);background-size:40px 40px;"></div>
+                    </div>
+                    <div style="padding:0 28px 0;position:relative;">
+                        <div style="display:inline-block;margin-top:-36px;margin-bottom:12px;position:relative;">
+                            <div onclick="editMyProfile()" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--caramel),var(--espresso));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;border:3px solid var(--card);box-shadow:0 2px 10px rgba(107,63,42,.22);cursor:pointer;overflow:hidden;position:relative;"
+                                onmouseover="this.querySelector('.av-ov').style.opacity=1"
+                                onmouseout="this.querySelector('.av-ov').style.opacity=0">
+                                ${avatarInner}
+                                <div class="av-ov" style="position:absolute;inset:0;border-radius:50%;background:rgba(107,63,42,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:18px;color:#fff;">📷</div>
                             </div>
-                            <div style="display:flex;align-items:center;gap:18px;margin-top:8px;flex-wrap:wrap;">
-                                ${currentUser.company ? `<span style="font-size:13px;color:var(--muted);">🏫 ${currentUser.company}</span>` : ''}
-                                ${currentUser.location ? `<span style="font-size:13px;color:var(--muted);">🎓 Class of ${currentUser.location}</span>` : ''}
+                            <div style="width:14px;height:14px;background:#4caf50;border:2.5px solid var(--card);border-radius:50%;position:absolute;bottom:3px;right:3px;"></div>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:20px;">
+                            <div>
+                                <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--espresso);line-height:1.2;margin-bottom:3px;">${currentUser.firstName} ${currentUser.lastName}</div>
+                                <div style="font-size:13.5px;color:var(--brown);font-weight:500;margin-bottom:8px;">${currentUser.headline || [currentUser.role, currentUser.industry].filter(Boolean).join(' · ') || 'Add a headline in Settings'}</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                    ${chips.map(c => `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">${c}</span>`).join('')}
+                                    <span style="display:inline-flex;align-items:center;gap:4px;background:#eaf4ee;border:1px solid #b7dfc9;border-radius:99px;padding:3px 10px;font-size:12px;color:#2d6a4f;font-weight:500;">🟢 Open to chats</span>
+                                </div>
+                            </div>
+                            <button class="mp2-ghost" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;margin-top:2px;" onclick="showToast('Share link copied!','success')">Share Profile</button>
+                        </div>
+                        <!-- Stats bar -->
+                        <div class="mp2-stats" style="display:flex;border-top:1px solid var(--latte);margin:0 -28px;">
+                            <div class="mp2-stat" onclick="switchView('networkView')" style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--latte);cursor:pointer;transition:background .15s;">
+                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${connections.length}</div>
+                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Connections</div>
+                            </div>
+                            <div class="mp2-stat" style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--latte);transition:background .15s;">
+                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${chatsCompleted}</div>
+                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Chats Done</div>
+                            </div>
+                            <div class="mp2-stat" style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--latte);transition:background .15s;">
+                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${upcomingCount}</div>
+                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Upcoming</div>
+                            </div>
+                            <div class="mp2-stat" style="flex:1;text-align:center;padding:14px 8px;transition:background .15s;">
+                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${percentage}%</div>
+                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Profile Complete</div>
                             </div>
                         </div>
-                        <div style="padding-top:52px;flex-shrink:0;">
-                            <button onclick="editMyProfile()" class="mp-btn" style="padding:10px 22px;background:var(--brown);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 3px 12px rgba(28,18,8,0.2);">✏️ Edit Profile</button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- PROGRESS (hidden at 100%) -->
-                ${percentage < 100 ? `
-                <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:24px 32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);display:flex;align-items:center;gap:28px;margin-bottom:24px;flex-wrap:wrap;">
-                    <div style="flex-shrink:0;">
-                        <strong style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--caramel);display:block;">${percentage}%</strong>
-                        <span style="font-size:13px;color:var(--muted);font-weight:500;white-space:nowrap;">Profile Complete</span>
-                    </div>
-                    <div style="flex:1;min-width:120px;height:8px;background:var(--latte-soft);border-radius:100px;overflow:hidden;">
-                        <div style="height:100%;width:${percentage}%;background:linear-gradient(90deg,var(--caramel),#E8620A);border-radius:100px;animation:mpFillBar 1.2s cubic-bezier(0.22,1,0.36,1) forwards;"></div>
-                    </div>
-                    <div style="font-size:12.5px;color:var(--muted);white-space:nowrap;flex-shrink:0;">Next: <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;">${missing[0]} →</span></div>
-                </div>
-                ` : ''}
+                <!-- LOWER TWO-COLUMN -->
+                <div class="mp2-lower" style="display:grid;grid-template-columns:1fr 300px;gap:20px;">
 
-                <!-- STATS ROW -->
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
-                    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:0 4px 24px rgba(28,18,8,0.06);display:flex;align-items:center;gap:14px;">
-                        <div style="font-size:18px;width:36px;height:36px;border-radius:10px;background:var(--latte-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🔥</div>
-                        <div>
-                            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--espresso);line-height:1;">${streak}</div>
-                            <div style="font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;">Day Streak</div>
-                        </div>
-                    </div>
-                    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:0 4px 24px rgba(28,18,8,0.06);display:flex;align-items:center;gap:14px;">
-                        <div style="font-size:18px;width:36px;height:36px;border-radius:10px;background:var(--latte-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🔗</div>
-                        <div>
-                            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--espresso);line-height:1;">${connections.length}</div>
-                            <div style="font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;">Connections</div>
-                        </div>
-                    </div>
-                    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:0 4px 24px rgba(28,18,8,0.06);display:flex;align-items:center;gap:14px;">
-                        <div style="font-size:18px;width:36px;height:36px;border-radius:10px;background:var(--latte-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">☕</div>
-                        <div>
-                            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--espresso);line-height:1;">${chatsCompleted}</div>
-                            <div style="font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;">Coffee Chats</div>
-                        </div>
-                    </div>
-                </div>
+                    <!-- LEFT: About / Interests / Goals / Badges -->
+                    <div style="display:flex;flex-direction:column;gap:20px;">
 
-                <!-- BIO -->
-                <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);margin-bottom:24px;">
-                    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:16px;">💬 Bio</div>
-                    ${currentUser.bio
-                        ? `<p style="font-size:15px;color:var(--muted);line-height:1.8;margin:0;">${currentUser.bio}</p>`
-                        : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No bio added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add one →</span></p>`
-                    }
-                </div>
-
-                <!-- CAREER GOALS + SKILLS (2-col) -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
-                    <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);">
-                        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:16px;">🎯 Career Goals</div>
-                        ${currentUser.goals
-                            ? `<p style="font-size:15px;color:var(--muted);line-height:1.75;margin:0;">${currentUser.goals}</p>`
-                            : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No career goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add yours →</span></p>`
-                        }
-                    </div>
-                    <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);">
-                        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:16px;">✨ Skills & Interests</div>
-                        ${allTags
-                            ? `<div style="display:flex;flex-wrap:wrap;gap:10px;">${allTags}</div>`
-                            : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No interests added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add yours →</span></p>`
-                        }
-                    </div>
-                </div>
-
-                <!-- RESUME -->
-                ${currentUser.resume ? `
-                <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);margin-bottom:24px;">
-                    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:16px;">📄 Resume</div>
-                    <button onclick="openResume(currentUser.resume)" class="mp-resume-link" style="display:inline-flex;align-items:center;gap:14px;padding:14px 20px;background:var(--latte-soft);border:1.5px solid var(--latte);border-radius:12px;color:var(--espresso);cursor:pointer;font-family:'DM Sans',sans-serif;">
-                        <span style="font-size:28px;">📄</span>
-                        <div>
-                            <div style="font-weight:600;font-size:14px;">${currentUser.firstName} ${currentUser.lastName} — Resume</div>
-                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Click to view</div>
-                        </div>
-                    </button>
-                </div>
-                ` : ''}
-
-                <!-- BADGES -->
-                <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);margin-bottom:24px;">
-                    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:20px;">🏅 Badges</div>
-                    <div class="badge-grid" id="myProfileBadgesView"></div>
-                </div>
-
-                <!-- MY POSTS -->
-                <div style="background:var(--card);border-radius:20px;border:1.5px solid var(--border);padding:32px;box-shadow:0 4px 24px rgba(28,18,8,0.06);">
-                    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--espresso);margin-bottom:20px;">📝 My Posts</div>
-                    ${myPosts.length > 0
-                        ? myPosts.map(post => `
-                            <div style="padding:16px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:12px;background:var(--warm-white);">
-                                <p style="color:var(--espresso);font-size:14px;line-height:1.7;margin:0;">${post.content}</p>
-                                <p style="font-size:12px;color:var(--muted);margin-top:10px;margin-bottom:0;">${post.date || 'Recently'} · ${post.likes_count || 0} likes</p>
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">About</h3>
+                                <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
                             </div>
-                        `).join('')
-                        : `<div style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;gap:14px;">
-                            <div style="width:64px;height:64px;border-radius:50%;background:var(--latte-soft);display:flex;align-items:center;justify-content:center;font-size:26px;border:1.5px solid var(--latte);">✍️</div>
-                            <p style="color:var(--muted);font-size:14px;margin:0;">You haven't posted anything yet. Share your thoughts!</p>
-                            <button onclick="switchView('hubView')" class="mp-btn" style="display:inline-flex;align-items:center;gap:6px;padding:9px 22px;background:linear-gradient(90deg,var(--brown),var(--caramel));color:#fff;border:none;border-radius:100px;font-size:13.5px;font-weight:600;cursor:pointer;box-shadow:0 3px 14px rgba(28,18,8,0.2);font-family:'DM Sans',sans-serif;">✨ Create your first post</button>
-                        </div>`
-                    }
+                            <div style="padding:20px 22px;">
+                                ${currentUser.bio
+                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;">${currentUser.bio}</p>`
+                                    : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No bio added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add one →</span></p>`}
+                            </div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Interests &amp; Passions</h3>
+                                <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
+                            </div>
+                            <div style="padding:20px 22px;"><div style="display:flex;flex-wrap:wrap;gap:7px;">${tagsHtml}</div></div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Career Goals</h3>
+                                <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
+                            </div>
+                            <div style="padding:20px 22px;">
+                                ${currentUser.goals
+                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;border-left:3px solid var(--caramel);padding-left:14px;">${currentUser.goals}</p>`
+                                    : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add yours →</span></p>`}
+                            </div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">🏅 Badges</h3>
+                            </div>
+                            <div style="padding:20px 22px;"><div class="badge-grid" id="myProfileBadgesView"></div></div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT: Strength / Availability / Resume -->
+                    <div style="display:flex;flex-direction:column;gap:20px;">
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Profile Strength</h3>
+                            </div>
+                            <div style="padding:20px 22px;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">
+                                    <span>Progress</span>
+                                    <strong style="color:var(--caramel);font-weight:700;">${percentage}% complete</strong>
+                                </div>
+                                <div style="background:var(--latte-soft);border-radius:99px;height:8px;overflow:hidden;margin:10px 0 6px;">
+                                    <div style="height:100%;width:${percentage}%;background:linear-gradient(90deg,var(--espresso),var(--caramel));border-radius:99px;animation:mpFillBar 1.2s cubic-bezier(0.22,1,0.36,1) forwards;"></div>
+                                </div>
+                                <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">Complete profiles get 3× more requests</div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    ${compItems.map(item => `
+                                        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:${item.done ? 'var(--brown)' : 'var(--muted)'};">
+                                            <span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:${item.done ? '#2d6a4f' : 'transparent'};border:${item.done ? 'none' : '1.5px solid var(--muted)'};display:inline-block;"></span>
+                                            ${item.label}
+                                        </div>`).join('')}
+                                </div>
+                                <button onclick="switchView('settingsView')" class="mp2-btn" style="width:100%;margin-top:16px;padding:10px;background:var(--espresso);color:var(--cream);border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;box-shadow:0 3px 12px rgba(28,18,8,.2);">✏️ Complete Profile</button>
+                            </div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Availability</h3>
+                                <button onclick="switchView('settingsView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
+                            </div>
+                            <div style="padding:14px 22px 20px;">
+                                ${availRows.length > 0
+                                    ? openDaysHtml + closedHtml
+                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;padding:6px 0;">No availability set. <span onclick="switchView('settingsView')" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Set hours →</span></p>`}
+                                ${availRows.length > 0 ? `
+                                <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+                                    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">💻 Virtual</span>
+                                    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">☕ In-person</span>
+                                </div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Resume</h3>
+                                ${currentUser.resume ? `<button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Replace</button>` : ''}
+                            </div>
+                            <div style="padding:20px 22px;">
+                                ${currentUser.resume
+                                    ? `<div class="mp2-resume" onclick="openResume('${currentUser.resume}')" style="display:flex;align-items:center;gap:12px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .15s;">
+                                        <span style="font-size:22px;">📄</span>
+                                        <div>
+                                            <div style="font-size:13.5px;font-weight:600;color:var(--espresso);">${currentUser.firstName} ${currentUser.lastName} — Resume</div>
+                                            <div style="font-size:11.5px;color:var(--muted);margin-top:1px;">Click to view</div>
+                                        </div>
+                                       </div>
+                                       <p style="font-size:12px;color:var(--muted);margin-top:10px;">Only visible to connections you approve.</p>`
+                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No resume uploaded. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Upload one →</span></p>`}
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             `;
 
