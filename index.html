@@ -5941,6 +5941,32 @@
             .st-form-row { grid-template-columns: 1fr; }
             .st-avail-row { grid-template-columns: 1fr 1fr; }
         }
+
+        /* Availability 7-day grid */
+        .st-avail-day-grid { display: flex; flex-direction: column; }
+        .st-avail-day-row {
+            display: grid;
+            grid-template-columns: 100px 48px 1fr 18px 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .st-avail-day-row:last-child { border-bottom: none; }
+        .st-avail-day-name { font-size: 13.5px; font-weight: 500; color: var(--espresso); }
+        .st-avail-day-sep { font-size: 12px; color: var(--muted); text-align: center; }
+        .st-avail-day-row input[type="time"].st-input { padding: 8px 10px; }
+        .st-avail-day-row input[type="time"]:disabled { opacity: 0.35; cursor: not-allowed; }
+        @media (max-width: 640px) {
+            .st-avail-day-row { grid-template-columns: 75px 40px 1fr 12px 1fr; gap: 6px; }
+            .st-avail-day-name { font-size: 12px; }
+        }
+
+        /* Button loading state */
+        .st-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Error toast variant */
+        .st-toast.error { background: var(--danger); }
     </style>
 </head>
 <body>
@@ -7079,7 +7105,6 @@
             <button class="st-mobile-tab" onclick="switchStSection(this,'st-notifications','stMobileTabs')">🔔 Notifications</button>
             <button class="st-mobile-tab" onclick="switchStSection(this,'st-privacy','stMobileTabs')">🛡️ Privacy</button>
             <button class="st-mobile-tab" onclick="switchStSection(this,'st-availability','stMobileTabs')">📅 Availability</button>
-            <button class="st-mobile-tab" onclick="switchStSection(this,'st-appearance','stMobileTabs')">🎨 Appearance</button>
             <button class="st-mobile-tab danger" onclick="switchStSection(this,'st-danger','stMobileTabs')">⚠️ Danger</button>
         </div>
 
@@ -7105,9 +7130,6 @@
                 </button>
                 <button class="st-nav-item" onclick="switchStSection(this,'st-availability')">
                     <span class="st-nav-icon">📅</span> Availability
-                </button>
-                <button class="st-nav-item" onclick="switchStSection(this,'st-appearance')">
-                    <span class="st-nav-icon">🎨</span> Appearance
                 </button>
                 <div class="st-nav-divider"></div>
                 <button class="st-nav-item st-nav-danger" onclick="switchStSection(this,'st-danger')">
@@ -7136,7 +7158,7 @@
                         </div>
                         <div class="st-card-body">
                             <div class="st-avatar-wrap">
-                                <div class="st-avatar" id="stAvatarPreview">
+                                <div class="st-avatar" id="stAvatarPreview" onclick="document.getElementById('stAvatarFile').click()">
                                     <span id="stAvatarInitials">?</span>
                                     <div class="st-avatar-overlay">📷</div>
                                     <input type="file" id="stAvatarFile" accept="image/*" style="display:none;" onchange="uploadStAvatar(this)">
@@ -7157,12 +7179,17 @@
                             <div class="st-form-row">
                                 <div class="st-form-group">
                                     <label class="st-label">First Name</label>
-                                    <input type="text" id="stFirstName" class="st-input">
+                                    <input type="text" id="stFirstName" class="st-input" placeholder="First name">
                                 </div>
                                 <div class="st-form-group">
                                     <label class="st-label">Last Name</label>
-                                    <input type="text" id="stLastName" class="st-input">
+                                    <input type="text" id="stLastName" class="st-input" placeholder="Last name">
                                 </div>
+                            </div>
+                            <div class="st-form-group">
+                                <label class="st-label">Headline</label>
+                                <input type="text" id="stHeadline" class="st-input" placeholder='e.g. "Finance Junior @ Rowan | SIE Certified"'>
+                                <div class="st-hint">A tagline that appears under your name on your profile card.</div>
                             </div>
                             <div class="st-form-row">
                                 <div class="st-form-group">
@@ -7192,8 +7219,8 @@
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="renderSettingsView()">Discard</button>
-                            <button class="st-btn-primary" onclick="saveStBasic()">Save Changes</button>
+                            <button class="st-btn-secondary" onclick="loadStProfile()">Discard</button>
+                            <button class="st-btn-primary" id="stSaveBasicBtn" onclick="saveStProfile()">Save Changes</button>
                         </div>
                     </div>
 
@@ -7203,8 +7230,13 @@
                         <div class="st-card-body">
                             <div class="st-form-row">
                                 <div class="st-form-group">
-                                    <label class="st-label">Major / Field</label>
+                                    <label class="st-label">Major</label>
+                                    <input type="text" id="stMajor" class="st-input" placeholder="e.g. Finance, Computer Science">
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Industry / Field</label>
                                     <select id="stIndustry" class="st-input">
+                                        <option value="">— Select industry —</option>
                                         <option value="Business/Finance">Business / Finance</option>
                                         <option value="Computer Science/Tech">Computer Science / Tech</option>
                                         <option value="Engineering">Engineering</option>
@@ -7213,19 +7245,25 @@
                                         <option value="Undecided/Exploring">Undecided / Exploring</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="st-form-row">
                                 <div class="st-form-group">
                                     <label class="st-label">Role / Title</label>
                                     <input type="text" id="stRole" class="st-input" placeholder="e.g. Finance Intern">
                                 </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">Company / Organization</label>
+                                    <input type="text" id="stCompany" class="st-input" placeholder="e.g. Rowan University">
+                                </div>
                             </div>
                             <div class="st-form-row">
                                 <div class="st-form-group">
-                                    <label class="st-label">Company / School</label>
-                                    <input type="text" id="stCompany" class="st-input" placeholder="e.g. Rowan University">
-                                </div>
-                                <div class="st-form-group">
                                     <label class="st-label">Location</label>
                                     <input type="text" id="stLocation" class="st-input" placeholder="e.g. Glassboro, NJ">
+                                </div>
+                                <div class="st-form-group">
+                                    <label class="st-label">LinkedIn URL</label>
+                                    <input type="url" id="stLinkedin" class="st-input" placeholder="https://linkedin.com/in/yourname">
                                 </div>
                             </div>
                             <div class="st-form-group">
@@ -7240,6 +7278,12 @@
                                 <div class="st-hint">Press Enter or comma to add a tag.</div>
                             </div>
                             <div class="st-form-group">
+                                <label class="st-label">Hobbies</label>
+                                <div class="st-tags-wrap" id="stHobbyTags" onclick="document.getElementById('stHobbyInput').focus()">
+                                    <input id="stHobbyInput" class="st-tags-input" placeholder="Type and press Enter…" onkeydown="handleStTag(event,'stHobbyTags','stHobbyInput')">
+                                </div>
+                            </div>
+                            <div class="st-form-group">
                                 <label class="st-label">Resume</label>
                                 <button class="st-btn-upload" onclick="document.getElementById('stResumeFile').click()">📄 Upload Resume (PDF, max 10 MB)</button>
                                 <input type="file" id="stResumeFile" accept=".pdf" style="display:none;" onchange="uploadStResume(this)">
@@ -7247,8 +7291,8 @@
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="renderSettingsView()">Discard</button>
-                            <button class="st-btn-primary" onclick="saveStCareer()">Save Changes</button>
+                            <button class="st-btn-secondary" onclick="loadStProfile()">Discard</button>
+                            <button class="st-btn-primary" id="stSaveCareerBtn" onclick="saveStCareer()">Save Changes</button>
                         </div>
                     </div>
                 </div>
@@ -7341,37 +7385,37 @@
                         <div class="st-card-header">
                             <div>
                                 <div class="st-card-title">Email Notifications</div>
-                                <div class="st-card-sub" id="stNotifEmailSub">—</div>
+                                <div class="st-card-sub">Emails sent to your Rowan address</div>
                             </div>
                         </div>
                         <div class="st-card-body no-gap" style="padding-bottom:6px;">
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">New connection requests</div><div class="st-toggle-desc">When someone sends you a connection request.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfConnReq" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_email_connections"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Chat requests</div><div class="st-toggle-desc">When someone wants to schedule a coffee chat with you.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfChatReq" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_email_chat_requests"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Chat reminders</div><div class="st-toggle-desc">A reminder 1 hour before your scheduled coffee chat.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfReminder" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_email_reminders"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">New messages</div><div class="st-toggle-desc">When you receive a direct message from a connection.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfMessages" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_email_messages"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Group activity</div><div class="st-toggle-desc">New posts and announcements in groups you've joined.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfGroups"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_email_group_activity"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Weekly digest</div><div class="st-toggle-desc">A Sunday summary of who's active and who you should meet.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfDigest" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_email_weekly_digest"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Notification preferences saved!')">Save Preferences</button>
+                            <button class="st-btn-primary" id="stSaveNotifBtn" onclick="saveStNotifications()">Save Preferences</button>
                         </div>
                     </div>
 
@@ -7380,19 +7424,19 @@
                         <div class="st-card-body no-gap" style="padding-bottom:6px;">
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Connection accepted</div><div class="st-toggle-desc">When someone accepts your connection request.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfConnAccepted" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_app_connection_accepted"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">New match suggestions</div><div class="st-toggle-desc">When new people matching your profile join First Sip.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfMatches" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_app_match_suggestions"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Chat reviews received</div><div class="st-toggle-desc">When someone leaves a review after your coffee chat.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="ntfReviews" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="notif_app_chat_reviews"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Notification preferences saved!')">Save Preferences</button>
+                            <button class="st-btn-primary" id="stSaveInAppBtn" onclick="saveStNotifications()">Save Preferences</button>
                         </div>
                     </div>
                 </div>
@@ -7410,23 +7454,39 @@
                         <div class="st-card-body no-gap" style="padding-bottom:6px;">
                             <div class="st-priv-row">
                                 <div><div class="st-priv-label">Who can see your full profile</div><div class="st-priv-desc">Name, bio, interests, and career goals</div></div>
-                                <select class="st-priv-select"><option selected>All Rowan members</option><option>Connections only</option><option>Nobody</option></select>
+                                <select id="privacy_profile_visibility" class="st-priv-select">
+                                    <option value="everyone">All Rowan members</option>
+                                    <option value="connections">Connections only</option>
+                                    <option value="nobody">Nobody</option>
+                                </select>
                             </div>
                             <div class="st-priv-row">
                                 <div><div class="st-priv-label">Who can send you connection requests</div><div class="st-priv-desc">Control who can initiate a connection</div></div>
-                                <select class="st-priv-select"><option selected>Everyone</option><option>Mutual connections</option><option>Nobody</option></select>
+                                <select id="privacy_who_can_connect" class="st-priv-select">
+                                    <option value="everyone">Everyone</option>
+                                    <option value="mutual">Mutual connections</option>
+                                    <option value="nobody">Nobody</option>
+                                </select>
                             </div>
                             <div class="st-priv-row">
                                 <div><div class="st-priv-label">Who can request a coffee chat</div><div class="st-priv-desc">Direct chat requests without connecting first</div></div>
-                                <select class="st-priv-select"><option>Everyone</option><option selected>Connections only</option><option>Nobody</option></select>
+                                <select id="privacy_who_can_chat" class="st-priv-select">
+                                    <option value="everyone">Everyone</option>
+                                    <option value="connections">Connections only</option>
+                                    <option value="nobody">Nobody</option>
+                                </select>
                             </div>
                             <div class="st-priv-row">
                                 <div><div class="st-priv-label">Show online status</div><div class="st-priv-desc">Let others see when you're active on First Sip</div></div>
-                                <select class="st-priv-select"><option selected>Connections only</option><option>Everyone</option><option>Nobody</option></select>
+                                <select id="privacy_show_online_status" class="st-priv-select">
+                                    <option value="connections">Connections only</option>
+                                    <option value="everyone">Everyone</option>
+                                    <option value="nobody">Nobody</option>
+                                </select>
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Privacy settings saved!')">Save Privacy Settings</button>
+                            <button class="st-btn-primary" id="stSavePrivVisBtn" onclick="saveStPrivacy()">Save Privacy Settings</button>
                         </div>
                     </div>
 
@@ -7435,19 +7495,19 @@
                         <div class="st-card-body no-gap" style="padding-bottom:6px;">
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Appear in Discover</div><div class="st-toggle-desc">Allow other Rowan members to find you on the Discover page.</div></div>
-                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="privacy_appear_in_discover"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Show match percentage</div><div class="st-toggle-desc">Display your compatibility score on your profile card.</div></div>
-                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="privacy_show_match_percent"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Include in alumni recommendations</div><div class="st-toggle-desc">Let alumni find you when they filter by your major or career goals.</div></div>
-                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="privacy_alumni_recommendations"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Privacy settings saved!')">Save Settings</button>
+                            <button class="st-btn-primary" id="stSavePrivDiscBtn" onclick="saveStPrivacy()">Save Settings</button>
                         </div>
                     </div>
                 </div>
@@ -7464,37 +7524,66 @@
                         <div class="st-card-header">
                             <div>
                                 <div class="st-card-title">Weekly Availability</div>
-                                <div class="st-card-sub">Your saved time windows</div>
+                                <div class="st-card-sub">Toggle days on and set your hours</div>
                             </div>
                         </div>
                         <div class="st-card-body">
-                            <div id="stAvailList"></div>
-                            <div class="st-avail-add">
-                                <div class="st-avail-add-title">Add a Time Slot</div>
-                                <div class="st-avail-row">
-                                    <div class="st-form-group">
-                                        <label class="st-label">Day</label>
-                                        <select id="stAvailDay" class="st-input">
-                                            <option value="0">Sunday</option><option value="1">Monday</option>
-                                            <option value="2">Tuesday</option><option value="3">Wednesday</option>
-                                            <option value="4">Thursday</option><option value="5">Friday</option>
-                                            <option value="6">Saturday</option>
-                                        </select>
-                                    </div>
-                                    <div class="st-form-group">
-                                        <label class="st-label">Start</label>
-                                        <input type="time" id="stAvailStart" class="st-input" value="09:00">
-                                    </div>
-                                    <div class="st-form-group">
-                                        <label class="st-label">End</label>
-                                        <input type="time" id="stAvailEnd" class="st-input" value="17:00">
-                                    </div>
-                                    <div class="st-form-group">
-                                        <label class="st-label" style="opacity:0;">Add</label>
-                                        <button class="st-btn-primary" onclick="addStAvailSlot()">Add</button>
-                                    </div>
+                            <div class="st-avail-day-grid" id="stAvailDayGrid">
+                                <!-- Rendered by loadStAvailability() -->
+                                <div class="st-avail-day-row" id="avail-row-0">
+                                    <span class="st-avail-day-name">Sunday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-0" onchange="toggleAvailDay(0)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-0" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-0" class="st-input" value="17:00" disabled>
+                                </div>
+                                <div class="st-avail-day-row" id="avail-row-1">
+                                    <span class="st-avail-day-name">Monday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-1" onchange="toggleAvailDay(1)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-1" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-1" class="st-input" value="17:00" disabled>
+                                </div>
+                                <div class="st-avail-day-row" id="avail-row-2">
+                                    <span class="st-avail-day-name">Tuesday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-2" onchange="toggleAvailDay(2)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-2" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-2" class="st-input" value="17:00" disabled>
+                                </div>
+                                <div class="st-avail-day-row" id="avail-row-3">
+                                    <span class="st-avail-day-name">Wednesday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-3" onchange="toggleAvailDay(3)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-3" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-3" class="st-input" value="17:00" disabled>
+                                </div>
+                                <div class="st-avail-day-row" id="avail-row-4">
+                                    <span class="st-avail-day-name">Thursday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-4" onchange="toggleAvailDay(4)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-4" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-4" class="st-input" value="17:00" disabled>
+                                </div>
+                                <div class="st-avail-day-row" id="avail-row-5">
+                                    <span class="st-avail-day-name">Friday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-5" onchange="toggleAvailDay(5)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-5" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-5" class="st-input" value="17:00" disabled>
+                                </div>
+                                <div class="st-avail-day-row" id="avail-row-6">
+                                    <span class="st-avail-day-name">Saturday</span>
+                                    <label class="st-toggle"><input type="checkbox" id="avail-on-6" onchange="toggleAvailDay(6)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                    <input type="time" id="avail-start-6" class="st-input" value="09:00" disabled>
+                                    <span style="color:var(--muted);font-size:12px;">to</span>
+                                    <input type="time" id="avail-end-6" class="st-input" value="17:00" disabled>
                                 </div>
                             </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-secondary" onclick="loadStAvailability()">Discard</button>
+                            <button class="st-btn-primary" id="stSaveAvailBtn" onclick="saveStAvailability()">Save Availability</button>
                         </div>
                     </div>
 
@@ -7503,73 +7592,19 @@
                         <div class="st-card-body no-gap" style="padding-bottom:6px;">
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Open to virtual chats</div><div class="st-toggle-desc">Video calls, Zoom, or phone.</div></div>
-                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="pref_open_virtual"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Open to in-person chats</div><div class="st-toggle-desc">Campus café or other Rowan locations.</div></div>
-                                <label class="st-toggle"><input type="checkbox" checked><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="pref_open_inperson"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                             <div class="st-toggle-row">
                                 <div><div class="st-toggle-label">Limit to 2 chats per week</div><div class="st-toggle-desc">Automatically pause new requests once you hit your weekly limit.</div></div>
-                                <label class="st-toggle"><input type="checkbox"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
+                                <label class="st-toggle"><input type="checkbox" id="pref_weekly_chat_limit"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
                             </div>
                         </div>
                         <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Chat preferences saved!')">Save Preferences</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── APPEARANCE ── -->
-                <div class="st-section" id="st-appearance">
-                    <div>
-                        <div class="st-eyebrow">Make it yours</div>
-                        <h1 class="st-title">Appearance &amp; <em>Display</em></h1>
-                        <p class="st-desc">Customize how First Sip looks and feels for you.</p>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Theme</div></div>
-                        <div class="st-card-body">
-                            <div class="st-form-group">
-                                <label class="st-label">Color Mode</label>
-                                <div class="st-theme-grid">
-                                    <div class="st-theme-option selected">
-                                        <div class="st-theme-icon">☀️</div>
-                                        <div class="st-theme-label active-theme">Light</div>
-                                        <div class="st-theme-note">Current</div>
-                                    </div>
-                                    <div class="st-theme-option">
-                                        <div class="st-theme-icon">🌙</div>
-                                        <div class="st-theme-label">Dark</div>
-                                        <div class="st-theme-note">Coming soon</div>
-                                    </div>
-                                    <div class="st-theme-option">
-                                        <div class="st-theme-icon">💻</div>
-                                        <div class="st-theme-label">System</div>
-                                        <div class="st-theme-note">Coming soon</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Language &amp; Region</div></div>
-                        <div class="st-card-body">
-                            <div class="st-form-row">
-                                <div class="st-form-group">
-                                    <label class="st-label">Language</label>
-                                    <select class="st-input"><option selected>English (US)</option><option>Español</option><option>Português</option></select>
-                                </div>
-                                <div class="st-form-group">
-                                    <label class="st-label">Time Zone</label>
-                                    <select class="st-input"><option selected>Eastern Time (ET)</option><option>Central Time (CT)</option><option>Pacific Time (PT)</option></select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Preferences saved!')">Save</button>
+                            <button class="st-btn-primary" id="stSaveChatPrefsBtn" onclick="saveStChatPrefs()">Save Preferences</button>
                         </div>
                     </div>
                 </div>
@@ -7586,24 +7621,48 @@
                         <div class="st-danger-header">
                             <span style="font-size:18px;">⚠️</span>
                             <div>
-                                <div class="st-danger-header-title">Irreversible Actions</div>
-                                <div class="st-danger-header-desc">These cannot be undone. Take a breath first.</div>
+                                <div class="st-danger-header-title">Account Actions</div>
+                                <div class="st-danger-header-desc">Take a breath before you proceed.</div>
                             </div>
                         </div>
                         <div class="st-danger-body">
                             <div class="st-danger-item">
                                 <div>
-                                    <div class="st-danger-label">Sign Out of All Devices</div>
-                                    <div class="st-danger-desc">End all active sessions. You'll need to sign in again on every device.</div>
+                                    <div class="st-danger-label">Export Your Data</div>
+                                    <div class="st-danger-desc">Download a copy of your profile, connections, and meeting history.</div>
                                 </div>
-                                <button class="st-btn-danger" onclick="handleLogout()">Sign Out All</button>
+                                <button class="st-btn-secondary" onclick="exportStData()">Export Data</button>
                             </div>
                             <div class="st-danger-item">
                                 <div>
-                                    <div class="st-danger-label">Delete Your Account</div>
+                                    <div class="st-danger-label">Pause Account</div>
+                                    <div class="st-danger-desc">Hide your profile from Discover so no new chat requests come in. You can re-enable this in Privacy settings.</div>
+                                </div>
+                                <button class="st-btn-secondary" onclick="pauseStAccount()">Pause Account</button>
+                            </div>
+                            <div class="st-danger-item">
+                                <div>
+                                    <div class="st-danger-label">Sign Out Other Devices</div>
+                                    <div class="st-danger-desc">End sessions on all other devices while staying signed in here.</div>
+                                </div>
+                                <button class="st-btn-danger" onclick="signOutOtherDevices()">Sign Out Others</button>
+                            </div>
+                            <div class="st-danger-item">
+                                <div>
+                                    <div class="st-danger-label">Sign Out of All Devices</div>
+                                    <div class="st-danger-desc">End all active sessions including this one. You'll need to sign in again.</div>
+                                </div>
+                                <button class="st-btn-danger" onclick="signOutAllDevices()">Sign Out All</button>
+                            </div>
+                            <div class="st-danger-item" style="flex-direction:column;align-items:flex-start;gap:12px;">
+                                <div>
+                                    <div class="st-danger-label" style="color:var(--danger);">Delete Your Account</div>
                                     <div class="st-danger-desc">Permanently remove your profile, connections, and all data from First Sip. This cannot be undone.</div>
                                 </div>
-                                <button class="st-btn-danger" style="border-color:var(--danger);color:var(--danger);" onclick="confirmDeleteAccount()">Delete Account</button>
+                                <div style="display:flex;gap:10px;align-items:center;width:100%;">
+                                    <input type="text" id="stDeleteConfirmInput" class="st-input" placeholder='Type "DELETE" to confirm' oninput="checkDeleteInput()" style="max-width:240px;">
+                                    <button class="st-btn-danger" id="stDeleteAccountBtn" disabled onclick="confirmDeleteAccount()" style="opacity:0.4;">Delete Account</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -11166,11 +11225,11 @@
             }
         }
 
-        function sendMeetingRequest() {
+        async function sendMeetingRequest() {
             const date = document.getElementById('scheduleDate').value;
             const time = selectedTime;
-            const duration = document.getElementById('scheduleDuration').value;
-            const topic = document.getElementById('scheduleTopic').value;
+            const duration = parseInt(document.getElementById('scheduleDuration').value);
+            const topic = document.getElementById('scheduleTopic').value.trim();
             const type = document.getElementById('scheduleType').value;
             const meetingDetail = document.getElementById('meetingDetailInput').value.trim();
 
@@ -11185,25 +11244,37 @@
                 return;
             }
 
-            const meeting = {
-                id: meetings.length + 1,
-                personId: selectedPerson.id,
-                personName: `${selectedPerson.firstName} ${selectedPerson.lastName}`,
-                date,
-                time,
-                duration,
-                topic,
-                type,
-                meetingDetail,
-                status: 'pending',
-                createdAt: new Date()
-            };
+            if (!selectedPerson || !currentUser) return;
 
-            meetings.push(meeting);
-            saveToStorage();
-            alert('Meeting request sent!');
-            switchView('dashboardView');
-            updateDashboard();
+            try {
+                const startTime = new Date(`${date}T${time}:00`);
+                const endTime = new Date(startTime.getTime() + duration * 60000);
+
+                const { data, error } = await supabaseClient
+                    .from('meetings')
+                    .insert([{
+                        organizer_id: currentUser.id,
+                        participant_id: selectedPerson.id,
+                        title: topic,
+                        note: meetingDetail,
+                        meeting_type: type,
+                        start_time: startTime.toISOString(),
+                        end_time: endTime.toISOString(),
+                        status: 'pending'
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                meetings.push(data);
+                showToast(`Meeting request sent to ${selectedPerson.firstName}! ☕`, 'success');
+                switchView('dashboardView');
+                updateDashboard();
+            } catch (err) {
+                console.error('sendMeetingRequest:', err);
+                showToast('Failed to send request: ' + err.message, 'error');
+            }
         }
 
         // Calling
@@ -12665,278 +12736,459 @@
         //  SETTINGS PAGE
         // ===================================================
 
+        const stLoadedTabs = new Set();
+
+        function setStBtnLoading(btn, loading) {
+            if (!btn) return;
+            if (loading) {
+                btn.dataset.origText = btn.textContent;
+                btn.textContent = 'Saving…';
+                btn.disabled = true;
+            } else {
+                btn.textContent = btn.dataset.origText || 'Save';
+                btn.disabled = false;
+            }
+        }
+
         function renderSettingsView() {
             if (!currentUser) return;
+            stLoadedTabs.clear();
 
             // Avatar
-            const avatarEl = document.getElementById('stAvatarPreview');
+            const avatarEl   = document.getElementById('stAvatarPreview');
             const initialsEl = document.getElementById('stAvatarInitials');
             if (currentUser.profilePicture) {
-                initialsEl.style.display = 'none';
-                const img = avatarEl.querySelector('img') || document.createElement('img');
+                if (initialsEl) initialsEl.style.display = 'none';
+                let img = avatarEl ? avatarEl.querySelector('img') : null;
+                if (!img) { img = document.createElement('img'); img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;position:absolute;inset:0;'; if (avatarEl) avatarEl.insertBefore(img, avatarEl.firstChild); }
                 img.src = currentUser.profilePicture;
-                img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;position:absolute;inset:0;';
-                if (!avatarEl.querySelector('img')) avatarEl.insertBefore(img, avatarEl.firstChild);
             } else {
-                initialsEl.style.display = '';
-                initialsEl.textContent = ((currentUser.firstName || '?')[0] + (currentUser.lastName || '?')[0]).toUpperCase();
-                const img = avatarEl.querySelector('img');
-                if (img) img.remove();
+                if (initialsEl) { initialsEl.style.display = ''; initialsEl.textContent = ((currentUser.firstName||'?')[0]+(currentUser.lastName||'?')[0]).toUpperCase(); }
+                if (avatarEl) { const img = avatarEl.querySelector('img'); if (img) img.remove(); }
             }
             const nameEl = document.getElementById('stAvatarName');
             const subEl  = document.getElementById('stAvatarSub');
-            if (nameEl) nameEl.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            if (nameEl) nameEl.textContent = `${currentUser.firstName||''} ${currentUser.lastName||''}`.trim();
             if (subEl)  subEl.textContent  = [currentUser.role, currentUser.company].filter(Boolean).join(' · ') || 'Rowan University';
 
-            // Basic Info
-            const fv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-            fv('stFirstName', currentUser.firstName);
-            fv('stLastName',  currentUser.lastName);
-            fv('stBio',       currentUser.bio);
-            fv('stStatus',    currentUser.status);
-            fv('stGradYear',  currentUser.gradYear);
-
-            // Career
-            fv('stIndustry', currentUser.industry);
-            fv('stRole',     currentUser.role);
-            fv('stCompany',  currentUser.company);
-            fv('stLocation', currentUser.location);
-            fv('stGoals',    currentUser.goals);
-
-            // Resume hint
-            const resumeHint = document.getElementById('stResumeHint');
-            if (resumeHint) resumeHint.textContent = currentUser.resume ? 'Resume uploaded ✓' : '';
-
-            // Interests tags
-            const tagsWrap = document.getElementById('stInterestTags');
-            if (tagsWrap) {
-                const input = document.getElementById('stInterestInput');
-                tagsWrap.innerHTML = '';
-                tagsWrap.appendChild(input);
-                (currentUser.interests || []).forEach(tag => {
-                    const chip = document.createElement('span');
-                    chip.className = 'st-tag-chip';
-                    chip.innerHTML = `${tag} <button onclick="removeStTag(this)" type="button">×</button>`;
-                    tagsWrap.insertBefore(chip, input);
-                });
-            }
-
-            // Account: email
+            // Account email
             const emailEl = document.getElementById('stCurrentEmail');
             if (emailEl) emailEl.value = currentUser.email || '';
             const verifiedEl = document.getElementById('stVerifiedEmail');
             if (verifiedEl) verifiedEl.textContent = currentUser.email || '—';
 
-            // Notifications email sub
-            const notifSub = document.getElementById('stNotifEmailSub');
-            if (notifSub) notifSub.textContent = `Sent to ${currentUser.email || '—'}`;
+            // Handle URL hash tab
+            const hash = location.hash.replace('#settings-','');
+            const hashMap = { notifications:'st-notifications', privacy:'st-privacy', availability:'st-availability', account:'st-account', danger:'st-danger' };
+            const targetId = hashMap[hash] || 'st-profile';
+            const targetBtn = document.querySelector(`.st-nav-item[onclick*="'${targetId}'"]`);
+            switchStSection(targetBtn, targetId);
 
-            // Load availability
-            renderStAvailability();
+            loadStProfile();
+        }
+
+        async function loadStProfile() {
+            if (!currentUser) return;
+            try {
+                const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+                if (error) throw error;
+                const fv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+                fv('stFirstName', data.first_name);
+                fv('stLastName',  data.last_name);
+                fv('stHeadline',  data.headline);
+                fv('stBio',       data.bio);
+                fv('stStatus',    data.status);
+                fv('stGradYear',  data.grad_year);
+                fv('stMajor',     data.major);
+                fv('stIndustry',  data.industry);
+                fv('stRole',      data.role);
+                fv('stCompany',   data.company);
+                fv('stLocation',  data.location);
+                fv('stLinkedin',  data.linkedin_url);
+                fv('stGoals',     data.goals);
+                // Resume hint
+                const resumeHint = document.getElementById('stResumeHint');
+                if (resumeHint) resumeHint.textContent = data.resume_url ? 'Resume uploaded ✓' : '';
+                // Interests tags
+                renderStTagsWrap('stInterestTags', 'stInterestInput', data.interests || []);
+                // Hobbies tags
+                renderStTagsWrap('stHobbyTags', 'stHobbyInput', data.hobbies || []);
+                // Update global cache
+                currentUser.firstName     = data.first_name;
+                currentUser.lastName      = data.last_name;
+                currentUser.headline      = data.headline;
+                currentUser.bio           = data.bio;
+                currentUser.status        = data.status;
+                currentUser.gradYear      = data.grad_year;
+                currentUser.major         = data.major;
+                currentUser.industry      = data.industry;
+                currentUser.role          = data.role;
+                currentUser.company       = data.company;
+                currentUser.location      = data.location;
+                currentUser.linkedinUrl   = data.linkedin_url;
+                currentUser.goals         = data.goals;
+                currentUser.interests     = data.interests || [];
+                currentUser.hobbies       = data.hobbies   || [];
+            } catch (e) { console.error('loadStProfile error:', e); }
+        }
+
+        function renderStTagsWrap(wrapperId, inputId, tags) {
+            const wrap  = document.getElementById(wrapperId);
+            const input = document.getElementById(inputId);
+            if (!wrap || !input) return;
+            wrap.innerHTML = '';
+            tags.forEach(tag => {
+                const chip = document.createElement('span');
+                chip.className = 'st-tag-chip';
+                chip.innerHTML = `${tag} <button onclick="removeStTag(this)" type="button">×</button>`;
+                wrap.appendChild(chip);
+            });
+            wrap.appendChild(input);
         }
 
         function switchStSection(btn, sectionId, navContainerId) {
-            // Sync sidebar nav items
             document.querySelectorAll('.st-nav-item').forEach(b => b.classList.remove('active'));
-            // Sync mobile tab buttons
             document.querySelectorAll('.st-mobile-tab').forEach(b => b.classList.remove('active'));
-            // Mark the clicked button active (works for either nav type)
             if (btn) btn.classList.add('active');
-            // Also sync the matching button in the other nav
-            const allNavBtns = document.querySelectorAll('.st-nav-item, .st-mobile-tab');
-            allNavBtns.forEach(b => {
-                const onclickAttr = b.getAttribute('onclick') || '';
-                if (onclickAttr.includes("'" + sectionId + "'")) b.classList.add('active');
+            document.querySelectorAll('.st-nav-item, .st-mobile-tab').forEach(b => {
+                const oc = b.getAttribute('onclick') || '';
+                if (oc.includes("'" + sectionId + "'")) b.classList.add('active');
             });
-            // Switch section
             document.querySelectorAll('.st-section').forEach(s => s.classList.remove('active'));
             const sec = document.getElementById(sectionId);
             if (sec) sec.classList.add('active');
-            if (sectionId === 'st-availability') renderStAvailability();
+
+            // Update URL hash
+            const hashMap = {'st-notifications':'notifications','st-privacy':'privacy','st-availability':'availability','st-account':'account','st-danger':'danger'};
+            if (hashMap[sectionId]) history.replaceState(null, '', '#settings-' + hashMap[sectionId]);
+            else history.replaceState(null, '', location.pathname);
+
+            // Lazy load
+            if (!stLoadedTabs.has(sectionId)) {
+                stLoadedTabs.add(sectionId);
+                if (sectionId === 'st-notifications') loadStNotifications();
+                if (sectionId === 'st-privacy')       loadStPrivacy();
+                if (sectionId === 'st-availability')  loadStAvailability();
+            }
         }
 
-        async function saveStBasic() {
+        async function saveStProfile() {
             if (!currentUser) return;
-            const firstName  = document.getElementById('stFirstName').value.trim();
-            const lastName   = document.getElementById('stLastName').value.trim();
-            const bio        = document.getElementById('stBio').value.trim();
-            const status     = document.getElementById('stStatus').value;
-            const gradYear   = document.getElementById('stGradYear').value;
-            if (!firstName || !lastName) { showStToast('Please enter your name.'); return; }
+            const btn = document.getElementById('stSaveBasicBtn');
+            setStBtnLoading(btn, true);
+            const firstName = document.getElementById('stFirstName').value.trim();
+            const lastName  = document.getElementById('stLastName').value.trim();
+            const headline  = document.getElementById('stHeadline').value.trim();
+            const bio       = document.getElementById('stBio').value.trim();
+            const status    = document.getElementById('stStatus').value;
+            const gradYear  = document.getElementById('stGradYear').value;
+            if (!firstName || !lastName) { showStToast('Please enter your name.', 'error'); setStBtnLoading(btn, false); return; }
             try {
-                const { data: updated, error } = await supabaseClient
-                    .from('profiles')
-                    .update({ first_name: firstName, last_name: lastName, bio, status, grad_year: gradYear })
-                    .eq('id', currentUser.id)
-                    .select('first_name, last_name, bio, status, grad_year')
-                    .single();
+                const { error } = await supabaseClient.from('profiles').update({
+                    first_name: firstName, last_name: lastName, headline, bio, status, grad_year: gradYear
+                }).eq('id', currentUser.id);
                 if (error) throw error;
-                currentUser.firstName = updated.first_name;
-                currentUser.lastName  = updated.last_name;
-                currentUser.bio       = updated.bio;
-                currentUser.status    = updated.status;
-                currentUser.gradYear  = updated.grad_year;
-                renderSettingsView();
+                currentUser.firstName = firstName; currentUser.lastName = lastName;
+                currentUser.headline  = headline;  currentUser.bio      = bio;
+                currentUser.status    = status;    currentUser.gradYear = gradYear;
                 showStToast('Profile saved!');
-            } catch (e) {
-                console.error('saveStBasic error:', e);
-                showStToast('Error saving: ' + e.message);
-            }
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(btn, false);
         }
 
         async function saveStCareer() {
             if (!currentUser) return;
+            const btn = document.getElementById('stSaveCareerBtn');
+            setStBtnLoading(btn, true);
+            const major    = document.getElementById('stMajor').value.trim();
             const industry = document.getElementById('stIndustry').value;
             const role     = document.getElementById('stRole').value.trim();
             const company  = document.getElementById('stCompany').value.trim();
             const location = document.getElementById('stLocation').value.trim();
+            const linkedin = document.getElementById('stLinkedin').value.trim();
             const goals    = document.getElementById('stGoals').value.trim();
-            // Collect tag chips
-            const chips = document.querySelectorAll('#stInterestTags .st-tag-chip');
-            const interests = Array.from(chips).map(c => c.textContent.replace('×','').trim());
+            const interests = Array.from(document.querySelectorAll('#stInterestTags .st-tag-chip')).map(c => c.firstChild.textContent.trim());
+            const hobbies   = Array.from(document.querySelectorAll('#stHobbyTags .st-tag-chip')).map(c => c.firstChild.textContent.trim());
             try {
                 const { error } = await supabaseClient.from('profiles').update({
-                    industry, role, company, location, goals, interests,
-                    updated_at: new Date().toISOString()
+                    major, industry, role, company, location, linkedin_url: linkedin, goals, interests, hobbies
                 }).eq('id', currentUser.id);
                 if (error) throw error;
-                currentUser.industry  = industry;
-                currentUser.role      = role;
-                currentUser.company   = company;
-                currentUser.location  = location;
-                currentUser.goals     = goals;
-                currentUser.interests = interests;
+                currentUser.major = major; currentUser.industry = industry; currentUser.role = role;
+                currentUser.company = company; currentUser.location = location;
+                currentUser.linkedinUrl = linkedin; currentUser.goals = goals;
+                currentUser.interests = interests; currentUser.hobbies = hobbies;
                 showStToast('Career info saved!');
-            } catch (e) { showStToast('Error: ' + e.message); }
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(btn, false);
         }
 
         async function saveStEmail() {
             const newEmail = document.getElementById('stNewEmail').value.trim();
-            if (!newEmail) { showStToast('Please enter a new email.'); return; }
+            if (!newEmail) { showStToast('Please enter a new email.', 'error'); return; }
             try {
                 const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
                 if (error) throw error;
                 showStToast('Confirmation sent — check your inbox!');
                 document.getElementById('stNewEmail').value = '';
-            } catch (e) { showStToast('Error: ' + e.message); }
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
         }
 
         async function saveStPassword() {
             const pw  = document.getElementById('stNewPassword').value;
             const pw2 = document.getElementById('stConfirmPassword').value;
-            if (!pw || pw.length < 8) { showStToast('Password must be at least 8 characters.'); return; }
-            if (pw !== pw2) { showStToast('Passwords do not match.'); return; }
+            if (!pw || pw.length < 8) { showStToast('Password must be at least 8 characters.', 'error'); return; }
+            if (pw !== pw2) { showStToast('Passwords do not match.', 'error'); return; }
             try {
                 const { error } = await supabaseClient.auth.updateUser({ password: pw });
                 if (error) throw error;
                 document.getElementById('stNewPassword').value = '';
                 document.getElementById('stConfirmPassword').value = '';
                 showStToast('Password updated!');
-            } catch (e) { showStToast('Error: ' + e.message); }
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
         }
 
-        async function renderStAvailability() {
-            const container = document.getElementById('stAvailList');
-            if (!container || !currentUser) return;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('availability').select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('day_of_week').order('start_time');
-                if (error) throw error;
-                const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;">No availability set yet — add your first time slot below.</div>`;
-                    return;
-                }
-                container.innerHTML = data.map(slot => `
-                    <div class="st-avail-slot">
-                        <div>
-                            <div class="st-avail-slot-day">${days[slot.day_of_week]}</div>
-                            <div class="st-avail-slot-time">${slot.start_time} – ${slot.end_time}</div>
-                        </div>
-                        <button class="st-btn-danger" onclick="deleteStAvailSlot('${slot.id}')">Remove</button>
-                    </div>
-                `).join('');
-            } catch (e) { console.error(e); }
-        }
-
-        async function addStAvailSlot() {
+        // ── Notifications ──
+        async function loadStNotifications() {
             if (!currentUser) return;
-            const day   = document.getElementById('stAvailDay').value;
-            const start = document.getElementById('stAvailStart').value;
-            const end   = document.getElementById('stAvailEnd').value;
-            if (!start || !end || start >= end) { showStToast('Please set a valid start and end time.'); return; }
             try {
-                const { error } = await supabaseClient.from('availability').insert([{
-                    user_id: currentUser.id, day_of_week: parseInt(day),
-                    start_time: start, end_time: end, is_available: true
-                }]);
+                const { data, error } = await supabaseClient.from('user_preferences').select('*').eq('user_id', currentUser.id).maybeSingle();
                 if (error) throw error;
-                await renderStAvailability();
-                showStToast('Availability added!');
-            } catch (e) { showStToast('Error: ' + e.message); }
+                if (!data) return;
+                const toggle = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+                toggle('notif_email_connections',     data.notif_email_connections);
+                toggle('notif_email_chat_requests',   data.notif_email_chat_requests);
+                toggle('notif_email_reminders',       data.notif_email_reminders);
+                toggle('notif_email_messages',        data.notif_email_messages);
+                toggle('notif_email_group_activity',  data.notif_email_group_activity);
+                toggle('notif_email_weekly_digest',   data.notif_email_weekly_digest);
+                toggle('notif_app_connection_accepted', data.notif_app_connection_accepted);
+                toggle('notif_app_match_suggestions',   data.notif_app_match_suggestions);
+                toggle('notif_app_chat_reviews',        data.notif_app_chat_reviews);
+            } catch (e) { console.error('loadStNotifications error:', e); }
         }
 
-        async function deleteStAvailSlot(slotId) {
-            if (!confirm('Remove this time slot?')) return;
+        async function saveStNotifications() {
+            if (!currentUser) return;
+            const activeBtn = document.activeElement;
+            const btn = document.getElementById('stSaveNotifBtn') || document.getElementById('stSaveInAppBtn');
+            setStBtnLoading(activeBtn?.id?.startsWith('stSave') ? activeBtn : btn, true);
+            const cv = id => { const el = document.getElementById(id); return el ? el.checked : false; };
+            const payload = {
+                notif_email_connections:      cv('notif_email_connections'),
+                notif_email_chat_requests:    cv('notif_email_chat_requests'),
+                notif_email_reminders:        cv('notif_email_reminders'),
+                notif_email_messages:         cv('notif_email_messages'),
+                notif_email_group_activity:   cv('notif_email_group_activity'),
+                notif_email_weekly_digest:    cv('notif_email_weekly_digest'),
+                notif_app_connection_accepted: cv('notif_app_connection_accepted'),
+                notif_app_match_suggestions:   cv('notif_app_match_suggestions'),
+                notif_app_chat_reviews:        cv('notif_app_chat_reviews'),
+            };
             try {
-                const { error } = await supabaseClient.from('availability').delete().eq('id', slotId);
+                const { error } = await supabaseClient.from('user_preferences').update(payload).eq('user_id', currentUser.id);
                 if (error) throw error;
-                await renderStAvailability();
-                showStToast('Slot removed.');
-            } catch (e) { showStToast('Error: ' + e.message); }
+                showStToast('Notification preferences saved!');
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(activeBtn?.id?.startsWith('stSave') ? activeBtn : btn, false);
         }
 
+        // ── Privacy ──
+        async function loadStPrivacy() {
+            if (!currentUser) return;
+            try {
+                const { data, error } = await supabaseClient.from('user_preferences').select('*').eq('user_id', currentUser.id).maybeSingle();
+                if (error) throw error;
+                if (!data) return;
+                const sv = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+                const toggle = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+                sv('privacy_profile_visibility',  data.privacy_profile_visibility);
+                sv('privacy_who_can_connect',     data.privacy_who_can_connect);
+                sv('privacy_who_can_chat',        data.privacy_who_can_chat);
+                sv('privacy_show_online_status',  data.privacy_show_online_status);
+                toggle('privacy_appear_in_discover',    data.privacy_appear_in_discover);
+                toggle('privacy_show_match_percent',    data.privacy_show_match_percent);
+                toggle('privacy_alumni_recommendations', data.privacy_alumni_recommendations);
+            } catch (e) { console.error('loadStPrivacy error:', e); }
+        }
+
+        async function saveStPrivacy() {
+            if (!currentUser) return;
+            const activeBtn = document.activeElement;
+            setStBtnLoading(activeBtn, true);
+            const sv = id => { const el = document.getElementById(id); return el ? el.value : null; };
+            const cv = id => { const el = document.getElementById(id); return el ? el.checked : false; };
+            const payload = {
+                privacy_profile_visibility:    sv('privacy_profile_visibility'),
+                privacy_who_can_connect:       sv('privacy_who_can_connect'),
+                privacy_who_can_chat:          sv('privacy_who_can_chat'),
+                privacy_show_online_status:    sv('privacy_show_online_status'),
+                privacy_appear_in_discover:    cv('privacy_appear_in_discover'),
+                privacy_show_match_percent:    cv('privacy_show_match_percent'),
+                privacy_alumni_recommendations: cv('privacy_alumni_recommendations'),
+            };
+            try {
+                const { error } = await supabaseClient.from('user_preferences').update(payload).eq('user_id', currentUser.id);
+                if (error) throw error;
+                showStToast('Privacy settings saved!');
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(activeBtn, false);
+        }
+
+        // ── Availability ──
+        function toggleAvailDay(dayNum) {
+            const on    = document.getElementById(`avail-on-${dayNum}`);
+            const start = document.getElementById(`avail-start-${dayNum}`);
+            const end   = document.getElementById(`avail-end-${dayNum}`);
+            if (!on || !start || !end) return;
+            start.disabled = !on.checked;
+            end.disabled   = !on.checked;
+        }
+
+        async function loadStAvailability() {
+            if (!currentUser) return;
+            try {
+                const [availRes, prefsRes] = await Promise.all([
+                    supabaseClient.from('availability').select('*').eq('user_id', currentUser.id),
+                    supabaseClient.from('user_preferences').select('pref_open_virtual,pref_open_inperson,pref_weekly_chat_limit').eq('user_id', currentUser.id).maybeSingle()
+                ]);
+                if (availRes.error) throw availRes.error;
+                // Reset all days
+                for (let d = 0; d < 7; d++) {
+                    const on    = document.getElementById(`avail-on-${d}`);
+                    const start = document.getElementById(`avail-start-${d}`);
+                    const end   = document.getElementById(`avail-end-${d}`);
+                    if (on)    on.checked    = false;
+                    if (start) { start.value = '09:00'; start.disabled = true; }
+                    if (end)   { end.value   = '17:00'; end.disabled   = true; }
+                }
+                // Apply saved data
+                (availRes.data || []).forEach(slot => {
+                    const d = slot.day_of_week;
+                    const on    = document.getElementById(`avail-on-${d}`);
+                    const start = document.getElementById(`avail-start-${d}`);
+                    const end   = document.getElementById(`avail-end-${d}`);
+                    if (on && slot.is_available) { on.checked = true; }
+                    if (start) { start.value = (slot.start_time || '09:00').substring(0,5); start.disabled = !on?.checked; }
+                    if (end)   { end.value   = (slot.end_time   || '17:00').substring(0,5); end.disabled   = !on?.checked; }
+                });
+                // Chat prefs
+                if (prefsRes.data) {
+                    const p = prefsRes.data;
+                    const tv = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+                    tv('pref_open_virtual',     p.pref_open_virtual);
+                    tv('pref_open_inperson',    p.pref_open_inperson);
+                    tv('pref_weekly_chat_limit', p.pref_weekly_chat_limit);
+                }
+            } catch (e) { console.error('loadStAvailability error:', e); }
+        }
+
+        async function saveStAvailability() {
+            if (!currentUser) return;
+            const btn = document.getElementById('stSaveAvailBtn');
+            setStBtnLoading(btn, true);
+            try {
+                const rows = [];
+                for (let d = 0; d < 7; d++) {
+                    const on    = document.getElementById(`avail-on-${d}`);
+                    const start = document.getElementById(`avail-start-${d}`);
+                    const end   = document.getElementById(`avail-end-${d}`);
+                    if (!on) continue;
+                    rows.push({
+                        user_id:     currentUser.id,
+                        day_of_week: d,
+                        is_available: on.checked,
+                        start_time:  start ? start.value : '09:00',
+                        end_time:    end   ? end.value   : '17:00'
+                    });
+                }
+                const { error } = await supabaseClient.from('availability').upsert(rows, { onConflict: 'user_id,day_of_week' });
+                if (error) throw error;
+                showStToast('Availability saved!');
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(btn, false);
+        }
+
+        async function saveStChatPrefs() {
+            if (!currentUser) return;
+            const btn = document.getElementById('stSaveChatPrefsBtn');
+            setStBtnLoading(btn, true);
+            const cv = id => { const el = document.getElementById(id); return el ? el.checked : false; };
+            try {
+                const { error } = await supabaseClient.from('user_preferences').update({
+                    pref_open_virtual:      cv('pref_open_virtual'),
+                    pref_open_inperson:     cv('pref_open_inperson'),
+                    pref_weekly_chat_limit: cv('pref_weekly_chat_limit')
+                }).eq('user_id', currentUser.id);
+                if (error) throw error;
+                showStToast('Chat preferences saved!');
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(btn, false);
+        }
+
+        // ── Avatar / Resume upload ──
         async function uploadStAvatar(input) {
             if (!input.files || !input.files[0] || !currentUser) return;
             const file = input.files[0];
-            if (file.size > 5 * 1024 * 1024) { showStToast('Image must be under 5 MB.'); return; }
+            if (file.size > 5 * 1024 * 1024) { showStToast('Image must be under 5 MB.', 'error'); return; }
             try {
-                const ext  = file.name.split('.').pop();
-                const path = `avatars/${currentUser.id}.${ext}`;
-                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(path, file, { upsert: true });
+                const ext  = file.name.split('.').pop().toLowerCase();
+                const path = `${currentUser.id}/avatar.${ext}`;
+                const { error: upErr } = await supabaseClient.storage.from('avatars').upload(path, file, { upsert: true });
                 if (upErr) throw upErr;
-                const { data: urlData } = supabaseClient.storage.from('profiles').getPublicUrl(path);
-                const publicUrl = urlData.publicUrl;
-                await supabaseClient.from('profiles').update({ profile_picture: publicUrl }).eq('id', currentUser.id);
+                const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+                const publicUrl = urlData.publicUrl + '?t=' + Date.now();
+                await supabaseClient.from('profiles').update({ profile_picture: urlData.publicUrl }).eq('id', currentUser.id);
                 currentUser.profilePicture = publicUrl;
-                renderSettingsView();
+                // Update preview
+                const avatarEl   = document.getElementById('stAvatarPreview');
+                const initialsEl = document.getElementById('stAvatarInitials');
+                if (initialsEl) initialsEl.style.display = 'none';
+                let img = avatarEl ? avatarEl.querySelector('img') : null;
+                if (!img) { img = document.createElement('img'); img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;position:absolute;inset:0;'; if (avatarEl) avatarEl.insertBefore(img, avatarEl.firstChild); }
+                img.src = publicUrl;
                 showStToast('Photo updated!');
-            } catch (e) { showStToast('Upload failed: ' + e.message); }
+            } catch (e) { showStToast('Upload failed: ' + e.message, 'error'); }
         }
 
-        function uploadStResume(input) {
+        async function uploadStResume(input) {
             if (!input.files || !input.files[0] || !currentUser) return;
             const file = input.files[0];
-            if (file.size > 10 * 1024 * 1024) { showStToast('Resume must be under 10 MB.'); return; }
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const dataUrl = e.target.result;
-                try {
-                    const { error } = await supabaseClient.from('profiles')
-                        .update({ resume_url: dataUrl, updated_at: new Date().toISOString() })
-                        .eq('id', currentUser.id);
-                    if (error) throw error;
-                    currentUser.resume = dataUrl;
-                    const hint = document.getElementById('stResumeHint');
-                    if (hint) hint.textContent = 'Resume uploaded ✓';
-                    showStToast('Resume uploaded!');
-                } catch (err) {
-                    showStToast('Upload failed: ' + err.message);
+            if (file.size > 10 * 1024 * 1024) { showStToast('Resume must be under 10 MB.', 'error'); return; }
+            try {
+                const path = `${currentUser.id}/resume.pdf`;
+                const { error: upErr } = await supabaseClient.storage.from('resumes').upload(path, file, { upsert: true });
+                if (upErr) {
+                    // Fallback: store as data URL in profile
+                    const reader = new FileReader();
+                    reader.onload = async ev => {
+                        await supabaseClient.from('profiles').update({ resume_url: ev.target.result }).eq('id', currentUser.id);
+                        currentUser.resume = ev.target.result;
+                        const hint = document.getElementById('stResumeHint');
+                        if (hint) hint.textContent = 'Resume uploaded ✓';
+                        showStToast('Resume uploaded!');
+                    };
+                    reader.readAsDataURL(file);
+                    return;
                 }
-            };
-            reader.readAsDataURL(file);
+                const { data: urlData } = supabaseClient.storage.from('resumes').getPublicUrl(path);
+                await supabaseClient.from('profiles').update({ resume_url: urlData.publicUrl }).eq('id', currentUser.id);
+                currentUser.resume = urlData.publicUrl;
+                const hint = document.getElementById('stResumeHint');
+                if (hint) hint.textContent = 'Resume uploaded ✓';
+                showStToast('Resume uploaded!');
+            } catch (e) { showStToast('Upload failed: ' + e.message, 'error'); }
         }
 
+        // ── Tag inputs ──
         function handleStTag(event, wrapperId, inputId) {
             if (event.key !== 'Enter' && event.key !== ',') return;
             event.preventDefault();
             const input = document.getElementById(inputId);
             const val   = input.value.replace(',','').trim();
             if (!val) return;
-            const wrap  = document.getElementById(wrapperId);
-            const chip  = document.createElement('span');
+            const wrap = document.getElementById(wrapperId);
+            const chip = document.createElement('span');
             chip.className = 'st-tag-chip';
             chip.innerHTML = `${val} <button onclick="removeStTag(this)" type="button">×</button>`;
             wrap.insertBefore(chip, input);
@@ -12947,29 +13199,60 @@
             btn.closest('.st-tag-chip').remove();
         }
 
-        function confirmDeleteAccount() {
-            if (!confirm('Are you absolutely sure? This will permanently delete your account and all your data. This cannot be undone.')) return;
-            if (!confirm('Last chance — this is permanent. Delete my account?')) return;
-            deleteStAccount();
+        // ── Danger Zone ──
+        function exportStData() {
+            showStToast('Data export coming soon — we\'ll email you a download link!');
         }
 
-        async function deleteStAccount() {
+        async function pauseStAccount() {
+            if (!currentUser) return;
             try {
-                // Delete profile (cascade will handle related data if RLS allows)
-                await supabaseClient.from('profiles').delete().eq('id', currentUser.id);
-                await supabaseClient.auth.signOut();
+                const { error } = await supabaseClient.from('user_preferences').update({ privacy_appear_in_discover: false }).eq('user_id', currentUser.id);
+                if (error) throw error;
+                showStToast('Account paused — you\'re hidden from Discover.');
+                const el = document.getElementById('privacy_appear_in_discover');
+                if (el) el.checked = false;
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+        }
+
+        async function signOutOtherDevices() {
+            try {
+                const { error } = await supabaseClient.auth.signOut({ scope: 'others' });
+                if (error) throw error;
+                showStToast('Signed out of all other devices.');
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+        }
+
+        async function signOutAllDevices() {
+            try {
+                const { error } = await supabaseClient.auth.signOut({ scope: 'global' });
+                if (error) throw error;
                 location.reload();
-            } catch (e) { showStToast('Could not delete account: ' + e.message); }
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+        }
+
+        function checkDeleteInput() {
+            const input = document.getElementById('stDeleteConfirmInput');
+            const btn   = document.getElementById('stDeleteAccountBtn');
+            if (!input || !btn) return;
+            const ready = input.value === 'DELETE';
+            btn.disabled = !ready;
+            btn.style.opacity = ready ? '1' : '0.4';
+        }
+
+        function confirmDeleteAccount() {
+            showStToast('To delete your account please email support@firstsip.app — our team will process your request within 48 hours.');
         }
 
         let stToastTimer = null;
-        function showStToast(msg) {
+        function showStToast(msg, type) {
             const toast = document.getElementById('stToast');
             if (!toast) return;
-            toast.textContent = '✓ ' + msg;
+            toast.textContent = (type === 'error' ? '✕ ' : '✓ ') + msg;
+            toast.classList.toggle('error', type === 'error');
             toast.classList.add('show');
             if (stToastTimer) clearTimeout(stToastTimer);
-            stToastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+            stToastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
         }
 
     </script>
