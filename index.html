@@ -5840,6 +5840,16 @@
         .st-danger-label { font-size: 13.5px; font-weight: 600; color: var(--espresso); margin-bottom: 3px; }
         .st-danger-desc { font-size: 12px; color: var(--muted); max-width: 360px; line-height: 1.45; }
 
+        /* Theme option cards */
+        .st-theme-option {
+            border: 1.5px solid var(--border); border-radius: 12px;
+            padding: 14px 20px; background: var(--latte-soft);
+            text-align: center; min-width: 110px;
+            transition: border-color .2s, background .2s; cursor: pointer;
+        }
+        .st-theme-option:hover { border-color: var(--caramel); }
+        .st-theme-option.active { border-color: var(--caramel); background: var(--cream); }
+
         /* Buttons */
         .st-btn-primary {
             padding: 9px 20px; background: var(--espresso); color: var(--cream);
@@ -7105,6 +7115,7 @@
             <button class="st-mobile-tab" onclick="switchStSection(this,'st-notifications','stMobileTabs')">🔔 Notifications</button>
             <button class="st-mobile-tab" onclick="switchStSection(this,'st-privacy','stMobileTabs')">🛡️ Privacy</button>
             <button class="st-mobile-tab" onclick="switchStSection(this,'st-availability','stMobileTabs')">📅 Availability</button>
+            <button class="st-mobile-tab" onclick="switchStSection(this,'st-appearance','stMobileTabs')">🎨 Appearance</button>
             <button class="st-mobile-tab danger" onclick="switchStSection(this,'st-danger','stMobileTabs')">⚠️ Danger</button>
         </div>
 
@@ -7130,6 +7141,9 @@
                 </button>
                 <button class="st-nav-item" onclick="switchStSection(this,'st-availability')">
                     <span class="st-nav-icon">📅</span> Availability
+                </button>
+                <button class="st-nav-item" onclick="switchStSection(this,'st-appearance')">
+                    <span class="st-nav-icon">🎨</span> Appearance
                 </button>
                 <div class="st-nav-divider"></div>
                 <button class="st-nav-item st-nav-danger" onclick="switchStSection(this,'st-danger')">
@@ -7605,6 +7619,81 @@
                         </div>
                         <div class="st-card-footer">
                             <button class="st-btn-primary" id="stSaveChatPrefsBtn" onclick="saveStChatPrefs()">Save Preferences</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── APPEARANCE ── -->
+                <div class="st-section" id="st-appearance">
+                    <div>
+                        <div class="st-eyebrow">Make it yours</div>
+                        <h1 class="st-title">Appearance & <em>Display</em></h1>
+                        <p class="st-desc">Customize how First Sip looks and feels for you.</p>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div class="st-card-title">Theme</div>
+                        </div>
+                        <div class="st-card-body">
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <div style="font-size:11px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--muted);">Color Mode</div>
+                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                    <label style="cursor:pointer;">
+                                        <input type="radio" name="st_theme" value="light" checked style="display:none;">
+                                        <div class="st-theme-option active" onclick="selectThemeOption(this,'light')">
+                                            <div style="font-size:22px; margin-bottom:6px;">☀️</div>
+                                            <div style="font-size:13px; font-weight:600; color:var(--caramel);">Light</div>
+                                            <div style="font-size:11px; color:var(--muted);">Current</div>
+                                        </div>
+                                    </label>
+                                    <label style="cursor:pointer;">
+                                        <input type="radio" name="st_theme" value="dark" style="display:none;">
+                                        <div class="st-theme-option" onclick="selectThemeOption(this,'dark')">
+                                            <div style="font-size:22px; margin-bottom:6px;">🌙</div>
+                                            <div style="font-size:13px; font-weight:600; color:var(--muted);">Dark</div>
+                                            <div style="font-size:11px; color:var(--muted-light, #c9a98a);">Coming soon</div>
+                                        </div>
+                                    </label>
+                                    <label style="cursor:pointer;">
+                                        <input type="radio" name="st_theme" value="system" style="display:none;">
+                                        <div class="st-theme-option" onclick="selectThemeOption(this,'system')">
+                                            <div style="font-size:22px; margin-bottom:6px;">💻</div>
+                                            <div style="font-size:13px; font-weight:600; color:var(--muted);">System</div>
+                                            <div style="font-size:11px; color:var(--muted-light, #c9a98a);">Coming soon</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div class="st-card-title">Language &amp; Region</div>
+                        </div>
+                        <div class="st-card-body">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    <label style="font-size:11px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--muted);">Language</label>
+                                    <select class="st-input">
+                                        <option selected>English (US)</option>
+                                        <option>Español</option>
+                                        <option>Português</option>
+                                    </select>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    <label style="font-size:11px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--muted);">Time Zone</label>
+                                    <select class="st-input">
+                                        <option selected>Eastern Time (ET)</option>
+                                        <option>Central Time (CT)</option>
+                                        <option>Pacific Time (PT)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-primary" onclick="showStToast('Preferences saved')">Save</button>
                         </div>
                     </div>
                 </div>
@@ -12779,7 +12868,7 @@
 
             // Handle URL hash tab
             const hash = location.hash.replace('#settings-','');
-            const hashMap = { notifications:'st-notifications', privacy:'st-privacy', availability:'st-availability', account:'st-account', danger:'st-danger' };
+            const hashMap = { notifications:'st-notifications', privacy:'st-privacy', availability:'st-availability', account:'st-account', danger:'st-danger', appearance:'st-appearance' };
             const targetId = hashMap[hash] || 'st-profile';
             const targetBtn = document.querySelector(`.st-nav-item[onclick*="'${targetId}'"]`);
             switchStSection(targetBtn, targetId);
@@ -12846,6 +12935,13 @@
             wrap.appendChild(input);
         }
 
+        function selectThemeOption(el, value) {
+            document.querySelectorAll('.st-theme-option').forEach(o => o.classList.remove('active'));
+            el.classList.add('active');
+            const radio = el.closest('label').querySelector('input[type=radio]');
+            if (radio) radio.checked = true;
+        }
+
         function switchStSection(btn, sectionId, navContainerId) {
             document.querySelectorAll('.st-nav-item').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.st-mobile-tab').forEach(b => b.classList.remove('active'));
@@ -12859,7 +12955,7 @@
             if (sec) sec.classList.add('active');
 
             // Update URL hash
-            const hashMap = {'st-notifications':'notifications','st-privacy':'privacy','st-availability':'availability','st-account':'account','st-danger':'danger'};
+            const hashMap = {'st-notifications':'notifications','st-privacy':'privacy','st-availability':'availability','st-account':'account','st-danger':'danger','st-appearance':'appearance'};
             if (hashMap[sectionId]) history.replaceState(null, '', '#settings-' + hashMap[sectionId]);
             else history.replaceState(null, '', location.pathname);
 
