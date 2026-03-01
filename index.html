@@ -6173,6 +6173,217 @@
         /* Responsive */
         @media (max-width: 900px) { .nw-req-layout { grid-template-columns: 1fr; } }
         @media (max-width: 700px) { .nw-content { padding: 20px 18px 48px; } .nw-hero { padding: 24px 18px 0; } .nw-conn-grid { grid-template-columns: 1fr; } .nw-suggest-grid { grid-template-columns: 1fr; } }
+
+        /* ─── Inbox / Messages View (ibx-) ─── */
+        #inboxView { padding: 0; overflow: hidden; }
+        #inboxView.active { display: flex; height: 100%; }
+
+        .ibx-shell { display: flex; width: 100%; height: 100%; overflow: hidden; min-width: 0; }
+
+        /* Left panel */
+        .ibx-conv-panel {
+            width: 300px; flex-shrink: 0;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .ibx-conv-header {
+            padding: 20px 18px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .ibx-conv-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px; color: var(--espresso);
+            margin-bottom: 12px;
+        }
+        .ibx-conv-header h2 em { font-style: italic; color: var(--caramel); }
+        .ibx-search-wrap { position: relative; }
+        .ibx-search-input {
+            width: 100%;
+            background: var(--latte-soft);
+            border: 1.5px solid var(--border);
+            border-radius: 99px;
+            padding: 7px 14px 7px 34px;
+            font-size: 13px; font-family: 'DM Sans', sans-serif;
+            color: var(--espresso); outline: none;
+            transition: border-color .15s;
+        }
+        .ibx-search-input:focus { border-color: var(--caramel); }
+        .ibx-search-input::placeholder { color: var(--muted); }
+        .ibx-search-icon {
+            position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+            font-size: 13px; pointer-events: none; color: var(--muted);
+        }
+        .ibx-conv-list { flex: 1; overflow-y: auto; padding: 6px 0; }
+        .ibx-conv-list::-webkit-scrollbar { width: 4px; }
+        .ibx-conv-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        .ibx-conv-row {
+            display: flex; align-items: center; gap: 11px;
+            padding: 11px 16px; cursor: pointer;
+            transition: background .12s;
+            border-left: 3px solid transparent;
+        }
+        .ibx-conv-row:hover { background: var(--latte-soft); }
+        .ibx-conv-row.active { background: var(--latte-soft); border-left-color: var(--caramel); padding-left: 13px; }
+        .ibx-conv-row.unread .ibx-conv-name { font-weight: 700; }
+        .ibx-conv-av { position: relative; flex-shrink: 0; }
+        .ibx-conv-av-inner {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 15px; color: #fff;
+            border: 2px solid var(--border); overflow: hidden;
+        }
+        .ibx-conv-av-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .ibx-conv-body { flex: 1; min-width: 0; }
+        .ibx-conv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+        .ibx-conv-name {
+            font-size: 13.5px; font-weight: 600; color: var(--espresso);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ibx-conv-time { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+        .ibx-conv-preview {
+            font-size: 12px; color: var(--muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ibx-unread-dot { width: 8px; height: 8px; background: var(--caramel); border-radius: 50%; flex-shrink: 0; margin-left: 6px; }
+        .ibx-unread-badge {
+            background: var(--espresso); color: var(--cream);
+            font-size: 10px; font-weight: 700;
+            border-radius: 99px; padding: 1px 6px;
+            min-width: 17px; text-align: center; flex-shrink: 0;
+        }
+
+        /* Right: chat area */
+        .ibx-chat-panel {
+            flex: 1; display: flex; flex-direction: column; min-width: 0;
+            background: var(--warm-white); position: relative;
+        }
+        .ibx-chat-panel::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 24px 24px; opacity: .4;
+        }
+
+        /* Empty state */
+        .ibx-empty {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+            position: relative; z-index: 1;
+        }
+        .ibx-empty-icon {
+            width: 72px; height: 72px;
+            background: var(--latte-soft);
+            border: 2px solid var(--border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; margin-bottom: 18px;
+        }
+        .ibx-empty h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--espresso); margin-bottom: 8px; }
+        .ibx-empty h3 em { font-style: italic; color: var(--caramel); }
+        .ibx-empty p { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 280px; }
+
+        /* Chat header */
+        .ibx-chat-header {
+            padding: 0 24px; height: 64px;
+            display: flex; align-items: center;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            gap: 14px; flex-shrink: 0;
+            position: relative; z-index: 2;
+            box-shadow: 0 1px 4px rgba(26,14,7,.06);
+        }
+        .ibx-ch-av {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; color: #fff;
+            flex-shrink: 0; overflow: hidden;
+        }
+        .ibx-ch-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .ibx-ch-info { flex: 1; min-width: 0; }
+        .ibx-ch-name { font-size: 15px; font-weight: 700; color: var(--espresso); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ibx-ch-sub { font-size: 12px; color: var(--muted); }
+        .ibx-ch-actions { display: flex; gap: 6px; }
+        .ibx-icon-btn {
+            width: 36px; height: 36px;
+            background: var(--latte-soft); border: 1.5px solid var(--border);
+            border-radius: 9px; display: flex; align-items: center; justify-content: center;
+            font-size: 15px; cursor: pointer; transition: all .15s; color: var(--espresso);
+        }
+        .ibx-icon-btn:hover { border-color: var(--caramel); color: var(--caramel); }
+
+        /* Message thread */
+        .ibx-thread {
+            flex: 1; overflow-y: auto;
+            padding: 24px 28px; display: flex; flex-direction: column; gap: 4px;
+            position: relative; z-index: 1;
+        }
+        .ibx-thread::-webkit-scrollbar { width: 4px; }
+        .ibx-thread::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        .ibx-date-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; }
+        .ibx-date-divider::before, .ibx-date-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .ibx-date-divider span { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+
+        .ibx-msg-group { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
+        .ibx-msg-row { display: flex; align-items: flex-end; gap: 8px; }
+        .ibx-msg-row.mine { flex-direction: row-reverse; }
+        .ibx-msg-av {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden;
+        }
+        .ibx-msg-av img { width: 100%; height: 100%; object-fit: cover; }
+        .ibx-msg-av.hidden { visibility: hidden; }
+        .ibx-bubble {
+            max-width: 62%; padding: 10px 14px; border-radius: 18px;
+            font-size: 14px; line-height: 1.55; word-break: break-word;
+        }
+        .ibx-msg-row:not(.mine) .ibx-bubble {
+            background: var(--card); color: var(--espresso);
+            border: 1px solid var(--border); border-bottom-left-radius: 5px;
+            box-shadow: 0 1px 4px rgba(26,14,7,.06);
+        }
+        .ibx-msg-row.mine .ibx-bubble {
+            background: linear-gradient(135deg, var(--espresso) 0%, var(--brown) 100%);
+            color: var(--cream); border-bottom-right-radius: 5px;
+            box-shadow: 0 2px 8px rgba(26,14,7,.18);
+        }
+        .ibx-msg-time { font-size: 10.5px; color: var(--muted); padding: 2px 4px; align-self: flex-end; flex-shrink: 0; }
+
+        /* Input bar */
+        .ibx-input-bar {
+            padding: 12px 20px 16px; background: var(--card);
+            border-top: 1px solid var(--border); flex-shrink: 0;
+            position: relative; z-index: 2;
+        }
+        .ibx-input-row { display: flex; align-items: flex-end; gap: 10px; }
+        .ibx-input-wrap {
+            flex: 1; background: var(--latte-soft);
+            border: 1.5px solid var(--border); border-radius: 22px;
+            display: flex; align-items: flex-end;
+            padding: 8px 14px; transition: border-color .15s;
+        }
+        .ibx-input-wrap:focus-within { border-color: var(--caramel); box-shadow: 0 0 0 3px rgba(196,122,58,.08); }
+        .ibx-textarea {
+            flex: 1; border: none; background: transparent; outline: none;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--espresso);
+            resize: none; max-height: 120px; line-height: 1.5;
+        }
+        .ibx-textarea::placeholder { color: var(--muted); }
+        .ibx-send-btn {
+            width: 40px; height: 40px; flex-shrink: 0;
+            background: var(--espresso); border: none; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; color: var(--cream);
+            transition: all .15s; box-shadow: 0 2px 8px rgba(26,14,7,.2);
+        }
+        .ibx-send-btn:hover { opacity: .85; transform: scale(1.07); }
+        .ibx-send-btn:active { transform: scale(.95); }
+
+        @media (max-width: 700px) { .ibx-conv-panel { width: 220px; } }
+        @media (max-width: 520px) { .ibx-conv-panel { display: none; } }
     </style>
 </head>
 <body>
@@ -7092,6 +7303,51 @@
                 </div>
             </div>
 
+            <!-- Messages / Inbox View -->
+            <div id="inboxView" class="content-view">
+                <div class="ibx-shell">
+                    <!-- Conversation List -->
+                    <div class="ibx-conv-panel">
+                        <div class="ibx-conv-header">
+                            <h2>Your <em>Inbox</em></h2>
+                            <div class="ibx-search-wrap">
+                                <span class="ibx-search-icon">🔍</span>
+                                <input type="text" class="ibx-search-input" id="inboxSearchInput" placeholder="Search conversations…" oninput="filterInboxConvs()">
+                            </div>
+                        </div>
+                        <div class="ibx-conv-list" id="inboxConvList">
+                            <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Panel -->
+                    <div class="ibx-chat-panel">
+                        <!-- Empty state -->
+                        <div class="ibx-empty" id="inboxEmptyState">
+                            <div class="ibx-empty-icon">☕</div>
+                            <h3>Your <em>messages</em></h3>
+                            <p>Select a conversation to start chatting</p>
+                        </div>
+                        <!-- Active chat area (hidden until conversation selected) -->
+                        <div id="inboxChatArea" style="display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;">
+                            <div class="ibx-chat-header" id="inboxChatHeader"></div>
+                            <div class="ibx-thread" id="inboxThread"></div>
+                            <div class="ibx-input-bar">
+                                <div class="ibx-input-row">
+                                    <div class="ibx-input-wrap">
+                                        <textarea class="ibx-textarea" id="inboxMsgInput" rows="1"
+                                            placeholder="Type a message…"
+                                            oninput="ibxAutoResize(this)"
+                                            onkeydown="ibxHandleKey(event)"></textarea>
+                                    </div>
+                                    <button class="ibx-send-btn" onclick="ibxSend()" title="Send">➤</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- My Chats View (redesigned) -->
             <div id="messagesView" class="content-view">
 
@@ -7130,7 +7386,6 @@
                             <button class="mc-tab-btn active" onclick="switchChatTab(this,'mc-tab-upcoming')">Upcoming</button>
                             <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-past')">Past Chats</button>
                             <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-pending')">Pending</button>
-                            <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-messages')">💬 Messages</button>
                         </div>
 
                         <!-- Tab: Upcoming -->
@@ -7142,20 +7397,6 @@
                         <!-- Tab: Pending -->
                         <div id="mc-tab-pending" style="display:none;"></div>
 
-                        <!-- Tab: Messages (direct messages) -->
-                        <div id="mc-tab-messages" style="display:none;">
-                            <div class="mc-messages-wrapper">
-                                <div class="mc-conv-list">
-                                    <div class="mc-conv-list-header">Conversations</div>
-                                    <div id="conversationList" class="conversation-list" style="padding: 8px;"></div>
-                                </div>
-                                <div id="chatWindow" class="chat-window mc-chat-win">
-                                    <div class="chat-header">
-                                        <h3>Select a conversation</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- RIGHT COLUMN -->
@@ -9072,7 +9313,12 @@
                     const msg = payload.new;
                     // If the chat window for this sender is open, refresh the conversation
                     if (selectedConversation === msg.sender_id) {
-                        await selectConversation(msg.sender_id, msg.conversation_id);
+                        // Refresh the active conversation in whichever view is open
+                        if (document.getElementById('inboxView')?.classList.contains('active')) {
+                            await selectInboxConv(msg.sender_id, msg.conversation_id);
+                        } else {
+                            await selectConversation(msg.sender_id, msg.conversation_id);
+                        }
                     } else {
                         let name = 'Someone';
                         const cached = users.find(u => u.id === msg.sender_id);
@@ -9080,8 +9326,8 @@
                         showToast(`New message from ${name}`, 'info');
                     }
                     // Refresh the inbox list to update unread counts
-                    if (document.getElementById('messagesView')?.classList.contains('active')) {
-                        renderMessages();
+                    if (document.getElementById('inboxView')?.classList.contains('active')) {
+                        renderInboxView();
                     }
                 })
                 .subscribe();
@@ -9094,7 +9340,7 @@
                     event: 'INSERT', schema: 'public', table: 'conversations',
                     filter: `participant_a=eq.${currentUser.id}`
                 }, () => {
-                    if (document.getElementById('messagesView')?.classList.contains('active')) renderMessages();
+                    if (document.getElementById('inboxView')?.classList.contains('active')) renderInboxView();
                 })
                 .subscribe();
             realtimeChannels.push(chConvA);
@@ -9105,7 +9351,7 @@
                     event: 'INSERT', schema: 'public', table: 'conversations',
                     filter: `participant_b=eq.${currentUser.id}`
                 }, () => {
-                    if (document.getElementById('messagesView')?.classList.contains('active')) renderMessages();
+                    if (document.getElementById('inboxView')?.classList.contains('active')) renderInboxView();
                 })
                 .subscribe();
             realtimeChannels.push(chConvB);
@@ -9269,6 +9515,7 @@
                     { id: 'dashboardView', icon: '🏠', label: 'Dashboard' },
                     { id: 'discoverView', icon: '🔍', label: 'Discover' },
                     { id: 'networkView', icon: '🤝', label: 'My Network' },
+                    { id: 'inboxView', icon: '💬', label: 'Messages' },
                 ];
                 const communityItems = [
                     { id: 'feedView', icon: '📰', label: 'Feed' },
@@ -9381,6 +9628,7 @@
             if (viewId === 'myProfileView') renderMyProfile();
             if (viewId === 'settingsView') renderSettingsView();
             if (viewId === 'networkView') renderNetworkView();
+            if (viewId === 'inboxView') renderInboxView();
             if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
 
             updateNavActive(viewId);
@@ -10656,15 +10904,13 @@
         function switchChatTab(btn, tabId) {
             document.querySelectorAll('.mc-tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const panels = ['mc-tab-upcoming','mc-tab-past','mc-tab-pending','mc-tab-messages'];
+            const panels = ['mc-tab-upcoming','mc-tab-past','mc-tab-pending'];
             panels.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
             const target = document.getElementById(tabId);
             if (target) target.style.display = tabId === 'mc-tab-upcoming' || tabId === 'mc-tab-past' ? 'flex' : 'block';
-            // Load messages pane lazily
-            if (tabId === 'mc-tab-messages') renderMessages();
         }
 
         async function renderMyChatView() {
@@ -10948,6 +11194,311 @@
                 console.error('Error rendering messages:', error);
             }
         }
+
+        // ─── Inbox View Functions ─────────────────────────────────────────
+
+        let ibxAllConvs = [];
+
+        function ibxAvatarBg(str) {
+            const colors = ['#6b3f2a','#8b5040','#a0614e','#c47a3a','#5a3e2b','#4a7a5a','#3d5a7a','#7a3d5a'];
+            let h = 0;
+            for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff;
+            return colors[Math.abs(h) % colors.length];
+        }
+
+        function ibxAvatarInner(profile) {
+            const fn = profile?.first_name?.[0] || '?';
+            const ln = profile?.last_name?.[0] || '?';
+            if (profile?.profile_picture) {
+                return `<img src="${profile.profile_picture}" alt="${fn}${ln}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            }
+            return `${fn}${ln}`;
+        }
+
+        function ibxFormatTime(isoStr) {
+            if (!isoStr) return '';
+            const d = new Date(isoStr);
+            const now = new Date();
+            const diffDays = Math.floor((now - d) / 86400000);
+            if (diffDays === 0) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return d.toLocaleDateString([], { weekday: 'short' });
+            return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+
+        function ibxEscape(str) {
+            return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        async function renderInboxView() {
+            if (!currentUser) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('inbox')
+                    .select('*, other_profile:profiles!inner(id, first_name, last_name, profile_picture, role, company)');
+                if (error) throw error;
+                ibxAllConvs = data || [];
+                ibxRenderConvList(ibxAllConvs);
+            } catch (err) {
+                console.error('renderInboxView:', err);
+            }
+        }
+
+        function ibxRenderConvList(convs) {
+            const list = document.getElementById('inboxConvList');
+            if (!list) return;
+            if (!convs || convs.length === 0) {
+                list.innerHTML = `<div style="padding:32px 20px;text-align:center;">
+                    <div style="font-size:28px;margin-bottom:10px;">💬</div>
+                    <p style="font-size:13px;color:var(--muted);">No conversations yet.<br>Connect with someone to start chatting!</p>
+                </div>`;
+                return;
+            }
+            list.innerHTML = convs.map(conv => {
+                const p = conv.other_profile;
+                const name = p ? `${p.first_name} ${p.last_name}` : 'User';
+                const isActive = selectedConversation === conv.other_user_id;
+                const hasUnread = (conv.unread_count || 0) > 0;
+                const preview = ibxEscape((conv.last_message || 'No messages yet').substring(0, 60));
+                const timeStr = ibxFormatTime(conv.last_message_at);
+                const bg = ibxAvatarBg((p?.first_name || '') + (p?.last_name || '') + (conv.other_user_id || ''));
+                const avInner = ibxAvatarInner(p);
+                return `<div class="ibx-conv-row ${isActive ? 'active' : ''} ${hasUnread ? 'unread' : ''}"
+                             onclick="selectInboxConv('${conv.other_user_id}','${conv.id}')">
+                    <div class="ibx-conv-av">
+                        <div class="ibx-conv-av-inner" style="background:${bg};">${avInner}</div>
+                    </div>
+                    <div class="ibx-conv-body">
+                        <div class="ibx-conv-top">
+                            <span class="ibx-conv-name">${ibxEscape(name)}</span>
+                            <span class="ibx-conv-time">${timeStr}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;">
+                            <span class="ibx-conv-preview">${preview}</span>
+                            ${hasUnread ? '<div class="ibx-unread-dot"></div>' : ''}
+                        </div>
+                    </div>
+                    ${hasUnread ? `<span class="ibx-unread-badge">${conv.unread_count}</span>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        function filterInboxConvs() {
+            const q = (document.getElementById('inboxSearchInput')?.value || '').toLowerCase();
+            if (!q) { ibxRenderConvList(ibxAllConvs); return; }
+            const filtered = ibxAllConvs.filter(c => {
+                const p = c.other_profile;
+                const name = `${p?.first_name || ''} ${p?.last_name || ''}`.toLowerCase();
+                return name.includes(q) || (c.last_message || '').toLowerCase().includes(q);
+            });
+            ibxRenderConvList(filtered);
+        }
+
+        async function selectInboxConv(userId, conversationId = null) {
+            if (!currentUser) return;
+            selectedConversation = userId;
+            selectedConversationId = conversationId;
+
+            // Update active state in list
+            document.querySelectorAll('.ibx-conv-row').forEach(r => r.classList.remove('active'));
+            const activeRow = document.querySelector(`.ibx-conv-row[onclick*="'${userId}'"]`);
+            if (activeRow) activeRow.classList.add('active');
+
+            // Show chat area
+            const empty = document.getElementById('inboxEmptyState');
+            const area = document.getElementById('inboxChatArea');
+            if (empty) empty.style.display = 'none';
+            if (area) area.style.display = 'flex';
+
+            try {
+                let messagesData = [];
+                if (!selectedConversationId) {
+                    const { data: convRow } = await supabaseClient
+                        .from('conversations')
+                        .select('id')
+                        .or(`and(participant_a.eq.${currentUser.id},participant_b.eq.${userId}),and(participant_a.eq.${userId},participant_b.eq.${currentUser.id})`)
+                        .maybeSingle();
+                    selectedConversationId = convRow?.id || null;
+                }
+                if (selectedConversationId) {
+                    const { data, error } = await supabaseClient
+                        .from('messages')
+                        .select('*')
+                        .eq('conversation_id', selectedConversationId)
+                        .order('created_at', { ascending: true });
+                    if (!error) messagesData = data || [];
+                }
+
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('first_name, last_name, profile_picture, role, company')
+                    .eq('id', userId)
+                    .maybeSingle();
+
+                const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
+                const bg = ibxAvatarBg((profile?.first_name || '') + (profile?.last_name || '') + userId);
+                const avInner = ibxAvatarInner(profile);
+                const sub = [profile?.role, profile?.company].filter(Boolean).join(' · ') || 'Coffee Chat Member';
+
+                // Render header
+                const header = document.getElementById('inboxChatHeader');
+                if (header) {
+                    header.innerHTML = `
+                        <div class="ibx-ch-av" style="background:${bg};">${avInner}</div>
+                        <div class="ibx-ch-info">
+                            <div class="ibx-ch-name">${ibxEscape(partnerName)}</div>
+                            <div class="ibx-ch-sub">${ibxEscape(sub)}</div>
+                        </div>
+                        <div class="ibx-ch-actions">
+                            <div class="ibx-icon-btn" title="Schedule a chat" onclick="scheduleWith('${userId}')">☕</div>
+                            <div class="ibx-icon-btn" title="View profile" onclick="viewProfile('${userId}')">👤</div>
+                        </div>`;
+                }
+
+                // Render messages
+                ibxRenderMessages(messagesData, profile, partnerName, bg, userId);
+
+                // Update placeholder
+                const textarea = document.getElementById('inboxMsgInput');
+                if (textarea) textarea.placeholder = `Message ${profile?.first_name || 'them'}…`;
+
+                // Mark as read
+                if (selectedConversationId) {
+                    await supabaseClient.from('messages')
+                        .update({ read: true })
+                        .eq('conversation_id', selectedConversationId)
+                        .eq('receiver_id', currentUser.id);
+                }
+                // Clear unread indicators
+                if (activeRow) {
+                    activeRow.querySelector('.ibx-unread-dot')?.remove();
+                    activeRow.querySelector('.ibx-unread-badge')?.remove();
+                    activeRow.classList.remove('unread');
+                }
+            } catch (err) {
+                console.error('selectInboxConv:', err);
+            }
+        }
+
+        function ibxRenderMessages(messagesData, profile, partnerName, bg, userId) {
+            const thread = document.getElementById('inboxThread');
+            if (!thread) return;
+
+            if (!messagesData || messagesData.length === 0) {
+                const icebreakers = getConversationStarters(userId);
+                thread.innerHTML = `<div style="text-align:center;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
+                    <div style="font-size:28px;margin-bottom:12px;">👋</div>
+                    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Start your conversation with <strong>${ibxEscape(partnerName)}</strong>!</p>
+                    ${icebreakers.length ? `<p style="font-size:12px;color:var(--caramel);font-weight:600;margin-bottom:10px;">Try an icebreaker:</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:400px;">
+                        ${icebreakers.map(s => `<button onclick="ibxUseIcebreaker(this)"
+                            style="background:var(--card);border:1.5px solid var(--border);border-radius:99px;padding:6px 14px;font-size:12px;color:var(--espresso);cursor:pointer;font-family:inherit;transition:all .15s;"
+                            onmouseover="this.style.borderColor='var(--caramel)'"
+                            onmouseout="this.style.borderColor='var(--border)'">${ibxEscape(s)}</button>`).join('')}
+                    </div>` : ''}
+                </div>`;
+                thread.scrollTop = thread.scrollHeight;
+                return;
+            }
+
+            let lastDate = '';
+            let lastSenderId = null;
+            let html = '<div class="ibx-msg-group">';
+
+            messagesData.forEach(m => {
+                const d = new Date(m.created_at);
+                const msgDate = d.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+                const todayDate = new Date().toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+                const yestDate = new Date(Date.now() - 86400000).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+                const dateLabel = msgDate === todayDate ? 'Today' : msgDate === yestDate ? 'Yesterday' : msgDate;
+                if (msgDate !== lastDate) {
+                    html += `<div class="ibx-date-divider"><span>${dateLabel}</span></div>`;
+                    lastDate = msgDate;
+                    lastSenderId = null;
+                }
+
+                const isMine = m.sender_id === currentUser.id;
+                const showAv = !isMine && m.sender_id !== lastSenderId;
+                const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const avInner = ibxAvatarInner(profile);
+
+                html += `<div class="ibx-msg-row ${isMine ? 'mine' : ''}">
+                    ${!isMine ? `<div class="ibx-msg-av ${showAv ? '' : 'hidden'}" style="background:${bg};">${avInner}</div>` : ''}
+                    <div class="ibx-bubble">${ibxEscape(m.content)}</div>
+                    <span class="ibx-msg-time">${timeStr}</span>
+                </div>`;
+                lastSenderId = m.sender_id;
+            });
+            html += '</div>';
+            thread.innerHTML = html;
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function ibxUseIcebreaker(btn) {
+            const input = document.getElementById('inboxMsgInput');
+            if (input) {
+                input.value = btn.textContent.trim();
+                ibxAutoResize(input);
+                input.focus();
+            }
+        }
+
+        function ibxAutoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+
+        function ibxHandleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                ibxSend();
+            }
+        }
+
+        async function ibxSend() {
+            if (!currentUser || !selectedConversation) return;
+            const input = document.getElementById('inboxMsgInput');
+            const text = input?.value.trim();
+            if (!text) return;
+
+            try {
+                const { data: convData, error: convError } = await supabaseClient
+                    .from('conversations')
+                    .upsert(
+                        { participant_a: currentUser.id, participant_b: selectedConversation },
+                        { onConflict: 'least(participant_a::text,participant_b::text),greatest(participant_a::text,participant_b::text)' }
+                    )
+                    .select('id')
+                    .single();
+                if (convError) throw convError;
+                selectedConversationId = convData.id;
+
+                const { error } = await supabaseClient
+                    .from('messages')
+                    .insert([{
+                        sender_id: currentUser.id,
+                        receiver_id: selectedConversation,
+                        conversation_id: selectedConversationId,
+                        content: text,
+                        message_type: 'text'
+                    }]);
+                if (error) throw error;
+
+                input.value = '';
+                input.style.height = 'auto';
+                sentMessageCount++;
+
+                await selectInboxConv(selectedConversation, selectedConversationId);
+                // Refresh conv list and restore active state
+                await renderInboxView();
+                document.querySelector(`.ibx-conv-row[onclick*="'${selectedConversation}'"]`)?.classList.add('active');
+            } catch (err) {
+                console.error('ibxSend:', err);
+                showToast('Failed to send message', 'error');
+            }
+        }
+
+        // ─── End Inbox View Functions ─────────────────────────────────────
 
         async function selectConversation(userId, conversationId = null) {
             if (!currentUser) return;
