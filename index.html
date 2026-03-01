@@ -5562,9 +5562,7 @@
         }
 
         #settingsView { padding: 0; overflow: hidden; }
-        #settingsView.active { display: flex; flex-direction: column; height: 100%; }
-        /* Push settings view past the fixed app sidebar */
-        body.app-mode #settingsView.active { margin-left: var(--sidebar-w); width: calc(100% - var(--sidebar-w)); }
+        #settingsView.active { display: flex; flex-direction: column; height: 100%; width: 100%; }
 
         .st-layout {
             display: grid;
@@ -5798,7 +5796,7 @@
         /* Privacy select rows */
         .st-priv-row {
             display: flex; align-items: center; justify-content: space-between;
-            gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--border);
+            flex-wrap: wrap; gap: 10px 16px; padding: 13px 0; border-bottom: 1px solid var(--border);
         }
         .st-priv-row:last-child { border-bottom: none; padding-bottom: 0; }
         .st-priv-row:first-child { padding-top: 0; }
