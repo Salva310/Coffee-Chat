@@ -8628,6 +8628,7 @@
         let pendingRequests = []; // incoming connection requests (from pending_requests view)
         let sentRequests = [];    // outgoing: user_id === currentUser.id, status === 'pending'
         let chatInvites = [];     // incoming coffee chat invites (from pending_requests view, type === 'chat_invite')
+        let sentChatInvites = []; // outgoing chat invites sent by current user, status === 'pending'
         let realtimeChannels = [];
         let pollingTimer = null;
         let posts = [];
@@ -8995,6 +8996,16 @@
                 pendingRequests = allPending.filter(p => p.type === 'connection');
                 chatInvites = allPending.filter(p => p.type === 'chat_invite');
             } catch (e) { console.error('loadUserData pending_requests:', e); }
+
+            // Load outgoing pending chat invites
+            try {
+                const { data: sentData } = await supabaseClient
+                    .from('chat_invites')
+                    .select('*')
+                    .eq('sender_id', currentUser.id)
+                    .eq('status', 'pending');
+                sentChatInvites = sentData || [];
+            } catch (e) { console.error('loadUserData sentChatInvites:', e); }
 
             // Load posts for feed
             try {
@@ -9590,6 +9601,7 @@
                 pendingRequests = [];
                 sentRequests = [];
                 chatInvites = [];
+                sentChatInvites = [];
                 selectedConversation = null;
                 selectedConversationId = null;
                 document.querySelector('.app-container').classList.add('sidebar-hidden');
@@ -11044,8 +11056,12 @@
 
         async function sendChatInvite(userId, note = '', topic = '') {
             if (!currentUser) return;
+            if (sentChatInvites.find(i => i.receiver_id === userId)) {
+                showToast('You already sent a chat invite to this person! ☕', 'info');
+                return;
+            }
             try {
-                const { error } = await supabaseClient
+                const { data, error } = await supabaseClient
                     .from('chat_invites')
                     .insert([{
                         sender_id: currentUser.id,
@@ -11053,13 +11069,21 @@
                         note: note,
                         topic: topic,
                         status: 'pending'
-                    }]);
+                    }])
+                    .select()
+                    .single();
                 if (error) throw error;
+                sentChatInvites.push(data);
                 const partner = users.find(u => u.id === userId);
                 showToast(`Chat invite sent to ${partner ? partner.firstName : 'user'}! ☕`, 'success');
+                renderNwConnections();
             } catch (err) {
                 console.error('sendChatInvite:', err);
-                showToast('Failed to send chat invite: ' + err.message, 'error');
+                if (err.message && err.message.includes('chat_invites_unique_pending')) {
+                    showToast('You already sent a chat invite to this person! ☕', 'info');
+                } else {
+                    showToast('Failed to send chat invite: ' + err.message, 'error');
+                }
             }
         }
 
@@ -11125,8 +11149,10 @@
                     .delete()
                     .eq('id', inviteId);
                 if (error) throw error;
+                sentChatInvites = sentChatInvites.filter(i => i.id !== inviteId);
                 showToast('Chat invite cancelled.', 'info');
                 renderMeetingCards();
+                renderNwConnections();
             } catch (err) {
                 console.error('cancelChatInvite:', err);
                 showToast('Failed to cancel: ' + err.message, 'error');
@@ -11236,20 +11262,9 @@
             upcomingEl.innerHTML = upcomingMtgs.length ? upcomingMtgs.map((m,i) => buildChatCard(m, 'upcoming', i===0)).join('') : emptyMcState('📅','No upcoming chats','Schedule your next coffee chat to get started.','upcoming');
             pastEl.innerHTML     = pastMtgs.length     ? pastMtgs.map(m => buildChatCard(m,'completed',false)).join('') : emptyMcState('☕','No past chats yet','Your completed chats will appear here.','');
 
-            // Fetch sent chat invites and include in pending tab
-            let sentInvites = [];
-            try {
-                const { data } = await supabaseClient
-                    .from('chat_invites')
-                    .select('*')
-                    .eq('sender_id', currentUser.id)
-                    .eq('status', 'pending');
-                sentInvites = data || [];
-            } catch(e) { console.error('renderMeetingCards sentInvites:', e); }
-
             const pendingHtml = [
                 ...pendingMtgs.map(m => buildChatCard(m, 'pending', false)),
-                ...sentInvites.map(inv => buildInviteCard(inv))
+                ...sentChatInvites.map(inv => buildInviteCard(inv))
             ].join('');
             pendingEl.innerHTML = pendingHtml || emptyMcState('⏳','No pending requests','When you send or receive a chat request it will appear here.','pending');
         }
@@ -13913,7 +13928,9 @@
                         ${tags.length ? `<div class="nw-cc-tags">${tags.map((t,i) => `<span class="nw-cc-tag${i===0?' hi':''}">${t}</span>`).join('')}</div>` : ''}
                     </div>
                     <div class="nw-cc-footer" onclick="event.stopPropagation()">
-                        <button class="nw-btn-chat" onclick="sendChatInvite('${u.id}')">☕ Chat</button>
+                        ${sentChatInvites.find(i => i.receiver_id === u.id)
+                            ? `<button class="nw-btn-chat" disabled style="opacity:.55;cursor:default;">✓ Invited</button>`
+                            : `<button class="nw-btn-chat" onclick="sendChatInvite('${u.id}')">☕ Chat</button>`}
                         <button class="nw-btn-msg" onclick="startMessage('${u.id}')">💬</button>
                     </div>
                 </div>`;
