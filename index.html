@@ -14467,7 +14467,8 @@
             const badges = checkBadges();
             const newlyEarned = badges.filter(b => b.earned && !prev.includes(b.id));
 
-            localStorage.setItem('earnedBadges', JSON.stringify(badges.filter(b => b.earned).map(b => b.id)));
+            const allEarned = [...new Set([...prev, ...badges.filter(b => b.earned).map(b => b.id)])];
+            localStorage.setItem('earnedBadges', JSON.stringify(allEarned));
 
             if (newlyEarned.length > 0) {
                 setTimeout(() => showBadgeEarned(newlyEarned[0]), 1000);
