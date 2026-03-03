@@ -5639,38 +5639,50 @@
         .st-nav-danger:hover { background: #fdecea !important; }
         .st-nav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; }
 
-        /* Settings nav (prescribed structure) */
+        /* Settings nav */
         .settings-nav {
             width: 220px;
             flex-shrink: 0;
-            border-right: 1px solid #e8d9c8;
-            padding: 16px 12px;
-            background: #ffffff;
+            border-right: 1px solid var(--border);
+            background: var(--card);
             height: 100%;
             overflow-y: auto;
             box-sizing: border-box;
+            padding: 24px 0;
         }
-        .settings-nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 9px;
-            font-size: 13.5px;
-            font-weight: 500;
-            color: #5a3e2b;
-            cursor: pointer;
-            transition: all 0.15s;
-            margin-bottom: 2px;
+        .snav-header {
+            padding: 0 20px 18px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .snav-header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px; font-weight: 700;
+            color: var(--espresso);
+        }
+        .snav-header-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+        .snav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 20px; font-size: 13.5px; font-weight: 400;
+            color: var(--muted); cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: background .15s, color .15s, border-color .15s;
             user-select: none;
         }
-        .settings-nav-item:hover { background: #f5ece0; color: #6b3f2a; }
-        .settings-nav-item.active { background: #f5ece0; color: #6b3f2a; font-weight: 600; }
-        .settings-nav-item.danger { color: #c0392b; }
-        .settings-nav-item.danger:hover { background: #fdf0ee; }
-        .settings-nav-item.danger.active { background: #fdf0ee; }
+        .snav-item:hover { background: var(--latte-soft); color: var(--espresso); }
+        .snav-item.active { background: var(--cream); color: var(--caramel); font-weight: 600; border-left-color: var(--caramel); }
+        .snav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+        .snav-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+        .snav-danger { color: var(--danger) !important; }
+        .snav-danger:hover { background: #fdecea !important; }
+        .snav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; color: var(--danger) !important; }
 
-        /* Settings content panels */
+        /* Settings content sections */
+        .settings-section { display: none; flex-direction: column; gap: 26px; animation: fadeIn .25s ease; }
+        .settings-section.active { display: flex; }
+
+        /* Keep old .settings-panel as alias */
         .settings-panel { display: none; flex-direction: column; gap: 26px; animation: fadeIn .25s ease; }
         .settings-panel.active { display: flex; }
 
@@ -7743,20 +7755,25 @@
 
             <!-- Settings Nav -->
             <div class="settings-nav">
-                <div class="settings-nav-item active" data-tab="profile" onclick="switchSettingsTab('profile')">👤 Profile</div>
-                <div class="settings-nav-item" data-tab="account" onclick="switchSettingsTab('account')">🔑 Account &amp; Security</div>
-                <div class="settings-nav-item" data-tab="notifications" onclick="switchSettingsTab('notifications')">🔔 Notifications</div>
-                <div class="settings-nav-item" data-tab="privacy" onclick="switchSettingsTab('privacy')">🛡️ Privacy</div>
-                <div class="settings-nav-item" data-tab="availability" onclick="switchSettingsTab('availability')">📅 Availability</div>
-                <div class="settings-nav-item" data-tab="appearance" onclick="switchSettingsTab('appearance')">🎨 Appearance</div>
-                <div class="settings-nav-item danger" data-tab="danger" onclick="switchSettingsTab('danger')">⚠️ Danger Zone</div>
+                <div class="snav-header">
+                    <div class="snav-header-title">Settings</div>
+                    <div class="snav-header-sub">Manage your account</div>
+                </div>
+                <div class="snav-item active" data-tab="profile" onclick="switchSettingsTab('profile')"><span class="snav-icon">👤</span> Profile</div>
+                <div class="snav-item" data-tab="account" onclick="switchSettingsTab('account')"><span class="snav-icon">🔑</span> Account &amp; Security</div>
+                <div class="snav-item" data-tab="notifications" onclick="switchSettingsTab('notifications')"><span class="snav-icon">🔔</span> Notifications</div>
+                <div class="snav-item" data-tab="privacy" onclick="switchSettingsTab('privacy')"><span class="snav-icon">🛡️</span> Privacy</div>
+                <div class="snav-item" data-tab="availability" onclick="switchSettingsTab('availability')"><span class="snav-icon">📅</span> Availability</div>
+                <div class="snav-item" data-tab="appearance" onclick="switchSettingsTab('appearance')"><span class="snav-icon">🎨</span> Appearance</div>
+                <div class="snav-divider"></div>
+                <div class="snav-item snav-danger" data-tab="danger" onclick="switchSettingsTab('danger')"><span class="snav-icon">⚠️</span> Danger Zone</div>
             </div>
 
             <!-- Settings Content -->
             <div class="st-content">
 
                 <!-- ── PROFILE ── -->
-                <div class="settings-panel active" id="settings-profile">
+                <div class="settings-section active" id="section-profile">
                     <div>
                         <div class="st-eyebrow">Who you are</div>
                         <h1 class="st-title">Your <em>Profile</em></h1>
@@ -7913,7 +7930,7 @@
                 </div>
 
                 <!-- ── ACCOUNT & SECURITY ── -->
-                <div class="settings-panel" id="settings-account">
+                <div class="settings-section" id="section-account">
                     <div>
                         <div class="st-eyebrow">Your credentials</div>
                         <h1 class="st-title">Account &amp; <em>Security</em></h1>
@@ -7989,7 +8006,7 @@
                 </div>
 
                 <!-- ── NOTIFICATIONS ── -->
-                <div class="settings-panel" id="settings-notifications">
+                <div class="settings-section" id="section-notifications">
                     <div>
                         <div class="st-eyebrow">Stay in the loop</div>
                         <h1 class="st-title">Notification <em>Preferences</em></h1>
@@ -8057,7 +8074,7 @@
                 </div>
 
                 <!-- ── PRIVACY ── -->
-                <div class="settings-panel" id="settings-privacy">
+                <div class="settings-section" id="section-privacy">
                     <div>
                         <div class="st-eyebrow">Your control</div>
                         <h1 class="st-title">Privacy <em>Settings</em></h1>
@@ -8128,7 +8145,7 @@
                 </div>
 
                 <!-- ── AVAILABILITY ── -->
-                <div class="settings-panel" id="settings-availability">
+                <div class="settings-section" id="section-availability">
                     <div>
                         <div class="st-eyebrow">Your schedule</div>
                         <h1 class="st-title">Chat <em>Availability</em></h1>
@@ -8225,7 +8242,7 @@
                 </div>
 
                 <!-- ── APPEARANCE ── -->
-                <div class="settings-panel" id="settings-appearance">
+                <div class="settings-section" id="section-appearance">
                     <div>
                         <div class="st-eyebrow">Make it yours</div>
                         <h1 class="st-title">Appearance & <em>Display</em></h1>
@@ -8300,7 +8317,7 @@
                 </div>
 
                 <!-- ── DANGER ZONE ── -->
-                <div class="settings-panel" id="settings-danger">
+                <div class="settings-section" id="section-danger">
                     <div>
                         <div class="st-eyebrow">Permanent actions</div>
                         <h1 class="st-title danger">Danger <em>Zone</em></h1>
@@ -14700,19 +14717,19 @@
 
         function switchSettingsTab(tabName) {
             // Deactivate all nav items (desktop + mobile)
-            document.querySelectorAll('.settings-nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.snav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.st-mobile-tab').forEach(el => el.classList.remove('active'));
 
             // Activate matching nav items
-            const navItem = document.querySelector(`.settings-nav-item[data-tab="${tabName}"]`);
+            const navItem = document.querySelector(`.snav-item[data-tab="${tabName}"]`);
             if (navItem) navItem.classList.add('active');
             document.querySelectorAll('.st-mobile-tab').forEach(btn => {
                 if ((btn.getAttribute('onclick') || '').includes(`'${tabName}'`)) btn.classList.add('active');
             });
 
-            // Hide all panels, show matching panel
-            document.querySelectorAll('.settings-panel').forEach(el => el.classList.remove('active'));
-            const panel = document.getElementById(`settings-${tabName}`);
+            // Hide all sections, show matching section
+            document.querySelectorAll('.settings-section').forEach(el => el.classList.remove('active'));
+            const panel = document.getElementById(`section-${tabName}`);
             if (panel) panel.classList.add('active');
 
             // Update URL hash
