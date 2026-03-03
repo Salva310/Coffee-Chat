@@ -5676,6 +5676,7 @@
 
         /* Content area */
         .st-content {
+            flex: 1;
             padding: 36px 48px 80px;
             overflow-y: auto;
             height: 100%;
@@ -14696,9 +14697,9 @@
             });
 
             // Hide all panels, show matching panel
-            document.querySelectorAll('.settings-panel').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.settings-panel').forEach(el => el.classList.remove('active'));
             const panel = document.getElementById(`settings-${tabName}`);
-            if (panel) panel.style.display = 'block';
+            if (panel) panel.classList.add('active');
 
             // Update URL hash
             if (tabName !== 'profile') history.replaceState(null, '', `#settings-${tabName}`);
