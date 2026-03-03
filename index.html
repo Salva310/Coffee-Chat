@@ -4196,6 +4196,28 @@
         .mc-btn-sm.danger { background: transparent; color: var(--mc-red); border: 1px solid var(--border); margin-left: auto; }
         .mc-btn-sm.danger:hover { border-color: var(--mc-red); background: var(--mc-red-bg); }
 
+        /* Meeting detail row (replaces Join Call) */
+        .meeting-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #f5ece0;
+            border: 1px solid #e8d9c8;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13.5px;
+        }
+        .meeting-link-btn {
+            color: #6b3f2a;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .meeting-link-btn:hover { opacity: 0.7; text-decoration: underline; }
+        .meeting-detail-row.no-details { color: #9a7a65; font-style: italic; }
+        .meeting-detail-icon { font-size: 16px; flex-shrink: 0; }
+
         /* Icebreakers block */
         .mc-icebreakers {
             background: var(--mc-steam);
@@ -5565,11 +5587,12 @@
         #settingsView.active { display: flex; flex-direction: column; height: 100%; width: 100%; }
 
         .st-layout {
-            display: grid;
-            grid-template-columns: 230px 1fr;
+            display: flex;
+            gap: 0;
             flex: 1;
             height: 100%;
             min-height: 0;
+            overflow: hidden;
         }
 
         /* Inner settings nav */
@@ -5615,6 +5638,41 @@
         .st-nav-danger { color: var(--danger) !important; }
         .st-nav-danger:hover { background: #fdecea !important; }
         .st-nav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; }
+
+        /* Settings nav (prescribed structure) */
+        .settings-nav {
+            width: 220px;
+            flex-shrink: 0;
+            border-right: 1px solid #e8d9c8;
+            padding: 16px 12px;
+            background: #ffffff;
+            height: 100%;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #5a3e2b;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-bottom: 2px;
+            user-select: none;
+        }
+        .settings-nav-item:hover { background: #f5ece0; color: #6b3f2a; }
+        .settings-nav-item.active { background: #f5ece0; color: #6b3f2a; font-weight: 600; }
+        .settings-nav-item.danger { color: #c0392b; }
+        .settings-nav-item.danger:hover { background: #fdf0ee; }
+        .settings-nav-item.danger.active { background: #fdf0ee; }
+
+        /* Settings content panels */
+        .settings-panel { display: none; flex-direction: column; gap: 26px; animation: fadeIn .25s ease; }
+        .settings-panel.active { display: flex; }
 
         /* Content area */
         .st-content {
@@ -6198,6 +6256,62 @@
             margin-bottom: 12px;
         }
         .ibx-conv-header h2 em { font-style: italic; color: var(--caramel); }
+        .ibx-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .ibx-header-row h2 { margin-bottom: 0; }
+        .ibx-compose-btn {
+            width: 32px; height: 32px; flex-shrink: 0;
+            background: var(--espresso); border: none; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--cream); font-size: 15px;
+            transition: background .15s; box-shadow: 0 2px 6px rgba(26,14,7,.18);
+        }
+        .ibx-compose-btn:hover { background: var(--brown); }
+        .ibx-nm-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(26,14,7,.35); display: flex; align-items: center; justify-content: center;
+        }
+        .ibx-nm-modal {
+            background: var(--card); border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(26,14,7,.2);
+            width: 340px; max-height: 480px;
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: ibxNmIn .18s ease;
+        }
+        @keyframes ibxNmIn { from { opacity:0; transform:scale(.95) } to { opacity:1; transform:scale(1) } }
+        .ibx-nm-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 18px 14px; border-bottom: 1px solid var(--border);
+        }
+        .ibx-nm-header h3 { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--espresso); margin: 0; }
+        .ibx-nm-header h3 em { font-style: italic; color: var(--caramel); }
+        .ibx-nm-close {
+            width: 28px; height: 28px; border: none; background: var(--latte-soft);
+            border-radius: 50%; cursor: pointer; font-size: 14px; color: var(--muted);
+            display: flex; align-items: center; justify-content: center; transition: background .12s;
+        }
+        .ibx-nm-close:hover { background: var(--border); }
+        .ibx-nm-search-wrap { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        .ibx-nm-search {
+            width: 100%; background: var(--latte-soft);
+            border: 1.5px solid var(--border); border-radius: 99px;
+            padding: 7px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+            color: var(--espresso); outline: none; transition: border-color .15s; box-sizing: border-box;
+        }
+        .ibx-nm-search:focus { border-color: var(--caramel); }
+        .ibx-nm-list { overflow-y: auto; flex: 1; }
+        .ibx-nm-row {
+            display: flex; align-items: center; gap: 11px;
+            padding: 11px 16px; cursor: pointer; transition: background .12s;
+        }
+        .ibx-nm-row:hover { background: var(--latte-soft); }
+        .ibx-nm-av {
+            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; color: var(--cream); overflow: hidden;
+        }
+        .ibx-nm-info { flex: 1; min-width: 0; }
+        .ibx-nm-name { font-size: 14px; font-weight: 600; color: var(--espresso); }
+        .ibx-nm-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ibx-search-wrap { position: relative; }
         .ibx-search-input {
             width: 100%;
@@ -7309,7 +7423,10 @@
                     <!-- Conversation List -->
                     <div class="ibx-conv-panel">
                         <div class="ibx-conv-header">
-                            <h2>Your <em>Inbox</em></h2>
+                            <div class="ibx-header-row">
+                                <h2>Your <em>Inbox</em></h2>
+                                <button class="ibx-compose-btn" onclick="ibxOpenNewMessage()" title="New message">✏</button>
+                            </div>
                             <div class="ibx-search-wrap">
                                 <span class="ibx-search-icon">🔍</span>
                                 <input type="text" class="ibx-search-input" id="inboxSearchInput" placeholder="Search conversations…" oninput="filterInboxConvs()">
@@ -7343,6 +7460,22 @@
                                     <button class="ibx-send-btn" onclick="ibxSend()" title="Send">➤</button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Message Modal -->
+                <div class="ibx-nm-overlay" id="ibxNmOverlay" style="display:none;" onclick="if(event.target===this)ibxCloseNewMessage()">
+                    <div class="ibx-nm-modal">
+                        <div class="ibx-nm-header">
+                            <h3>New <em>Message</em></h3>
+                            <button class="ibx-nm-close" onclick="ibxCloseNewMessage()">✕</button>
+                        </div>
+                        <div class="ibx-nm-search-wrap">
+                            <input class="ibx-nm-search" id="ibxNmSearchInput" placeholder="Search connections…" oninput="ibxFilterNewMsg()" autocomplete="off">
+                        </div>
+                        <div class="ibx-nm-list" id="ibxNmList">
+                            <div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>
                         </div>
                     </div>
                 </div>
@@ -7596,52 +7729,33 @@
 
         <!-- Mobile horizontal tab bar (visible on screens < 900px) -->
         <div class="st-mobile-tabs" id="stMobileTabs">
-            <button class="st-mobile-tab active" onclick="switchStSection(this,'st-profile','stMobileTabs')">👤 Profile</button>
-            <button class="st-mobile-tab" onclick="switchStSection(this,'st-account','stMobileTabs')">🔑 Account</button>
-            <button class="st-mobile-tab" onclick="switchStSection(this,'st-notifications','stMobileTabs')">🔔 Notifications</button>
-            <button class="st-mobile-tab" onclick="switchStSection(this,'st-privacy','stMobileTabs')">🛡️ Privacy</button>
-            <button class="st-mobile-tab" onclick="switchStSection(this,'st-availability','stMobileTabs')">📅 Availability</button>
-            <button class="st-mobile-tab" onclick="switchStSection(this,'st-appearance','stMobileTabs')">🎨 Appearance</button>
-            <button class="st-mobile-tab danger" onclick="switchStSection(this,'st-danger','stMobileTabs')">⚠️ Danger</button>
+            <button class="st-mobile-tab active" onclick="switchSettingsTab('profile')">👤 Profile</button>
+            <button class="st-mobile-tab" onclick="switchSettingsTab('account')">🔑 Account</button>
+            <button class="st-mobile-tab" onclick="switchSettingsTab('notifications')">🔔 Notifications</button>
+            <button class="st-mobile-tab" onclick="switchSettingsTab('privacy')">🛡️ Privacy</button>
+            <button class="st-mobile-tab" onclick="switchSettingsTab('availability')">📅 Availability</button>
+            <button class="st-mobile-tab" onclick="switchSettingsTab('appearance')">🎨 Appearance</button>
+            <button class="st-mobile-tab danger" onclick="switchSettingsTab('danger')">⚠️ Danger</button>
         </div>
 
         <div class="st-layout">
 
-            <!-- Inner Settings Nav -->
-            <nav class="st-nav">
-                <div class="st-nav-header">
-                    <div class="st-nav-title">Settings</div>
-                    <div class="st-nav-sub">Manage your account</div>
-                </div>
-                <button class="st-nav-item active" onclick="switchStSection(this,'st-profile')">
-                    <span class="st-nav-icon">👤</span> Profile
-                </button>
-                <button class="st-nav-item" onclick="switchStSection(this,'st-account')">
-                    <span class="st-nav-icon">🔑</span> Account &amp; Security
-                </button>
-                <button class="st-nav-item" onclick="switchStSection(this,'st-notifications')">
-                    <span class="st-nav-icon">🔔</span> Notifications
-                </button>
-                <button class="st-nav-item" onclick="switchStSection(this,'st-privacy')">
-                    <span class="st-nav-icon">🛡️</span> Privacy
-                </button>
-                <button class="st-nav-item" onclick="switchStSection(this,'st-availability')">
-                    <span class="st-nav-icon">📅</span> Availability
-                </button>
-                <button class="st-nav-item" onclick="switchStSection(this,'st-appearance')">
-                    <span class="st-nav-icon">🎨</span> Appearance
-                </button>
-                <div class="st-nav-divider"></div>
-                <button class="st-nav-item st-nav-danger" onclick="switchStSection(this,'st-danger')">
-                    <span class="st-nav-icon">⚠️</span> Danger Zone
-                </button>
-            </nav>
+            <!-- Settings Nav -->
+            <div class="settings-nav">
+                <div class="settings-nav-item active" data-tab="profile" onclick="switchSettingsTab('profile')">👤 Profile</div>
+                <div class="settings-nav-item" data-tab="account" onclick="switchSettingsTab('account')">🔑 Account &amp; Security</div>
+                <div class="settings-nav-item" data-tab="notifications" onclick="switchSettingsTab('notifications')">🔔 Notifications</div>
+                <div class="settings-nav-item" data-tab="privacy" onclick="switchSettingsTab('privacy')">🛡️ Privacy</div>
+                <div class="settings-nav-item" data-tab="availability" onclick="switchSettingsTab('availability')">📅 Availability</div>
+                <div class="settings-nav-item" data-tab="appearance" onclick="switchSettingsTab('appearance')">🎨 Appearance</div>
+                <div class="settings-nav-item danger" data-tab="danger" onclick="switchSettingsTab('danger')">⚠️ Danger Zone</div>
+            </div>
 
             <!-- Settings Content -->
             <div class="st-content">
 
                 <!-- ── PROFILE ── -->
-                <div class="st-section active" id="st-profile">
+                <div class="settings-panel active" id="settings-profile">
                     <div>
                         <div class="st-eyebrow">Who you are</div>
                         <h1 class="st-title">Your <em>Profile</em></h1>
@@ -7798,7 +7912,7 @@
                 </div>
 
                 <!-- ── ACCOUNT & SECURITY ── -->
-                <div class="st-section" id="st-account">
+                <div class="settings-panel" id="settings-account">
                     <div>
                         <div class="st-eyebrow">Your credentials</div>
                         <h1 class="st-title">Account &amp; <em>Security</em></h1>
@@ -7874,7 +7988,7 @@
                 </div>
 
                 <!-- ── NOTIFICATIONS ── -->
-                <div class="st-section" id="st-notifications">
+                <div class="settings-panel" id="settings-notifications">
                     <div>
                         <div class="st-eyebrow">Stay in the loop</div>
                         <h1 class="st-title">Notification <em>Preferences</em></h1>
@@ -7942,7 +8056,7 @@
                 </div>
 
                 <!-- ── PRIVACY ── -->
-                <div class="st-section" id="st-privacy">
+                <div class="settings-panel" id="settings-privacy">
                     <div>
                         <div class="st-eyebrow">Your control</div>
                         <h1 class="st-title">Privacy <em>Settings</em></h1>
@@ -8013,7 +8127,7 @@
                 </div>
 
                 <!-- ── AVAILABILITY ── -->
-                <div class="st-section" id="st-availability">
+                <div class="settings-panel" id="settings-availability">
                     <div>
                         <div class="st-eyebrow">Your schedule</div>
                         <h1 class="st-title">Chat <em>Availability</em></h1>
@@ -8110,7 +8224,7 @@
                 </div>
 
                 <!-- ── APPEARANCE ── -->
-                <div class="st-section" id="st-appearance">
+                <div class="settings-panel" id="settings-appearance">
                     <div>
                         <div class="st-eyebrow">Make it yours</div>
                         <h1 class="st-title">Appearance & <em>Display</em></h1>
@@ -8185,7 +8299,7 @@
                 </div>
 
                 <!-- ── DANGER ZONE ── -->
-                <div class="st-section" id="st-danger">
+                <div class="settings-panel" id="settings-danger">
                     <div>
                         <div class="st-eyebrow">Permanent actions</div>
                         <h1 class="st-title danger">Danger <em>Zone</em></h1>
@@ -8304,13 +8418,27 @@
                     </div>
                     <div class="form-group">
                         <label>Meeting Type</label>
-                        <select id="modalScheduleType">
+                        <select id="modalScheduleType" onchange="updateScheduleDetailField(this.value)">
                             <option value="video">Video Call</option>
                             <option value="zoom">Zoom</option>
+                            <option value="facetime">FaceTime</option>
                             <option value="phone">Phone Call</option>
-                            <option value="coffee">In-Person ☕</option>
+                            <option value="inperson">First Sip In-person ☕</option>
                         </select>
                     </div>
+                </div>
+                <!-- Conditional contact detail field -->
+                <div id="scheduleDetailLink" class="form-group">
+                    <label>Meeting Link</label>
+                    <input type="url" id="meetingLinkInput" placeholder="Paste your Zoom, Google Meet, or FaceTime link">
+                </div>
+                <div id="scheduleDetailPhone" class="form-group" style="display:none;">
+                    <label>Phone Number</label>
+                    <input type="tel" id="meetingPhoneInput" placeholder="e.g. (609) 555-0123">
+                </div>
+                <div id="scheduleDetailLocation" class="form-group" style="display:none;">
+                    <label>Location / Address</label>
+                    <input type="text" id="meetingLocationInput" placeholder="e.g. Rowan Bean, 201 Mullica Hill Rd, Glassboro">
                 </div>
                 <div class="form-group">
                     <label>What would you like to talk about?</label>
@@ -9770,6 +9898,7 @@
 
             const avatarColors = ['#6b3f2a','#8b5040','#2d6a4f','#1e4d8c','#7e3ff2'];
             const avatarBg = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+            const meetingActionHtml = renderMeetingAction(next, isOrganizer);
             container.innerHTML = `
                 <div class="db-next-chat-card">
                     <div class="db-ncc-avatar" style="background:${avatarBg}">${initials || '?'}</div>
@@ -9781,11 +9910,11 @@
                             <span class="db-meta-chip">⏱ ${duration}</span>
                             <span class="db-meta-chip">💻 ${meetType}</span>
                         </div>
+                        <div id="meeting-detail-${next.id}" style="margin-top:4px;">${meetingActionHtml}</div>
                     </div>
                     <div class="db-ncc-actions">
                         ${countdownStr ? `<span class="db-countdown-badge">In${countdownStr.replace('·','').trim()}</span>` : ''}
-                        <button class="db-ncc-btn-primary" onclick="startCall('${pFirst} ${pLast}','${initials}')">Join / Prepare ☕</button>
-                        <button class="db-ncc-btn-secondary" onclick="openChatWith('${partnerId}')">Message</button>
+                        <button class="db-ncc-btn-secondary" onclick="startMessage('${partnerId}')">Message</button>
                     </div>
                 </div>`;
         }
@@ -10364,6 +10493,16 @@
             selectedModalTime = time;
         }
 
+        function updateScheduleDetailField(val) {
+            const linkField     = document.getElementById('scheduleDetailLink');
+            const phoneField    = document.getElementById('scheduleDetailPhone');
+            const locationField = document.getElementById('scheduleDetailLocation');
+            if (!linkField) return;
+            linkField.style.display     = ['video','zoom','facetime'].includes(val) ? 'block' : 'none';
+            phoneField.style.display    = val === 'phone'    ? 'block' : 'none';
+            locationField.style.display = val === 'inperson' ? 'block' : 'none';
+        }
+
         async function sendModalMeetingRequest() {
             const date = document.getElementById('modalScheduleDate').value;
             const duration = document.getElementById('modalScheduleDuration').value;
@@ -10374,6 +10513,16 @@
             if (!selectedModalTime) { alert('Please select a time slot'); return; }
             if (!topic) { alert('Please add a note about what you\'d like to discuss'); return; }
             if (!selectedPerson) { alert('Please select a person to chat with'); return; }
+
+            // Collect contact detail based on meeting type
+            let meeting_url = null, meetingLocation = null;
+            if (['video','zoom','facetime'].includes(type)) {
+                meeting_url = document.getElementById('meetingLinkInput')?.value.trim() || null;
+            } else if (type === 'phone') {
+                meetingLocation = document.getElementById('meetingPhoneInput')?.value.trim() || null;
+            } else if (type === 'inperson') {
+                meetingLocation = document.getElementById('meetingLocationInput')?.value.trim() || null;
+            }
 
             const startTime = new Date(`${date}T${selectedModalTime}:00`);
             const endTime = new Date(startTime.getTime() + parseInt(duration) * 60000);
@@ -10388,6 +10537,8 @@
                         description: topic,
                         note: topic,
                         meeting_type: type,
+                        meeting_url: meeting_url,
+                        location: meetingLocation,
                         start_time: startTime.toISOString(),
                         end_time: endTime.toISOString(),
                         status: 'pending'
@@ -10400,11 +10551,88 @@
                 meetings.push(data);
                 closeModal('scheduleChatModal');
                 selectedModalTime = null;
+                // Reset detail fields
+                document.getElementById('meetingLinkInput').value = '';
+                document.getElementById('meetingPhoneInput').value = '';
+                document.getElementById('meetingLocationInput').value = '';
                 showToast(`Chat request sent to ${selectedPerson.firstName}! ☕`, 'success');
                 updateDashboard();
             } catch (err) {
                 console.error('Error sending meeting request:', err);
                 alert('Failed to send chat request: ' + err.message);
+            }
+        }
+
+        function renderMeetingAction(m, isOrganizer) {
+            const type = m.meeting_type;
+            const url  = m.meeting_url;
+            const loc  = m.location;
+            const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+            if (['video','zoom','facetime'].includes(type) && url) {
+                const label = type === 'zoom' ? 'Zoom' : type === 'facetime' ? 'FaceTime' : 'Video';
+                return `<div class="meeting-detail-row">
+                    <span class="meeting-detail-icon">🔗</span>
+                    <a href="${esc(url)}" target="_blank" rel="noopener" class="meeting-link-btn">Join ${label} Call →</a>
+                </div>`;
+            }
+            if (type === 'phone' && loc) {
+                return `<div class="meeting-detail-row">
+                    <span class="meeting-detail-icon">📞</span>
+                    <a href="tel:${esc(loc)}" class="meeting-link-btn">Call ${esc(loc)}</a>
+                </div>`;
+            }
+            if ((type === 'inperson' || type === 'coffee') && loc) {
+                const mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(loc);
+                return `<div class="meeting-detail-row">
+                    <span class="meeting-detail-icon">📍</span>
+                    <a href="${mapsUrl}" target="_blank" rel="noopener" class="meeting-link-btn">${esc(loc)}</a>
+                </div>`;
+            }
+            // Fallback
+            if (isOrganizer) {
+                return `<div class="meeting-detail-row" style="cursor:pointer;font-style:normal;" onclick="addMeetingDetail('${m.id}','${type||'video'}')">
+                    <span class="meeting-detail-icon">➕</span>
+                    <span class="meeting-link-btn">Add meeting link / location</span>
+                </div>`;
+            }
+            return `<div class="meeting-detail-row no-details">
+                <span class="meeting-detail-icon">⏳</span>
+                <span>Meeting details not added yet</span>
+            </div>`;
+        }
+
+        function addMeetingDetail(meetingId, type) {
+            const rowEl = document.getElementById(`meeting-detail-${meetingId}`);
+            if (!rowEl) return;
+            const isLink = ['video','zoom','facetime'].includes(type);
+            const placeholder = isLink ? 'Paste meeting link…' : type === 'phone' ? 'Enter phone number…' : 'Enter location / address…';
+            rowEl.innerHTML = `<div style="display:flex;gap:6px;align-items:center;width:100%;padding:4px 0;">
+                <input type="text" id="meeting-detail-input-${meetingId}"
+                    placeholder="${placeholder}"
+                    style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;color:var(--espresso);"
+                    onkeydown="if(event.key==='Enter')saveMeetingDetail('${meetingId}','${type}')">
+                <button onclick="saveMeetingDetail('${meetingId}','${type}')"
+                    style="padding:7px 12px;background:var(--espresso);color:var(--cream);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">Save</button>
+            </div>`;
+            document.getElementById(`meeting-detail-input-${meetingId}`)?.focus();
+        }
+
+        async function saveMeetingDetail(meetingId, type) {
+            const val = document.getElementById(`meeting-detail-input-${meetingId}`)?.value.trim();
+            if (!val) return;
+            const isLink = ['video','zoom','facetime'].includes(type);
+            const updateData = isLink ? { meeting_url: val, location: null } : { location: val, meeting_url: null };
+            try {
+                const { error } = await supabaseClient.from('meetings').update(updateData).eq('id', meetingId);
+                if (error) throw error;
+                const mtg = meetings.find(m => m.id === meetingId);
+                if (mtg) Object.assign(mtg, updateData);
+                showToast('Meeting details saved! ☕', 'success');
+                renderMeetingCards();
+            } catch(err) {
+                console.error('saveMeetingDetail:', err);
+                showToast('Failed to save details', 'error');
             }
         }
 
@@ -10888,13 +11116,69 @@
             }
         }
 
+        async function cancelChatInvite(inviteId) {
+            if (!confirm('Cancel this chat invite?')) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('chat_invites')
+                    .delete()
+                    .eq('id', inviteId);
+                if (error) throw error;
+                showToast('Chat invite cancelled.', 'info');
+                renderMeetingCards();
+            } catch (err) {
+                console.error('cancelChatInvite:', err);
+                showToast('Failed to cancel: ' + err.message, 'error');
+            }
+        }
+
+        function buildInviteCard(invite) {
+            const partner = users.find(u => u.id === invite.receiver_id);
+            const pFirst  = partner?.firstName || partner?.first_name || 'User';
+            const pLast   = partner?.lastName  || partner?.last_name  || '';
+            const role    = partner?.role    || '';
+            const company = partner?.company || '';
+            const initials = ((pFirst[0]||'') + (pLast[0]||'')).toUpperCase();
+            const topic   = invite.topic || invite.note || '';
+            const gradients = [
+                'linear-gradient(135deg,#5c3317,#b5651d)',
+                'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                'linear-gradient(135deg,#2d7a4f,#52c887)',
+                'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                'linear-gradient(135deg,#be185d,#f472b6)',
+            ];
+            const gradIdx = (invite.receiver_id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
+            return `
+                <div class="mc-chat-card pending">
+                    <div class="mc-card-top">
+                        <div class="mc-avatar-wrap">
+                            <div class="mc-avatar" style="background:${gradients[gradIdx]}">${initials||'?'}</div>
+                        </div>
+                        <div>
+                            <div class="mc-chat-name">${pFirst} ${pLast}</div>
+                            <div class="mc-chat-meta">
+                                ${role ? `<span>${role}</span>` : ''}
+                                ${role && company ? '<span class="mc-meta-dot"></span>' : ''}
+                                ${company ? `<span>${company}</span>` : ''}
+                            </div>
+                            ${topic ? `<div class="mc-chat-topic">${topic}</div>` : ''}
+                        </div>
+                        <div class="mc-card-right">
+                            <span class="mc-status-badge pending">⏳ Pending</span>
+                            <div style="font-size:11px;color:var(--muted);margin-top:2px;">☕ Chat invite</div>
+                        </div>
+                    </div>
+                    <div class="mc-card-actions">
+                        <span style="font-size:12px;color:var(--muted);padding:4px 8px;flex:1;">⏳ Waiting for response…</span>
+                        <button class="mc-btn-sm danger" onclick="event.stopPropagation();cancelChatInvite('${invite.id}')">Cancel</button>
+                    </div>
+                </div>`;
+        }
+
         // Messages
         async function startMessage(userId) {
-            switchView('messagesView');
-            // Switch to the Messages tab within My Chats
-            const msgTabBtn = document.querySelector('.mc-tabs-bar .mc-tab-btn:last-child');
-            if (msgTabBtn) switchChatTab(msgTabBtn, 'mc-tab-messages');
-            await selectConversation(userId);
+            switchView('inboxView');
+            await selectInboxConv(userId);
         }
 
         // ─── My Chats redesigned view ───────────────────────────────────
@@ -10950,7 +11234,23 @@
 
             upcomingEl.innerHTML = upcomingMtgs.length ? upcomingMtgs.map((m,i) => buildChatCard(m, 'upcoming', i===0)).join('') : emptyMcState('📅','No upcoming chats','Schedule your next coffee chat to get started.','upcoming');
             pastEl.innerHTML     = pastMtgs.length     ? pastMtgs.map(m => buildChatCard(m,'completed',false)).join('') : emptyMcState('☕','No past chats yet','Your completed chats will appear here.','');
-            pendingEl.innerHTML  = pendingMtgs.length  ? pendingMtgs.map(m => buildChatCard(m,'pending',false)).join('') : emptyMcState('⏳','No pending requests','When you send or receive a chat request it will appear here.','pending');
+
+            // Fetch sent chat invites and include in pending tab
+            let sentInvites = [];
+            try {
+                const { data } = await supabaseClient
+                    .from('chat_invites')
+                    .select('*')
+                    .eq('sender_id', currentUser.id)
+                    .eq('status', 'pending');
+                sentInvites = data || [];
+            } catch(e) { console.error('renderMeetingCards sentInvites:', e); }
+
+            const pendingHtml = [
+                ...pendingMtgs.map(m => buildChatCard(m, 'pending', false)),
+                ...sentInvites.map(inv => buildInviteCard(inv))
+            ].join('');
+            pendingEl.innerHTML = pendingHtml || emptyMcState('⏳','No pending requests','When you send or receive a chat request it will appear here.','pending');
         }
 
         function buildChatCard(m, status, featured) {
@@ -10995,10 +11295,10 @@
             let actionsHTML = '';
             if (status === 'upcoming') {
                 actionsHTML = `
+                    <div id="meeting-detail-${m.id}">${renderMeetingAction(m, isOrganizer)}</div>
                     <div class="mc-card-actions">
-                        <button class="mc-btn-sm primary" onclick="startCall('${pFirst} ${pLast}','${initials}')">📹 Join Call</button>
                         <button class="mc-btn-sm secondary">📅 Reschedule</button>
-                        <button class="mc-btn-sm secondary" onclick="event.stopPropagation();switchChatTab(document.querySelector('.mc-tabs-bar .mc-tab-btn:last-child'),'mc-tab-messages')">✉ Message</button>
+                        <button class="mc-btn-sm secondary" onclick="event.stopPropagation();startMessage('${partnerId}')">✉ Message</button>
                         <button class="mc-btn-sm danger" onclick="event.stopPropagation()">Cancel</button>
                     </div>`;
             } else if (status === 'completed') {
@@ -11496,6 +11796,82 @@
                 console.error('ibxSend:', err);
                 showToast('Failed to send message', 'error');
             }
+        }
+
+        // ─── New Message Modal ────────────────────────────────────────────
+
+        let ibxNmAllConns = [];
+
+        async function ibxOpenNewMessage() {
+            if (!currentUser) return;
+            document.getElementById('ibxNmOverlay').style.display = 'flex';
+            document.getElementById('ibxNmSearchInput').value = '';
+            document.getElementById('ibxNmList').innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>';
+            try {
+                const { data, error } = await supabaseClient
+                    .from('connections')
+                    .select(`
+                        id,
+                        user_id, connected_user_id,
+                        user_profile:profiles!connections_user_id_fkey(id, first_name, last_name, profile_picture, role, company),
+                        connected_profile:profiles!connections_connected_user_id_fkey(id, first_name, last_name, profile_picture, role, company)
+                    `)
+                    .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`)
+                    .eq('status', 'accepted');
+                if (error) throw error;
+                ibxNmAllConns = (data || []).map(c => {
+                    const isA = c.user_id === currentUser.id;
+                    const profile = isA ? c.connected_profile : c.user_profile;
+                    return { userId: profile?.id, profile };
+                }).filter(c => c.userId);
+                ibxNmRenderList(ibxNmAllConns);
+            } catch (err) {
+                console.error('ibxOpenNewMessage:', err);
+                document.getElementById('ibxNmList').innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Could not load connections.</div>';
+            }
+            setTimeout(() => document.getElementById('ibxNmSearchInput')?.focus(), 50);
+        }
+
+        function ibxCloseNewMessage() {
+            document.getElementById('ibxNmOverlay').style.display = 'none';
+        }
+
+        function ibxFilterNewMsg() {
+            const q = (document.getElementById('ibxNmSearchInput')?.value || '').toLowerCase();
+            if (!q) { ibxNmRenderList(ibxNmAllConns); return; }
+            ibxNmRenderList(ibxNmAllConns.filter(c => {
+                const p = c.profile;
+                return `${p?.first_name || ''} ${p?.last_name || ''}`.toLowerCase().includes(q);
+            }));
+        }
+
+        function ibxNmRenderList(conns) {
+            const list = document.getElementById('ibxNmList');
+            if (!list) return;
+            if (!conns.length) {
+                list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">No connections found.</div>';
+                return;
+            }
+            list.innerHTML = conns.map(c => {
+                const p = c.profile;
+                const name = p ? `${p.first_name} ${p.last_name}` : 'User';
+                const sub = [p?.role, p?.company].filter(Boolean).join(' · ') || 'Coffee Chat Member';
+                const bg = ibxAvatarBg((p?.first_name || '') + (p?.last_name || '') + (c.userId || ''));
+                const avInner = ibxAvatarInner(p);
+                return `<div class="ibx-nm-row" onclick="ibxStartConvWith('${c.userId}')">
+                    <div class="ibx-nm-av" style="background:${bg};">${avInner}</div>
+                    <div class="ibx-nm-info">
+                        <div class="ibx-nm-name">${ibxEscape(name)}</div>
+                        <div class="ibx-nm-sub">${ibxEscape(sub)}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function ibxStartConvWith(userId) {
+            ibxCloseNewMessage();
+            switchView('inboxView');
+            selectInboxConv(userId);
         }
 
         // ─── End Inbox View Functions ─────────────────────────────────────
@@ -14213,12 +14589,11 @@
             const verifiedEl = document.getElementById('stVerifiedEmail');
             if (verifiedEl) verifiedEl.textContent = currentUser.email || '—';
 
-            // Handle URL hash tab
+            // Handle URL hash tab, default to profile
+            const validTabs = ['profile','account','notifications','privacy','availability','appearance','danger'];
             const hash = location.hash.replace('#settings-','');
-            const hashMap = { notifications:'st-notifications', privacy:'st-privacy', availability:'st-availability', account:'st-account', danger:'st-danger', appearance:'st-appearance' };
-            const targetId = hashMap[hash] || 'st-profile';
-            const targetBtn = document.querySelector(`.st-nav-item[onclick*="'${targetId}'"]`);
-            switchStSection(targetBtn, targetId);
+            const targetTab = validTabs.includes(hash) ? hash : 'profile';
+            switchSettingsTab(targetTab);
 
             loadStProfile();
         }
@@ -14307,32 +14682,39 @@
             });
         }
 
-        function switchStSection(btn, sectionId, navContainerId) {
-            document.querySelectorAll('.st-nav-item').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.st-mobile-tab').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            document.querySelectorAll('.st-nav-item, .st-mobile-tab').forEach(b => {
-                const oc = b.getAttribute('onclick') || '';
-                if (oc.includes("'" + sectionId + "'")) b.classList.add('active');
+        function switchSettingsTab(tabName) {
+            // Deactivate all nav items (desktop + mobile)
+            document.querySelectorAll('.settings-nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.st-mobile-tab').forEach(el => el.classList.remove('active'));
+
+            // Activate matching nav items
+            const navItem = document.querySelector(`.settings-nav-item[data-tab="${tabName}"]`);
+            if (navItem) navItem.classList.add('active');
+            document.querySelectorAll('.st-mobile-tab').forEach(btn => {
+                if ((btn.getAttribute('onclick') || '').includes(`'${tabName}'`)) btn.classList.add('active');
             });
-            document.querySelectorAll('.st-section').forEach(s => s.classList.remove('active'));
-            const sec = document.getElementById(sectionId);
-            if (sec) sec.classList.add('active');
+
+            // Hide all panels, show matching panel
+            document.querySelectorAll('.settings-panel').forEach(el => el.style.display = 'none');
+            const panel = document.getElementById(`settings-${tabName}`);
+            if (panel) panel.style.display = 'block';
 
             // Update URL hash
-            const hashMap = {'st-notifications':'notifications','st-privacy':'privacy','st-availability':'availability','st-account':'account','st-danger':'danger','st-appearance':'appearance'};
-            if (hashMap[sectionId]) history.replaceState(null, '', '#settings-' + hashMap[sectionId]);
+            if (tabName !== 'profile') history.replaceState(null, '', `#settings-${tabName}`);
             else history.replaceState(null, '', location.pathname);
 
-            // Lazy load
-            if (!stLoadedTabs.has(sectionId)) {
-                stLoadedTabs.add(sectionId);
-                if (sectionId === 'st-notifications') loadStNotifications();
-                if (sectionId === 'st-privacy')       loadStPrivacy();
-                if (sectionId === 'st-availability')  loadStAvailability();
-                if (sectionId === 'st-danger')        loadStDanger();
-                if (sectionId === 'st-appearance')    loadStAppearance();
-            }
+            // Lazy-load data for this tab
+            loadSettingsTab(tabName);
+        }
+
+        function loadSettingsTab(tabName) {
+            if (stLoadedTabs.has(tabName)) return;
+            stLoadedTabs.add(tabName);
+            if (tabName === 'notifications') loadStNotifications();
+            if (tabName === 'privacy')       loadStPrivacy();
+            if (tabName === 'availability')  loadStAvailability();
+            if (tabName === 'danger')        loadStDanger();
+            if (tabName === 'appearance')    loadStAppearance();
         }
 
         async function saveStProfile() {
