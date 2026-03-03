@@ -11756,6 +11756,22 @@
             }
         }
 
+        async function getOrCreateConversation(otherUserId) {
+            const { data: existing } = await supabaseClient
+                .from('conversations')
+                .select('id')
+                .or(`and(participant_a.eq.${currentUser.id},participant_b.eq.${otherUserId}),and(participant_a.eq.${otherUserId},participant_b.eq.${currentUser.id})`)
+                .maybeSingle();
+            if (existing) return existing.id;
+            const { data: newConv, error } = await supabaseClient
+                .from('conversations')
+                .insert({ participant_a: currentUser.id, participant_b: otherUserId })
+                .select('id')
+                .single();
+            if (error) throw error;
+            return newConv.id;
+        }
+
         async function ibxSend() {
             if (!currentUser || !selectedConversation) return;
             const input = document.getElementById('inboxMsgInput');
@@ -11763,16 +11779,7 @@
             if (!text) return;
 
             try {
-                const { data: convData, error: convError } = await supabaseClient
-                    .from('conversations')
-                    .upsert(
-                        { participant_a: currentUser.id, participant_b: selectedConversation },
-                        { onConflict: 'least(participant_a::text,participant_b::text),greatest(participant_a::text,participant_b::text)' }
-                    )
-                    .select('id')
-                    .single();
-                if (convError) throw convError;
-                selectedConversationId = convData.id;
+                selectedConversationId = selectedConversationId || await getOrCreateConversation(selectedConversation);
 
                 const { error } = await supabaseClient
                     .from('messages')
@@ -11986,18 +11993,8 @@
             if (!text) return;
 
             try {
-                // Step 1: upsert conversation to get/create the thread
-                const { data: convData, error: convError } = await supabaseClient
-                    .from('conversations')
-                    .upsert(
-                        { participant_a: currentUser.id, participant_b: userId },
-                        { onConflict: 'least(participant_a::text,participant_b::text),greatest(participant_a::text,participant_b::text)' }
-                    )
-                    .select('id')
-                    .single();
-
-                if (convError) throw convError;
-                const conversationId = convData.id;
+                // Step 1: get or create the conversation thread
+                const conversationId = selectedConversationId || await getOrCreateConversation(userId);
                 selectedConversationId = conversationId;
 
                 // Step 2: insert message with conversation_id
