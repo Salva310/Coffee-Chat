@@ -5583,16 +5583,14 @@
             overflow: hidden;
         }
 
-        #settingsView { padding: 0; overflow: hidden; }
-        #settingsView.active { display: flex; flex-direction: column; height: 100%; width: 100%; }
+        #settingsView { padding: 0; }
+        #settingsView.active { display: flex; flex-direction: column; min-height: 100%; }
 
         .st-layout {
             display: flex;
             gap: 0;
             flex: 1;
-            height: 100%;
             min-height: 0;
-            overflow: hidden;
         }
 
         /* Inner settings nav */
@@ -5645,7 +5643,7 @@
             flex-shrink: 0;
             border-right: 1px solid var(--border);
             background: var(--card);
-            height: 100%;
+            min-height: 100%;
             overflow-y: auto;
             box-sizing: border-box;
             padding: 24px 0;
@@ -5691,7 +5689,6 @@
             flex: 1;
             padding: 36px 48px 80px;
             overflow-y: auto;
-            height: 100%;
             min-width: 0;
         }
 
@@ -14715,22 +14712,24 @@
             });
         }
 
-        function switchSettingsTab(tabName) {
-            // Deactivate all nav items (desktop + mobile)
-            document.querySelectorAll('.snav-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.st-mobile-tab').forEach(el => el.classList.remove('active'));
+        const ST_TABS = ['profile','account','notifications','privacy','availability','appearance','danger'];
 
-            // Activate matching nav items
+        function switchSettingsTab(tabName) {
+            // Update nav active state
+            document.querySelectorAll('.snav-item').forEach(el => el.classList.remove('active'));
             const navItem = document.querySelector(`.snav-item[data-tab="${tabName}"]`);
             if (navItem) navItem.classList.add('active');
+
+            // Mobile tabs
             document.querySelectorAll('.st-mobile-tab').forEach(btn => {
-                if ((btn.getAttribute('onclick') || '').includes(`'${tabName}'`)) btn.classList.add('active');
+                btn.classList.toggle('active', (btn.getAttribute('onclick') || '').includes(`'${tabName}'`));
             });
 
-            // Hide all sections, show matching section
-            document.querySelectorAll('.settings-section').forEach(el => el.classList.remove('active'));
-            const panel = document.getElementById(`section-${tabName}`);
-            if (panel) panel.classList.add('active');
+            // Show/hide sections with direct style to bypass any CSS conflicts
+            ST_TABS.forEach(name => {
+                const el = document.getElementById('section-' + name);
+                if (el) el.style.display = (name === tabName) ? 'flex' : 'none';
+            });
 
             // Update URL hash
             if (tabName !== 'profile') history.replaceState(null, '', `#settings-${tabName}`);
