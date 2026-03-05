@@ -3619,13 +3619,198 @@
 
         /* Profile Detail */
         .profile-detail {
-            background: white;
+            overflow: hidden;
             border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid var(--border);
-            max-width: 800px;
-            margin: 0 auto;
         }
+
+        /* ─── PROFILE VIEW HERO REDESIGN ─── */
+        .pv-banner {
+            height: 156px;
+            background: linear-gradient(135deg, #3D2B1A 0%, #7a3f22 45%, #C07C3A 100%);
+            position: relative; overflow: hidden;
+        }
+        .pv-banner::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(circle at 18% 50%, rgba(255,255,255,.07) 0%, transparent 55%),
+                radial-gradient(circle at 82% 18%, rgba(255,255,255,.05) 0%, transparent 48%);
+        }
+        .pv-banner::after {
+            content: '';
+            position: absolute; right: 60px; top: 12px;
+            width: 110px; height: 110px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 0 0 22px rgba(255,255,255,.04), 0 0 0 44px rgba(255,255,255,.02);
+        }
+        .pv-hero-inner { max-width: 780px; margin: 0 auto; padding: 0 28px; }
+        .pv-avatar-row {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .pv-avatar-wrap { position: relative; display: inline-block; margin-top: -50px; }
+        .pv-avatar {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--brown) 0%, var(--caramel) 100%);
+            border: 4px solid var(--card);
+            box-shadow: 0 4px 16px rgba(92,51,23,.22);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 34px; color: #fff; font-weight: 700; overflow: hidden;
+        }
+        .pv-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+        .pv-hero-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 12px; }
+        .pv-identity { padding: 12px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+        .pv-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 25px; color: var(--espresso); line-height: 1.15; margin-bottom: 4px;
+        }
+        .pv-headline { font-size: 13.5px; color: var(--muted); margin-bottom: 9px; line-height: 1.4; }
+        .pv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pv-chip {
+            display: flex; align-items: center; gap: 4px;
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 99px; padding: 3px 10px;
+            font-size: 12px; font-weight: 500; color: var(--muted);
+        }
+        .pv-chip.open {
+            background: rgba(138,158,133,.1); border-color: rgba(138,158,133,.35);
+            color: var(--sage); font-weight: 600;
+        }
+        .pv-chip.caramel {
+            background: rgba(192,124,58,.07); border-color: rgba(192,124,58,.28);
+            color: var(--caramel); font-weight: 600;
+        }
+        .pv-stat-row {
+            display: flex; background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow);
+        }
+        .pv-stat-item { flex: 1; padding: 14px 8px; text-align: center; border-right: 1px solid var(--border); }
+        .pv-stat-item:last-child { border-right: none; }
+        .pv-stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px; color: var(--caramel); line-height: 1; margin-bottom: 2px;
+        }
+        .pv-stat-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); opacity: .7; }
+        .pv-body {
+            max-width: 780px; margin: 0 auto; padding: 0 28px 36px;
+            display: grid; grid-template-columns: 1fr 288px; gap: 16px; align-items: start;
+        }
+        .pv-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 13px; padding: 19px; margin-bottom: 13px; box-shadow: var(--shadow);
+        }
+        .pv-card-eyebrow {
+            font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .7px; color: var(--muted); opacity: .6; margin-bottom: 5px;
+        }
+        .pv-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px; color: var(--espresso); margin-bottom: 11px; line-height: 1.2;
+        }
+        .pv-card-title em { font-style: italic; color: var(--caramel); }
+        .pv-bio { font-size: 14px; line-height: 1.75; color: var(--muted); }
+        .pv-looking-for {
+            margin-top: 11px; padding: 10px 12px;
+            background: var(--latte-soft); border-radius: 8px;
+            border-left: 3px solid var(--caramel);
+            font-size: 13px; color: var(--muted); line-height: 1.6;
+        }
+        .pv-looking-for strong { display: block; font-size: 10.5px; font-weight: 700; color: var(--caramel); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+        .pv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pv-tag {
+            background: var(--latte-soft); border: 1px solid var(--border);
+            border-radius: 99px; padding: 4px 11px;
+            font-size: 12px; font-weight: 500; color: var(--muted);
+        }
+        .pv-goals { font-size: 14px; line-height: 1.7; color: var(--muted); padding-left: 12px; border-left: 3px solid var(--caramel); }
+        .pv-ach-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border); }
+        .pv-ach-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .pv-ach-icon {
+            width: 34px; height: 34px; border-radius: 8px;
+            background: var(--latte-soft); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; flex-shrink: 0;
+        }
+        .pv-ach-title { font-size: 13px; font-weight: 700; color: var(--espresso); }
+        .pv-ach-org { font-size: 12.5px; color: var(--muted); margin-bottom: 1px; }
+        .pv-ach-date { font-size: 11px; color: var(--muted); opacity: .65; }
+        .pv-ach-desc { font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+        .pv-action-card {
+            background: linear-gradient(135deg, #3D2B1A 0%, #7a3f22 55%, #C07C3A 100%);
+            border-radius: 13px; padding: 19px; margin-bottom: 13px;
+            position: relative; overflow: hidden; color: #fff;
+        }
+        .pv-action-card::before {
+            content: ''; position: absolute; right: -16px; top: -16px;
+            width: 90px; height: 90px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 0 0 18px rgba(255,255,255,.04), 0 0 0 36px rgba(255,255,255,.02);
+        }
+        .pv-action-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: rgba(255,255,255,.6); margin-bottom: 7px; }
+        .pv-action-title { font-family: 'Playfair Display', serif; font-size: 14.5px; color: #fff; line-height: 1.45; margin-bottom: 13px; font-style: italic; }
+        .pv-action-btn {
+            display: block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.24);
+            color: #fff; border-radius: 8px; padding: 9px 14px;
+            font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; width: 100%; transition: background .15s; margin-top: 6px; text-align: center;
+        }
+        .pv-action-btn:hover { background: rgba(255,255,255,.24); }
+        .pv-action-btn.secondary { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.15); }
+        .pv-cta-primary {
+            background: var(--brown); color: #fff; border: none;
+            border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all .18s; box-shadow: 0 3px 10px rgba(92,51,23,.22);
+        }
+        .pv-cta-primary:hover { opacity: .88; transform: translateY(-1px); }
+        .pv-cta-secondary {
+            background: var(--card); color: var(--muted); border: 1.5px solid var(--border);
+            border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600;
+            font-family: 'DM Sans', sans-serif; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px; transition: all .15s;
+        }
+        .pv-cta-secondary:hover { border-color: var(--caramel); color: var(--brown); }
+        .pv-cta-secondary.connected { color: var(--sage); border-color: rgba(138,158,133,.35); background: rgba(138,158,133,.07); }
+        .pv-resume-pill {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; background: var(--latte-soft);
+            border: 1.5px solid var(--border); border-radius: 10px;
+            cursor: pointer; transition: all .15s;
+        }
+        .pv-resume-pill:hover { border-color: var(--caramel); background: rgba(192,124,58,.05); }
+        .pv-resume-icon {
+            width: 34px; height: 34px; background: var(--brown); border-radius: 7px;
+            display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+        }
+        @media (max-width: 680px) {
+            .pv-body { grid-template-columns: 1fr; padding: 0 16px 32px; }
+            .pv-hero-inner { padding: 0 16px; }
+        }
+
+        /* ─── ACHIEVEMENTS SETTINGS ─── */
+        .ach-entry {
+            background: var(--latte-soft); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; margin-bottom: 10px;
+        }
+        .ach-entry-header { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .ach-type-sel { flex: 1; }
+        .ach-remove-btn {
+            background: none; border: 1px solid var(--border); border-radius: 7px;
+            padding: 4px 10px; font-size: 12px; color: var(--muted);
+            cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; flex-shrink: 0;
+        }
+        .ach-remove-btn:hover { border-color: #e55; color: #e55; }
+        .ach-entry-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .ach-entry-fields .st-form-group { margin-bottom: 0; }
+        .ach-entry-fields .full-col { grid-column: 1 / -1; }
+        .ach-add-btn {
+            display: flex; align-items: center; gap: 8px; width: 100%;
+            background: none; border: 1.5px dashed var(--border); border-radius: 10px;
+            padding: 11px 16px; font-size: 13.5px; font-weight: 600; color: var(--muted);
+            cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; margin-top: 4px;
+        }
+        .ach-add-btn:hover { border-color: var(--caramel); color: var(--caramel); background: rgba(192,124,58,.04); }
 
         .profile-header {
             text-align: center;
@@ -7924,6 +8109,26 @@
                             <button class="st-btn-primary" id="stSaveCareerBtn" onclick="saveStCareer()">Save Changes</button>
                         </div>
                     </div>
+
+                    <!-- Achievements -->
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div>
+                                <div class="st-card-title">Achievements</div>
+                                <div class="st-card-sub">Internships, extracurriculars, certifications, awards, and more.</div>
+                            </div>
+                        </div>
+                        <div class="st-card-body">
+                            <div id="stAchievementsList"></div>
+                            <button class="ach-add-btn" onclick="addAchievementEntry()">
+                                + Add achievement
+                            </button>
+                        </div>
+                        <div class="st-card-footer">
+                            <button class="st-btn-secondary" onclick="loadStProfile()">Discard</button>
+                            <button class="st-btn-primary" id="stSaveAchBtn" onclick="saveStAchievements()">Save Achievements</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ── ACCOUNT & SECURITY ── -->
@@ -8972,8 +9177,11 @@
                     role: profile.role,
                     company: profile.company,
                     location: profile.location,
+                    headline: profile.headline || '',
+                    major: profile.major || '',
                     profilePicture: profile.profile_picture || null,
                     resume: profile.resume_url || null,
+                    achievements: Array.isArray(profile.achievements) ? profile.achievements : [],
                     status: profile.status || '',
                     gradYear: profile.grad_year || ''
                 };
@@ -9090,8 +9298,13 @@
                     role: p.role || '',
                     company: p.company || '',
                     location: p.location || '',
+                    headline: p.headline || '',
+                    status: p.status || '',
+                    gradYear: p.grad_year || '',
+                    major: p.major || '',
                     profilePicture: p.profile_picture || null,
                     resume: p.resume_url || null,
+                    achievements: Array.isArray(p.achievements) ? p.achievements : [],
                     posts: []
                 }));
                 console.log(`Loaded ${users.length} profiles for discovery`);
@@ -9181,8 +9394,11 @@
                     role: profile.role,
                     company: profile.company,
                     location: profile.location,
+                    headline: profile.headline || '',
+                    major: profile.major || '',
                     profilePicture: profile.profile_picture || null,
                     resume: profile.resume_url || null,
+                    achievements: Array.isArray(profile.achievements) ? profile.achievements : [],
                     status: profile.status || '',
                     gradYear: profile.grad_year || ''
                 };
@@ -9765,8 +9981,13 @@
                                     role: p.role || '',
                                     company: p.company || '',
                                     location: p.location || '',
+                                    headline: p.headline || '',
+                                    status: p.status || '',
+                                    gradYear: p.grad_year || '',
+                                    major: p.major || '',
                                     profilePicture: p.profile_picture || null,
                                     resume: p.resume_url || null,
+                                    achievements: Array.isArray(p.achievements) ? p.achievements : [],
                                     posts: []
                                 }));
                                 renderDiscovery(); // re-render with fresh data
@@ -10815,109 +11036,207 @@
 
             selectedPerson = user;
 
-            const isConnected = connections.find(c => c.user_id === currentUser.id && c.connected_user_id === userId || c.connected_user_id === currentUser.id && c.user_id === userId);
+            const isConnected = connections.find(c =>
+                (c.user_id === currentUser.id && c.connected_user_id === userId) ||
+                (c.connected_user_id === currentUser.id && c.user_id === userId)
+            );
             const isOwnProfile = currentUser && currentUser.id === userId;
 
-            const avatarHTML = user.profilePicture ? 
-                `<div class="person-avatar" style="width: 120px; height: 120px; font-size: 48px;"><img src="${user.profilePicture}" alt="${user.firstName}"></div>` :
-                `<div class="person-avatar" style="width: 120px; height: 120px; font-size: 48px;">${user.firstName[0]}${user.lastName[0]}</div>`;
+            const initials = `${user.firstName[0] || ''}${user.lastName[0] || ''}`.toUpperCase();
+            const avatarHTML = user.profilePicture
+                ? `<img src="${user.profilePicture}" alt="${user.firstName}">`
+                : initials;
+
+            // Build headline: prefer stored headline, fallback to role+company
+            const headline = user.headline ||
+                [user.role, user.company ? `@ ${user.company}` : ''].filter(Boolean).join(' ') ||
+                user.industry || '';
+
+            // Meta chips
+            const chips = [
+                user.gradYear ? `<span class="pv-chip">🎓 Class of ${user.gradYear}</span>` : '',
+                user.major    ? `<span class="pv-chip caramel">📚 ${user.major}</span>` : '',
+                user.industry ? `<span class="pv-chip caramel">💼 ${user.industry}</span>` : '',
+                user.status   ? `<span class="pv-chip">${user.status}</span>` : '',
+                `<span class="pv-chip open">✅ Open to chats</span>`
+            ].filter(Boolean).join('');
+
+            // Stats
+            const achCount = (user.achievements || []).length;
+            const intCount = (user.interests || []).length + (user.hobbies || []).length;
+            const connCount = connections.filter(c =>
+                c.user_id === userId || c.connected_user_id === userId
+            ).length;
+
+            // Achievements
+            const achIcons = { Internship:'💼', Extracurricular:'🏆', Certification:'🎖️', Research:'🔬', Award:'🥇', Leadership:'👑', Other:'⭐' };
+            const achHTML = (user.achievements || []).length
+                ? (user.achievements).map(a => `
+                    <div class="pv-ach-row">
+                        <div class="pv-ach-icon">${achIcons[a.type] || '⭐'}</div>
+                        <div>
+                            <div class="pv-ach-title">${a.title || ''}</div>
+                            <div class="pv-ach-org">${a.org || ''}</div>
+                            <div class="pv-ach-date">${a.date || ''}</div>
+                            ${a.desc ? `<div class="pv-ach-desc">${a.desc}</div>` : ''}
+                        </div>
+                    </div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);opacity:.7;">No achievements listed yet.</p>`;
+
+            // Action card content based on connection state
+            const actionCardHTML = !isOwnProfile ? `
+                <div class="pv-action-card">
+                    <div class="pv-action-label">☕ Connect</div>
+                    <div class="pv-action-title">"Every great career starts with one good conversation."</div>
+                    ${isConnected ? `
+                        <button class="pv-action-btn" onclick="startMessage('${user.id}')">💬 Send Message</button>
+                        <button class="pv-action-btn secondary" onclick="scheduleWith('${user.id}')">📅 Schedule a Chat</button>
+                    ` : `
+                        <button class="pv-action-btn" id="pvConnectBtn" onclick="pvHandleConnect(this,'${user.id}')">☕ Request a Sip</button>
+                        <button class="pv-action-btn secondary" onclick="startMessage('${user.id}')">💬 Message first</button>
+                    `}
+                </div>` : `
+                <div class="pv-card">
+                    <div class="pv-card-eyebrow">Your Profile</div>
+                    <div class="pv-card-title">Badges &amp; <em>Milestones</em></div>
+                    <div class="badge-grid" id="profileBadges"></div>
+                </div>`;
 
             const content = document.getElementById('profileDetailContent');
             content.innerHTML = `
-                <div class="profile-header">
-                    ${avatarHTML}
-                    ${isOwnProfile ? '<button class="btn btn-secondary btn-sm edit-profile-btn" onclick="editMyProfile()">✏️ Edit Profile</button>' : ''}
-                    <h1 style="margin-bottom: 0.5rem;">${user.firstName} ${user.lastName}</h1>
-                    ${user.role ? `<p style="font-weight: 600; color: var(--primary); margin-bottom: 0.25rem;">${user.role}${user.company ? ` at ${user.company}` : ''}</p>` : (user.company ? `<p style="color: #666; font-size: 14px; margin-bottom: 0.25rem;">${user.company}</p>` : '')}
-                    ${user.location ? `<p style="color: #999; font-size: 13px;">🎓 Class of ${user.location}</p>` : ''}
-                    <p class="role" style="margin-top: 0.5rem;">${user.industry}</p>
-                </div>
+                <!-- Hero Banner -->
+                <div class="pv-banner"></div>
 
-                ${user.bio ? `
-                    <div class="profile-info">
-                        <h3>About</h3>
-                        <p style="line-height: 1.6;">${user.bio}</p>
+                <div class="pv-hero-inner">
+                    <!-- Avatar + top actions -->
+                    <div class="pv-avatar-row">
+                        <div class="pv-avatar-wrap">
+                            <div class="pv-avatar">${avatarHTML}</div>
+                        </div>
+                        ${!isOwnProfile ? `
+                        <div class="pv-hero-actions">
+                            ${isConnected
+                                ? `<button class="pv-cta-secondary connected" onclick="startMessage('${user.id}')">💬 Message</button>`
+                                : `<button class="pv-cta-secondary" onclick="startMessage('${user.id}')">💬 Message</button>`
+                            }
+                            ${isConnected
+                                ? `<button class="pv-cta-primary" onclick="scheduleWith('${user.id}')">📅 Schedule Chat</button>`
+                                : `<button class="pv-cta-primary" id="pvConnectBtnTop" onclick="pvHandleConnect(this,'${user.id}')">☕ Request a Sip</button>`
+                            }
+                        </div>` : `
+                        <div class="pv-hero-actions">
+                            <button class="pv-cta-secondary" onclick="switchView('settingsView')">✏️ Edit Profile</button>
+                        </div>`}
                     </div>
-                ` : ''}
 
-                ${user.resume ? `
-                    <div class="resume-section">
-                        <h3 style="margin-bottom: 1rem;">Resume</h3>
-                        <div class="resume-link" onclick="openResume('${user.resume}')" style="cursor: pointer;">
-                            <div class="resume-icon">📄</div>
-                            <div>
-                                <p style="font-weight: 600; margin: 0;">${user.firstName}'s Resume</p>
-                                <p style="font-size: 12px; color: #999; margin: 0;">Click to view PDF</p>
-                            </div>
+                    <!-- Identity -->
+                    <div class="pv-identity">
+                        <div class="pv-name">${user.firstName} ${user.lastName}</div>
+                        ${headline ? `<div class="pv-headline">${headline}</div>` : ''}
+                        <div class="pv-chips">${chips}</div>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="pv-stat-row">
+                        <div class="pv-stat-item">
+                            <div class="pv-stat-num">${connCount || '—'}</div>
+                            <div class="pv-stat-lbl">Connections</div>
+                        </div>
+                        <div class="pv-stat-item">
+                            <div class="pv-stat-num">${achCount || '—'}</div>
+                            <div class="pv-stat-lbl">Achievements</div>
+                        </div>
+                        <div class="pv-stat-item">
+                            <div class="pv-stat-num">${intCount || '—'}</div>
+                            <div class="pv-stat-lbl">Interests</div>
                         </div>
                     </div>
-                ` : ''}
-
-                <div class="profile-info">
-                    <h3>Career Goals</h3>
-                    <p>${user.goals}</p>
                 </div>
 
-                <div class="profile-info">
-                    <h3>Interests & Passions</h3>
-                    <div class="profile-tags">
-                        ${user.interests.map(i => `<span class="tag">${i}</span>`).join('')}
-                    </div>
-                </div>
+                <!-- Body Grid -->
+                <div class="pv-body">
+                    <!-- Left column -->
+                    <div>
+                        ${user.bio ? `
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">About</div>
+                            <div class="pv-card-title">Who <em>${user.firstName}</em> is</div>
+                            <p class="pv-bio">${user.bio}</p>
+                            ${user.goals ? `
+                            <div class="pv-looking-for">
+                                <strong>Career Goals</strong>
+                                ${user.goals}
+                            </div>` : ''}
+                        </div>` : ''}
 
-                ${!isOwnProfile ? `
-                    <div class="profile-actions">
-                        ${isConnected ? `
-                            <button class="btn btn-primary" onclick="startMessage('${user.id}')">💬 Send Message</button>
-                            <button class="btn btn-accent" onclick="scheduleWith('${user.id}')">📅 Schedule Chat</button>
-                        ` : `
-                            <button class="btn btn-primary" onclick="connectUser('${user.id}')">Add Connection</button>
-                            <button class="btn btn-secondary" onclick="switchView('discoverView')">Back</button>
-                        `}
-                    </div>
-                ` : ''}
-
-                ${isOwnProfile ? `
-                    <div class="profile-info">
-                        <h3>Your Badges</h3>
-                        <div class="badge-grid" id="profileBadges"></div>
-                    </div>
-                ` : ''}
-
-                ${user.posts && user.posts.length > 0 ? `
-                    <div class="profile-posts">
-                        <h3 style="margin-bottom: 1rem;">Recent Posts</h3>
-                        ${user.posts.map(post => `
-                            <div class="post-card">
-                                <div class="post-header">
-                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                        ${user.profilePicture ? 
-                                            `<div class="person-avatar" style="width: 40px; height: 40px; font-size: 16px;"><img src="${user.profilePicture}"></div>` :
-                                            `<div class="person-avatar" style="width: 40px; height: 40px; font-size: 16px;">${user.firstName[0]}${user.lastName[0]}</div>`
-                                        }
-                                        <div>
-                                            <h4 style="margin: 0; font-size: 14px;">${user.firstName} ${user.lastName}</h4>
-                                            <p class="post-meta">${post.date}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="post-content">${post.content}</div>
-                                <div class="post-actions">
-                                    <button class="post-action-btn" onclick="likePost(${post.id})">👍 ${post.likes} Likes</button>
-                                    <button class="post-action-btn">💬 Comment</button>
-                                </div>
+                        ${(user.interests || []).length || (user.hobbies || []).length ? `
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">Interests & Passions</div>
+                            <div class="pv-card-title">What <em>drives</em> them</div>
+                            <div class="pv-tags">
+                                ${[...(user.interests || []), ...(user.hobbies || [])].map(t => `<span class="pv-tag">${t}</span>`).join('')}
                             </div>
-                        `).join('')}
+                        </div>` : ''}
+
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">Achievements</div>
+                            <div class="pv-card-title">Their <em>journey</em> so far</div>
+                            ${achHTML}
+                        </div>
+
+                        ${isOwnProfile && user.posts && user.posts.length > 0 ? `
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">Posts</div>
+                            <div class="pv-card-title">Recent <em>activity</em></div>
+                            ${user.posts.map(post => `
+                                <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+                                    <p style="font-size:14px;color:var(--muted);line-height:1.6;">${post.content}</p>
+                                    <p style="font-size:11px;color:var(--muted);opacity:.6;margin-top:4px;">${post.date}</p>
+                                </div>`).join('')}
+                        </div>` : ''}
                     </div>
-                ` : ''}
+
+                    <!-- Right column -->
+                    <div>
+                        ${actionCardHTML}
+
+                        ${user.resume ? `
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">Resume</div>
+                            <div class="pv-resume-pill" onclick="openResume('${user.resume}')">
+                                <div class="pv-resume-icon">📄</div>
+                                <div>
+                                    <div style="font-size:13.5px;font-weight:600;color:var(--espresso);">${user.firstName}'s Resume</div>
+                                    <div style="font-size:11.5px;color:var(--muted);">Click to view PDF</div>
+                                </div>
+                                <span style="margin-left:auto;color:var(--muted);font-size:13px;">↓</span>
+                            </div>
+                        </div>` : ''}
+
+                        ${user.location ? `
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">Location</div>
+                            <p style="font-size:14px;color:var(--muted);">📍 ${user.location}</p>
+                        </div>` : ''}
+                    </div>
+                </div>
             `;
 
             switchView('profileDetailView');
 
-            // Render badges on own profile
             if (isOwnProfile) {
                 setTimeout(() => renderBadges('profileBadges'), 50);
             }
+        }
+
+        function pvHandleConnect(btn, userId) {
+            const alreadySent = sentRequests.find(r => r.connected_user_id === userId);
+            if (alreadySent) return;
+            connectUser(userId);
+            // Update both top and card buttons
+            document.querySelectorAll('#pvConnectBtnTop, #pvConnectBtn').forEach(el => {
+                if (el) { el.textContent = '✓ Request Sent'; el.disabled = true; el.style.opacity = '.7'; }
+            });
         }
 
         async function connectUser(userId) {
@@ -14654,6 +14973,8 @@
                 renderStTagsWrap('stInterestTags', 'stInterestInput', data.interests || []);
                 // Hobbies tags
                 renderStTagsWrap('stHobbyTags', 'stHobbyInput', data.hobbies || []);
+                // Achievements
+                renderStAchievements(data.achievements || []);
                 // Update global cache
                 currentUser.firstName     = data.first_name;
                 currentUser.lastName      = data.last_name;
@@ -14670,6 +14991,7 @@
                 currentUser.goals         = data.goals;
                 currentUser.interests     = data.interests || [];
                 currentUser.hobbies       = data.hobbies   || [];
+                currentUser.achievements  = Array.isArray(data.achievements) ? data.achievements : [];
             } catch (e) { console.error('loadStProfile error:', e); }
         }
 
@@ -14799,6 +15121,90 @@
             } catch (e) { showStToast('Error: ' + e.message, 'error'); }
             setStBtnLoading(btn, false);
         }
+
+        // ─── ACHIEVEMENTS HELPERS ───
+        const ACH_TYPES = ['Internship','Extracurricular','Certification','Research','Award','Leadership','Other'];
+        const ACH_ICONS = { Internship:'💼', Extracurricular:'🏆', Certification:'🎖️', Research:'🔬', Award:'🥇', Leadership:'👑', Other:'⭐' };
+
+        function renderStAchievements(list) {
+            const container = document.getElementById('stAchievementsList');
+            if (!container) return;
+            container.innerHTML = '';
+            (list || []).forEach((ach, i) => addAchievementEntry(ach, i));
+        }
+
+        function addAchievementEntry(data, index) {
+            const container = document.getElementById('stAchievementsList');
+            if (!container) return;
+            const idx = index !== undefined ? index : container.querySelectorAll('.ach-entry').length;
+            const typeOpts = ACH_TYPES.map(t =>
+                `<option value="${t}" ${data && data.type === t ? 'selected' : ''}>${t}</option>`
+            ).join('');
+            const div = document.createElement('div');
+            div.className = 'ach-entry';
+            div.dataset.idx = idx;
+            div.innerHTML = `
+                <div class="ach-entry-header">
+                    <select class="st-input ach-type-sel" style="flex:1;" onchange="updateAchIcon(this)">
+                        ${typeOpts}
+                    </select>
+                    <button class="ach-remove-btn" onclick="removeAchEntry(this)" type="button">Remove</button>
+                </div>
+                <div class="ach-entry-fields">
+                    <div class="st-form-group">
+                        <label class="st-label">Title</label>
+                        <input class="st-input ach-title" type="text" placeholder="e.g. Finance Intern" value="${(data && data.title) || ''}">
+                    </div>
+                    <div class="st-form-group">
+                        <label class="st-label">Organization</label>
+                        <input class="st-input ach-org" type="text" placeholder="e.g. Goldman Sachs" value="${(data && data.org) || ''}">
+                    </div>
+                    <div class="st-form-group">
+                        <label class="st-label">Date / Period</label>
+                        <input class="st-input ach-date" type="text" placeholder="e.g. Summer 2025 or 2024–Present" value="${(data && data.date) || ''}">
+                    </div>
+                    <div class="st-form-group full-col">
+                        <label class="st-label">Short Description <span style="font-weight:400;opacity:.6;">(optional)</span></label>
+                        <input class="st-input ach-desc" type="text" placeholder="One-line summary…" value="${(data && data.desc) || ''}">
+                    </div>
+                </div>`;
+            container.appendChild(div);
+        }
+
+        function removeAchEntry(btn) {
+            btn.closest('.ach-entry').remove();
+        }
+
+        function updateAchIcon(sel) {
+            // icon feedback on type change — no-op in settings, shown on profile view
+        }
+
+        function collectAchievements() {
+            return Array.from(document.querySelectorAll('#stAchievementsList .ach-entry')).map(entry => ({
+                type:  entry.querySelector('.ach-type-sel').value,
+                title: entry.querySelector('.ach-title').value.trim(),
+                org:   entry.querySelector('.ach-org').value.trim(),
+                date:  entry.querySelector('.ach-date').value.trim(),
+                desc:  entry.querySelector('.ach-desc').value.trim()
+            })).filter(a => a.title || a.org);
+        }
+
+        async function saveStAchievements() {
+            if (!currentUser) return;
+            const btn = document.getElementById('stSaveAchBtn');
+            setStBtnLoading(btn, true);
+            const achievements = collectAchievements();
+            try {
+                const { error } = await supabaseClient.from('profiles')
+                    .update({ achievements })
+                    .eq('id', currentUser.id);
+                if (error) throw error;
+                currentUser.achievements = achievements;
+                showStToast('Achievements saved!');
+            } catch (e) { showStToast('Error: ' + e.message, 'error'); }
+            setStBtnLoading(btn, false);
+        }
+        // ─── END ACHIEVEMENTS HELPERS ───
 
         async function saveStEmail() {
             const newEmail = document.getElementById('stNewEmail').value.trim();
