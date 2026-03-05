@@ -5806,7 +5806,7 @@
         }
 
         #settingsView { padding: 0; }
-        #settingsView.active { display: flex; flex-direction: column; height: 100%; }
+        #settingsView.active { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
         /* Settings two-column layout */
         .settings-layout {
@@ -5814,13 +5814,13 @@
             grid-template-columns: 220px 1fr;
             flex: 1;
             min-height: 0;
-            height: 100%;
+            overflow: hidden;
         }
 
         /* Settings left nav */
         .settings-nav {
-            background: #fff;
-            border-right: 1px solid var(--latte);
+            background: var(--card);
+            border-right: 1px solid var(--border);
             padding: 28px 0;
             overflow-y: auto;
             display: flex;
@@ -5830,6 +5830,7 @@
             padding: 0 20px 20px;
             border-bottom: 1px solid var(--latte-soft);
             margin-bottom: 8px;
+            flex-shrink: 0;
         }
         .settings-nav-title {
             font-family: 'Playfair Display', serif;
@@ -5900,17 +5901,7 @@
         .st-nav-danger:hover { background: #fdecea !important; }
         .st-nav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; }
 
-        /* Settings nav */
-        .settings-nav {
-            width: 220px;
-            flex-shrink: 0;
-            border-right: 1px solid var(--border);
-            background: var(--card);
-            min-height: 100%;
-            overflow-y: auto;
-            box-sizing: border-box;
-            padding: 24px 0;
-        }
+        /* (settings-nav defined above) */
         .snav-header {
             padding: 0 20px 18px;
             border-bottom: 1px solid var(--border);
