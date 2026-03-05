@@ -9456,10 +9456,8 @@
                     gradYear: profile.grad_year || ''
                 };
 
-                // Load all user data and wire up real-time subscriptions
+                // Load all user data — setupRealtime() and startPolling() are called inside loadUserData()
                 await loadUserData();
-                setupRealtime();
-                startPolling();
 
                 document.querySelector('.app-container').classList.remove('sidebar-hidden');
                 recordLogin();
