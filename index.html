@@ -5806,7 +5806,48 @@
         }
 
         #settingsView { padding: 0; }
-        #settingsView.active { display: flex; flex-direction: column; min-height: 100%; }
+        #settingsView.active { display: flex; flex-direction: column; height: 100%; }
+
+        /* Settings two-column layout */
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            flex: 1;
+            min-height: 0;
+            height: 100%;
+        }
+
+        /* Settings left nav */
+        .settings-nav {
+            background: #fff;
+            border-right: 1px solid var(--latte);
+            padding: 28px 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .settings-nav-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--latte-soft);
+            margin-bottom: 8px;
+        }
+        .settings-nav-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--espresso);
+        }
+        .settings-nav-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* Settings content area */
+        .settings-content {
+            overflow-y: auto;
+            padding: 36px 48px 80px;
+        }
 
         .st-layout {
             display: flex;
@@ -5894,6 +5935,9 @@
         .snav-item.active { background: var(--cream); color: var(--caramel); font-weight: 600; border-left-color: var(--caramel); }
         .snav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
         .snav-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+        .snav-danger { color: var(--danger) !important; }
+        .snav-danger:hover { background: #fdecea !important; }
+        .snav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; color: var(--danger) !important; }
         .snav-danger { color: var(--danger) !important; }
         .snav-danger:hover { background: #fdecea !important; }
         .snav-danger.active { background: #fdecea !important; border-left-color: var(--danger) !important; color: var(--danger) !important; }
@@ -6269,6 +6313,9 @@
         @media (max-width: 900px) {
             .st-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; }
             .st-nav { display: none; }
+            .settings-nav { display: none; }
+            .settings-layout { grid-template-columns: 1fr; }
+            .settings-content { padding: 24px 20px 60px; }
             .st-mobile-tabs { display: flex; }
             #settingsView.active { display: flex; flex-direction: column; height: 100%; }
             .main-content:has(#settingsView.active) { overflow-y: hidden; }
@@ -7960,57 +8007,26 @@
     <div id="settingsView" class="content-view">
 
         <!-- ═══ SETTINGS SHELL ═══ -->
-        <div id="settingsShell" style="display:flex;flex:1;min-height:600px;overflow:hidden;">
+        <div class="settings-layout">
 
-          <!-- LEFT NAV -->
-          <div style="width:230px;flex-shrink:0;background:#fff;border-right:1px solid #e8d9c8;
-                      padding:24px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
-                        color:#bfa898;padding:0 10px 10px;">Settings</div>
+          <nav class="settings-nav">
+            <div class="settings-nav-header">
+              <div class="settings-nav-title">Settings</div>
+              <div class="settings-nav-sub">Manage your account</div>
+            </div>
+            <a class="snav-item active" id="stab-profile" onclick="switchStab('profile')"><span class="snav-icon">👤</span> Profile</a>
+            <a class="snav-item" id="stab-account" onclick="switchStab('account')"><span class="snav-icon">🔑</span> Account &amp; Security</a>
+            <a class="snav-item" id="stab-notifications" onclick="switchStab('notifications')"><span class="snav-icon">🔔</span> Notifications</a>
+            <a class="snav-item" id="stab-privacy" onclick="switchStab('privacy')"><span class="snav-icon">🛡️</span> Privacy</a>
+            <a class="snav-item" id="stab-availability" onclick="switchStab('availability')"><span class="snav-icon">📅</span> Availability</a>
+            <a class="snav-item" id="stab-appearance" onclick="switchStab('appearance')"><span class="snav-icon">🎨</span> Appearance</a>
+            <div class="snav-divider"></div>
+            <a class="snav-item snav-danger" id="stab-danger" onclick="switchStab('danger')"><span class="snav-icon">⚠️</span> Danger Zone</a>
+          </nav>
 
-            <div id="stab-profile" onclick="switchStab('profile')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:600;color:#6b3f2a;background:#f5ece0;cursor:pointer;">
-              <span>👤</span> Profile
-            </div>
-            <div id="stab-account" onclick="switchStab('account')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:500;color:#5a3e2b;cursor:pointer;transition:background .15s;">
-              <span>🔑</span> Account &amp; Security
-            </div>
-            <div id="stab-notifications" onclick="switchStab('notifications')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:500;color:#5a3e2b;cursor:pointer;transition:background .15s;">
-              <span>🔔</span> Notifications
-            </div>
-            <div id="stab-privacy" onclick="switchStab('privacy')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:500;color:#5a3e2b;cursor:pointer;transition:background .15s;">
-              <span>🛡️</span> Privacy
-            </div>
-            <div id="stab-availability" onclick="switchStab('availability')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:500;color:#5a3e2b;cursor:pointer;transition:background .15s;">
-              <span>📅</span> Availability
-            </div>
-            <div id="stab-appearance" onclick="switchStab('appearance')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:500;color:#5a3e2b;cursor:pointer;transition:background .15s;">
-              <span>🎨</span> Appearance
-            </div>
-            <div id="stab-danger" onclick="switchStab('danger')"
-              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-                     font-size:13.5px;font-weight:500;color:#c0392b;cursor:pointer;
-                     margin-top:auto;transition:background .15s;">
-              <span>⚠️</span> Danger Zone
-            </div>
-          </div>
+          <div class="settings-content">
 
-          <!-- RIGHT PANELS -->
-          <div style="flex:1;overflow-y:auto;padding:32px 40px;min-width:0;">
-
-            <div id="spanel-profile">
-                <div class="settings-section" id="section-profile" style="display:flex;">
+                <div class="settings-section active" id="section-profile">
                     <div>
                         <div class="st-eyebrow">Who you are</div>
                         <h1 class="st-title">Your <em>Profile</em></h1>
@@ -8183,10 +8199,7 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-profile -->
-
-            <div id="spanel-account" style="display:none;">
-                <div class="settings-section" id="section-account" style="display:flex;">
+                <div class="settings-section" id="section-account">
                     <div>
                         <div class="st-eyebrow">Your credentials</div>
                         <h1 class="st-title">Account &amp; <em>Security</em></h1>
@@ -8261,10 +8274,7 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-account -->
-
-            <div id="spanel-notifications" style="display:none;">
-                <div class="settings-section" id="section-notifications" style="display:flex;">
+                <div class="settings-section" id="section-notifications">
                     <div>
                         <div class="st-eyebrow">Stay in the loop</div>
                         <h1 class="st-title">Notification <em>Preferences</em></h1>
@@ -8331,10 +8341,7 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-notifications -->
-
-            <div id="spanel-privacy" style="display:none;">
-                <div class="settings-section" id="section-privacy" style="display:flex;">
+                <div class="settings-section" id="section-privacy">
                     <div>
                         <div class="st-eyebrow">Your control</div>
                         <h1 class="st-title">Privacy <em>Settings</em></h1>
@@ -8404,10 +8411,7 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-privacy -->
-
-            <div id="spanel-availability" style="display:none;">
-                <div class="settings-section" id="section-availability" style="display:flex;">
+                <div class="settings-section" id="section-availability">
                     <div>
                         <div class="st-eyebrow">Your schedule</div>
                         <h1 class="st-title">Chat <em>Availability</em></h1>
@@ -8503,10 +8507,7 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-availability -->
-
-            <div id="spanel-appearance" style="display:none;">
-                <div class="settings-section" id="section-appearance" style="display:flex;">
+                <div class="settings-section" id="section-appearance">
                     <div>
                         <div class="st-eyebrow">Make it yours</div>
                         <h1 class="st-title">Appearance & <em>Display</em></h1>
@@ -8580,10 +8581,7 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-appearance -->
-
-            <div id="spanel-danger" style="display:none;">
-                <div class="settings-section" id="section-danger" style="display:flex;">
+                <div class="settings-section" id="section-danger">
                     <div>
                         <div class="st-eyebrow">Permanent actions</div>
                         <h1 class="st-title danger">Danger <em>Zone</em></h1>
@@ -8648,10 +8646,8 @@
                     </div>
                 </div>
 
-            </div><!-- /spanel-danger -->
-
-          </div><!-- /right panels -->
-        </div><!-- /settingsShell -->
+          </div><!-- /settings-content -->
+        </div><!-- /settings-layout -->
 
         <!-- Saved Toast -->
         <div class="st-toast" id="stToast">✓ Changes saved</div>
@@ -15151,24 +15147,16 @@
         const ST_TABS = ['profile','account','notifications','privacy','availability','appearance','danger'];
 
         function switchStab(tab) {
-            ['profile','account','notifications','privacy','availability','appearance','danger'].forEach(function(t) {
-                var panel = document.getElementById('spanel-' + t);
-                var navItem = document.getElementById('stab-' + t);
-                if (panel) panel.style.display = 'none';
-                if (navItem) {
-                    navItem.style.background = '';
-                    navItem.style.fontWeight = '500';
-                    navItem.style.color = t === 'danger' ? '#c0392b' : '#5a3e2b';
-                }
-            });
-            var activePanel = document.getElementById('spanel-' + tab);
-            var activeNav   = document.getElementById('stab-'   + tab);
-            if (activePanel) activePanel.style.display = 'block';
-            if (activeNav) {
-                activeNav.style.background = tab === 'danger' ? '#fdf0ee' : '#f5ece0';
-                activeNav.style.fontWeight = '600';
-                activeNav.style.color = tab === 'danger' ? '#c0392b' : '#6b3f2a';
-            }
+            // Update nav active state
+            document.querySelectorAll('.snav-item').forEach(function(el) { el.classList.remove('active'); });
+            var activeNav = document.getElementById('stab-' + tab);
+            if (activeNav) activeNav.classList.add('active');
+
+            // Show/hide sections
+            document.querySelectorAll('.settings-section').forEach(function(el) { el.classList.remove('active'); });
+            var activeSection = document.getElementById('section-' + tab);
+            if (activeSection) activeSection.classList.add('active');
+
             if (typeof loadSettingsTab === 'function') loadSettingsTab(tab);
         }
 
