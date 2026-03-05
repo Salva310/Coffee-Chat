@@ -15056,8 +15056,7 @@
             const validTabs = ['profile','account','notifications','privacy','availability','appearance','danger'];
             const hash = location.hash.replace('#settings-','');
             const targetTab = validTabs.includes(hash) ? hash : 'profile';
-            switchSettingsTab(targetTab);
-            setTimeout(function() { switchStab(targetTab); }, 10);
+            switchStab(targetTab);
 
             loadStProfile();
         }
