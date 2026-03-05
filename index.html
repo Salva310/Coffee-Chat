@@ -11096,7 +11096,7 @@
             renderDiscovery();
         }
 
-        function viewProfile(userId) {
+        async function viewProfile(userId) {
             const user = users.find(u => u.id === userId);
             if (!user) return;
 
@@ -11127,26 +11127,40 @@
                 `<span class="pv-chip open">✅ Open to chats</span>`
             ].filter(Boolean).join('');
 
+            // Fetch achievements from dedicated table
+            let _pvAchs = [];
+            try {
+                const { data: achData } = await supabaseClient
+                    .from('achievements')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('display_order');
+                _pvAchs = achData || [];
+            } catch(e) { console.error('viewProfile achievements:', e); }
+
             // Stats
-            const achCount = (user.achievements || []).length;
+            const achCount = _pvAchs.length;
             const intCount = (user.interests || []).length + (user.hobbies || []).length;
             const connCount = connections.filter(c =>
                 c.user_id === userId || c.connected_user_id === userId
             ).length;
 
             // Achievements
-            const achIcons = { Internship:'💼', Extracurricular:'🏆', Certification:'🎖️', Research:'🔬', Award:'🥇', Leadership:'👑', Other:'⭐' };
-            const achHTML = (user.achievements || []).length
-                ? (user.achievements).map(a => `
+            const achHTML = _pvAchs.length
+                ? _pvAchs.map(a => {
+                    const icon = ACH_TYPE_ICON[a.type] || '⭐';
+                    const dateStr = _fmtAchDate(a.start_date, a.end_date, a.is_current);
+                    return `
                     <div class="pv-ach-row">
-                        <div class="pv-ach-icon">${achIcons[a.type] || '⭐'}</div>
+                        <div class="pv-ach-icon">${icon}</div>
                         <div>
-                            <div class="pv-ach-title">${a.title || ''}</div>
-                            <div class="pv-ach-org">${a.org || ''}</div>
-                            <div class="pv-ach-date">${a.date || ''}</div>
-                            ${a.desc ? `<div class="pv-ach-desc">${a.desc}</div>` : ''}
+                            <div class="pv-ach-title">${_achEsc(a.title)}</div>
+                            ${a.organization ? `<div class="pv-ach-org">${_achEsc(a.organization)}</div>` : ''}
+                            ${dateStr ? `<div class="pv-ach-date">${dateStr}</div>` : ''}
+                            ${a.description ? `<div class="pv-ach-desc">${_achEsc(a.description)}</div>` : ''}
                         </div>
-                    </div>`).join('')
+                    </div>`;
+                }).join('')
                 : `<p style="font-size:13px;color:var(--muted);opacity:.7;">No achievements listed yet.</p>`;
 
             // Action card content based on connection state
@@ -13905,6 +13919,17 @@
                     <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--latte-soft);color:var(--muted);">Closed</span>
                 </div>`).join('');
 
+            // Fetch own achievements
+            let _myAchs = [];
+            try {
+                const { data: myAchData } = await supabaseClient
+                    .from('achievements')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('display_order');
+                _myAchs = myAchData || [];
+            } catch(e) { console.error('renderMyProfile achievements:', e); }
+
             // Interests + hobbies tags
             const allTags = [...(profile.interests || []), ...(profile.hobbies || [])];
             const tagsHtml = allTags.length
@@ -14048,6 +14073,29 @@
                                 ${profile.goals
                                     ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;border-left:3px solid var(--caramel);padding-left:14px;">${profile.goals}</p>`
                                     : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add yours →</span></p>`}
+                            </div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Achievements</h3>
+                                <button onclick="switchView('settingsView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Manage</button>
+                            </div>
+                            <div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px;">
+                                ${_myAchs.length ? _myAchs.map(a => {
+                                    const icon = ACH_TYPE_ICON[a.type] || '⭐';
+                                    const dateStr = _fmtAchDate(a.start_date, a.end_date, a.is_current);
+                                    return `<div style="display:flex;gap:12px;align-items:flex-start;">
+                                        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">${icon}</div>
+                                        <div>
+                                            <div style="font-size:14px;font-weight:600;color:var(--espresso);">${_achEsc(a.title)}</div>
+                                            ${a.organization ? `<div style="font-size:12.5px;color:var(--brown);margin-top:1px;">${_achEsc(a.organization)}</div>` : ''}
+                                            ${dateStr ? `<div style="font-size:12px;color:var(--muted);margin-top:1px;">${dateStr}</div>` : ''}
+                                            ${a.description ? `<div style="font-size:13px;color:var(--brown);margin-top:4px;line-height:1.5;">${_achEsc(a.description)}</div>` : ''}
+                                        </div>
+                                    </div>`;
+                                }).join('<hr style="border:none;border-top:1px solid var(--latte);margin:0;">')
+                                : `<p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;">No achievements yet. <span onclick="switchView('settingsView')" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add some →</span></p>`}
                             </div>
                         </div>
 
