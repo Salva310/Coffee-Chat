@@ -14299,16 +14299,37 @@
             return `${fn[0]}${ln[0]}`.toUpperCase();
         }
 
-        function renderNetworkView() {
-            // Count pending requests (connection type only)
-            const incomingReqs = pendingRequests.filter(r => !r.type || r.type === 'connection');
-            const reqCount = incomingReqs.length + sentRequests.length;
+        async function renderNetworkView() {
+            // Fetch incoming and outgoing requests fresh with joined profile data
+            let incoming = [], outgoing = [];
+            try {
+                const { data: inc } = await supabaseClient
+                    .from('connections')
+                    .select('*, sender:profiles!connections_user_id_fkey(id,first_name,last_name,headline,major,status,avatar_color,profile_picture)')
+                    .eq('connected_user_id', currentUser.id)
+                    .eq('status', 'pending');
+                incoming = inc || [];
+            } catch(e) { console.error('renderNetworkView incoming:', e); }
+
+            try {
+                const { data: out } = await supabaseClient
+                    .from('connections')
+                    .select('*, receiver:profiles!connections_connected_user_id_fkey(id,first_name,last_name,headline,major,status,avatar_color,profile_picture)')
+                    .eq('user_id', currentUser.id)
+                    .eq('status', 'pending');
+                outgoing = out || [];
+            } catch(e) { console.error('renderNetworkView outgoing:', e); }
+
+            // Keep global arrays in sync
+            sentRequests = outgoing;
+
+            const reqCount = incoming.length + outgoing.length;
 
             // Build suggestion pool: users not connected, not pending, not self
             const connectedIds = new Set();
             connections.forEach(c => { connectedIds.add(c.user_id); connectedIds.add(c.connected_user_id); });
-            sentRequests.forEach(r => connectedIds.add(r.connected_user_id));
-            pendingRequests.forEach(r => connectedIds.add(r.sender_id || r.user_id));
+            outgoing.forEach(r => connectedIds.add(r.connected_user_id));
+            incoming.forEach(r => connectedIds.add(r.user_id));
             const suggestions = users.filter(u => u.id !== currentUser.id && !connectedIds.has(u.id));
 
             // Update hero stats
@@ -14328,7 +14349,7 @@
             if (el('nwTabCountSug'))  el('nwTabCountSug').textContent  = suggestions.length;
 
             renderNwConnections();
-            renderNwRequests(incomingReqs);
+            renderNwRequests(incoming, outgoing);
             renderNwSuggestions(suggestions);
         }
 
@@ -14394,27 +14415,29 @@
 
         function filterNwConnections() { renderNwConnections(); }
 
-        function renderNwRequests(incomingReqs) {
+        function renderNwRequests(incoming, outgoing) {
             const incomingEl = document.getElementById('nwIncomingList');
             const sentEl     = document.getElementById('nwSentList');
             const inCount    = document.getElementById('nwIncomingCount');
             const sCount     = document.getElementById('nwSentCount');
 
-            if (inCount) inCount.textContent = incomingReqs.length ? `${incomingReqs.length} pending` : '';
-            if (sCount)  sCount.textContent  = sentRequests.length  ? `${sentRequests.length} pending`  : '';
+            if (inCount) inCount.textContent = incoming.length ? `${incoming.length} pending` : '';
+            if (sCount)  sCount.textContent  = outgoing.length ? `${outgoing.length} pending` : '';
 
+            // INCOMING — requests sent TO the current user
             if (incomingEl) {
-                if (!incomingReqs.length) {
+                if (!incoming.length) {
                     incomingEl.innerHTML = `<div class="nw-empty"><div class="nw-empty-icon">📬</div><div class="nw-empty-title">No incoming requests</div><div class="nw-empty-desc">When someone sends you a connection request, it will appear here.</div></div>`;
                 } else {
-                    incomingEl.innerHTML = incomingReqs.map(req => {
-                        const senderId = req.sender_id || req.user_id;
-                        const u = users.find(x => x.id === senderId);
-                        const fn = u ? (u.firstName || u.first_name || '?') : '?';
-                        const ln = u ? (u.lastName  || u.last_name  || '?') : '?';
-                        const grad = nwAvatarGradient(senderId);
-                        const inner = u ? nwAvatarInner(u) : `${fn[0]}${ln[0]}`;
-                        const role = u ? ([u.role, u.industry].filter(Boolean).join(' · ') || 'Rowan University') : '';
+                    incomingEl.innerHTML = incoming.map(req => {
+                        const p = req.sender || {};
+                        const fn = p.first_name || '?';
+                        const ln = p.last_name  || '?';
+                        const grad = nwAvatarGradient(p.id || req.user_id);
+                        const inner = p.profile_picture
+                            ? `<img src="${p.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                            : `${fn[0]}${ln[0]}`.toUpperCase();
+                        const role = p.headline || p.major || 'Rowan University';
                         const note = req.note || '';
                         return `
                         <div class="nw-req-card">
@@ -14433,17 +14456,20 @@
                 }
             }
 
+            // OUTGOING — requests the current user sent
             if (sentEl) {
-                if (!sentRequests.length) {
+                if (!outgoing.length) {
                     sentEl.innerHTML = `<div class="nw-empty"><div class="nw-empty-icon">📤</div><div class="nw-empty-title">No sent requests</div><div class="nw-empty-desc">Head to Discover to find people to connect with.</div></div>`;
                 } else {
-                    sentEl.innerHTML = sentRequests.map(req => {
-                        const u = users.find(x => x.id === req.connected_user_id);
-                        const fn = u ? (u.firstName || u.first_name || '?') : '?';
-                        const ln = u ? (u.lastName  || u.last_name  || '?') : '?';
-                        const grad = nwAvatarGradient(req.connected_user_id);
-                        const inner = u ? nwAvatarInner(u) : `${fn[0]}${ln[0]}`;
-                        const role = u ? ([u.role, u.industry].filter(Boolean).join(' · ') || 'Rowan University') : '';
+                    sentEl.innerHTML = outgoing.map(req => {
+                        const p = req.receiver || {};
+                        const fn = p.first_name || '?';
+                        const ln = p.last_name  || '?';
+                        const grad = nwAvatarGradient(p.id || req.connected_user_id);
+                        const inner = p.profile_picture
+                            ? `<img src="${p.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                            : `${fn[0]}${ln[0]}`.toUpperCase();
+                        const role = p.headline || p.major || 'Rowan University';
                         const note = req.note || '';
                         return `
                         <div class="nw-req-card">
