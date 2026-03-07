@@ -13292,20 +13292,21 @@
             }
         }
 
-        async function likePost(postId) {
-            if (!currentUser) {
-                alert('Please log in to like posts');
-                return;
-            }
+        async function likePost(postId, btn) {
+            if (!currentUser) return;
+            if (!btn) btn = document.getElementById(`cflike-${postId}`) || document.getElementById(`gflike-${postId}`);
+            const countEl = document.getElementById(`cflikecount-${postId}`) || document.getElementById(`gflikecount-${postId}`);
+            const isLiked = btn && btn.classList.contains('liked');
 
-            // Handle mock posts locally
-            if (String(postId).startsWith('mock-')) {
-                const post = posts.find(p => String(p.id) === String(postId));
-                if (post) {
-                    post.likes_count = (post.likes_count || 0) + 1;
-                    await renderFeed();
-                }
-                return;
+            // Optimistic update
+            if (btn) {
+                btn.classList.toggle('liked', !isLiked);
+                btn.style.color      = !isLiked ? 'var(--primary)' : '';
+                btn.style.fontWeight = !isLiked ? '700' : '';
+            }
+            if (countEl) {
+                const cur = parseInt(countEl.textContent) || 0;
+                countEl.textContent = isLiked ? Math.max(0, cur - 1) : cur + 1;
             }
 
             try {
@@ -13317,23 +13318,22 @@
                     .maybeSingle();
 
                 if (existing) {
-                    await supabaseClient
-                        .from('post_likes')
-                        .delete()
-                        .eq('id', existing.id);
+                    await supabaseClient.from('post_likes').delete().eq('id', existing.id);
                 } else {
-                    await supabaseClient
-                        .from('post_likes')
-                        .insert([{
-                            post_id: postId,
-                            user_id: currentUser.id
-                        }]);
+                    await supabaseClient.from('post_likes').insert([{ post_id: postId, user_id: currentUser.id }]);
                 }
-
-                await renderFeed();
             } catch (error) {
+                // Revert optimistic update on failure
+                if (btn) {
+                    btn.classList.toggle('liked', isLiked);
+                    btn.style.color      = isLiked ? 'var(--primary)' : '';
+                    btn.style.fontWeight = isLiked ? '700' : '';
+                }
+                if (countEl) {
+                    const cur = parseInt(countEl.textContent) || 0;
+                    countEl.textContent = isLiked ? cur + 1 : Math.max(0, cur - 1);
+                }
                 console.error('Error liking post:', error);
-                alert('Failed to like post: ' + error.message);
             }
         }
 
@@ -13456,27 +13456,14 @@
                 return;
             }
 
-            // --- Connections feed ---
+            // --- Connections feed (Supabase-backed) ---
             const connectedIds = new Set();
             connections.forEach(c => {
                 if (c.user_id === currentUser.id) connectedIds.add(c.connected_user_id);
                 if (c.connected_user_id === currentUser.id) connectedIds.add(c.user_id);
             });
 
-            let allPosts = [...posts];
-            users.forEach(u => {
-                if (connectedIds.has(u.id) && u.posts && u.posts.length > 0) {
-                    u.posts.forEach(p => {
-                        if (!allPosts.find(ep => ep.id === p.id)) {
-                            allPosts.push({ ...p, author_id: u.id, author: `${u.firstName} ${u.lastName}` });
-                        }
-                    });
-                }
-            });
-
-            const feedItems = allPosts.filter(p => p.author_id !== currentUser.id && connectedIds.has(p.author_id));
-
-            if (feedItems.length === 0) {
+            if (connectedIds.size === 0) {
                 feedPosts.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🤝</div>
@@ -13486,25 +13473,69 @@
                 return;
             }
 
-            feedPosts.innerHTML = feedItems
-                .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
-                .map(post => {
-                    const author = users.find(u => u.id === post.author_id) || currentUser;
-                    const authorName = author ? `${author.firstName} ${author.lastName}` : post.author;
-                    const avatarContent = author && author.profilePicture
-                        ? `<img src="${author.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-                        : author ? `${author.firstName[0]}${author.lastName[0]}` : '?';
+            try {
+                const idList = Array.from(connectedIds);
+
+                // Fetch posts + author profiles in one query
+                const { data: feedItems, error } = await supabaseClient
+                    .from('posts')
+                    .select('*, profiles!posts_author_id_fkey(id, first_name, last_name, profile_picture)')
+                    .in('author_id', idList)
+                    .is('group_id', null)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw error;
+
+                if (!feedItems || feedItems.length === 0) {
+                    feedPosts.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✍️</div>
+                            <p>No posts yet from your connections — check back soon!</p>
+                        </div>`;
+                    return;
+                }
+
+                // Fetch which posts current user has already liked
+                const postIds = feedItems.map(p => p.id);
+                const { data: myLikes } = await supabaseClient
+                    .from('post_likes')
+                    .select('post_id')
+                    .eq('user_id', currentUser.id)
+                    .in('post_id', postIds);
+                const likedSet = new Set((myLikes || []).map(l => l.post_id));
+
+                // Fetch live like counts
+                const { data: likeCounts } = await supabaseClient
+                    .from('post_likes')
+                    .select('post_id')
+                    .in('post_id', postIds);
+                const likeCountMap = {};
+                (likeCounts || []).forEach(l => {
+                    likeCountMap[l.post_id] = (likeCountMap[l.post_id] || 0) + 1;
+                });
+
+                feedPosts.innerHTML = feedItems.map(post => {
+                    const p = post.profiles || {};
+                    const authorName = p.first_name ? `${p.first_name} ${p.last_name}` : 'Member';
+                    const authorId   = p.id || post.author_id;
+                    const avatarContent = p.profile_picture
+                        ? `<img src="${p.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : p.first_name ? `${p.first_name[0]}${(p.last_name||'')[0]}` : '?';
+                    const liked    = likedSet.has(post.id);
+                    const likeCount = likeCountMap[post.id] || 0;
+                    const timeAgo  = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
                     return `
                         <div class="post-card">
                             <div class="post-header">
-                                <div style="display:flex;align-items:center;gap:1rem;cursor:pointer;" onclick="viewProfile('${post.author_id}')">
+                                <div style="display:flex;align-items:center;gap:1rem;cursor:pointer;" onclick="viewProfile('${authorId}')">
                                     <div class="person-avatar" style="width:48px;height:48px;font-size:20px;">${avatarContent}</div>
-                                    <div><strong>${authorName}</strong><p class="post-meta">${post.date || 'Just now'}</p></div>
+                                    <div><strong>${authorName}</strong><p class="post-meta">${timeAgo}</p></div>
                                 </div>
                             </div>
                             <div class="post-content">${post.content}</div>
                             <div class="post-actions">
-                                <button class="post-action-btn" onclick="likePost('${post.id}')">👍 ${post.likes_count || 0} Likes</button>
+                                <button class="post-action-btn${liked ? ' liked' : ''}" id="cflike-${post.id}" onclick="likePost('${post.id}', this)" style="${liked ? 'color:var(--primary);font-weight:700;' : ''}">👍 <span id="cflikecount-${post.id}">${likeCount}</span> ${likeCount === 1 ? 'Like' : 'Likes'}</button>
                                 <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
                                 <button class="post-action-btn" onclick="sharePost('${post.id}')">🔄 Share</button>
                             </div>
@@ -13517,6 +13548,11 @@
                             </div>
                         </div>`;
                 }).join('');
+
+            } catch (err) {
+                console.error('renderFeed error:', err);
+                feedPosts.innerHTML = '<div class="empty-state"><p>Failed to load feed. Please try again.</p></div>';
+            }
         }
 
         async function renderGroupsFeedTab(container) {
@@ -13587,33 +13623,7 @@
         }
 
         async function likeFeedGroupPost(postId, btn) {
-            if (!currentUser) return;
-            try {
-                const { data: existing } = await supabaseClient
-                    .from('post_likes')
-                    .select('id')
-                    .eq('post_id', postId)
-                    .eq('user_id', currentUser.id)
-                    .maybeSingle();
-
-                if (existing) {
-                    await supabaseClient.from('post_likes').delete().eq('id', existing.id);
-                } else {
-                    await supabaseClient.from('post_likes').insert([{ post_id: postId, user_id: currentUser.id }]);
-                }
-
-                const countEl = document.getElementById(`gflikecount-${postId}`);
-                if (countEl) {
-                    const cur = parseInt(countEl.textContent) || 0;
-                    countEl.textContent = existing ? Math.max(0, cur - 1) : cur + 1;
-                }
-                if (btn) {
-                    btn.style.color = existing ? '' : 'var(--primary)';
-                    btn.style.fontWeight = existing ? '' : '700';
-                }
-            } catch (err) {
-                console.error('Error liking post:', err);
-            }
+            await likePost(postId, btn);
         }
 
         function toggleFeedGroupComments(postId) {
