@@ -11192,6 +11192,35 @@
                 _pvAchs = achData || [];
             } catch(e) { console.error('viewProfile achievements:', e); }
 
+            // Fetch this user's posts from Supabase
+            let _pvPosts = [];
+            try {
+                const { data: pvPostData } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .eq('author_id', userId)
+                    .is('group_id', null)
+                    .order('created_at', { ascending: false });
+                _pvPosts = pvPostData || [];
+            } catch(e) { console.error('viewProfile posts:', e); }
+
+            // Fetch like counts for this user's posts
+            let _pvLikeMap = {};
+            let _pvMyLikedSet = new Set();
+            if (_pvPosts.length > 0) {
+                try {
+                    const pvPostIds = _pvPosts.map(p => p.id);
+                    const { data: pvLikes } = await supabaseClient
+                        .from('post_likes')
+                        .select('post_id, user_id')
+                        .in('post_id', pvPostIds);
+                    (pvLikes || []).forEach(l => {
+                        _pvLikeMap[l.post_id] = (_pvLikeMap[l.post_id] || 0) + 1;
+                        if (l.user_id === currentUser.id) _pvMyLikedSet.add(l.post_id);
+                    });
+                } catch(e) {}
+            }
+
             // Stats
             const achCount = _pvAchs.length;
             const intCount = (user.interests || []).length + (user.hobbies || []).length;
@@ -11333,15 +11362,28 @@
                             ${achHTML}
                         </div>
 
-                        ${isOwnProfile && user.posts && user.posts.length > 0 ? `
+                        ${_pvPosts.length > 0 ? `
                         <div class="pv-card">
                             <div class="pv-card-eyebrow">Posts</div>
-                            <div class="pv-card-title">Recent <em>activity</em></div>
-                            ${user.posts.map(post => `
-                                <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-                                    <p style="font-size:14px;color:var(--muted);line-height:1.6;">${post.content}</p>
-                                    <p style="font-size:11px;color:var(--muted);opacity:.6;margin-top:4px;">${post.date}</p>
-                                </div>`).join('')}
+                            <div class="pv-card-title">${isOwnProfile ? 'Your' : `${user.firstName}'s`} <em>posts</em></div>
+                            ${_pvPosts.map(post => {
+                                const likeCount = _pvLikeMap[post.id] || 0;
+                                const liked = _pvMyLikedSet.has(post.id);
+                                const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                                return `
+                                <div style="padding:12px 0;border-bottom:1px solid var(--border);">
+                                    <p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:8px;">${post.content}</p>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <span style="font-size:11px;color:var(--muted);opacity:.7;">${timeAgo}</span>
+                                        <button class="post-action-btn${liked ? ' liked' : ''}" id="pvlike-${post.id}" onclick="likePost('${post.id}', this)" style="font-size:12px;padding:3px 8px;${liked ? 'color:var(--primary);font-weight:700;' : ''}">👍 <span id="pvlikecount-${post.id}">${likeCount}</span></button>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>` : isOwnProfile ? `
+                        <div class="pv-card">
+                            <div class="pv-card-eyebrow">Posts</div>
+                            <div class="pv-card-title">Your <em>posts</em></div>
+                            <p style="font-size:13px;color:var(--muted);opacity:.7;">You haven't posted anything yet. Share your thoughts in the <span onclick="switchView('feedView')" style="color:var(--caramel);cursor:pointer;font-weight:600;">Feed →</span></p>
                         </div>` : ''}
                     </div>
 
