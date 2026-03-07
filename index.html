@@ -3628,22 +3628,35 @@
             height: 156px;
             background: linear-gradient(135deg, #3D2B1A 0%, #7a3f22 45%, #C07C3A 100%);
             position: relative; overflow: hidden;
+            background-size: cover; background-position: center;
         }
-        .pv-banner::before {
+        .pv-banner.has-image::before { display: none; }
+        .pv-banner.has-image::after  { display: none; }
+        .pv-banner:not(.has-image)::before {
             content: '';
             position: absolute; inset: 0;
             background-image:
                 radial-gradient(circle at 18% 50%, rgba(255,255,255,.07) 0%, transparent 55%),
                 radial-gradient(circle at 82% 18%, rgba(255,255,255,.05) 0%, transparent 48%);
         }
-        .pv-banner::after {
+        .pv-banner:not(.has-image)::after {
             content: '';
             position: absolute; right: 60px; top: 12px;
             width: 110px; height: 110px; border-radius: 50%;
             border: 1px solid rgba(255,255,255,.08);
             box-shadow: 0 0 0 22px rgba(255,255,255,.04), 0 0 0 44px rgba(255,255,255,.02);
         }
-        .pv-hero-inner { max-width: 780px; margin: 0 auto; padding: 0 28px; }
+        .pv-banner-edit-btn {
+            position: absolute; bottom: 10px; right: 14px;
+            background: rgba(0,0,0,.45); color: #fff;
+            border: none; border-radius: 8px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 5px;
+            backdrop-filter: blur(4px); transition: background .15s;
+        }
+        .pv-banner-edit-btn:hover { background: rgba(0,0,0,.65); }
+        #stBannerPreview:hover > #stBannerOverlay { opacity: 1 !important; }
+        .pv-hero-inner { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
         .pv-avatar-row {
             display: flex; justify-content: space-between; align-items: flex-end;
             gap: 12px; flex-wrap: wrap;
@@ -3666,6 +3679,14 @@
         }
         .pv-headline { font-size: 13.5px; color: var(--muted); margin-bottom: 9px; line-height: 1.4; }
         .pv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pv-linkedin-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px; padding: 5px 12px;
+            background: #f0f4ff; border: 1px solid #c0cff5; border-radius: 8px;
+            font-size: 12.5px; font-weight: 500; color: #2563eb; text-decoration: none;
+            transition: background .15s;
+        }
+        .pv-linkedin-link:hover { background: #e0ebff; }
         .pv-chip {
             display: flex; align-items: center; gap: 4px;
             background: var(--card); border: 1.5px solid var(--border);
@@ -3692,8 +3713,8 @@
         }
         .pv-stat-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); opacity: .7; }
         .pv-body {
-            max-width: 780px; margin: 0 auto; padding: 0 28px 36px;
-            display: grid; grid-template-columns: 1fr 288px; gap: 16px; align-items: start;
+            max-width: 1200px; margin: 0 auto; padding: 0 28px 36px;
+            display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start;
         }
         .pv-card {
             background: var(--card); border: 1px solid var(--border);
@@ -8024,6 +8045,28 @@
                         <p class="st-desc">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
                     </div>
 
+                    <!-- Banner Image -->
+                    <div class="st-card">
+                        <div class="st-card-header">
+                            <div>
+                                <div class="st-card-title">Cover Photo</div>
+                                <div class="st-card-sub">Landscape image shown behind your profile — JPG or PNG, max 5 MB</div>
+                            </div>
+                        </div>
+                        <div class="st-card-body">
+                            <div id="stBannerPreview" style="width:100%;height:110px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#3D2B1A 0%,#7a3f22 45%,#C07C3A 100%);position:relative;cursor:pointer;background-size:cover;background-position:center;" onclick="document.getElementById('stBannerFile').click()">
+                                <div id="stBannerOverlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);color:#fff;font-size:13px;font-weight:600;gap:6px;opacity:0;transition:opacity .2s;">
+                                    📷 Change Cover
+                                </div>
+                                <input type="file" id="stBannerFile" accept="image/*" style="display:none;" onchange="uploadStBanner(this)">
+                            </div>
+                            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+                                <button class="st-btn-upload" onclick="document.getElementById('stBannerFile').click()">📁 Upload cover photo</button>
+                                <button class="st-btn-secondary" id="stBannerRemoveBtn" style="display:none;" onclick="removeStBanner()">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Avatar -->
                     <div class="st-card">
                         <div class="st-card-header">
@@ -9356,6 +9399,8 @@
                     gradYear: p.grad_year || '',
                     major: p.major || '',
                     profilePicture: p.profile_picture || null,
+                    bannerImage: p.banner_image || null,
+                    linkedinUrl: p.linkedin_url || null,
                     resume: p.resume_url || null,
                     achievements: Array.isArray(p.achievements) ? p.achievements : [],
                     posts: []
@@ -9450,6 +9495,7 @@
                     headline: profile.headline || '',
                     major: profile.major || '',
                     profilePicture: profile.profile_picture || null,
+                    bannerImage: profile.banner_image || null,
                     resume: profile.resume_url || null,
                     achievements: Array.isArray(profile.achievements) ? profile.achievements : [],
                     status: profile.status || '',
@@ -10212,7 +10258,7 @@
                         <div id="meeting-detail-${next.id}" style="margin-top:4px;">${meetingActionHtml}</div>
                     </div>
                     <div class="db-ncc-actions">
-                        ${countdownStr ? `<span class="db-countdown-badge">In${countdownStr.replace('·','').trim()}</span>` : ''}
+                        ${countdownStr ? `<span class="db-countdown-badge">${countdownStr.replace('·','').trim()}</span>` : ''}
                         <button class="db-ncc-btn-secondary" onclick="startMessage('${partnerId}')">Message</button>
                     </div>
                 </div>`;
@@ -11191,9 +11237,18 @@
                 </div>`;
 
             const content = document.getElementById('profileDetailContent');
+            const bannerStyle = user.bannerImage
+                ? ` style="background-image:url('${user.bannerImage}')"` : '';
+            const bannerClass = user.bannerImage ? ' has-image' : '';
             content.innerHTML = `
                 <!-- Hero Banner -->
-                <div class="pv-banner"></div>
+                <div class="pv-banner${bannerClass}"${bannerStyle}>
+                    ${isOwnProfile ? `
+                    <button class="pv-banner-edit-btn" onclick="document.getElementById('pvBannerFile').click()">
+                        🖼 Edit Cover
+                        <input type="file" id="pvBannerFile" accept="image/*" style="display:none;" onchange="uploadPvBanner(this)">
+                    </button>` : ''}
+                </div>
 
                 <div class="pv-hero-inner">
                     <!-- Avatar + top actions -->
@@ -11222,6 +11277,12 @@
                         <div class="pv-name">${user.firstName} ${user.lastName}</div>
                         ${headline ? `<div class="pv-headline">${headline}</div>` : ''}
                         <div class="pv-chips">${chips}</div>
+                        ${user.linkedinUrl ? `
+                        <a href="${/^https?:\/\//i.test(user.linkedinUrl) ? user.linkedinUrl : 'https://' + user.linkedinUrl}"
+                           target="_blank" rel="noopener noreferrer" class="pv-linkedin-link">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            LinkedIn Profile
+                        </a>` : ''}
                     </div>
 
                     <!-- Stats Row -->
@@ -15114,6 +15175,14 @@
                 fv('stLocation',  data.location);
                 fv('stLinkedin',  data.linkedin_url);
                 fv('stGoals',     data.goals);
+                // Banner preview
+                const bannerPrev = document.getElementById('stBannerPreview');
+                const bannerRemoveBtn = document.getElementById('stBannerRemoveBtn');
+                if (bannerPrev) {
+                    bannerPrev.style.backgroundImage = data.banner_image ? `url('${data.banner_image}')` : '';
+                    if (bannerRemoveBtn) bannerRemoveBtn.style.display = data.banner_image ? '' : 'none';
+                }
+                currentUser.bannerImage = data.banner_image || null;
                 // Resume hint
                 const resumeHint = document.getElementById('stResumeHint');
                 if (resumeHint) resumeHint.textContent = data.resume_url ? 'Resume uploaded ✓' : '';
@@ -15717,6 +15786,67 @@
                 img.src = publicUrl;
                 showStToast('Photo updated!');
             } catch (e) { showStToast('Upload failed: ' + e.message, 'error'); }
+        }
+
+        async function uploadStBanner(input) {
+            if (!input.files || !input.files[0] || !currentUser) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) { showStToast('Image must be under 5 MB.', 'error'); return; }
+            try {
+                const ext  = file.name.split('.').pop().toLowerCase();
+                const path = `${currentUser.id}/banner.${ext}`;
+                const { error: upErr } = await supabaseClient.storage.from('banners').upload(path, file, { upsert: true });
+                if (upErr) throw upErr;
+                const { data: urlData } = supabaseClient.storage.from('banners').getPublicUrl(path);
+                const publicUrl = urlData.publicUrl + '?t=' + Date.now();
+                await supabaseClient.from('profiles').update({ banner_image: urlData.publicUrl }).eq('id', currentUser.id);
+                currentUser.bannerImage = publicUrl;
+                const preview = document.getElementById('stBannerPreview');
+                if (preview) {
+                    preview.style.backgroundImage = `url('${publicUrl}')`;
+                    const overlay = document.getElementById('stBannerOverlay');
+                    if (overlay) overlay.style.opacity = '0';
+                }
+                const removeBtn = document.getElementById('stBannerRemoveBtn');
+                if (removeBtn) removeBtn.style.display = '';
+                showStToast('Cover photo updated!');
+            } catch (e) { showStToast('Upload failed: ' + e.message, 'error'); }
+        }
+
+        async function removeStBanner() {
+            if (!currentUser) return;
+            try {
+                await supabaseClient.from('profiles').update({ banner_image: null }).eq('id', currentUser.id);
+                currentUser.bannerImage = null;
+                const preview = document.getElementById('stBannerPreview');
+                if (preview) preview.style.backgroundImage = '';
+                const removeBtn = document.getElementById('stBannerRemoveBtn');
+                if (removeBtn) removeBtn.style.display = 'none';
+                showStToast('Cover photo removed.');
+            } catch (e) { showStToast('Failed to remove: ' + e.message, 'error'); }
+        }
+
+        // Called from the edit button on the banner in viewProfile (own profile)
+        async function uploadPvBanner(input) {
+            if (!input.files || !input.files[0] || !currentUser) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5 MB.'); return; }
+            try {
+                const ext  = file.name.split('.').pop().toLowerCase();
+                const path = `${currentUser.id}/banner.${ext}`;
+                const { error: upErr } = await supabaseClient.storage.from('banners').upload(path, file, { upsert: true });
+                if (upErr) throw upErr;
+                const { data: urlData } = supabaseClient.storage.from('banners').getPublicUrl(path);
+                const publicUrl = urlData.publicUrl + '?t=' + Date.now();
+                await supabaseClient.from('profiles').update({ banner_image: urlData.publicUrl }).eq('id', currentUser.id);
+                currentUser.bannerImage = publicUrl;
+                // Refresh the banner in the current view
+                const banner = document.querySelector('#profileDetailContent .pv-banner');
+                if (banner) {
+                    banner.style.backgroundImage = `url('${publicUrl}')`;
+                    banner.classList.add('has-image');
+                }
+            } catch (e) { alert('Upload failed: ' + e.message); }
         }
 
         async function uploadStResume(input) {
