@@ -13924,6 +13924,7 @@
                         location:       profileData.location      ?? currentUser.location,
                         linkedinUrl:    profileData.linkedin_url  ?? currentUser.linkedinUrl,
                         profilePicture: profileData.profile_picture ?? currentUser.profilePicture,
+                        bannerImage:    profileData.banner_image  ?? currentUser.bannerImage ?? null,
                         resume:         profileData.resume_url    ?? currentUser.resume,
                         avatarColor:    profileData.avatar_color  || null,
                         major:          profileData.major         ?? currentUser.major,
@@ -14058,8 +14059,8 @@
 
                 <!-- HERO CARD -->
                 <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:20px;">
-                    <div style="height:96px;background:linear-gradient(135deg,var(--espresso) 0%,var(--caramel) 60%,#e8c49a 100%);position:relative;">
-                        <div style="position:absolute;inset:0;opacity:.12;background-image:radial-gradient(circle at 20% 50%,#fff 1px,transparent 1px),radial-gradient(circle at 80% 30%,#fff 1px,transparent 1px),radial-gradient(circle at 50% 80%,#fff 1px,transparent 1px);background-size:40px 40px;"></div>
+                    <div style="height:96px;background:${profile.bannerImage ? `url('${profile.bannerImage}') center/cover no-repeat` : 'linear-gradient(135deg,var(--espresso) 0%,var(--caramel) 60%,#e8c49a 100%)'};position:relative;">
+                        ${!profile.bannerImage ? `<div style="position:absolute;inset:0;opacity:.12;background-image:radial-gradient(circle at 20% 50%,#fff 1px,transparent 1px),radial-gradient(circle at 80% 30%,#fff 1px,transparent 1px),radial-gradient(circle at 50% 80%,#fff 1px,transparent 1px);background-size:40px 40px;"></div>` : ''}
                     </div>
                     <div style="padding:0 28px 0;position:relative;">
                         <div style="display:inline-block;margin-top:-36px;margin-bottom:12px;position:relative;">
