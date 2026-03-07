@@ -7234,14 +7234,14 @@
                                 <label class="auth-form-label">Email Address</label>
                                 <div class="auth-input-wrapper">
                                     <span class="auth-input-icon">✉</span>
-                                    <input type="email" id="loginEmail" class="auth-form-input" placeholder="you@rowan.edu">
+                                    <input type="email" id="loginEmail" class="auth-form-input" placeholder="you@rowan.edu" autocomplete="email">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="auth-form-label">Password</label>
                                 <div class="auth-input-wrapper">
                                     <span class="auth-input-icon">🔒</span>
-                                    <input type="password" id="loginPassword" class="auth-form-input" placeholder="Enter your password">
+                                    <input type="password" id="loginPassword" class="auth-form-input" placeholder="Enter your password" autocomplete="current-password">
                                 </div>
                             </div>
                             <button class="auth-btn-primary" onclick="handleLogin()">Sign In to First Sip ☕</button>
@@ -15021,12 +15021,13 @@
         }
 
         function checkBadgesWithCelebration() {
-            const prev = JSON.parse(localStorage.getItem('earnedBadges') || '[]');
+            const key = `earnedBadges_${currentUser ? currentUser.id : 'guest'}`;
+            const prev = JSON.parse(localStorage.getItem(key) || '[]');
             const badges = checkBadges();
             const newlyEarned = badges.filter(b => b.earned && !prev.includes(b.id));
 
             const allEarned = [...new Set([...prev, ...badges.filter(b => b.earned).map(b => b.id)])];
-            localStorage.setItem('earnedBadges', JSON.stringify(allEarned));
+            localStorage.setItem(key, JSON.stringify(allEarned));
 
             if (newlyEarned.length > 0) {
                 setTimeout(() => showBadgeEarned(newlyEarned[0]), 1000);
