@@ -6872,6 +6872,10 @@
 .s-security-badge { display: inline-flex; align-items: center; gap: 6px; background: #eafaf1; color: #27ae60; border: 1px solid #a9dfbf; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 @media (max-width: 700px) { .settings-shell { flex-direction: column; } .settings-nav { width: 100%; flex-direction: row; overflow-x: auto; padding: 8px; height: auto; border-right: none; border-bottom: 1px solid #ede0d0; } .snav-item { padding: 8px 12px; white-space: nowrap; } .settings-content { padding: 20px 16px; } }
 
+/* ── Settings panel visibility — wins over everything ── */
+.s-panel          { display: none !important; }
+.s-panel.s-active { display: block !important; }
+
     </style>
 </head>
 <body>
@@ -8140,7 +8144,7 @@
         <div class="settings-content">
 
           <!-- PROFILE -->
-          <div id="spanel-profile">
+          <div id="spanel-profile" class="s-panel s-active">
             <p class="spanel-title">Your <em>Profile</em></p>
             <p class="spanel-subtitle">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
 
@@ -8312,7 +8316,7 @@
           </div>
 
           <!-- ACCOUNT & SECURITY -->
-          <div id="spanel-account" style="display:none;">
+          <div id="spanel-account" class="s-panel">
             <p class="spanel-title">Account &amp; <em>Security</em></p>
             <p class="spanel-subtitle">Keep your account secure and up to date.</p>
 
@@ -8375,7 +8379,7 @@
           </div>
 
           <!-- NOTIFICATIONS -->
-          <div id="spanel-notifications" style="display:none;">
+          <div id="spanel-notifications" class="s-panel">
             <p class="spanel-title">Notification <em>Preferences</em></p>
             <p class="spanel-subtitle">Choose when and how First Sip reaches out to you.</p>
 
@@ -8431,7 +8435,7 @@
           </div>
 
           <!-- PRIVACY -->
-          <div id="spanel-privacy" style="display:none;">
+          <div id="spanel-privacy" class="s-panel">
             <p class="spanel-title">Privacy <em>Settings</em></p>
             <p class="spanel-subtitle">Control who can see your profile and how people can connect with you.</p>
 
@@ -8495,7 +8499,7 @@
           </div>
 
           <!-- AVAILABILITY -->
-          <div id="spanel-availability" style="display:none;">
+          <div id="spanel-availability" class="s-panel">
             <p class="spanel-title">Chat <em>Availability</em></p>
             <p class="spanel-subtitle">Let people know when you're open for coffee chats.</p>
 
@@ -8529,7 +8533,7 @@
           </div>
 
           <!-- APPEARANCE -->
-          <div id="spanel-appearance" style="display:none;">
+          <div id="spanel-appearance" class="s-panel">
             <p class="spanel-title">Appearance &amp; <em>Display</em></p>
             <p class="spanel-subtitle">Customize how First Sip looks and feels for you.</p>
 
@@ -8575,7 +8579,7 @@
           </div>
 
           <!-- DANGER ZONE -->
-          <div id="spanel-danger" style="display:none;">
+          <div id="spanel-danger" class="s-panel">
             <p class="spanel-title" style="color:#c0392b;">⚠️ Danger <em style="color:#c0392b;">Zone</em></p>
             <p class="spanel-subtitle">These actions are irreversible. Please read carefully before proceeding.</p>
 
@@ -16078,12 +16082,12 @@
             tabs.forEach(t => {
                 const panel = document.getElementById('spanel-' + t);
                 const nav   = document.getElementById('snav-' + t);
-                if (panel) panel.style.display = 'none';
+                if (panel) panel.classList.remove('s-active');
                 if (nav)   nav.classList.remove('active');
             });
             const activePanel = document.getElementById('spanel-' + tab);
             const activeNav   = document.getElementById('snav-' + tab);
-            if (activePanel) activePanel.style.display = 'block';
+            if (activePanel) activePanel.classList.add('s-active');
             if (activeNav)   activeNav.classList.add('active');
 
             if (tab === 'profile')       { if (!sProfileLoaded) { sProfileLoaded = true; sLoadProfile(); } }
