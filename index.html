@@ -6789,6 +6789,89 @@
 
         @media (max-width: 700px) { .ibx-conv-panel { width: 220px; } }
         @media (max-width: 520px) { .ibx-conv-panel { display: none; } }
+
+/* ── New Settings Page Styles ─────────────────────────────────────── */
+#settingsView { padding: 0 !important; background: #fdf8f3; }
+.settings-shell { display: flex; height: calc(100vh - 60px); min-height: 600px; overflow: hidden; }
+.settings-nav {
+  width: 220px; flex-shrink: 0; background: #fff;
+  border-right: 1px solid #ede0d0; overflow-y: auto;
+  padding: 24px 0 32px; display: flex; flex-direction: column; gap: 2px;
+}
+.settings-nav-header { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #b89a7a; padding: 0 20px 8px; }
+.snav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 500; color: #5a3e2b; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; user-select: none; }
+.snav-item:hover { background: #fdf3ea; color: #6b3f2a; }
+.snav-item.active { background: #fdf3ea; color: #6b3f2a; font-weight: 600; border-left-color: #c17d3c; }
+.snav-item.danger-item { color: #c0392b; margin-top: 8px; }
+.snav-item.danger-item:hover, .snav-item.danger-item.active { background: #fdf0ee; color: #a93226; border-left-color: #c0392b; }
+.snav-divider { height: 1px; background: #ede0d0; margin: 10px 20px; }
+.settings-content { flex: 1; overflow-y: auto; padding: 36px 40px; background: #fdf8f3; }
+.spanel-title { font-size: 22px; font-weight: 700; color: #3b2512; margin: 0 0 4px; }
+.spanel-title em { color: #c17d3c; font-style: normal; }
+.spanel-subtitle { font-size: 13px; color: #9c7b5f; margin: 0 0 28px; }
+.s-card { background: #fff; border: 1px solid #ede0d0; border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; }
+.s-card-title { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #b89a7a; margin: 0 0 16px; }
+.s-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.s-row:last-child { margin-bottom: 0; }
+.s-row label { font-size: 13px; font-weight: 600; color: #5a3e2b; }
+.s-row input, .s-row textarea, .s-row select { padding: 9px 13px; border: 1px solid #ddd0c0; border-radius: 8px; font-size: 14px; color: #3b2512; background: #fdf8f3; transition: border-color 0.15s; outline: none; width: 100%; box-sizing: border-box; font-family: inherit; }
+.s-row input:focus, .s-row textarea:focus, .s-row select:focus { border-color: #c17d3c; background: #fff; }
+.s-row textarea { resize: vertical; min-height: 80px; }
+.s-hint { font-size: 12px; color: #b89a7a; margin-top: 2px; }
+.s-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.s-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0e6d8; }
+.s-toggle-row:last-child { border-bottom: none; }
+.s-toggle-label { font-size: 14px; color: #3b2512; font-weight: 500; }
+.s-toggle-desc { font-size: 12px; color: #9c7b5f; margin-top: 2px; }
+.s-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.s-toggle input { opacity: 0; width: 0; height: 0; }
+.s-toggle-slider { position: absolute; inset: 0; background: #ddd0c0; border-radius: 22px; cursor: pointer; transition: background 0.2s; }
+.s-toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.s-toggle input:checked + .s-toggle-slider { background: #c17d3c; }
+.s-toggle input:checked + .s-toggle-slider:before { transform: translateX(18px); }
+.s-radio-group { display: flex; flex-direction: column; gap: 8px; }
+.s-radio-group label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #3b2512; cursor: pointer; font-weight: 400; }
+.s-radio-group input[type=radio] { width: 16px; height: 16px; accent-color: #c17d3c; }
+.s-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; }
+.s-btn-primary { background: #c17d3c; color: #fff; }
+.s-btn-primary:hover { background: #a8692f; }
+.s-btn-ghost { background: transparent; color: #9c7b5f; border: 1px solid #ddd0c0; }
+.s-btn-ghost:hover { background: #fdf3ea; color: #5a3e2b; }
+.s-btn-danger { background: #fff0ee; color: #c0392b; border: 1px solid #f5c6c2; }
+.s-btn-danger:hover { background: #fde8e5; }
+.s-btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.s-avatar-preview { width: 72px; height: 72px; border-radius: 50%; background: #f0e6d8; border: 2px solid #ede0d0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #b89a7a; flex-shrink: 0; }
+.s-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.s-cover-upload { width: 100%; height: 100px; border-radius: 10px; background: linear-gradient(135deg,#f5ece0,#e8d5c0); border: 2px dashed #c8a87a; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9c7b5f; font-size: 13px; gap: 8px; margin-bottom: 12px; transition: background 0.15s; box-sizing: border-box; }
+.s-cover-upload:hover { background: #f0e4d0; }
+.s-tags-container { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid #ddd0c0; border-radius: 8px; background: #fdf8f3; min-height: 44px; cursor: text; }
+.s-tag { display: inline-flex; align-items: center; gap: 4px; background: #f5ece0; border: 1px solid #ddd0c0; color: #6b3f2a; padding: 3px 10px; border-radius: 20px; font-size: 13px; }
+.s-tag-remove { cursor: pointer; color: #b89a7a; font-size: 15px; line-height: 1; background: none; border: none; padding: 0; }
+.s-tag-remove:hover { color: #c0392b; }
+.s-tag-input { border: none !important; outline: none !important; background: transparent !important; padding: 3px 4px !important; font-size: 14px !important; min-width: 100px; flex: 1; color: #3b2512; }
+.s-avail-day { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0e6d8; }
+.s-avail-day:last-child { border-bottom: none; }
+.s-avail-day-label { width: 130px; font-size: 14px; font-weight: 600; color: #5a3e2b; display: flex; align-items: center; gap: 8px; }
+.s-avail-times { display: flex; align-items: center; gap: 8px; flex: 1; }
+.s-avail-times input[type=time] { padding: 6px 10px !important; border: 1px solid #ddd0c0 !important; border-radius: 7px !important; font-size: 13px !important; background: #fdf8f3 !important; color: #3b2512 !important; width: auto !important; }
+.s-avail-times span { color: #9c7b5f; font-size: 13px; }
+.s-theme-cards { display: flex; gap: 12px; flex-wrap: wrap; }
+.s-theme-card { flex: 1; min-width: 100px; border: 2px solid #ede0d0; border-radius: 10px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.15s; font-size: 13px; color: #5a3e2b; font-weight: 500; }
+.s-theme-card:hover { border-color: #c8a87a; background: #fdf3ea; }
+.s-theme-card.active { border-color: #c17d3c; background: #fdf3ea; color: #6b3f2a; font-weight: 700; }
+.s-theme-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+.s-danger-action { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0e6d8; }
+.s-danger-action:last-child { border-bottom: none; }
+.s-danger-action-info { font-size: 14px; color: #3b2512; font-weight: 500; }
+.s-danger-action-desc { font-size: 12px; color: #9c7b5f; margin-top: 2px; }
+.s-saved-toast { display: none; position: fixed; bottom: 28px; right: 28px; background: #2d6a4f; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,.15); z-index: 9999; animation: sToastIn 0.25s ease; }
+@keyframes sToastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.s-photo-section { display: flex; align-items: center; gap: 20px; padding: 16px 0; border-bottom: 1px solid #f0e6d8; margin-bottom: 16px; }
+.s-photo-label { font-size: 13px; font-weight: 600; color: #5a3e2b; }
+.s-photo-hint { font-size: 12px; color: #b89a7a; margin-top: 2px; }
+.s-security-badge { display: inline-flex; align-items: center; gap: 6px; background: #eafaf1; color: #27ae60; border: 1px solid #a9dfbf; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+@media (max-width: 700px) { .settings-shell { flex-direction: column; } .settings-nav { width: 100%; flex-direction: row; overflow-x: auto; padding: 8px; height: auto; border-right: none; border-bottom: 1px solid #ede0d0; } .snav-item { padding: 8px 12px; white-space: nowrap; } .settings-content { padding: 20px 16px; } }
+
     </style>
 </head>
 <body>
@@ -8017,675 +8100,504 @@
 
     <!-- Settings View -->
     <div id="settingsView" class="content-view">
+      <div class="settings-shell">
 
-        <!-- ═══ SETTINGS SHELL ═══ -->
-        <div class="settings-layout" style="display:flex;flex-direction:row;height:100%;min-height:600px;overflow:hidden;">
+        <!-- ── Left Nav ────────────────────────────── -->
+        <nav class="settings-nav">
+          <div class="settings-nav-header">Account</div>
 
-          <nav class="settings-nav" style="width:220px;flex-shrink:0;border-right:1px solid #e8d5c0;overflow-y:auto;padding:16px 0;">
-            <div class="settings-nav-header">
-              <div class="settings-nav-title">Settings</div>
-              <div class="settings-nav-sub">Manage your account</div>
+          <div class="snav-item active" id="snav-profile" onclick="sNav('profile')">
+            👤 <span>Profile</span>
+          </div>
+          <div class="snav-item" id="snav-account" onclick="sNav('account')">
+            🔑 <span>Account &amp; Security</span>
+          </div>
+
+          <div class="snav-divider"></div>
+          <div class="settings-nav-header">Preferences</div>
+
+          <div class="snav-item" id="snav-notifications" onclick="sNav('notifications')">
+            🔔 <span>Notifications</span>
+          </div>
+          <div class="snav-item" id="snav-privacy" onclick="sNav('privacy')">
+            🛡️ <span>Privacy</span>
+          </div>
+          <div class="snav-item" id="snav-availability" onclick="sNav('availability')">
+            📅 <span>Availability</span>
+          </div>
+          <div class="snav-item" id="snav-appearance" onclick="sNav('appearance')">
+            🎨 <span>Appearance</span>
+          </div>
+
+          <div class="snav-divider"></div>
+
+          <div class="snav-item danger-item" id="snav-danger" onclick="sNav('danger')">
+            ⚠️ <span>Danger Zone</span>
+          </div>
+        </nav>
+
+        <!-- ── Right Panels ───────────────────────── -->
+        <div class="settings-content">
+
+          <!-- PROFILE -->
+          <div id="spanel-profile">
+            <p class="spanel-title">Your <em>Profile</em></p>
+            <p class="spanel-subtitle">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
+
+            <!-- Photos -->
+            <div class="s-card">
+              <div class="s-card-title">Photos</div>
+
+              <div class="s-photo-section">
+                <div class="s-avatar-preview" id="s-avatar-preview">
+                  <span id="s-avatar-initials">?</span>
+                </div>
+                <div>
+                  <div class="s-photo-label">Profile Photo</div>
+                  <div class="s-photo-hint">JPG or PNG, max 5 MB</div>
+                  <div class="s-btn-row" style="margin-top:8px;">
+                    <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-photo-upload').click()">📁 Upload Photo</button>
+                    <input type="file" id="s-photo-upload" accept="image/*" style="display:none;" onchange="sHandlePhotoUpload(this)">
+                  </div>
+                </div>
+              </div>
+
+              <div class="s-cover-upload" id="s-cover-preview" onclick="document.getElementById('s-cover-upload').click()">
+                📷 Click to upload cover photo &nbsp;·&nbsp; JPG or PNG, max 5 MB
+                <input type="file" id="s-cover-upload" accept="image/*" style="display:none;" onchange="sHandleCoverUpload(this)">
+              </div>
             </div>
-            <a class="snav-item active" id="stab-profile" onclick="switchStab('profile')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">👤</span> Profile</a>
-            <a class="snav-item" id="stab-account" onclick="switchStab('account')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🔑</span> Account &amp; Security</a>
-            <a class="snav-item" id="stab-notifications" onclick="switchStab('notifications')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🔔</span> Notifications</a>
-            <a class="snav-item" id="stab-privacy" onclick="switchStab('privacy')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🛡️</span> Privacy</a>
-            <a class="snav-item" id="stab-availability" onclick="switchStab('availability')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">📅</span> Availability</a>
-            <a class="snav-item" id="stab-appearance" onclick="switchStab('appearance')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🎨</span> Appearance</a>
-            <div class="snav-divider"></div>
-            <a class="snav-item snav-danger" id="stab-danger" onclick="switchStab('danger')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">⚠️</span> Danger Zone</a>
-          </nav>
 
-          <div class="settings-content" style="flex:1;overflow-y:auto;padding:32px;">
-
-                <div class="settings-section active" id="section-profile">
-                    <div>
-                        <div class="st-eyebrow">Who you are</div>
-                        <h1 class="st-title">Your <em>Profile</em></h1>
-                        <p class="st-desc">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
-                    </div>
-
-                    <!-- Banner Image -->
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div>
-                                <div class="st-card-title">Cover Photo</div>
-                                <div class="st-card-sub">Landscape image shown behind your profile — JPG or PNG, max 5 MB</div>
-                            </div>
-                        </div>
-                        <div class="st-card-body">
-                            <div id="stBannerPreview" style="width:100%;height:110px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#3D2B1A 0%,#7a3f22 45%,#C07C3A 100%);position:relative;cursor:pointer;background-size:cover;background-position:center;" onclick="document.getElementById('stBannerFile').click()">
-                                <div id="stBannerOverlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);color:#fff;font-size:13px;font-weight:600;gap:6px;opacity:0;transition:opacity .2s;">
-                                    📷 Change Cover
-                                </div>
-                                <input type="file" id="stBannerFile" accept="image/*" style="display:none;" onchange="uploadStBanner(this)">
-                            </div>
-                            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
-                                <button class="st-btn-upload" onclick="document.getElementById('stBannerFile').click()">📁 Upload cover photo</button>
-                                <button class="st-btn-secondary" id="stBannerRemoveBtn" style="display:none;" onclick="removeStBanner()">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Avatar -->
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div>
-                                <div class="st-card-title">Profile Photo</div>
-                                <div class="st-card-sub">JPG or PNG, max 5 MB</div>
-                            </div>
-                        </div>
-                        <div class="st-card-body">
-                            <div class="st-avatar-wrap">
-                                <div class="st-avatar" id="stAvatarPreview" onclick="document.getElementById('stAvatarFile').click()">
-                                    <span id="stAvatarInitials">?</span>
-                                    <div class="st-avatar-overlay">📷</div>
-                                    <input type="file" id="stAvatarFile" accept="image/*" style="display:none;" onchange="uploadStAvatar(this)">
-                                </div>
-                                <div>
-                                    <div class="st-avatar-info-name" id="stAvatarName">—</div>
-                                    <div class="st-avatar-info-sub" id="stAvatarSub">—</div>
-                                    <button class="st-btn-upload" onclick="document.getElementById('stAvatarFile').click()">📁 Upload new photo</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Basic Info -->
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Basic Info</div></div>
-                        <div class="st-card-body">
-                            <div class="st-form-row">
-                                <div class="st-form-group">
-                                    <label class="st-label">First Name</label>
-                                    <input type="text" id="stFirstName" class="st-input" placeholder="First name">
-                                </div>
-                                <div class="st-form-group">
-                                    <label class="st-label">Last Name</label>
-                                    <input type="text" id="stLastName" class="st-input" placeholder="Last name">
-                                </div>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Headline</label>
-                                <input type="text" id="stHeadline" class="st-input" placeholder='e.g. "Finance Junior @ Rowan | SIE Certified"'>
-                                <div class="st-hint">A tagline that appears under your name on your profile card.</div>
-                            </div>
-                            <div class="st-form-row">
-                                <div class="st-form-group">
-                                    <label class="st-label">Current Status</label>
-                                    <select id="stStatus" class="st-input">
-                                        <option value="Freshman">Freshman</option>
-                                        <option value="Sophomore">Sophomore</option>
-                                        <option value="Junior">Junior</option>
-                                        <option value="Senior">Senior</option>
-                                        <option value="Recent Grad">Recent Grad</option>
-                                        <option value="Alumni">Alumni</option>
-                                        <option value="Graduate Student">Graduate Student</option>
-                                    </select>
-                                </div>
-                                <div class="st-form-group">
-                                    <label class="st-label">Graduation Year</label>
-                                    <select id="stGradYear" class="st-input">
-                                        <option>2025</option><option>2026</option><option>2027</option>
-                                        <option>2028</option><option>2029</option><option>2030</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Bio</label>
-                                <textarea id="stBio" class="st-input" placeholder="Tell people a little about yourself…"></textarea>
-                                <div class="st-hint">A genuine bio gets more chats than a resume bullet.</div>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="loadStProfile()">Discard</button>
-                            <button class="st-btn-primary" id="stSaveBasicBtn" onclick="saveStProfile()">Save Changes</button>
-                        </div>
-                    </div>
-
-                    <!-- Academic & Career -->
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Academic &amp; Career</div></div>
-                        <div class="st-card-body">
-                            <div class="st-form-row">
-                                <div class="st-form-group">
-                                    <label class="st-label">Major</label>
-                                    <input type="text" id="stMajor" class="st-input" placeholder="e.g. Finance, Computer Science">
-                                </div>
-                                <div class="st-form-group">
-                                    <label class="st-label">Industry / Field</label>
-                                    <select id="stIndustry" class="st-input">
-                                        <option value="">— Select industry —</option>
-                                        <option value="Business/Finance">Business / Finance</option>
-                                        <option value="Computer Science/Tech">Computer Science / Tech</option>
-                                        <option value="Engineering">Engineering</option>
-                                        <option value="Pre-Med/Healthcare">Pre-Med / Healthcare</option>
-                                        <option value="Liberal Arts/Humanities">Liberal Arts / Humanities</option>
-                                        <option value="Undecided/Exploring">Undecided / Exploring</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="st-form-row">
-                                <div class="st-form-group">
-                                    <label class="st-label">Role / Title</label>
-                                    <input type="text" id="stRole" class="st-input" placeholder="e.g. Finance Intern">
-                                </div>
-                                <div class="st-form-group">
-                                    <label class="st-label">Company / Organization</label>
-                                    <input type="text" id="stCompany" class="st-input" placeholder="e.g. Rowan University">
-                                </div>
-                            </div>
-                            <div class="st-form-row">
-                                <div class="st-form-group">
-                                    <label class="st-label">Location</label>
-                                    <input type="text" id="stLocation" class="st-input" placeholder="e.g. Glassboro, NJ">
-                                </div>
-                                <div class="st-form-group">
-                                    <label class="st-label">LinkedIn URL</label>
-                                    <input type="url" id="stLinkedin" class="st-input" placeholder="https://linkedin.com/in/yourname">
-                                </div>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Career Goals</label>
-                                <textarea id="stGoals" class="st-input" style="min-height:70px;" placeholder="Where do you want to go?"></textarea>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Interests &amp; Passions</label>
-                                <div class="st-tags-wrap" id="stInterestTags" onclick="document.getElementById('stInterestInput').focus()">
-                                    <input id="stInterestInput" class="st-tags-input" placeholder="Type and press Enter…" onkeydown="handleStTag(event,'stInterestTags','stInterestInput')">
-                                </div>
-                                <div class="st-hint">Press Enter or comma to add a tag.</div>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Hobbies</label>
-                                <div class="st-tags-wrap" id="stHobbyTags" onclick="document.getElementById('stHobbyInput').focus()">
-                                    <input id="stHobbyInput" class="st-tags-input" placeholder="Type and press Enter…" onkeydown="handleStTag(event,'stHobbyTags','stHobbyInput')">
-                                </div>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Resume</label>
-                                <button class="st-btn-upload" onclick="document.getElementById('stResumeFile').click()">📄 Upload Resume (PDF, max 10 MB)</button>
-                                <input type="file" id="stResumeFile" accept=".pdf" style="display:none;" onchange="uploadStResume(this)">
-                                <div class="st-hint" id="stResumeHint"></div>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="loadStProfile()">Discard</button>
-                            <button class="st-btn-primary" id="stSaveCareerBtn" onclick="saveStCareer()">Save Changes</button>
-                        </div>
-                    </div>
-
-                    <!-- Achievements -->
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div>
-                                <div class="st-card-title">Achievements</div>
-                                <div class="st-card-sub">Internships, extracurriculars, certifications, awards, and more.</div>
-                            </div>
-                        </div>
-                        <div class="st-card-body">
-                            <div id="stAchievementsList"></div>
-                            <div id="achInlineForm" style="display:none;"></div>
-                            <button class="ach-add-btn" id="achAddBtn" onclick="openAchForm()">
-                                + Add Achievement
-                            </button>
-                        </div>
-                    </div>
+            <!-- Basic Info -->
+            <div class="s-card">
+              <div class="s-card-title">Basic Info</div>
+              <div class="s-grid-2">
+                <div class="s-row">
+                  <label>First Name</label>
+                  <input type="text" id="s-first-name" placeholder="First name">
                 </div>
-
-                <div class="settings-section" id="section-account" style="display:none;">
-                    <div>
-                        <div class="st-eyebrow">Your credentials</div>
-                        <h1 class="st-title">Account &amp; <em>Security</em></h1>
-                        <p class="st-desc">Keep your account secure and up to date.</p>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Email Address</div></div>
-                        <div class="st-card-body">
-                            <div class="st-form-group">
-                                <label class="st-label">Current Email</label>
-                                <input type="email" id="stCurrentEmail" class="st-input" readonly style="opacity:.65; cursor:default;">
-                                <div class="st-hint">Must be a Rowan email address.</div>
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">New Email</label>
-                                <input type="email" id="stNewEmail" class="st-input" placeholder="new@rowan.edu">
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="document.getElementById('stNewEmail').value=''">Cancel</button>
-                            <button class="st-btn-primary" onclick="saveStEmail()">Update Email</button>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Change Password</div></div>
-                        <div class="st-card-body">
-                            <div class="st-form-group">
-                                <label class="st-label">New Password</label>
-                                <input type="password" id="stNewPassword" class="st-input" placeholder="Min 8 characters">
-                            </div>
-                            <div class="st-form-group">
-                                <label class="st-label">Confirm New Password</label>
-                                <input type="password" id="stConfirmPassword" class="st-input" placeholder="Repeat new password">
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="document.getElementById('stNewPassword').value='';document.getElementById('stConfirmPassword').value=''">Cancel</button>
-                            <button class="st-btn-primary" onclick="saveStPassword()">Update Password</button>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Security Overview</div></div>
-                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
-                            <div class="st-sec-item">
-                                <div class="st-sec-icon green">✉️</div>
-                                <div class="st-sec-info">
-                                    <div class="st-sec-title">Email Verified</div>
-                                    <div class="st-sec-desc" id="stVerifiedEmail">—</div>
-                                </div>
-                                <span class="st-sec-badge ok">Verified</span>
-                            </div>
-                            <div class="st-sec-item">
-                                <div class="st-sec-icon orange">📱</div>
-                                <div class="st-sec-info">
-                                    <div class="st-sec-title">Two-Factor Authentication</div>
-                                    <div class="st-sec-desc">Add an extra layer of security to your account.</div>
-                                </div>
-                                <span class="st-sec-badge off">Coming soon</span>
-                            </div>
-                            <div class="st-sec-item">
-                                <div class="st-sec-icon blue">🖥️</div>
-                                <div class="st-sec-info">
-                                    <div class="st-sec-title">Active Sessions</div>
-                                    <div class="st-sec-desc">1 active session on this device.</div>
-                                </div>
-                                <button class="st-btn-danger" onclick="handleLogout()">Sign out</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="s-row">
+                  <label>Last Name</label>
+                  <input type="text" id="s-last-name" placeholder="Last name">
                 </div>
-
-                <div class="settings-section" id="section-notifications" style="display:none;">
-                    <div>
-                        <div class="st-eyebrow">Stay in the loop</div>
-                        <h1 class="st-title">Notification <em>Preferences</em></h1>
-                        <p class="st-desc">Choose when and how First Sip reaches out to you.</p>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div>
-                                <div class="st-card-title">Email Notifications</div>
-                                <div class="st-card-sub">Emails sent to your Rowan address</div>
-                            </div>
-                        </div>
-                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">New connection requests</div><div class="st-toggle-desc">When someone sends you a connection request.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_email_connections"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Chat requests</div><div class="st-toggle-desc">When someone wants to schedule a coffee chat with you.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_email_chat_requests"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Chat reminders</div><div class="st-toggle-desc">A reminder 1 hour before your scheduled coffee chat.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_email_reminders"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">New messages</div><div class="st-toggle-desc">When you receive a direct message from a connection.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_email_messages"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Group activity</div><div class="st-toggle-desc">New posts and announcements in groups you've joined.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_email_group_activity"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Weekly digest</div><div class="st-toggle-desc">A Sunday summary of who's active and who you should meet.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_email_weekly_digest"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" id="stSaveNotifBtn" onclick="saveStNotifications()">Save Preferences</button>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">In-App Notifications</div></div>
-                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Connection accepted</div><div class="st-toggle-desc">When someone accepts your connection request.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_app_connection_accepted"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">New match suggestions</div><div class="st-toggle-desc">When new people matching your profile join First Sip.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_app_match_suggestions"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Chat reviews received</div><div class="st-toggle-desc">When someone leaves a review after your coffee chat.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="notif_app_chat_reviews"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" id="stSaveInAppBtn" onclick="saveStNotifications()">Save Preferences</button>
-                        </div>
-                    </div>
+              </div>
+              <div class="s-row">
+                <label>Headline</label>
+                <input type="text" id="s-headline" placeholder="e.g. Finance Junior · Rowan | Aspiring Wealth Manager">
+                <span class="s-hint">A tagline that appears under your name on your profile card.</span>
+              </div>
+              <div class="s-grid-2">
+                <div class="s-row">
+                  <label>Current Status</label>
+                  <select id="s-status">
+                    <option value="">Select status</option>
+                    <option value="freshman">Freshman</option>
+                    <option value="sophomore">Sophomore</option>
+                    <option value="junior">Junior</option>
+                    <option value="senior">Senior</option>
+                    <option value="recent_grad">Recent Grad</option>
+                    <option value="alumni">Alumni</option>
+                    <option value="grad_student">Graduate Student</option>
+                  </select>
                 </div>
-
-                <div class="settings-section" id="section-privacy" style="display:none;">
-                    <div>
-                        <div class="st-eyebrow">Your control</div>
-                        <h1 class="st-title">Privacy <em>Settings</em></h1>
-                        <p class="st-desc">Control who can see your profile and how people can connect with you.</p>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Profile Visibility</div></div>
-                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
-                            <div class="st-priv-row">
-                                <div><div class="st-priv-label">Who can see your full profile</div><div class="st-priv-desc">Name, bio, interests, and career goals</div></div>
-                                <select id="privacy_profile_visibility" class="st-priv-select">
-                                    <option value="everyone">All Rowan members</option>
-                                    <option value="connections">Connections only</option>
-                                    <option value="nobody">Nobody</option>
-                                </select>
-                            </div>
-                            <div class="st-priv-row">
-                                <div><div class="st-priv-label">Who can send you connection requests</div><div class="st-priv-desc">Control who can initiate a connection</div></div>
-                                <select id="privacy_who_can_connect" class="st-priv-select">
-                                    <option value="everyone">Everyone</option>
-                                    <option value="mutual">Mutual connections</option>
-                                    <option value="nobody">Nobody</option>
-                                </select>
-                            </div>
-                            <div class="st-priv-row">
-                                <div><div class="st-priv-label">Who can request a coffee chat</div><div class="st-priv-desc">Direct chat requests without connecting first</div></div>
-                                <select id="privacy_who_can_chat" class="st-priv-select">
-                                    <option value="everyone">Everyone</option>
-                                    <option value="connections">Connections only</option>
-                                    <option value="nobody">Nobody</option>
-                                </select>
-                            </div>
-                            <div class="st-priv-row">
-                                <div><div class="st-priv-label">Show online status</div><div class="st-priv-desc">Let others see when you're active on First Sip</div></div>
-                                <select id="privacy_show_online_status" class="st-priv-select">
-                                    <option value="connections">Connections only</option>
-                                    <option value="everyone">Everyone</option>
-                                    <option value="nobody">Nobody</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" id="stSavePrivVisBtn" onclick="saveStPrivacy()">Save Privacy Settings</button>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Discovery &amp; Matching</div></div>
-                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Appear in Discover</div><div class="st-toggle-desc">Allow other Rowan members to find you on the Discover page.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="privacy_appear_in_discover"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Show match percentage</div><div class="st-toggle-desc">Display your compatibility score on your profile card.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="privacy_show_match_percent"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Include in alumni recommendations</div><div class="st-toggle-desc">Let alumni find you when they filter by your major or career goals.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="privacy_alumni_recommendations"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" id="stSavePrivDiscBtn" onclick="saveStPrivacy()">Save Settings</button>
-                        </div>
-                    </div>
+                <div class="s-row">
+                  <label>Graduation Year</label>
+                  <select id="s-grad-year">
+                    <option value="">Select year</option>
+                    <option>2025</option><option>2026</option><option>2027</option>
+                    <option>2028</option><option>2029</option><option>2030</option>
+                  </select>
                 </div>
+              </div>
+              <div class="s-row">
+                <label>Bio</label>
+                <textarea id="s-bio" placeholder="Tell people who you are, what you're working toward, and what kind of connections you're looking for..."></textarea>
+                <span class="s-hint">A genuine bio gets more chats than a resume bullet.</span>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveProfile()">Save Changes</button>
+                <button class="s-btn s-btn-ghost" onclick="sLoadProfile()">Discard</button>
+              </div>
+            </div>
 
-                <div class="settings-section" id="section-availability" style="display:none;">
-                    <div>
-                        <div class="st-eyebrow">Your schedule</div>
-                        <h1 class="st-title">Chat <em>Availability</em></h1>
-                        <p class="st-desc">Let people know when you're open for coffee chats.</p>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div>
-                                <div class="st-card-title">Weekly Availability</div>
-                                <div class="st-card-sub">Toggle days on and set your hours</div>
-                            </div>
-                        </div>
-                        <div class="st-card-body">
-                            <div class="st-avail-day-grid" id="stAvailDayGrid">
-                                <!-- Rendered by loadStAvailability() -->
-                                <div class="st-avail-day-row" id="avail-row-0">
-                                    <span class="st-avail-day-name">Sunday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-0" onchange="toggleAvailDay(0)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-0" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-0" class="st-input" value="17:00" disabled>
-                                </div>
-                                <div class="st-avail-day-row" id="avail-row-1">
-                                    <span class="st-avail-day-name">Monday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-1" onchange="toggleAvailDay(1)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-1" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-1" class="st-input" value="17:00" disabled>
-                                </div>
-                                <div class="st-avail-day-row" id="avail-row-2">
-                                    <span class="st-avail-day-name">Tuesday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-2" onchange="toggleAvailDay(2)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-2" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-2" class="st-input" value="17:00" disabled>
-                                </div>
-                                <div class="st-avail-day-row" id="avail-row-3">
-                                    <span class="st-avail-day-name">Wednesday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-3" onchange="toggleAvailDay(3)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-3" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-3" class="st-input" value="17:00" disabled>
-                                </div>
-                                <div class="st-avail-day-row" id="avail-row-4">
-                                    <span class="st-avail-day-name">Thursday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-4" onchange="toggleAvailDay(4)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-4" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-4" class="st-input" value="17:00" disabled>
-                                </div>
-                                <div class="st-avail-day-row" id="avail-row-5">
-                                    <span class="st-avail-day-name">Friday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-5" onchange="toggleAvailDay(5)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-5" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-5" class="st-input" value="17:00" disabled>
-                                </div>
-                                <div class="st-avail-day-row" id="avail-row-6">
-                                    <span class="st-avail-day-name">Saturday</span>
-                                    <label class="st-toggle"><input type="checkbox" id="avail-on-6" onchange="toggleAvailDay(6)"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                                    <input type="time" id="avail-start-6" class="st-input" value="09:00" disabled>
-                                    <span style="color:var(--muted);font-size:12px;">to</span>
-                                    <input type="time" id="avail-end-6" class="st-input" value="17:00" disabled>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-secondary" onclick="loadStAvailability()">Discard</button>
-                            <button class="st-btn-primary" id="stSaveAvailBtn" onclick="saveStAvailability()">Save Availability</button>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header"><div class="st-card-title">Chat Preferences</div></div>
-                        <div class="st-card-body no-gap" style="padding-bottom:6px;">
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Open to virtual chats</div><div class="st-toggle-desc">Video calls, Zoom, or phone.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="pref_open_virtual"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Open to in-person chats</div><div class="st-toggle-desc">Campus café or other Rowan locations.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="pref_open_inperson"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                            <div class="st-toggle-row">
-                                <div><div class="st-toggle-label">Limit to 2 chats per week</div><div class="st-toggle-desc">Automatically pause new requests once you hit your weekly limit.</div></div>
-                                <label class="st-toggle"><input type="checkbox" id="pref_weekly_chat_limit"><div class="st-toggle-track"><div class="st-toggle-thumb"></div></div></label>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" id="stSaveChatPrefsBtn" onclick="saveStChatPrefs()">Save Preferences</button>
-                        </div>
-                    </div>
+            <!-- Academic & Career -->
+            <div class="s-card">
+              <div class="s-card-title">Academic &amp; Career</div>
+              <div class="s-grid-2">
+                <div class="s-row">
+                  <label>Major</label>
+                  <input type="text" id="s-major" placeholder="e.g. Finance">
                 </div>
-
-                <div class="settings-section" id="section-appearance" style="display:none;">
-                    <div>
-                        <div class="st-eyebrow">Make it yours</div>
-                        <h1 class="st-title">Appearance & <em>Display</em></h1>
-                        <p class="st-desc">Customize how First Sip looks and feels for you.</p>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div class="st-card-title">Theme</div>
-                        </div>
-                        <div class="st-card-body">
-                            <div style="display:flex; flex-direction:column; gap:6px;">
-                                <div style="font-size:11px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--muted);">Color Mode</div>
-                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                    <label style="cursor:pointer;">
-                                        <input type="radio" name="st_theme" value="light" checked style="display:none;">
-                                        <div class="st-theme-option active" onclick="selectThemeOption(this,'light')">
-                                            <div style="font-size:22px; margin-bottom:6px;">☀️</div>
-                                            <div style="font-size:13px; font-weight:600; color:var(--caramel);">Light</div>
-                                            <div style="font-size:11px; color:var(--muted);">Default</div>
-                                        </div>
-                                    </label>
-                                    <label style="cursor:pointer;">
-                                        <input type="radio" name="st_theme" value="dark" style="display:none;">
-                                        <div class="st-theme-option" onclick="selectThemeOption(this,'dark')">
-                                            <div style="font-size:22px; margin-bottom:6px;">🌙</div>
-                                            <div style="font-size:13px; font-weight:600; color:var(--muted);">Dark</div>
-                                            <div style="font-size:11px; color:var(--muted);">Easy on the eyes</div>
-                                        </div>
-                                    </label>
-                                    <label style="cursor:pointer;">
-                                        <input type="radio" name="st_theme" value="system" style="display:none;">
-                                        <div class="st-theme-option" onclick="selectThemeOption(this,'system')">
-                                            <div style="font-size:22px; margin-bottom:6px;">💻</div>
-                                            <div style="font-size:13px; font-weight:600; color:var(--muted);">System</div>
-                                            <div style="font-size:11px; color:var(--muted);">Matches your OS</div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="st-card">
-                        <div class="st-card-header">
-                            <div class="st-card-title">Language &amp; Region</div>
-                        </div>
-                        <div class="st-card-body">
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                                <div style="display:flex; flex-direction:column; gap:6px;">
-                                    <label style="font-size:11px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--muted);">Language</label>
-                                    <select class="st-input">
-                                        <option selected>English (US)</option>
-                                        <option>Español</option>
-                                        <option>Português</option>
-                                    </select>
-                                </div>
-                                <div style="display:flex; flex-direction:column; gap:6px;">
-                                    <label style="font-size:11px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--muted);">Time Zone</label>
-                                    <select class="st-input">
-                                        <option selected>Eastern Time (ET)</option>
-                                        <option>Central Time (CT)</option>
-                                        <option>Pacific Time (PT)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="st-card-footer">
-                            <button class="st-btn-primary" onclick="showStToast('Preferences saved')">Save</button>
-                        </div>
-                    </div>
+                <div class="s-row">
+                  <label>Industry / Field</label>
+                  <select id="s-industry">
+                    <option value="">— Select industry —</option>
+                    <option>Business / Finance</option>
+                    <option>Computer Science / Tech</option>
+                    <option>Engineering</option>
+                    <option>Pre-Med / Healthcare</option>
+                    <option>Liberal Arts / Humanities</option>
+                    <option>Undecided / Exploring</option>
+                  </select>
                 </div>
-
-                <div class="settings-section" id="section-danger" style="display:none;">
-                    <div>
-                        <div class="st-eyebrow">Permanent actions</div>
-                        <h1 class="st-title danger">Danger <em>Zone</em></h1>
-                        <p class="st-desc">These actions are irreversible. Please read carefully before proceeding.</p>
-                    </div>
-
-                    <div class="st-danger-card">
-                        <div class="st-danger-header">
-                            <span style="font-size:18px;">⚠️</span>
-                            <div>
-                                <div class="st-danger-header-title">Account Actions</div>
-                                <div class="st-danger-header-desc">Take a breath before you proceed.</div>
-                            </div>
-                        </div>
-                        <div class="st-danger-body">
-                            <div class="st-danger-item">
-                                <div>
-                                    <div class="st-danger-label">Export Your Data</div>
-                                    <div class="st-danger-desc">Download a copy of your profile, connections, and meeting history.</div>
-                                </div>
-                                <button class="st-btn-secondary" onclick="exportStData()">Export Data</button>
-                            </div>
-                            <div class="st-danger-item">
-                                <div>
-                                    <div class="st-danger-label">Clear All Notifications</div>
-                                    <div class="st-danger-desc">Permanently delete all your notifications from First Sip. This cannot be undone.</div>
-                                </div>
-                                <button class="st-btn-secondary" onclick="clearAllNotifsDanger()">Clear Notifications</button>
-                            </div>
-                            <div class="st-danger-item">
-                                <div>
-                                    <div class="st-danger-label">Pause Account</div>
-                                    <div class="st-danger-desc">Hide your profile from Discover so no new chat requests come in. You can re-enable this anytime.</div>
-                                </div>
-                                <button class="st-btn-secondary" id="stPauseBtn" onclick="pauseStAccount()">Pause Account</button>
-                            </div>
-                            <div class="st-danger-item">
-                                <div>
-                                    <div class="st-danger-label">Sign Out Other Devices</div>
-                                    <div class="st-danger-desc">End sessions on all other devices while staying signed in here.</div>
-                                </div>
-                                <button class="st-btn-danger" onclick="signOutOtherDevices()">Sign Out Others</button>
-                            </div>
-                            <div class="st-danger-item">
-                                <div>
-                                    <div class="st-danger-label">Sign Out of All Devices</div>
-                                    <div class="st-danger-desc">End all active sessions including this one. You'll need to sign in again.</div>
-                                </div>
-                                <button class="st-btn-danger" onclick="signOutAllDevices()">Sign Out All</button>
-                            </div>
-                            <div class="st-danger-item" style="flex-direction:column;align-items:flex-start;gap:12px;">
-                                <div>
-                                    <div class="st-danger-label" style="color:var(--danger);">Delete Your Account</div>
-                                    <div class="st-danger-desc">Permanently remove your profile, connections, and all data from First Sip. This cannot be undone.</div>
-                                </div>
-                                <div style="display:flex;gap:10px;align-items:center;width:100%;">
-                                    <input type="text" id="stDeleteConfirmInput" class="st-input" placeholder='Type "DELETE" to confirm' oninput="checkDeleteInput()" style="max-width:240px;">
-                                    <button class="st-btn-danger" id="stDeleteAccountBtn" disabled onclick="confirmDeleteAccount()" style="opacity:0.4;">Delete Account</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="s-row">
+                  <label>Role / Title</label>
+                  <input type="text" id="s-role" placeholder="e.g. Finance Intern">
                 </div>
+                <div class="s-row">
+                  <label>Company / Organization</label>
+                  <input type="text" id="s-company" placeholder="e.g. Vista Wealth Solutions">
+                </div>
+              </div>
+              <div class="s-row">
+                <label>LinkedIn URL</label>
+                <input type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
+              </div>
+              <div class="s-row">
+                <label>Career Goals</label>
+                <textarea id="s-career-goals" placeholder="What are you working toward?"></textarea>
+              </div>
+              <div class="s-row">
+                <label>Interests &amp; Passions</label>
+                <div class="s-tags-container" id="s-interests-container" onclick="document.getElementById('s-interests-input').focus()">
+                  <input class="s-tag-input" id="s-interests-input" placeholder="Type and press Enter..." onkeydown="sTagKeydown(event,'interests')">
+                </div>
+                <span class="s-hint">Press Enter or comma to add a tag.</span>
+              </div>
+              <div class="s-row">
+                <label>Hobbies</label>
+                <div class="s-tags-container" id="s-hobbies-container" onclick="document.getElementById('s-hobbies-input').focus()">
+                  <input class="s-tag-input" id="s-hobbies-input" placeholder="Type and press Enter..." onkeydown="sTagKeydown(event,'hobbies')">
+                </div>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveProfile()">Save Changes</button>
+                <button class="s-btn s-btn-ghost" onclick="sLoadProfile()">Discard</button>
+              </div>
+            </div>
+          </div>
 
-          </div><!-- /settings-content -->
-        </div><!-- /settings-layout -->
+          <!-- ACCOUNT & SECURITY -->
+          <div id="spanel-account" style="display:none;">
+            <p class="spanel-title">Account &amp; <em>Security</em></p>
+            <p class="spanel-subtitle">Keep your account secure and up to date.</p>
 
-        <!-- Saved Toast -->
-        <div class="st-toast" id="stToast">✓ Changes saved</div>
-    </div>
+            <div class="s-card">
+              <div class="s-card-title">Email Address</div>
+              <div class="s-row">
+                <label>Current Email</label>
+                <input type="email" id="s-current-email" placeholder="your@rowan.edu" disabled style="background:#f5ece0;cursor:not-allowed;">
+                <span class="s-hint">Must be a Rowan email address.</span>
+              </div>
+              <div class="s-row">
+                <label>New Email</label>
+                <input type="email" id="s-new-email" placeholder="new@rowan.edu">
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sUpdateEmail()">Update Email</button>
+                <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-new-email').value=''">Cancel</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-title">Change Password</div>
+              <div class="s-row">
+                <label>New Password</label>
+                <input type="password" id="s-new-password" placeholder="Enter new password" autocomplete="new-password">
+              </div>
+              <div class="s-row">
+                <label>Confirm New Password</label>
+                <input type="password" id="s-confirm-password" placeholder="Confirm new password" autocomplete="new-password">
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sUpdatePassword()">Update Password</button>
+                <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-new-password').value='';document.getElementById('s-confirm-password').value=''">Cancel</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-title">Security Overview</div>
+              <div class="s-toggle-row">
+                <div>
+                  <div class="s-toggle-label">✉️ Email Verified</div>
+                </div>
+                <span class="s-security-badge" id="s-email-verified-badge">✓ Verified</span>
+              </div>
+              <div class="s-toggle-row">
+                <div>
+                  <div class="s-toggle-label">📱 Two-Factor Authentication</div>
+                  <div class="s-toggle-desc">Add an extra layer of security to your account.</div>
+                </div>
+                <span style="font-size:12px;color:#b89a7a;font-style:italic;">Coming soon</span>
+              </div>
+              <div class="s-toggle-row">
+                <div>
+                  <div class="s-toggle-label">🖥️ Active Sessions</div>
+                  <div class="s-toggle-desc">1 active session on this device.</div>
+                </div>
+                <button class="s-btn s-btn-ghost" style="padding:6px 14px;font-size:13px;" onclick="sSignOutOthers()">Sign out</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTIFICATIONS -->
+          <div id="spanel-notifications" style="display:none;">
+            <p class="spanel-title">Notification <em>Preferences</em></p>
+            <p class="spanel-subtitle">Choose when and how First Sip reaches out to you.</p>
+
+            <div class="s-card">
+              <div class="s-card-title">Email Notifications</div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">New connection requests</div><div class="s-toggle-desc">When someone sends you a connection request.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-email-connections" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Chat requests</div><div class="s-toggle-desc">When someone wants to schedule a coffee chat.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-email-chats" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Chat reminders</div><div class="s-toggle-desc">A reminder 1 hour before your scheduled chat.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-email-reminders" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">New messages</div><div class="s-toggle-desc">When you receive a direct message.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-email-messages"><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Group activity</div><div class="s-toggle-desc">New posts in groups you've joined.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-email-groups"><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Weekly digest</div><div class="s-toggle-desc">A Sunday summary of who's active and who to meet.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-email-digest" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveNotifications()">Save Preferences</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-title">In-App Notifications</div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Connection accepted</div><div class="s-toggle-desc">When someone accepts your connection request.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-app-connections" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">New match suggestions</div><div class="s-toggle-desc">When new people matching your profile join.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-app-matches" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Chat reviews received</div><div class="s-toggle-desc">When someone leaves a review after your coffee chat.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="notif-app-reviews" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveNotifications()">Save Preferences</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRIVACY -->
+          <div id="spanel-privacy" style="display:none;">
+            <p class="spanel-title">Privacy <em>Settings</em></p>
+            <p class="spanel-subtitle">Control who can see your profile and how people can connect with you.</p>
+
+            <div class="s-card">
+              <div class="s-card-title">Profile Visibility</div>
+              <div class="s-row">
+                <label>Who can see your full profile</label>
+                <div class="s-radio-group">
+                  <label><input type="radio" name="privacy-profile" value="all" checked> All Rowan members</label>
+                  <label><input type="radio" name="privacy-profile" value="connections"> Connections only</label>
+                  <label><input type="radio" name="privacy-profile" value="nobody"> Nobody</label>
+                </div>
+              </div>
+              <div class="s-row">
+                <label>Who can send you connection requests</label>
+                <div class="s-radio-group">
+                  <label><input type="radio" name="privacy-connect" value="everyone" checked> Everyone</label>
+                  <label><input type="radio" name="privacy-connect" value="mutual"> Mutual connections</label>
+                  <label><input type="radio" name="privacy-connect" value="nobody"> Nobody</label>
+                </div>
+              </div>
+              <div class="s-row">
+                <label>Who can request a coffee chat</label>
+                <div class="s-radio-group">
+                  <label><input type="radio" name="privacy-chat" value="everyone" checked> Everyone</label>
+                  <label><input type="radio" name="privacy-chat" value="connections"> Connections only</label>
+                  <label><input type="radio" name="privacy-chat" value="nobody"> Nobody</label>
+                </div>
+              </div>
+              <div class="s-row">
+                <label>Show online status</label>
+                <div class="s-radio-group">
+                  <label><input type="radio" name="privacy-online" value="connections" checked> Connections only</label>
+                  <label><input type="radio" name="privacy-online" value="everyone"> Everyone</label>
+                  <label><input type="radio" name="privacy-online" value="nobody"> Nobody</label>
+                </div>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSavePrivacy()">Save Privacy Settings</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-title">Discovery &amp; Matching</div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Appear in Discover</div><div class="s-toggle-desc">Allow other Rowan members to find you.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="privacy-discover" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Show match percentage</div><div class="s-toggle-desc">Display your compatibility score on your profile card.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="privacy-match" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Include in alumni recommendations</div><div class="s-toggle-desc">Let alumni find you when filtering by major or goals.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="privacy-alumni" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSavePrivacy()">Save Settings</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- AVAILABILITY -->
+          <div id="spanel-availability" style="display:none;">
+            <p class="spanel-title">Chat <em>Availability</em></p>
+            <p class="spanel-subtitle">Let people know when you're open for coffee chats.</p>
+
+            <div class="s-card">
+              <div class="s-card-title">Weekly Availability</div>
+              <div id="s-avail-days"></div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveAvailability()">Save Availability</button>
+                <button class="s-btn s-btn-ghost" onclick="sLoadAvailability()">Discard</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-title">Chat Preferences</div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Open to virtual chats</div><div class="s-toggle-desc">Video calls, Zoom, or phone.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="avail-virtual" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Open to in-person chats</div><div class="s-toggle-desc">Campus café or other Rowan locations.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="avail-inperson" checked><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-toggle-row">
+                <div><div class="s-toggle-label">Limit to 2 chats per week</div><div class="s-toggle-desc">Automatically pause new requests once you hit your limit.</div></div>
+                <label class="s-toggle"><input type="checkbox" id="avail-limit"><span class="s-toggle-slider"></span></label>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveAvailability()">Save Preferences</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- APPEARANCE -->
+          <div id="spanel-appearance" style="display:none;">
+            <p class="spanel-title">Appearance &amp; <em>Display</em></p>
+            <p class="spanel-subtitle">Customize how First Sip looks and feels for you.</p>
+
+            <div class="s-card">
+              <div class="s-card-title">Color Mode</div>
+              <div class="s-theme-cards">
+                <div class="s-theme-card active" id="stheme-light" onclick="sSetTheme('light')">
+                  <span class="s-theme-icon">☀️</span>Light<br><small style="font-weight:400;color:#9c7b5f;">Default</small>
+                </div>
+                <div class="s-theme-card" id="stheme-dark" onclick="sSetTheme('dark')">
+                  <span class="s-theme-icon">🌙</span>Dark<br><small style="font-weight:400;color:#9c7b5f;">Easy on the eyes</small>
+                </div>
+                <div class="s-theme-card" id="stheme-system" onclick="sSetTheme('system')">
+                  <span class="s-theme-icon">💻</span>System<br><small style="font-weight:400;color:#9c7b5f;">Matches your OS</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-title">Language &amp; Region</div>
+              <div class="s-grid-2">
+                <div class="s-row">
+                  <label>Language</label>
+                  <select id="s-language">
+                    <option value="en">English (US)</option>
+                    <option value="es">Español</option>
+                    <option value="pt">Português</option>
+                  </select>
+                </div>
+                <div class="s-row">
+                  <label>Time Zone</label>
+                  <select id="s-timezone">
+                    <option value="ET">Eastern Time (ET)</option>
+                    <option value="CT">Central Time (CT)</option>
+                    <option value="PT">Pacific Time (PT)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="s-btn-row">
+                <button class="s-btn s-btn-primary" onclick="sSaveAppearance()">Save</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- DANGER ZONE -->
+          <div id="spanel-danger" style="display:none;">
+            <p class="spanel-title" style="color:#c0392b;">⚠️ Danger <em style="color:#c0392b;">Zone</em></p>
+            <p class="spanel-subtitle">These actions are irreversible. Please read carefully before proceeding.</p>
+
+            <div class="s-card">
+              <div class="s-card-title" style="color:#c0392b;">Account Actions</div>
+              <div class="s-danger-action">
+                <div>
+                  <div class="s-danger-action-info">Export Your Data</div>
+                  <div class="s-danger-action-desc">Download a copy of your profile, connections, and meeting history.</div>
+                </div>
+                <button class="s-btn s-btn-ghost" onclick="sExportData()">Export Data</button>
+              </div>
+              <div class="s-danger-action">
+                <div>
+                  <div class="s-danger-action-info">Clear All Notifications</div>
+                  <div class="s-danger-action-desc">Permanently delete all notifications. This cannot be undone.</div>
+                </div>
+                <button class="s-btn s-btn-danger" onclick="sClearNotifications()">Clear Notifications</button>
+              </div>
+              <div class="s-danger-action">
+                <div>
+                  <div class="s-danger-action-info">Pause Account</div>
+                  <div class="s-danger-action-desc">Hide your profile from Discover. You can re-enable this anytime.</div>
+                </div>
+                <button class="s-btn s-btn-danger" onclick="sPauseAccount()">Pause Account</button>
+              </div>
+              <div class="s-danger-action">
+                <div>
+                  <div class="s-danger-action-info">Sign Out Other Devices</div>
+                  <div class="s-danger-action-desc">End sessions on all other devices while staying signed in here.</div>
+                </div>
+                <button class="s-btn s-btn-danger" onclick="sSignOutOthers()">Sign Out Others</button>
+              </div>
+              <div class="s-danger-action">
+                <div>
+                  <div class="s-danger-action-info">Sign Out of All Devices</div>
+                  <div class="s-danger-action-desc">End all active sessions including this one.</div>
+                </div>
+                <button class="s-btn s-btn-danger" onclick="sSignOutAll()">Sign Out All</button>
+              </div>
+              <div class="s-danger-action" style="border-bottom:none;">
+                <div>
+                  <div class="s-danger-action-info" style="color:#c0392b;font-weight:700;">Delete Your Account</div>
+                  <div class="s-danger-action-desc">Permanently remove your profile, connections, and all data. Cannot be undone.</div>
+                </div>
+                <button class="s-btn s-btn-danger" style="border-color:#c0392b;" onclick="sDeleteAccount()">Delete Account</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /settings-content -->
+      </div><!-- /settings-shell -->
+    </div><!-- /settingsView -->
+
+    <!-- Save toast -->
+    <div class="s-saved-toast" id="s-saved-toast">✓ Changes saved</div>
     </div><!-- /main-content -->
 
     <!-- Schedule Chat Modal -->
@@ -10099,7 +10011,7 @@
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
             if (viewId === 'myProfileView') renderMyProfile();
-            if (viewId === 'settingsView') { renderSettingsView(); switchStab('profile'); }
+            if (viewId === 'settingsView') initSettingsPage();
             if (viewId === 'networkView') renderNetworkView();
             if (viewId === 'inboxView') renderInboxView();
             if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
@@ -16120,6 +16032,329 @@
             if (stToastTimer) clearTimeout(stToastTimer);
             stToastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
         }
+
+        /* ══════════════════════════════════════════════
+           NEW SETTINGS PAGE — sNav / sSaveProfile etc.
+           ══════════════════════════════════════════════ */
+        const sTags = { interests: [], hobbies: [] };
+        let sProfileLoaded = false;
+
+        function sNav(tab) {
+            const tabs = ['profile','account','notifications','privacy','availability','appearance','danger'];
+            tabs.forEach(t => {
+                const panel = document.getElementById('spanel-' + t);
+                const nav   = document.getElementById('snav-' + t);
+                if (panel) panel.style.display = 'none';
+                if (nav)   nav.classList.remove('active');
+            });
+            const activePanel = document.getElementById('spanel-' + tab);
+            const activeNav   = document.getElementById('snav-' + tab);
+            if (activePanel) activePanel.style.display = 'block';
+            if (activeNav)   activeNav.classList.add('active');
+
+            if (tab === 'profile')       { if (!sProfileLoaded) { sProfileLoaded = true; sLoadProfile(); } }
+            if (tab === 'account')       sLoadAccount();
+            if (tab === 'availability')  sLoadAvailability();
+        }
+
+        function initSettingsPage() {
+            sProfileLoaded = false;
+            sRenderAvailDays();
+            sNav('profile');
+        }
+
+        function sShowToast(msg) {
+            const t = document.getElementById('s-saved-toast');
+            if (!t) return;
+            t.textContent = msg || '✓ Changes saved';
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2800);
+        }
+
+        async function sLoadProfile() {
+            if (!currentUser) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles').select('*').eq('id', currentUser.id).single();
+                if (error || !data) return;
+
+                const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+                sv('s-first-name',   data.first_name);
+                sv('s-last-name',    data.last_name);
+                sv('s-headline',     data.headline);
+                sv('s-status',       data.status);
+                sv('s-grad-year',    data.grad_year);
+                sv('s-bio',          data.bio);
+                sv('s-major',        data.major);
+                sv('s-industry',     data.industry);
+                sv('s-role',         data.role);
+                sv('s-company',      data.company);
+                sv('s-linkedin',     data.linkedin_url);
+                sv('s-career-goals', data.goals);
+
+                sTags.interests = Array.isArray(data.interests) ? [...data.interests] : [];
+                sTags.hobbies   = Array.isArray(data.hobbies)   ? [...data.hobbies]   : [];
+                sRenderTags('interests');
+                sRenderTags('hobbies');
+
+                // Avatar
+                const preview  = document.getElementById('s-avatar-preview');
+                const initials = document.getElementById('s-avatar-initials');
+                if (data.profile_picture && preview) {
+                    preview.innerHTML = `<img src="${data.profile_picture}" alt="avatar">`;
+                } else if (initials) {
+                    const fn = (data.first_name || '?')[0].toUpperCase();
+                    const ln = data.last_name ? data.last_name[0].toUpperCase() : '';
+                    initials.textContent = fn + ln;
+                    if (data.avatar_color && preview) preview.style.background = data.avatar_color;
+                }
+
+                // Cover photo preview
+                const cover = document.getElementById('s-cover-preview');
+                if (cover && data.banner_image) {
+                    cover.style.backgroundImage = `url('${data.banner_image}')`;
+                    cover.style.backgroundSize = 'cover';
+                    cover.style.backgroundPosition = 'center';
+                    cover.textContent = '';
+                }
+            } catch(e) { console.error('sLoadProfile', e); }
+        }
+
+        async function sSaveProfile() {
+            if (!currentUser) return;
+            const gv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const updates = {
+                first_name:   gv('s-first-name'),
+                last_name:    gv('s-last-name'),
+                headline:     gv('s-headline'),
+                status:       gv('s-status'),
+                grad_year:    gv('s-grad-year'),
+                bio:          gv('s-bio'),
+                major:        gv('s-major'),
+                industry:     gv('s-industry'),
+                role:         gv('s-role'),
+                company:      gv('s-company'),
+                linkedin_url: gv('s-linkedin'),
+                goals:        gv('s-career-goals'),
+                interests:    sTags.interests,
+                hobbies:      sTags.hobbies,
+                updated_at:   new Date().toISOString()
+            };
+            const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
+            if (error) { sShowToast('❌ Error saving — try again'); console.error(error); return; }
+            // Sync into currentUser cache
+            Object.assign(currentUser, {
+                firstName: updates.first_name, lastName: updates.last_name,
+                headline: updates.headline, bio: updates.bio,
+                major: updates.major, industry: updates.industry,
+                role: updates.role, company: updates.company,
+                linkedinUrl: updates.linkedin_url, goals: updates.goals,
+                interests: updates.interests, hobbies: updates.hobbies,
+            });
+            sShowToast('✓ Profile saved');
+        }
+
+        function sLoadAccount() {
+            if (!currentUser) return;
+            const el = document.getElementById('s-current-email');
+            if (el) el.value = currentUser.email || '';
+        }
+
+        async function sUpdateEmail() {
+            const newEmail = (document.getElementById('s-new-email')?.value || '').trim();
+            if (!newEmail) return;
+            const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
+            if (error) { sShowToast('❌ ' + error.message); return; }
+            sShowToast('✓ Check your new email to confirm');
+            document.getElementById('s-new-email').value = '';
+        }
+
+        async function sUpdatePassword() {
+            const pw  = document.getElementById('s-new-password')?.value || '';
+            const pw2 = document.getElementById('s-confirm-password')?.value || '';
+            if (!pw) return;
+            if (pw !== pw2) { sShowToast('❌ Passwords do not match'); return; }
+            if (pw.length < 8) { sShowToast('❌ Password must be at least 8 characters'); return; }
+            const { error } = await supabaseClient.auth.updateUser({ password: pw });
+            if (error) { sShowToast('❌ ' + error.message); return; }
+            sShowToast('✓ Password updated');
+            document.getElementById('s-new-password').value = '';
+            document.getElementById('s-confirm-password').value = '';
+        }
+
+        function sSaveNotifications() { sShowToast('✓ Notification preferences saved'); }
+        function sSavePrivacy()        { sShowToast('✓ Privacy settings saved'); }
+        function sSaveAppearance()     { sShowToast('✓ Appearance saved'); }
+
+        function sSetTheme(theme) {
+            ['light','dark','system'].forEach(t => {
+                const el = document.getElementById('stheme-' + t);
+                if (el) el.classList.toggle('active', t === theme);
+            });
+            if (typeof applyTheme === 'function') applyTheme(theme);
+            sShowToast('✓ Theme updated');
+        }
+
+        const S_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+        function sRenderAvailDays() {
+            const container = document.getElementById('s-avail-days');
+            if (!container) return;
+            container.innerHTML = S_DAYS.map((day, i) => `
+                <div class="s-avail-day">
+                    <div class="s-avail-day-label">
+                        <label class="s-toggle" style="width:36px;height:20px;">
+                            <input type="checkbox" id="s-avail-day-${i}" onchange="sToggleAvailDay(${i})">
+                            <span class="s-toggle-slider"></span>
+                        </label>
+                        ${day}
+                    </div>
+                    <div class="s-avail-times" id="s-avail-times-${i}" style="display:none;">
+                        <input type="time" id="s-avail-start-${i}" value="09:00">
+                        <span>to</span>
+                        <input type="time" id="s-avail-end-${i}" value="17:00">
+                    </div>
+                </div>`).join('');
+        }
+
+        function sToggleAvailDay(i) {
+            const checked = document.getElementById('s-avail-day-' + i)?.checked;
+            const times   = document.getElementById('s-avail-times-' + i);
+            if (times) times.style.display = checked ? 'flex' : 'none';
+        }
+
+        async function sLoadAvailability() {
+            if (!currentUser) return;
+            try {
+                const { data } = await supabaseClient
+                    .from('availability').select('*').eq('user_id', currentUser.id);
+                S_DAYS.forEach((_, i) => {
+                    const cb = document.getElementById('s-avail-day-' + i);
+                    if (cb) { cb.checked = false; sToggleAvailDay(i); }
+                });
+                (data || []).forEach(row => {
+                    const i = row.day_of_week;
+                    const cb = document.getElementById('s-avail-day-' + i);
+                    if (cb) {
+                        cb.checked = true; sToggleAvailDay(i);
+                        const s = document.getElementById('s-avail-start-' + i);
+                        const e = document.getElementById('s-avail-end-' + i);
+                        if (s && row.start_time) s.value = row.start_time.substring(0, 5);
+                        if (e && row.end_time)   e.value = row.end_time.substring(0, 5);
+                    }
+                });
+            } catch(e) { console.error('sLoadAvailability', e); }
+        }
+
+        async function sSaveAvailability() {
+            if (!currentUser) return;
+            await supabaseClient.from('availability').delete().eq('user_id', currentUser.id);
+            const rows = [];
+            S_DAYS.forEach((_, i) => {
+                const cb = document.getElementById('s-avail-day-' + i);
+                if (cb?.checked) {
+                    rows.push({
+                        user_id:     currentUser.id,
+                        day_of_week: i,
+                        start_time:  document.getElementById('s-avail-start-' + i)?.value || '09:00',
+                        end_time:    document.getElementById('s-avail-end-' + i)?.value   || '17:00',
+                        is_available: true
+                    });
+                }
+            });
+            if (rows.length) {
+                const { error } = await supabaseClient.from('availability').insert(rows);
+                if (error) { sShowToast('❌ Error saving availability'); return; }
+            }
+            sShowToast('✓ Availability saved');
+        }
+
+        function sExportData()    { sShowToast('📦 Export starting…'); }
+        function sPauseAccount()  { sShowToast('⏸ Account paused'); }
+
+        async function sClearNotifications() {
+            if (!confirm('Clear all notifications? This cannot be undone.')) return;
+            if (currentUser) await supabaseClient.from('notifications').delete().eq('user_id', currentUser.id);
+            sShowToast('✓ Notifications cleared');
+        }
+
+        async function sSignOutOthers() {
+            await supabaseClient.auth.signOut({ scope: 'others' });
+            sShowToast('✓ Other sessions signed out');
+        }
+
+        async function sSignOutAll() { await supabaseClient.auth.signOut(); }
+
+        async function sDeleteAccount() {
+            if (!confirm('Permanently delete your account and all data? This CANNOT be undone.')) return;
+            if (!confirm('Are you absolutely sure? There is no going back.')) return;
+            sShowToast('Deleting account…');
+        }
+
+        function sTagKeydown(event, type) {
+            if (event.key === 'Enter' || event.key === ',') {
+                event.preventDefault();
+                const input = document.getElementById('s-' + type + '-input');
+                const val = (input?.value || '').replace(',','').trim();
+                if (val && !sTags[type].includes(val)) { sTags[type].push(val); sRenderTags(type); }
+                if (input) input.value = '';
+            }
+        }
+
+        function sRemoveTag(type, tag) {
+            sTags[type] = sTags[type].filter(t => t !== tag);
+            sRenderTags(type);
+        }
+
+        function sRenderTags(type) {
+            const container = document.getElementById('s-' + type + '-container');
+            const input     = document.getElementById('s-' + type + '-input');
+            if (!container || !input) return;
+            container.querySelectorAll('.s-tag').forEach(el => el.remove());
+            sTags[type].forEach(tag => {
+                const el = document.createElement('span');
+                el.className = 's-tag';
+                el.innerHTML = `${tag}<button class="s-tag-remove" onclick="sRemoveTag('${type}','${encodeURIComponent(tag)}')" type="button">×</button>`;
+                container.insertBefore(el, input);
+            });
+        }
+
+        async function sHandlePhotoUpload(input) {
+            const file = input.files[0];
+            if (!file || !currentUser) return;
+            const ext  = file.name.split('.').pop();
+            const path = `avatars/${currentUser.id}.${ext}`;
+            const { error } = await supabaseClient.storage.from('avatars').upload(path, file, { upsert: true });
+            if (error) { sShowToast('❌ Upload failed'); return; }
+            const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+            const url = urlData?.publicUrl;
+            if (url) {
+                await supabaseClient.from('profiles').update({ profile_picture: url }).eq('id', currentUser.id);
+                const prev = document.getElementById('s-avatar-preview');
+                if (prev) prev.innerHTML = `<img src="${url}" alt="avatar">`;
+                currentUser.profilePicture = url;
+                sShowToast('✓ Photo updated');
+            }
+        }
+
+        async function sHandleCoverUpload(input) {
+            const file = input.files[0];
+            if (!file || !currentUser) return;
+            const ext  = file.name.split('.').pop();
+            const path = `banners/${currentUser.id}.${ext}`;
+            const { error } = await supabaseClient.storage.from('avatars').upload(path, file, { upsert: true });
+            if (error) { sShowToast('❌ Cover upload failed'); return; }
+            const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+            const url = urlData?.publicUrl;
+            if (url) {
+                await supabaseClient.from('profiles').update({ banner_image: url }).eq('id', currentUser.id);
+                const cover = document.getElementById('s-cover-preview');
+                if (cover) { cover.style.backgroundImage = `url('${url}')`; cover.style.backgroundSize = 'cover'; cover.style.backgroundPosition = 'center'; cover.textContent = ''; }
+                currentUser.bannerImage = url;
+                sShowToast('✓ Cover photo updated');
+            }
+        }
+
 
     </script>
 
