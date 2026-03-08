@@ -8019,24 +8019,24 @@
     <div id="settingsView" class="content-view">
 
         <!-- ═══ SETTINGS SHELL ═══ -->
-        <div class="settings-layout">
+        <div class="settings-layout" style="display:flex;flex-direction:row;height:100%;min-height:600px;overflow:hidden;">
 
-          <nav class="settings-nav">
+          <nav class="settings-nav" style="width:220px;flex-shrink:0;border-right:1px solid #e8d5c0;overflow-y:auto;padding:16px 0;">
             <div class="settings-nav-header">
               <div class="settings-nav-title">Settings</div>
               <div class="settings-nav-sub">Manage your account</div>
             </div>
-            <a class="snav-item active" id="stab-profile" onclick="switchStab('profile')"><span class="snav-icon">👤</span> Profile</a>
-            <a class="snav-item" id="stab-account" onclick="switchStab('account')"><span class="snav-icon">🔑</span> Account &amp; Security</a>
-            <a class="snav-item" id="stab-notifications" onclick="switchStab('notifications')"><span class="snav-icon">🔔</span> Notifications</a>
-            <a class="snav-item" id="stab-privacy" onclick="switchStab('privacy')"><span class="snav-icon">🛡️</span> Privacy</a>
-            <a class="snav-item" id="stab-availability" onclick="switchStab('availability')"><span class="snav-icon">📅</span> Availability</a>
-            <a class="snav-item" id="stab-appearance" onclick="switchStab('appearance')"><span class="snav-icon">🎨</span> Appearance</a>
+            <a class="snav-item active" id="stab-profile" onclick="switchStab('profile')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">👤</span> Profile</a>
+            <a class="snav-item" id="stab-account" onclick="switchStab('account')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🔑</span> Account &amp; Security</a>
+            <a class="snav-item" id="stab-notifications" onclick="switchStab('notifications')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🔔</span> Notifications</a>
+            <a class="snav-item" id="stab-privacy" onclick="switchStab('privacy')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🛡️</span> Privacy</a>
+            <a class="snav-item" id="stab-availability" onclick="switchStab('availability')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">📅</span> Availability</a>
+            <a class="snav-item" id="stab-appearance" onclick="switchStab('appearance')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">🎨</span> Appearance</a>
             <div class="snav-divider"></div>
-            <a class="snav-item snav-danger" id="stab-danger" onclick="switchStab('danger')"><span class="snav-icon">⚠️</span> Danger Zone</a>
+            <a class="snav-item snav-danger" id="stab-danger" onclick="switchStab('danger')" style="padding:10px 20px;cursor:pointer;"><span class="snav-icon">⚠️</span> Danger Zone</a>
           </nav>
 
-          <div class="settings-content">
+          <div class="settings-content" style="flex:1;overflow-y:auto;padding:32px;">
 
                 <div class="settings-section active" id="section-profile">
                     <div>
@@ -8233,7 +8233,7 @@
                     </div>
                 </div>
 
-                <div class="settings-section" id="section-account">
+                <div class="settings-section" id="section-account" style="display:none;">
                     <div>
                         <div class="st-eyebrow">Your credentials</div>
                         <h1 class="st-title">Account &amp; <em>Security</em></h1>
@@ -8308,7 +8308,7 @@
                     </div>
                 </div>
 
-                <div class="settings-section" id="section-notifications">
+                <div class="settings-section" id="section-notifications" style="display:none;">
                     <div>
                         <div class="st-eyebrow">Stay in the loop</div>
                         <h1 class="st-title">Notification <em>Preferences</em></h1>
@@ -8375,7 +8375,7 @@
                     </div>
                 </div>
 
-                <div class="settings-section" id="section-privacy">
+                <div class="settings-section" id="section-privacy" style="display:none;">
                     <div>
                         <div class="st-eyebrow">Your control</div>
                         <h1 class="st-title">Privacy <em>Settings</em></h1>
@@ -8445,7 +8445,7 @@
                     </div>
                 </div>
 
-                <div class="settings-section" id="section-availability">
+                <div class="settings-section" id="section-availability" style="display:none;">
                     <div>
                         <div class="st-eyebrow">Your schedule</div>
                         <h1 class="st-title">Chat <em>Availability</em></h1>
@@ -8541,7 +8541,7 @@
                     </div>
                 </div>
 
-                <div class="settings-section" id="section-appearance">
+                <div class="settings-section" id="section-appearance" style="display:none;">
                     <div>
                         <div class="st-eyebrow">Make it yours</div>
                         <h1 class="st-title">Appearance & <em>Display</em></h1>
@@ -8615,7 +8615,7 @@
                     </div>
                 </div>
 
-                <div class="settings-section" id="section-danger">
+                <div class="settings-section" id="section-danger" style="display:none;">
                     <div>
                         <div class="st-eyebrow">Permanent actions</div>
                         <h1 class="st-title danger">Danger <em>Zone</em></h1>
@@ -10099,7 +10099,7 @@
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
             if (viewId === 'myProfileView') renderMyProfile();
-            if (viewId === 'settingsView') renderSettingsView();
+            if (viewId === 'settingsView') { renderSettingsView(); switchStab('profile'); }
             if (viewId === 'networkView') renderNetworkView();
             if (viewId === 'inboxView') renderInboxView();
             if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
@@ -11994,19 +11994,34 @@
             try {
                 const { data: inboxData, error } = await supabaseClient
                     .from('inbox')
-                    .select('*, other_profile:profiles!inner(first_name, last_name, profile_picture)');
+                    .select('*');
 
                 if (error) throw error;
 
+                // Batch-fetch profiles (inbox view has no FK to profiles)
+                const uids = [...new Set((inboxData || []).map(r => r.other_user_id).filter(Boolean))];
+                let _pmMap = {};
+                if (uids.length > 0) {
+                    const { data: pRows } = await supabaseClient
+                        .from('profiles')
+                        .select('id, first_name, last_name, profile_picture')
+                        .in('id', uids);
+                    (pRows || []).forEach(p => { _pmMap[p.id] = p; });
+                }
+                const inboxWithProfiles = (inboxData || []).map(row => ({
+                    ...row,
+                    other_profile: _pmMap[row.other_user_id] || null
+                }));
+
                 const list = document.getElementById('conversationList');
 
-                if (!inboxData || inboxData.length === 0) {
+                if (!inboxWithProfiles || inboxWithProfiles.length === 0) {
                     list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No conversations yet</p></div>';
                     document.getElementById('chatWindow').innerHTML = '<div class="chat-header"><h3>Start a conversation</h3></div>';
                     return;
                 }
 
-                list.innerHTML = inboxData.map(conv => {
+                list.innerHTML = inboxWithProfiles.map(conv => {
                     const profile = conv.other_profile;
                     const partnerName = profile ? `${profile.first_name} ${profile.last_name}` : 'User';
                     const fn = profile?.first_name?.[0] || '?';
@@ -12014,13 +12029,13 @@
                     const avatarHTML = profile?.profile_picture
                         ? `<img src="${profile.profile_picture}" alt="${partnerName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">`
                         : `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0;">${fn}${ln}</div>`;
-                    const lastMessage = (conv.last_message || '').substring(0, 50);
+                    const lastMessage = (conv.last_message_preview || '').substring(0, 50);
                     const unreadBadge = (conv.unread_count > 0)
                         ? `<span style="background:var(--primary);color:white;border-radius:50%;min-width:20px;padding:2px 6px;font-size:11px;font-weight:700;text-align:center;">${conv.unread_count}</span>`
                         : '';
 
                     return `
-                        <div class="conversation-item ${selectedConversation === conv.other_user_id ? 'active' : ''}" onclick="selectConversation('${conv.other_user_id}', '${conv.id}')" style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div class="conversation-item ${selectedConversation === conv.other_user_id ? 'active' : ''}" onclick="selectConversation('${conv.other_user_id}', '${conv.conversation_id}')" style="display: flex; align-items: center; gap: 0.75rem;">
                             ${avatarHTML}
                             <div style="flex: 1; min-width: 0;">
                                 <h4 style="margin: 0;" onclick="event.stopPropagation(); viewProfile('${conv.other_user_id}')" class="conversation-name-link">${partnerName}</h4>
@@ -12073,14 +12088,31 @@
         async function renderInboxView() {
             if (!currentUser) return;
             try {
-                const { data, error } = await supabaseClient
+                const { data: inboxRows, error } = await supabaseClient
                     .from('inbox')
-                    .select('*, other_profile:profiles!inner(id, first_name, last_name, profile_picture, role, company)');
+                    .select('*');
                 if (error) throw error;
-                ibxAllConvs = data || [];
+
+                // Batch-fetch profiles for all conversation partners (inbox view has no FK to profiles)
+                const userIds = [...new Set((inboxRows || []).map(r => r.other_user_id).filter(Boolean))];
+                let profileMap = {};
+                if (userIds.length > 0) {
+                    const { data: profileRows } = await supabaseClient
+                        .from('profiles')
+                        .select('id, first_name, last_name, profile_picture, role, company')
+                        .in('id', userIds);
+                    (profileRows || []).forEach(p => { profileMap[p.id] = p; });
+                }
+
+                ibxAllConvs = (inboxRows || []).map(row => ({
+                    ...row,
+                    other_profile: profileMap[row.other_user_id] || null
+                }));
                 ibxRenderConvList(ibxAllConvs);
             } catch (err) {
                 console.error('renderInboxView:', err);
+                const list = document.getElementById('inboxConvList');
+                if (list) list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Could not load conversations.</div>`;
             }
         }
 
@@ -12099,12 +12131,12 @@
                 const name = p ? `${p.first_name} ${p.last_name}` : 'User';
                 const isActive = selectedConversation === conv.other_user_id;
                 const hasUnread = (conv.unread_count || 0) > 0;
-                const preview = ibxEscape((conv.last_message || 'No messages yet').substring(0, 60));
+                const preview = ibxEscape((conv.last_message_preview || 'No messages yet').substring(0, 60));
                 const timeStr = ibxFormatTime(conv.last_message_at);
                 const bg = ibxAvatarBg((p?.first_name || '') + (p?.last_name || '') + (conv.other_user_id || ''));
                 const avInner = ibxAvatarInner(p);
                 return `<div class="ibx-conv-row ${isActive ? 'active' : ''} ${hasUnread ? 'unread' : ''}"
-                             onclick="selectInboxConv('${conv.other_user_id}','${conv.id}')">
+                             onclick="selectInboxConv('${conv.other_user_id}','${conv.conversation_id}')">
                     <div class="ibx-conv-av">
                         <div class="ibx-conv-av-inner" style="background:${bg};">${avInner}</div>
                     </div>
@@ -14052,6 +14084,30 @@
                 _myAchs = myAchData || [];
             } catch(e) { console.error('renderMyProfile achievements:', e); }
 
+            // Fetch own posts
+            let _myPosts = [];
+            let _myPostLikeMap = {};
+            let _myPostLikedSet = new Set();
+            try {
+                const { data: myPostData } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .eq('author_id', currentUser.id)
+                    .is('group_id', null)
+                    .order('created_at', { ascending: false });
+                _myPosts = myPostData || [];
+                if (_myPosts.length > 0) {
+                    const { data: myLikes } = await supabaseClient
+                        .from('post_likes')
+                        .select('post_id, user_id')
+                        .in('post_id', _myPosts.map(p => p.id));
+                    (myLikes || []).forEach(l => {
+                        _myPostLikeMap[l.post_id] = (_myPostLikeMap[l.post_id] || 0) + 1;
+                        if (l.user_id === currentUser.id) _myPostLikedSet.add(l.post_id);
+                    });
+                }
+            } catch(e) { console.error('renderMyProfile posts:', e); }
+
             // Interests + hobbies tags
             const allTags = [...(profile.interests || []), ...(profile.hobbies || [])];
             const tagsHtml = allTags.length
@@ -14226,6 +14282,30 @@
                                 <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">🏅 Badges</h3>
                             </div>
                             <div style="padding:20px 22px;"><div class="badge-grid" id="myProfileBadgesView"></div></div>
+                        </div>
+
+                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
+                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
+                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Your Posts</h3>
+                                <button onclick="switchView('feedView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ New Post</button>
+                            </div>
+                            <div style="padding:14px 22px 20px;">
+                                ${_myPosts.length > 0
+                                    ? _myPosts.map(post => {
+                                        const likeCount = _myPostLikeMap[post.id] || 0;
+                                        const liked = _myPostLikedSet.has(post.id);
+                                        const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                                        return `
+                                        <div style="padding:12px 0;border-bottom:1px solid var(--latte-soft);">
+                                            <p style="font-size:14px;color:var(--brown);line-height:1.6;margin:0 0 8px;">${post.content}</p>
+                                            <div style="display:flex;align-items:center;gap:12px;">
+                                                <span style="font-size:11px;color:var(--muted);">${timeAgo}</span>
+                                                <button class="post-action-btn${liked ? ' liked' : ''}" id="mplike-${post.id}" onclick="likePost('${post.id}', this)" style="font-size:12px;padding:3px 8px;${liked ? 'color:var(--primary);font-weight:700;' : ''}">👍 <span id="mplikecount-${post.id}">${likeCount}</span></button>
+                                            </div>
+                                        </div>`;
+                                    }).join('')
+                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;">You haven't posted anything yet. <span onclick="switchView('feedView')" style="color:var(--caramel);cursor:pointer;font-weight:600;font-style:normal;">Share something in the Feed →</span></p>`}
+                            </div>
                         </div>
 
                     </div>
@@ -15313,10 +15393,16 @@
             var activeNav = document.getElementById('stab-' + tab);
             if (activeNav) activeNav.classList.add('active');
 
-            // Show/hide sections
-            document.querySelectorAll('.settings-section').forEach(function(el) { el.classList.remove('active'); });
+            // Show/hide sections — use inline style to override inline display:none defaults
+            document.querySelectorAll('.settings-section').forEach(function(el) {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
             var activeSection = document.getElementById('section-' + tab);
-            if (activeSection) activeSection.classList.add('active');
+            if (activeSection) {
+                activeSection.classList.add('active');
+                activeSection.style.display = 'flex';
+            }
 
             if (typeof loadSettingsTab === 'function') loadSettingsTab(tab);
         }
