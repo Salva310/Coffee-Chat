@@ -6876,6 +6876,10 @@
 .s-panel          { display: none !important; }
 .s-panel.s-active { display: block !important; }
 
+
+/* ── Settings panel show/hide — must be last to win ── */
+.spanel              { display: none !important; }
+.spanel.spanel-active { display: block !important; }
     </style>
 </head>
 <body>
@@ -8144,7 +8148,7 @@
         <div class="settings-content">
 
           <!-- PROFILE -->
-          <div id="spanel-profile" class="s-panel s-active">
+          <div id="spanel-profile" class="spanel spanel-active">
             <p class="spanel-title">Your <em>Profile</em></p>
             <p class="spanel-subtitle">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
 
@@ -8316,7 +8320,7 @@
           </div>
 
           <!-- ACCOUNT & SECURITY -->
-          <div id="spanel-account" class="s-panel">
+          <div id="spanel-account" class="spanel">
             <p class="spanel-title">Account &amp; <em>Security</em></p>
             <p class="spanel-subtitle">Keep your account secure and up to date.</p>
 
@@ -8379,7 +8383,7 @@
           </div>
 
           <!-- NOTIFICATIONS -->
-          <div id="spanel-notifications" class="s-panel">
+          <div id="spanel-notifications" class="spanel">
             <p class="spanel-title">Notification <em>Preferences</em></p>
             <p class="spanel-subtitle">Choose when and how First Sip reaches out to you.</p>
 
@@ -8435,7 +8439,7 @@
           </div>
 
           <!-- PRIVACY -->
-          <div id="spanel-privacy" class="s-panel">
+          <div id="spanel-privacy" class="spanel">
             <p class="spanel-title">Privacy <em>Settings</em></p>
             <p class="spanel-subtitle">Control who can see your profile and how people can connect with you.</p>
 
@@ -8499,7 +8503,7 @@
           </div>
 
           <!-- AVAILABILITY -->
-          <div id="spanel-availability" class="s-panel">
+          <div id="spanel-availability" class="spanel">
             <p class="spanel-title">Chat <em>Availability</em></p>
             <p class="spanel-subtitle">Let people know when you're open for coffee chats.</p>
 
@@ -8533,7 +8537,7 @@
           </div>
 
           <!-- APPEARANCE -->
-          <div id="spanel-appearance" class="s-panel">
+          <div id="spanel-appearance" class="spanel">
             <p class="spanel-title">Appearance &amp; <em>Display</em></p>
             <p class="spanel-subtitle">Customize how First Sip looks and feels for you.</p>
 
@@ -8579,7 +8583,7 @@
           </div>
 
           <!-- DANGER ZONE -->
-          <div id="spanel-danger" class="s-panel">
+          <div id="spanel-danger" class="spanel">
             <p class="spanel-title" style="color:#c0392b;">⚠️ Danger <em style="color:#c0392b;">Zone</em></p>
             <p class="spanel-subtitle">These actions are irreversible. Please read carefully before proceeding.</p>
 
@@ -16082,17 +16086,18 @@
             tabs.forEach(t => {
                 const panel = document.getElementById('spanel-' + t);
                 const nav   = document.getElementById('snav-' + t);
-                if (panel) panel.classList.remove('s-active');
+                if (panel) panel.classList.remove('spanel-active');
                 if (nav)   nav.classList.remove('active');
             });
             const activePanel = document.getElementById('spanel-' + tab);
             const activeNav   = document.getElementById('snav-' + tab);
-            if (activePanel) activePanel.classList.add('s-active');
+            if (activePanel) activePanel.classList.add('spanel-active');
             if (activeNav)   activeNav.classList.add('active');
-
-            if (tab === 'profile')       { if (!sProfileLoaded) { sProfileLoaded = true; sLoadProfile(); } }
+            if (tab === 'profile')       sLoadProfile();
             if (tab === 'account')       sLoadAccount();
             if (tab === 'availability')  sLoadAvailability();
+            if (tab === 'notifications') sLoadNotifications();
+            if (tab === 'privacy')       sLoadPrivacy();
         }
 
         function initSettingsPage() {
@@ -16273,6 +16278,8 @@
             document.getElementById('s-confirm-password').value = '';
         }
 
+        function sLoadNotifications() { /* preferences stored in UI state only */ }
+        function sLoadPrivacy()       { /* preferences stored in UI state only */ }
         function sSaveNotifications() { sShowToast('✓ Notification preferences saved'); }
         function sSavePrivacy()        { sShowToast('✓ Privacy settings saved'); }
         function sSaveAppearance()     { sShowToast('✓ Appearance saved'); }
