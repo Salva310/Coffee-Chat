@@ -16171,8 +16171,10 @@
             const nameEl  = document.getElementById('s-resume-name');
             if (!current || !empty) return;
             if (resumePath) {
-                const fileName = resumePath.split('/').pop() || 'Resume.pdf';
-                if (nameEl) nameEl.textContent = fileName;
+                const displayName = (currentUser && (currentUser.firstName || currentUser.lastName))
+                    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''} — Resume`.trim()
+                    : 'Resume';
+                if (nameEl) nameEl.textContent = displayName;
                 current.style.display = 'block';
                 empty.style.display   = 'none';
             } else {
