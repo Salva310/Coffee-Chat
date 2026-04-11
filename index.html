@@ -10040,6 +10040,8 @@
                                     gradYear: p.grad_year || '',
                                     major: p.major || '',
                                     profilePicture: p.profile_picture || null,
+                                    bannerImage: p.banner_image || null,
+                                    linkedinUrl: p.linkedin_url || null,
                                     resume: p.resume_url || null,
                                     achievements: Array.isArray(p.achievements) ? p.achievements : [],
                                     posts: []
@@ -10259,7 +10261,7 @@
                         <div class="db-person-card-av" style="background:${bgColor}">${initials}</div>
                         <div class="db-person-card-name">${fn} ${ln}</div>
                         <div class="db-person-card-role">${roleLine}</div>
-                        <button class="db-person-card-btn" onclick="event.stopPropagation();openScheduleForUser('${u.id}')">☕ Chat</button>
+                        <button class="db-person-card-btn" onclick="event.stopPropagation();connectUser('${u.id}')">Connect</button>
                     </div>`;
             }).join('');
         }
@@ -11718,7 +11720,8 @@
             document.getElementById('mcStatTotal').textContent     = total;
             document.getElementById('mcStatCompleted').textContent = completed;
             document.getElementById('mcStatUpcoming').textContent  = upcoming;
-            document.getElementById('mcStatAvg').textContent       = avgDur ? avgDur + 'm' : '—';
+            const avgEl = document.getElementById('mcStatAvg');
+            if (avgEl) avgEl.textContent = avgDur ? avgDur + 'm' : '—';
 
             // ── Card lists ──
             await renderMeetingCards();
@@ -11941,7 +11944,7 @@
 
         // ── Helper: open the schedule modal (routes to existing scheduleChatModal) ──
         function openScheduleChatModal() {
-            openModal('scheduleChatModal');
+            openScheduleModal();
         }
 
         // ─── renderMessages — loads inbox via the `inbox` view ───────
