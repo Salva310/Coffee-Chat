@@ -87,7 +87,8 @@
             line-height: 1.6;
         }
 
-        html { height: 100%; }
+        html { height: 100%; overflow-x: hidden; }
+        body { overflow-x: hidden; }
 
         /* ─── TOP BAR ─── */
         .topbar {
@@ -4137,43 +4138,25 @@
         }
 
         @media (max-width: 768px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
+            /* Hide sidebar — replaced by bottom nav */
+            body.app-mode .sidebar { display: none !important; }
 
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 1.5rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .sidebar nav {
-                display: none;
-            }
-
+            /* Remove sidebar offset, add space for bottom nav */
             .main-content {
-                margin-left: 0;
-                padding: 1.5rem;
+                margin-left: 0 !important;
+                padding: 1rem !important;
+                padding-bottom: 72px !important;
             }
+
+            /* Topbar: hide search bar, shrink logo area */
+            .topbar-search { display: none; }
+            .topbar-logo { width: auto; min-width: 80px; }
 
             body.app-mode #settingsView.active { margin-left: 0; width: 100%; }
 
-            .messages-wrapper {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-
-            .search-bar {
-                flex-direction: column;
-            }
-
-            .search-bar select {
-                min-width: unset;
-            }
+            .messages-wrapper { grid-template-columns: 1fr; height: auto; }
+            .search-bar { flex-direction: column; }
+            .search-bar select { min-width: unset; }
 
             .auth-container {
                 margin: 1.5rem auto;
@@ -4181,10 +4164,80 @@
                 max-width: 100%;
                 box-sizing: border-box;
             }
+            .auth-container h1 { font-size: 24px; }
 
-            .auth-container h1 {
-                font-size: 24px;
+            /* Modals fit screen */
+            .modal-content {
+                margin: 1rem;
+                max-width: calc(100vw - 2rem) !important;
+                box-sizing: border-box;
             }
+
+            /* Profile hero inner */
+            .pv-hero-inner { padding: 0 12px !important; }
+
+            /* Inbox — full-screen list, switch to chat when open */
+            #inboxView.active { display: flex; flex-direction: column; height: 100%; }
+            .ibx-shell { flex-direction: column; }
+            .ibx-conv-panel { width: 100% !important; border-right: none; border-bottom: 1px solid var(--border); }
+            .ibx-chat-panel { display: none; flex-direction: column; flex: 1; min-height: 0; }
+            .ibx-shell.chat-open .ibx-conv-panel { display: none; }
+            .ibx-shell.chat-open .ibx-chat-panel { display: flex !important; }
+            .ibx-mob-back { display: flex !important; }
+
+            /* Settings mobile already handled below */
+        }
+
+        /* Mobile bottom navigation bar */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            z-index: 200;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 4px;
+        }
+        .mob-nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 4px 10px;
+            min-width: 52px;
+            font-family: 'DM Sans', sans-serif;
+            transition: color .15s;
+            border-radius: 10px;
+        }
+        .mob-nav-btn .mob-nav-icon { font-size: 18px; line-height: 1; }
+        .mob-nav-lbl { font-size: 10px; font-weight: 500; }
+        .mob-nav-btn.active { color: var(--caramel); }
+        .mob-nav-btn:active { background: var(--latte-soft); }
+        @media (max-width: 768px) {
+            body.app-mode .mobile-bottom-nav { display: flex; }
+        }
+
+        /* Inbox mobile back button — hidden on desktop */
+        .ibx-mob-back {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--caramel);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            font-family: 'DM Sans', sans-serif;
         }
 
         /* Scrollbar */
@@ -6928,6 +6981,30 @@
                 </button>
             </div>
         </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <nav class="mobile-bottom-nav" id="mobileBottomNav">
+            <button class="mob-nav-btn" onclick="switchView('dashboardView')" data-view="dashboardView">
+                <span class="mob-nav-icon">🏠</span>
+                <span class="mob-nav-lbl">Home</span>
+            </button>
+            <button class="mob-nav-btn" onclick="switchView('discoverView')" data-view="discoverView">
+                <span class="mob-nav-icon">🔍</span>
+                <span class="mob-nav-lbl">Discover</span>
+            </button>
+            <button class="mob-nav-btn" onclick="switchView('inboxView')" data-view="inboxView">
+                <span class="mob-nav-icon">💬</span>
+                <span class="mob-nav-lbl">Messages</span>
+            </button>
+            <button class="mob-nav-btn" onclick="switchView('messagesView')" data-view="messagesView">
+                <span class="mob-nav-icon">☕</span>
+                <span class="mob-nav-lbl">Chats</span>
+            </button>
+            <button class="mob-nav-btn" onclick="switchView('myProfileView')" data-view="myProfileView">
+                <span class="mob-nav-icon">👤</span>
+                <span class="mob-nav-lbl">Profile</span>
+            </button>
+        </nav>
 
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
@@ -10014,6 +10091,11 @@
             document.querySelectorAll('.content-view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
 
+            // Update mobile bottom nav active state
+            document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === viewId);
+            });
+
             if (viewId === 'discoverView') {
                 // Always re-fetch profiles so newly created accounts appear immediately
                 renderDiscovery(); // render with current data right away
@@ -12137,11 +12219,13 @@
             const activeRow = document.querySelector(`.ibx-conv-row[onclick*="'${userId}'"]`);
             if (activeRow) activeRow.classList.add('active');
 
-            // Show chat area
+            // Show chat area; on mobile switch to chat panel
             const empty = document.getElementById('inboxEmptyState');
             const area = document.getElementById('inboxChatArea');
             if (empty) empty.style.display = 'none';
             if (area) area.style.display = 'flex';
+            const shell = document.querySelector('.ibx-shell');
+            if (shell) shell.classList.add('chat-open');
 
             try {
                 let messagesData = [];
@@ -12177,6 +12261,7 @@
                 const header = document.getElementById('inboxChatHeader');
                 if (header) {
                     header.innerHTML = `
+                        <button class="ibx-mob-back" onclick="ibxBackToList()">← Back</button>
                         <div class="ibx-ch-av" style="background:${bg};">${avInner}</div>
                         <div class="ibx-ch-info">
                             <div class="ibx-ch-name">${ibxEscape(partnerName)}</div>
@@ -12274,6 +12359,11 @@
                 ibxAutoResize(input);
                 input.focus();
             }
+        }
+
+        function ibxBackToList() {
+            const shell = document.querySelector('.ibx-shell');
+            if (shell) shell.classList.remove('chat-open');
         }
 
         function ibxAutoResize(el) {
