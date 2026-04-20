@@ -7364,6 +7364,23 @@
             </div>
 
             <!-- Auth Screens -->
+            <!-- Email Confirmation Sent View -->
+            <div id="emailConfirmView" class="content-view">
+                <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--cream);padding:2rem;box-sizing:border-box;">
+                    <div style="background:var(--card);border-radius:20px;padding:3rem 2.5rem;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 40px rgba(192,124,58,.1);border:1px solid var(--border);">
+                        <div style="font-size:52px;margin-bottom:1rem;">📬</div>
+                        <h2 style="font-family:'Playfair Display',serif;font-size:26px;color:var(--espresso);margin:0 0 12px;">Check your email</h2>
+                        <p style="color:var(--muted);font-size:15px;line-height:1.6;margin:0 0 8px;">We sent a confirmation link to</p>
+                        <p id="confirmEmailAddress" style="font-weight:700;color:var(--caramel);font-size:16px;margin:0 0 20px;word-break:break-all;"></p>
+                        <p style="color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 28px;">Click the link in that email to activate your account. Once confirmed, you can sign in.</p>
+                        <div style="background:var(--latte-soft);border-radius:12px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:var(--muted);text-align:left;line-height:1.6;">
+                            <strong style="color:var(--espresso);">Didn't get it?</strong> Check your spam folder. If it's not there after a few minutes, try signing up again or contact us.
+                        </div>
+                        <button onclick="switchView('loginView')" style="width:100%;padding:13px;background:var(--espresso);color:var(--cream);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Go to Sign In →</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="loginView" class="content-view">
                 <div class="auth-page">
                     <!-- Left panel -->
@@ -9596,6 +9613,15 @@
 
                 if (error) throw error;
 
+                // If Supabase requires email confirmation, data.session is null.
+                // Show confirmation screen instead of logging in.
+                if (!data.session) {
+                    const el = document.getElementById('confirmEmailAddress');
+                    if (el) el.textContent = email;
+                    switchView('emailConfirmView');
+                    return;
+                }
+
                 currentUser = {
                     id: data.user.id,
                     firstName,
@@ -9627,7 +9653,7 @@
                 renderNav();
                 switchView('dashboardView');
                 await updateDashboard();
-                showToast('Account created! Check your email to verify.', 'success');
+                showToast('Welcome to First Sip! ☕', 'success');
             } catch (error) {
                 console.error('Signup error:', error);
                 alert('Signup failed: ' + error.message);
