@@ -5856,7 +5856,7 @@
         /* When settings is active, main-content is hidden via JS so settingsView fills app-container */
         #settingsView { display: none; padding: 0; }
         #settingsView.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-        #settingsView.active .settings-shell { flex: 1; min-height: 0; }
+        /* .settings-shell is a flex child that fills space — defined in new settings CSS below */
 
         /* Settings two-column layout */
         .settings-layout {
@@ -6822,9 +6822,10 @@
 /* ── Settings shell ── */
 .settings-shell {
   display: flex;
-  gap: 0;
-  min-height: calc(100vh - 60px);
+  flex: 1;
+  min-height: 0;
   background: #faf6f1;
+  overflow: hidden;
 }
 
 /* ── Settings sidebar ── */
@@ -6834,10 +6835,8 @@
   background: #ffffff;
   border-right: 1px solid #e8d5c0;
   padding: 28px 0;
-  position: sticky;
-  top: 60px;
-  height: calc(100vh - 60px);
   overflow-y: auto;
+  align-self: stretch;
 }
 
 .settings-sidebar-label {
@@ -6876,8 +6875,8 @@
 .settings-content {
   flex: 1;
   padding: 36px 40px;
-  max-width: 780px;
   overflow-y: auto;
+  min-width: 0;
 }
 
 /* ── Section visibility ── */
