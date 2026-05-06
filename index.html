@@ -1285,536 +1285,594 @@
     <div id="settingsView" class="content-view">
       <div class="settings-shell">
 
-        <!-- ── Left Nav ────────────────────────────── -->
-        <nav class="settings-nav">
-          <div class="settings-nav-header">Account</div>
+        <!-- ── Sidebar ── -->
+        <nav class="settings-sidebar" role="navigation" aria-label="Settings navigation">
+          <div class="settings-sidebar-label">Account</div>
 
-          <div class="snav-item active" id="snav-profile" onclick="sNav('profile')">
-            👤 <span>Profile</span>
-          </div>
-          <div class="snav-item" id="snav-account" onclick="sNav('account')">
-            🔑 <span>Account &amp; Security</span>
-          </div>
+          <button class="settings-nav-item active" onclick="showSettingsSection('profile')" data-section="profile">
+            <span class="nav-icon">👤</span> Profile
+          </button>
+          <button class="settings-nav-item" onclick="showSettingsSection('account')" data-section="account">
+            <span class="nav-icon">🔑</span> Account &amp; Security
+          </button>
 
-          <div class="snav-divider"></div>
-          <div class="settings-nav-header">Preferences</div>
+          <div class="settings-nav-divider"></div>
+          <div class="settings-sidebar-label">Preferences</div>
 
-          <div class="snav-item" id="snav-notifications" onclick="sNav('notifications')">
-            🔔 <span>Notifications</span>
-          </div>
-          <div class="snav-item" id="snav-privacy" onclick="sNav('privacy')">
-            🛡️ <span>Privacy</span>
-          </div>
-          <div class="snav-item" id="snav-availability" onclick="sNav('availability')">
-            📅 <span>Availability</span>
-          </div>
-          <div class="snav-item" id="snav-appearance" onclick="sNav('appearance')">
-            🎨 <span>Appearance</span>
-          </div>
+          <button class="settings-nav-item" onclick="showSettingsSection('notifications')" data-section="notifications">
+            <span class="nav-icon">🔔</span> Notifications
+          </button>
+          <button class="settings-nav-item" onclick="showSettingsSection('privacy')" data-section="privacy">
+            <span class="nav-icon">🛡️</span> Privacy
+          </button>
+          <button class="settings-nav-item" onclick="showSettingsSection('availability')" data-section="availability">
+            <span class="nav-icon">📅</span> Availability
+          </button>
+          <button class="settings-nav-item" onclick="showSettingsSection('appearance')" data-section="appearance">
+            <span class="nav-icon">🎨</span> Appearance
+          </button>
 
-          <div class="snav-divider"></div>
+          <div class="settings-nav-divider"></div>
 
-          <div class="snav-item danger-item" id="snav-danger" onclick="sNav('danger')">
-            ⚠️ <span>Danger Zone</span>
-          </div>
+          <button class="settings-nav-item" onclick="showSettingsSection('danger')" data-section="danger">
+            <span class="nav-icon">⚠️</span> Danger Zone
+          </button>
         </nav>
 
-        <!-- ── Right Panels ───────────────────────── -->
+        <!-- ── Main content ── -->
         <div class="settings-content">
 
-          <!-- PROFILE -->
-          <div id="spanel-profile" class="spanel spanel-active">
-            <p class="spanel-title">Your <em>Profile</em></p>
-            <p class="spanel-subtitle">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
+          <!-- ─────────────── PROFILE ─────────────── -->
+          <div class="settings-section active" id="settings-profile">
+            <div class="section-eyebrow">Your identity</div>
+            <h1 class="section-title">Your <em>Profile</em></h1>
+            <p class="section-desc">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
 
-            <!-- Photos -->
+            <!-- Photo -->
             <div class="s-card">
-              <div class="s-card-title">Photos</div>
-
-              <div class="s-photo-section">
-                <div class="s-avatar-preview" id="s-avatar-preview">
-                  <span id="s-avatar-initials">?</span>
-                </div>
-                <div>
-                  <div class="s-photo-label">Profile Photo</div>
-                  <div class="s-photo-hint">JPG or PNG, max 5 MB</div>
-                  <div class="s-btn-row" style="margin-top:8px;">
-                    <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-photo-upload').click()">📁 Upload Photo</button>
-                    <input type="file" id="s-photo-upload" accept="image/*" style="display:none;" onchange="sHandlePhotoUpload(this)">
+              <div class="s-card-header"><div class="s-card-title">Photos</div></div>
+              <div class="s-card-body">
+                <div class="avatar-upload-row">
+                  <div class="avatar-circle" id="s-avatar-preview">S</div>
+                  <div>
+                    <div class="avatar-upload-btns">
+                      <button class="btn-upload" onclick="document.getElementById('s-avatar-input').click()">📁 Upload Photo</button>
+                      <input type="file" id="s-avatar-input" accept="image/*" style="display:none" onchange="sHandlePhotoUpload(this)">
+                    </div>
+                    <div class="avatar-hint" style="margin-top:6px">JPG or PNG · Max 5 MB</div>
                   </div>
                 </div>
               </div>
-
-              <div class="s-cover-upload" id="s-cover-preview" onclick="document.getElementById('s-cover-upload').click()">
-                📷 Click to upload cover photo &nbsp;·&nbsp; JPG or PNG, max 5 MB
-                <input type="file" id="s-cover-upload" accept="image/*" style="display:none;" onchange="sHandleCoverUpload(this)">
-              </div>
             </div>
 
-            <!-- Basic Info -->
+            <!-- Basic info -->
             <div class="s-card">
-              <div class="s-card-title">Basic Info</div>
-              <div class="s-grid-2">
-                <div class="s-row">
-                  <label>First Name</label>
-                  <input type="text" id="s-first-name" placeholder="First name">
+              <div class="s-card-header"><div class="s-card-title">Basic Info</div></div>
+              <div class="s-card-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input class="form-input" type="text" id="s-first-name" placeholder="First name">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input class="form-input" type="text" id="s-last-name" placeholder="Last name">
+                  </div>
                 </div>
-                <div class="s-row">
-                  <label>Last Name</label>
-                  <input type="text" id="s-last-name" placeholder="Last name">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Current Status</label>
+                    <select class="form-select" id="s-status">
+                      <option value="">Select status</option>
+                      <option>Freshman</option><option>Sophomore</option><option>Junior</option>
+                      <option>Senior</option><option>Recent Grad</option><option>Alumni</option>
+                      <option>Graduate Student</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Graduation Year</label>
+                    <select class="form-select" id="s-grad-year">
+                      <option value="">Select year</option>
+                      <option>2025</option><option>2026</option><option>2027</option>
+                      <option>2028</option><option>2029</option><option>2030</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Headline</label>
+                  <input class="form-input" type="text" id="s-headline" placeholder="e.g. Finance Junior → Investment Banking">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bio</label>
+                  <textarea class="form-textarea" id="s-bio" placeholder="A genuine bio gets more chats than a resume bullet..."></textarea>
                 </div>
               </div>
-              <div class="s-row">
-                <label>Headline</label>
-                <input type="text" id="s-headline" placeholder="e.g. Finance Junior · Rowan | Aspiring Wealth Manager">
-                <span class="s-hint">A tagline that appears under your name on your profile card.</span>
-              </div>
-              <div class="s-grid-2">
-                <div class="s-row">
-                  <label>Current Status</label>
-                  <select id="s-status">
-                    <option value="">Select status</option>
-                    <option value="freshman">Freshman</option>
-                    <option value="sophomore">Sophomore</option>
-                    <option value="junior">Junior</option>
-                    <option value="senior">Senior</option>
-                    <option value="recent_grad">Recent Grad</option>
-                    <option value="alumni">Alumni</option>
-                    <option value="grad_student">Graduate Student</option>
-                  </select>
-                </div>
-                <div class="s-row">
-                  <label>Graduation Year</label>
-                  <select id="s-grad-year">
-                    <option value="">Select year</option>
-                    <option>2025</option><option>2026</option><option>2027</option>
-                    <option>2028</option><option>2029</option><option>2030</option>
-                  </select>
-                </div>
-              </div>
-              <div class="s-row">
-                <label>Bio</label>
-                <textarea id="s-bio" placeholder="Tell people who you are, what you're working toward, and what kind of connections you're looking for..."></textarea>
-                <span class="s-hint">A genuine bio gets more chats than a resume bullet.</span>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveProfile()">Save Changes</button>
-                <button class="s-btn s-btn-ghost" onclick="sLoadProfile()">Discard</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
+                <button class="btn-ghost" onclick="sLoadProfile()">Discard</button>
               </div>
             </div>
 
             <!-- Academic & Career -->
             <div class="s-card">
-              <div class="s-card-title">Academic &amp; Career</div>
-              <div class="s-grid-2">
-                <div class="s-row">
-                  <label>Major</label>
-                  <input type="text" id="s-major" placeholder="e.g. Finance">
+              <div class="s-card-header"><div class="s-card-title">Academic &amp; Career</div></div>
+              <div class="s-card-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Major</label>
+                    <input class="form-input" type="text" id="s-major" placeholder="e.g. Finance">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Industry / Field</label>
+                    <select class="form-select" id="s-industry">
+                      <option value="">Select industry</option>
+                      <option>Business / Finance</option><option>Computer Science / Tech</option>
+                      <option>Engineering</option><option>Pre-Med / Healthcare</option>
+                      <option>Liberal Arts / Humanities</option><option>Undecided / Exploring</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="s-row">
-                  <label>Industry / Field</label>
-                  <select id="s-industry">
-                    <option value="">— Select industry —</option>
-                    <option>Business / Finance</option>
-                    <option>Computer Science / Tech</option>
-                    <option>Engineering</option>
-                    <option>Pre-Med / Healthcare</option>
-                    <option>Liberal Arts / Humanities</option>
-                    <option>Undecided / Exploring</option>
-                  </select>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Role / Title</label>
+                    <input class="form-input" type="text" id="s-role" placeholder="e.g. Finance Intern">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Company / Org</label>
+                    <input class="form-input" type="text" id="s-company" placeholder="e.g. Goldman Sachs">
+                  </div>
                 </div>
-                <div class="s-row">
-                  <label>Role / Title</label>
-                  <input type="text" id="s-role" placeholder="e.g. Finance Intern">
+                <div class="form-group">
+                  <label class="form-label">LinkedIn URL</label>
+                  <input class="form-input" type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
                 </div>
-                <div class="s-row">
-                  <label>Company / Organization</label>
-                  <input type="text" id="s-company" placeholder="e.g. Vista Wealth Solutions">
+                <div class="form-group">
+                  <label class="form-label">Career Goals</label>
+                  <textarea class="form-textarea" id="s-goals" rows="2" placeholder="What do you want to achieve in the next 1–3 years?"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Interests &amp; Passions</label>
+                  <div class="tags-container" id="interests-container" onclick="document.getElementById('interests-input').focus()">
+                    <input class="tags-input" id="interests-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'interests-container')">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Hobbies</label>
+                  <div class="tags-container" id="hobbies-container" onclick="document.getElementById('hobbies-input').focus()">
+                    <input class="tags-input" id="hobbies-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'hobbies-container')">
+                  </div>
                 </div>
               </div>
-              <div class="s-row">
-                <label>LinkedIn URL</label>
-                <input type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
-              </div>
-              <div class="s-row">
-                <label>Career Goals</label>
-                <textarea id="s-career-goals" placeholder="What are you working toward?"></textarea>
-              </div>
-              <div class="s-row">
-                <label>Interests &amp; Passions</label>
-                <div class="s-tags-container" id="s-interests-container" onclick="document.getElementById('s-interests-input').focus()">
-                  <input class="s-tag-input" id="s-interests-input" placeholder="Type and press Enter..." onkeydown="sTagKeydown(event,'interests')">
-                </div>
-                <span class="s-hint">Press Enter or comma to add a tag.</span>
-              </div>
-              <div class="s-row">
-                <label>Hobbies</label>
-                <div class="s-tags-container" id="s-hobbies-container" onclick="document.getElementById('s-hobbies-input').focus()">
-                  <input class="s-tag-input" id="s-hobbies-input" placeholder="Type and press Enter..." onkeydown="sTagKeydown(event,'hobbies')">
-                </div>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveProfile()">Save Changes</button>
-                <button class="s-btn s-btn-ghost" onclick="sLoadProfile()">Discard</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
+                <button class="btn-ghost" onclick="sLoadProfile()">Discard</button>
               </div>
             </div>
 
             <!-- Resume -->
             <div class="s-card">
-              <div class="s-card-title">Resume</div>
-              <div id="s-resume-current" style="display:none;margin-bottom:14px;">
-                <div style="display:flex;align-items:center;gap:12px;background:#fdf3ea;border:1px solid #e8d0b0;border-radius:10px;padding:12px 16px;">
-                  <span style="font-size:22px;">📄</span>
-                  <div style="flex:1;">
-                    <div style="font-size:13.5px;font-weight:600;color:#3b2512;" id="s-resume-name">Resume</div>
-                    <div style="font-size:12px;color:#9c7b5f;margin-top:2px;">PDF · Visible to approved connections</div>
+              <div class="s-card-header"><div class="s-card-title">Resume</div></div>
+              <div class="s-card-body">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
+                  <div>
+                    <div style="font-size:14px;font-weight:500;color:#1a0e07">📄 Resume</div>
+                    <div style="font-size:12px;color:#8b6a52;margin-top:2px">PDF · Visible to approved connections</div>
                   </div>
-                  <button class="s-btn s-btn-ghost" style="padding:6px 12px;font-size:13px;" onclick="sViewResume()">View</button>
-                  <button class="s-btn s-btn-danger" style="padding:6px 12px;font-size:13px;" onclick="sRemoveResume()">Remove</button>
+                  <button class="btn-upload" onclick="document.getElementById('s-resume-input').click()">📁 Upload Resume (PDF)</button>
+                  <input type="file" id="s-resume-input" accept=".pdf" style="display:none" onchange="sHandleResumeUpload(this)">
                 </div>
-              </div>
-              <div id="s-resume-empty">
-                <p style="font-size:13px;color:#9c7b5f;margin:0 0 12px;">No resume uploaded yet. PDF only, max 10 MB.</p>
-              </div>
-              <div class="s-btn-row" style="margin-top:0;">
-                <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-resume-upload').click()">📁 Upload Resume (PDF)</button>
-                <input type="file" id="s-resume-upload" accept="application/pdf" style="display:none;" onchange="sHandleResumeUpload(this)">
-              </div>
-            </div>
-
-            <!-- Achievements -->
-            <div class="s-card">
-              <div class="s-card-title">Achievements</div>
-              <div id="stAchievementsList"></div>
-              <div id="achInlineForm" style="display:none;"></div>
-              <div class="s-btn-row" style="margin-top:8px;">
-                <button class="s-btn s-btn-ghost" id="achAddBtn" onclick="openAchForm()">+ Add Achievement</button>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- ACCOUNT & SECURITY -->
-          <div id="spanel-account" class="spanel">
-            <p class="spanel-title">Account &amp; <em>Security</em></p>
-            <p class="spanel-subtitle">Keep your account secure and up to date.</p>
-
-            <div class="s-card">
-              <div class="s-card-title">Email Address</div>
-              <div class="s-row">
-                <label>Current Email</label>
-                <input type="email" id="s-current-email" placeholder="your@rowan.edu" disabled style="background:#f5ece0;cursor:not-allowed;">
-                <span class="s-hint">Must be a Rowan email address.</span>
-              </div>
-              <div class="s-row">
-                <label>New Email</label>
-                <input type="email" id="s-new-email" placeholder="new@rowan.edu">
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sUpdateEmail()">Update Email</button>
-                <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-new-email').value=''">Cancel</button>
-              </div>
-            </div>
-
-            <div class="s-card">
-              <div class="s-card-title">Change Password</div>
-              <div class="s-row">
-                <label>New Password</label>
-                <input type="password" id="s-new-password" placeholder="Enter new password" autocomplete="new-password">
-              </div>
-              <div class="s-row">
-                <label>Confirm New Password</label>
-                <input type="password" id="s-confirm-password" placeholder="Confirm new password" autocomplete="new-password">
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sUpdatePassword()">Update Password</button>
-                <button class="s-btn s-btn-ghost" onclick="document.getElementById('s-new-password').value='';document.getElementById('s-confirm-password').value=''">Cancel</button>
-              </div>
-            </div>
-
-            <div class="s-card">
-              <div class="s-card-title">Security Overview</div>
-              <div class="s-toggle-row">
-                <div>
-                  <div class="s-toggle-label">✉️ Email Verified</div>
-                </div>
-                <span class="s-security-badge" id="s-email-verified-badge">✓ Verified</span>
-              </div>
-              <div class="s-toggle-row">
-                <div>
-                  <div class="s-toggle-label">📱 Two-Factor Authentication</div>
-                  <div class="s-toggle-desc">Add an extra layer of security to your account.</div>
-                </div>
-                <span style="font-size:12px;color:#b89a7a;font-style:italic;">Coming soon</span>
-              </div>
-              <div class="s-toggle-row">
-                <div>
-                  <div class="s-toggle-label">🖥️ Active Sessions</div>
-                  <div class="s-toggle-desc">1 active session on this device.</div>
-                </div>
-                <button class="s-btn s-btn-ghost" style="padding:6px 14px;font-size:13px;" onclick="sSignOutOthers()">Sign out</button>
               </div>
             </div>
           </div>
 
-          <!-- NOTIFICATIONS -->
-          <div id="spanel-notifications" class="spanel">
-            <p class="spanel-title">Notification <em>Preferences</em></p>
-            <p class="spanel-subtitle">Choose when and how First Sip reaches out to you.</p>
+          <!-- ─────────────── ACCOUNT & SECURITY ─────────────── -->
+          <div id="settings-account" class="settings-section">
+            <div class="section-eyebrow">Keep it secure</div>
+            <h1 class="section-title">Account &amp; <em>Security</em></h1>
+            <p class="section-desc">Keep your account secure and up to date.</p>
 
             <div class="s-card">
-              <div class="s-card-title">Email Notifications</div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">New connection requests</div><div class="s-toggle-desc">When someone sends you a connection request.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-email-connections" checked><span class="s-toggle-slider"></span></label>
+              <div class="s-card-header"><div class="s-card-title">Email Address</div></div>
+              <div class="s-card-body">
+                <div class="form-group">
+                  <label class="form-label">Current Email</label>
+                  <input class="form-input" type="email" id="s-current-email" placeholder="your@rowan.edu" disabled style="background:#faf6f1; color:#8b6a52;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">New Email</label>
+                  <input class="form-input" type="email" id="s-new-email" placeholder="new@rowan.edu">
+                </div>
               </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Chat requests</div><div class="s-toggle-desc">When someone wants to schedule a coffee chat.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-email-chats" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Chat reminders</div><div class="s-toggle-desc">A reminder 1 hour before your scheduled chat.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-email-reminders" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">New messages</div><div class="s-toggle-desc">When you receive a direct message.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-email-messages"><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Group activity</div><div class="s-toggle-desc">New posts in groups you've joined.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-email-groups"><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Weekly digest</div><div class="s-toggle-desc">A Sunday summary of who's active and who to meet.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-email-digest" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveNotifications()">Save Preferences</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('email')">Update Email</button>
+                <button class="btn-ghost" onclick="document.getElementById('s-new-email').value=''">Cancel</button>
               </div>
             </div>
 
             <div class="s-card">
-              <div class="s-card-title">In-App Notifications</div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Connection accepted</div><div class="s-toggle-desc">When someone accepts your connection request.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-app-connections" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">New match suggestions</div><div class="s-toggle-desc">When new people matching your profile join.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-app-matches" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Chat reviews received</div><div class="s-toggle-desc">When someone leaves a review after your coffee chat.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="notif-app-reviews" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveNotifications()">Save Preferences</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- PRIVACY -->
-          <div id="spanel-privacy" class="spanel">
-            <p class="spanel-title">Privacy <em>Settings</em></p>
-            <p class="spanel-subtitle">Control who can see your profile and how people can connect with you.</p>
-
-            <div class="s-card">
-              <div class="s-card-title">Profile Visibility</div>
-              <div class="s-row">
-                <label>Who can see your full profile</label>
-                <div class="s-radio-group">
-                  <label><input type="radio" name="privacy-profile" value="all" checked> All Rowan members</label>
-                  <label><input type="radio" name="privacy-profile" value="connections"> Connections only</label>
-                  <label><input type="radio" name="privacy-profile" value="nobody"> Nobody</label>
+              <div class="s-card-header"><div class="s-card-title">Change Password</div></div>
+              <div class="s-card-body">
+                <div class="form-group">
+                  <label class="form-label">New Password</label>
+                  <input class="form-input" type="password" id="s-new-password" placeholder="At least 8 characters">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Confirm New Password</label>
+                  <input class="form-input" type="password" id="s-confirm-password" placeholder="Repeat your new password">
                 </div>
               </div>
-              <div class="s-row">
-                <label>Who can send you connection requests</label>
-                <div class="s-radio-group">
-                  <label><input type="radio" name="privacy-connect" value="everyone" checked> Everyone</label>
-                  <label><input type="radio" name="privacy-connect" value="mutual"> Mutual connections</label>
-                  <label><input type="radio" name="privacy-connect" value="nobody"> Nobody</label>
-                </div>
-              </div>
-              <div class="s-row">
-                <label>Who can request a coffee chat</label>
-                <div class="s-radio-group">
-                  <label><input type="radio" name="privacy-chat" value="everyone" checked> Everyone</label>
-                  <label><input type="radio" name="privacy-chat" value="connections"> Connections only</label>
-                  <label><input type="radio" name="privacy-chat" value="nobody"> Nobody</label>
-                </div>
-              </div>
-              <div class="s-row">
-                <label>Show online status</label>
-                <div class="s-radio-group">
-                  <label><input type="radio" name="privacy-online" value="connections" checked> Connections only</label>
-                  <label><input type="radio" name="privacy-online" value="everyone"> Everyone</label>
-                  <label><input type="radio" name="privacy-online" value="nobody"> Nobody</label>
-                </div>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSavePrivacy()">Save Privacy Settings</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('password')">Update Password</button>
+                <button class="btn-ghost" onclick="document.getElementById('s-new-password').value='';document.getElementById('s-confirm-password').value=''">Cancel</button>
               </div>
             </div>
 
             <div class="s-card">
-              <div class="s-card-title">Discovery &amp; Matching</div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Appear in Discover</div><div class="s-toggle-desc">Allow other Rowan members to find you.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="privacy-discover" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Show match percentage</div><div class="s-toggle-desc">Display your compatibility score on your profile card.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="privacy-match" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Include in alumni recommendations</div><div class="s-toggle-desc">Let alumni find you when filtering by major or goals.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="privacy-alumni" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSavePrivacy()">Save Settings</button>
+              <div class="s-card-header"><div class="s-card-title">Security Overview</div></div>
+              <div class="s-card-body">
+                <div class="security-row">
+                  <div class="security-info">
+                    <span class="security-icon">✉️</span>
+                    <div>
+                      <div class="security-label">Email Verified</div>
+                      <div class="security-sub">Your Rowan email is confirmed</div>
+                    </div>
+                  </div>
+                  <span class="badge-verified">✓ Verified</span>
+                </div>
+                <div class="security-row">
+                  <div class="security-info">
+                    <span class="security-icon">📱</span>
+                    <div>
+                      <div class="security-label">Two-Factor Authentication</div>
+                      <div class="security-sub">Add an extra layer of security</div>
+                    </div>
+                  </div>
+                  <span class="badge-soon">Coming soon</span>
+                </div>
+                <div class="security-row">
+                  <div class="security-info">
+                    <span class="security-icon">🖥️</span>
+                    <div>
+                      <div class="security-label">Active Sessions</div>
+                      <div class="security-sub">1 active session on this device</div>
+                    </div>
+                  </div>
+                  <button class="btn-ghost" style="font-size:13px;padding:7px 14px;" onclick="sSignOutOthers()">Sign out</button>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- AVAILABILITY -->
-          <div id="spanel-availability" class="spanel">
-            <p class="spanel-title">Chat <em>Availability</em></p>
-            <p class="spanel-subtitle">Let people know when you're open for coffee chats.</p>
+          <!-- ─────────────── NOTIFICATIONS ─────────────── -->
+          <div id="settings-notifications" class="settings-section">
+            <div class="section-eyebrow">Stay in the loop</div>
+            <h1 class="section-title">Notification <em>Preferences</em></h1>
+            <p class="section-desc">Choose when and how First Sip reaches out to you.</p>
 
             <div class="s-card">
-              <div class="s-card-title">Weekly Availability</div>
-              <div id="s-avail-days"></div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveAvailability()">Save Availability</button>
-                <button class="s-btn s-btn-ghost" onclick="sLoadAvailability()">Discard</button>
+              <div class="s-card-header"><div class="s-card-title">Email Notifications</div></div>
+              <div class="s-card-body">
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">New connection requests</div><div class="toggle-desc">When someone sends you a connection request.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Chat requests</div><div class="toggle-desc">When someone wants to schedule a coffee chat.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Chat reminders</div><div class="toggle-desc">A reminder 1 hour before your scheduled chat.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">New messages</div><div class="toggle-desc">When you receive a direct message.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Group activity</div><div class="toggle-desc">New posts in groups you've joined.</div></div>
+                  <label class="toggle"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Weekly digest</div><div class="toggle-desc">A Sunday summary of who's active and who to meet.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+              </div>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('notifications')">Save Preferences</button>
               </div>
             </div>
 
             <div class="s-card">
-              <div class="s-card-title">Chat Preferences</div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Open to virtual chats</div><div class="s-toggle-desc">Video calls, Zoom, or phone.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="avail-virtual" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Open to in-person chats</div><div class="s-toggle-desc">Campus café or other Rowan locations.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="avail-inperson" checked><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-toggle-row">
-                <div><div class="s-toggle-label">Limit to 2 chats per week</div><div class="s-toggle-desc">Automatically pause new requests once you hit your limit.</div></div>
-                <label class="s-toggle"><input type="checkbox" id="avail-limit"><span class="s-toggle-slider"></span></label>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveAvailability()">Save Preferences</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- APPEARANCE -->
-          <div id="spanel-appearance" class="spanel">
-            <p class="spanel-title">Appearance &amp; <em>Display</em></p>
-            <p class="spanel-subtitle">Customize how First Sip looks and feels for you.</p>
-
-            <div class="s-card">
-              <div class="s-card-title">Color Mode</div>
-              <div class="s-theme-cards">
-                <div class="s-theme-card active" id="stheme-light" onclick="sSetTheme('light')">
-                  <span class="s-theme-icon">☀️</span>Light<br><small style="font-weight:400;color:#9c7b5f;">Default</small>
+              <div class="s-card-header"><div class="s-card-title">In-App Notifications</div></div>
+              <div class="s-card-body">
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Connection accepted</div><div class="toggle-desc">When someone accepts your connection request.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
                 </div>
-                <div class="s-theme-card" id="stheme-dark" onclick="sSetTheme('dark')">
-                  <span class="s-theme-icon">🌙</span>Dark<br><small style="font-weight:400;color:#9c7b5f;">Easy on the eyes</small>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">New match suggestions</div><div class="toggle-desc">When new people matching your profile join.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
                 </div>
-                <div class="s-theme-card" id="stheme-system" onclick="sSetTheme('system')">
-                  <span class="s-theme-icon">💻</span>System<br><small style="font-weight:400;color:#9c7b5f;">Matches your OS</small>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Chat reviews received</div><div class="toggle-desc">When someone leaves a review after your coffee chat.</div></div>
+                  <label class="toggle"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
                 </div>
               </div>
-            </div>
-
-            <div class="s-card">
-              <div class="s-card-title">Language &amp; Region</div>
-              <div class="s-grid-2">
-                <div class="s-row">
-                  <label>Language</label>
-                  <select id="s-language">
-                    <option value="en">English (US)</option>
-                    <option value="es">Español</option>
-                    <option value="pt">Português</option>
-                  </select>
-                </div>
-                <div class="s-row">
-                  <label>Time Zone</label>
-                  <select id="s-timezone">
-                    <option value="ET">Eastern Time (ET)</option>
-                    <option value="CT">Central Time (CT)</option>
-                    <option value="PT">Pacific Time (PT)</option>
-                  </select>
-                </div>
-              </div>
-              <div class="s-btn-row">
-                <button class="s-btn s-btn-primary" onclick="sSaveAppearance()">Save</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('notifications')">Save Preferences</button>
               </div>
             </div>
           </div>
 
-          <!-- DANGER ZONE -->
-          <div id="spanel-danger" class="spanel">
-            <p class="spanel-title" style="color:#c0392b;">⚠️ Danger <em style="color:#c0392b;">Zone</em></p>
-            <p class="spanel-subtitle">These actions are irreversible. Please read carefully before proceeding.</p>
+          <!-- ─────────────── PRIVACY ─────────────── -->
+          <div id="settings-privacy" class="settings-section">
+            <div class="section-eyebrow">Your data, your rules</div>
+            <h1 class="section-title">Privacy <em>Settings</em></h1>
+            <p class="section-desc">Control who can see your profile and how people can connect with you.</p>
 
             <div class="s-card">
-              <div class="s-card-title" style="color:#c0392b;">Account Actions</div>
-              <div class="s-danger-action">
-                <div>
-                  <div class="s-danger-action-info">Export Your Data</div>
-                  <div class="s-danger-action-desc">Download a copy of your profile, connections, and meeting history.</div>
+              <div class="s-card-header"><div class="s-card-title">Profile Visibility</div></div>
+              <div class="s-card-body">
+                <div class="privacy-group">
+                  <div class="privacy-label">Who can see your full profile</div>
+                  <div class="privacy-options">
+                    <label class="privacy-option selected"><input type="radio" name="visibility" value="all" checked> All Rowan members</label>
+                    <label class="privacy-option"><input type="radio" name="visibility" value="connections"> Connections only</label>
+                    <label class="privacy-option"><input type="radio" name="visibility" value="nobody"> Nobody</label>
+                  </div>
                 </div>
-                <button class="s-btn s-btn-ghost" onclick="sExportData()">Export Data</button>
+                <div class="privacy-group">
+                  <div class="privacy-label">Who can send you connection requests</div>
+                  <div class="privacy-options">
+                    <label class="privacy-option selected"><input type="radio" name="connections" value="everyone" checked> Everyone</label>
+                    <label class="privacy-option"><input type="radio" name="connections" value="mutual"> Mutual connections</label>
+                    <label class="privacy-option"><input type="radio" name="connections" value="nobody"> Nobody</label>
+                  </div>
+                </div>
+                <div class="privacy-group">
+                  <div class="privacy-label">Who can request a coffee chat</div>
+                  <div class="privacy-options">
+                    <label class="privacy-option selected"><input type="radio" name="chats" value="everyone" checked> Everyone</label>
+                    <label class="privacy-option"><input type="radio" name="chats" value="connections"> Connections only</label>
+                    <label class="privacy-option"><input type="radio" name="chats" value="nobody"> Nobody</label>
+                  </div>
+                </div>
+                <div class="privacy-group" style="margin-bottom:0">
+                  <div class="privacy-label">Show online status</div>
+                  <div class="privacy-options">
+                    <label class="privacy-option selected"><input type="radio" name="online" value="connections" checked> Connections only</label>
+                    <label class="privacy-option"><input type="radio" name="online" value="everyone"> Everyone</label>
+                    <label class="privacy-option"><input type="radio" name="online" value="nobody"> Nobody</label>
+                  </div>
+                </div>
               </div>
-              <div class="s-danger-action">
-                <div>
-                  <div class="s-danger-action-info">Clear All Notifications</div>
-                  <div class="s-danger-action-desc">Permanently delete all notifications. This cannot be undone.</div>
-                </div>
-                <button class="s-btn s-btn-danger" onclick="sClearNotifications()">Clear Notifications</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('privacy')">Save Privacy Settings</button>
               </div>
-              <div class="s-danger-action">
-                <div>
-                  <div class="s-danger-action-info">Pause Account</div>
-                  <div class="s-danger-action-desc">Hide your profile from Discover. You can re-enable this anytime.</div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-header"><div class="s-card-title">Discovery &amp; Matching</div></div>
+              <div class="s-card-body">
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Appear in Discover</div><div class="toggle-desc">Allow other Rowan members to find you in search.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
                 </div>
-                <button class="s-btn s-btn-danger" onclick="sPauseAccount()">Pause Account</button>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Show match percentage</div><div class="toggle-desc">Display your compatibility score on your profile card.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Include in alumni recommendations</div><div class="toggle-desc">Let alumni find you when filtering by major or goals.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
               </div>
-              <div class="s-danger-action">
-                <div>
-                  <div class="s-danger-action-info">Sign Out Other Devices</div>
-                  <div class="s-danger-action-desc">End sessions on all other devices while staying signed in here.</div>
-                </div>
-                <button class="s-btn s-btn-danger" onclick="sSignOutOthers()">Sign Out Others</button>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('privacy')">Save Settings</button>
               </div>
-              <div class="s-danger-action">
-                <div>
-                  <div class="s-danger-action-info">Sign Out of All Devices</div>
-                  <div class="s-danger-action-desc">End all active sessions including this one.</div>
+            </div>
+          </div>
+
+          <!-- ─────────────── AVAILABILITY ─────────────── -->
+          <div id="settings-availability" class="settings-section">
+            <div class="section-eyebrow">Your time</div>
+            <h1 class="section-title">Chat <em>Availability</em></h1>
+            <p class="section-desc">Let people know when you're open for coffee chats.</p>
+
+            <div class="s-card">
+              <div class="s-card-header"><div class="s-card-title">Weekly Availability</div></div>
+              <div class="s-card-body">
+                <div class="avail-grid">
+                  <div class="avail-day-row" style="font-size:11px;font-weight:600;color:#8b6a52;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">
+                    <div>Day</div><div>From</div><div>To</div><div></div>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Monday</div>
+                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option></select>
+                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Tuesday</div>
+                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option></select>
+                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Wednesday</div>
+                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>2:00 PM</option><option>3:00 PM</option></select>
+                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Thursday</div>
+                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option></select>
+                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Friday</div>
+                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option></select>
+                    <select class="form-select"><option>3:00 PM</option><option>4:00 PM</option><option>5:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Saturday</div>
+                    <select class="form-select"><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option></select>
+                    <select class="form-select"><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
+                  <div class="avail-day-row">
+                    <div class="avail-day-name">Sunday</div>
+                    <select class="form-select"><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option></select>
+                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option></select>
+                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                  </div>
                 </div>
-                <button class="s-btn s-btn-danger" onclick="sSignOutAll()">Sign Out All</button>
               </div>
-              <div class="s-danger-action" style="border-bottom:none;">
-                <div>
-                  <div class="s-danger-action-info" style="color:#c0392b;font-weight:700;">Delete Your Account</div>
-                  <div class="s-danger-action-desc">Permanently remove your profile, connections, and all data. Cannot be undone.</div>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('availability')">Save Availability</button>
+                <button class="btn-ghost">Discard</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-header"><div class="s-card-title">Chat Preferences</div></div>
+              <div class="s-card-body">
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Open to virtual chats</div><div class="toggle-desc">Video calls, Zoom, or phone.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
                 </div>
-                <button class="s-btn s-btn-danger" style="border-color:#c0392b;" onclick="sDeleteAccount()">Delete Account</button>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Open to in-person chats</div><div class="toggle-desc">Campus café or other Rowan locations.</div></div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-text"><div class="toggle-label">Limit to 2 chats per week</div><div class="toggle-desc">Automatically pause new requests once you hit your limit.</div></div>
+                  <label class="toggle"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+                </div>
+              </div>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('availability')">Save Preferences</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─────────────── APPEARANCE ─────────────── -->
+          <div id="settings-appearance" class="settings-section">
+            <div class="section-eyebrow">Make it yours</div>
+            <h1 class="section-title">Appearance &amp; <em>Display</em></h1>
+            <p class="section-desc">Customize how First Sip looks and feels for you.</p>
+
+            <div class="s-card">
+              <div class="s-card-header"><div class="s-card-title">Theme</div></div>
+              <div class="s-card-body">
+                <label class="form-label">Color Mode</label>
+                <div class="theme-options">
+                  <div class="theme-option selected" onclick="selectTheme(this,'light')">
+                    <div class="theme-icon">☀️</div>
+                    <div class="theme-name">Light</div>
+                    <div class="theme-desc">Default</div>
+                  </div>
+                  <div class="theme-option" onclick="selectTheme(this,'dark')">
+                    <div class="theme-icon">🌙</div>
+                    <div class="theme-name">Dark</div>
+                    <div class="theme-desc">Easy on the eyes</div>
+                  </div>
+                  <div class="theme-option" onclick="selectTheme(this,'system')">
+                    <div class="theme-icon">💻</div>
+                    <div class="theme-name">System</div>
+                    <div class="theme-desc">Matches your OS</div>
+                  </div>
+                </div>
+              </div>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('appearance')">Save</button>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-header"><div class="s-card-title">Language &amp; Region</div></div>
+              <div class="s-card-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <select class="form-select">
+                      <option>English (US)</option><option>Español</option><option>Português</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Time Zone</label>
+                    <select class="form-select">
+                      <option>Eastern Time (ET)</option><option>Central Time (CT)</option><option>Pacific Time (PT)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('appearance')">Save</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─────────────── DANGER ZONE ─────────────── -->
+          <div id="settings-danger" class="settings-section">
+            <div class="section-eyebrow">Irreversible actions</div>
+            <h1 class="section-title">⚠️ Danger <em>Zone</em></h1>
+            <p class="section-desc">These actions are permanent. Please read carefully before proceeding.</p>
+
+            <div class="s-card" style="border-color: #f5c6c2;">
+              <div class="s-card-header" style="border-bottom-color:#fdecea;">
+                <div class="s-card-title">Account Actions</div>
+              </div>
+              <div class="s-card-body">
+                <div class="danger-row">
+                  <div class="danger-info">
+                    <div class="danger-title">Export Your Data</div>
+                    <div class="danger-desc">Download a copy of your profile, connections, and meeting history.</div>
+                  </div>
+                  <button class="btn-ghost" style="font-size:13px;padding:8px 16px;" onclick="sExportData()">Export Data</button>
+                </div>
+                <div class="danger-row">
+                  <div class="danger-info">
+                    <div class="danger-title">Clear All Notifications</div>
+                    <div class="danger-desc">Permanently delete all notifications. Cannot be undone.</div>
+                  </div>
+                  <button class="btn-danger" onclick="sClearNotifications()">Clear Notifications</button>
+                </div>
+                <div class="danger-row">
+                  <div class="danger-info">
+                    <div class="danger-title">Pause Account</div>
+                    <div class="danger-desc">Hide your profile from Discover. You can re-enable this anytime.</div>
+                  </div>
+                  <button class="btn-danger" onclick="sPauseAccount()">Pause Account</button>
+                </div>
+                <div class="danger-row">
+                  <div class="danger-info">
+                    <div class="danger-title">Sign Out Other Devices</div>
+                    <div class="danger-desc">End sessions on all other devices while staying signed in here.</div>
+                  </div>
+                  <button class="btn-danger" onclick="sSignOutOthers()">Sign Out Others</button>
+                </div>
+                <div class="danger-row">
+                  <div class="danger-info">
+                    <div class="danger-title" style="color:#c0392b;">Delete Your Account</div>
+                    <div class="danger-desc">Permanently remove your profile, connections, and all data. Cannot be undone.</div>
+                  </div>
+                  <button class="btn-danger" style="background:#fdecea; border-color:#c0392b; color:#c0392b;" onclick="confirmDelete()">Delete Account</button>
+                </div>
               </div>
             </div>
           </div>
 
         </div><!-- /settings-content -->
+
       </div><!-- /settings-shell -->
     </div><!-- /settingsView -->
 
-    <!-- Save toast -->
-    <div class="s-saved-toast" id="s-saved-toast">✓ Changes saved</div>
+    <!-- Settings toast (also used by achievement functions) -->
+    <div class="s-toast" id="s-toast">✓ Changes saved</div>
     </div><!-- /main-content -->
 
     <!-- Schedule Chat Modal -->

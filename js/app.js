@@ -7265,16 +7265,74 @@
 
         function initSettingsPage() {
             sProfileLoaded = false;
-            sRenderAvailDays();
-            sNav('profile');
+            showSettingsSection('profile');
         }
 
+        function showSettingsSection(name) {
+            document.querySelectorAll('.settings-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.settings-nav-item').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById('settings-' + name);
+            if (target) target.classList.add('active');
+            const navItem = document.querySelector('[data-section="' + name + '"]');
+            if (navItem) navItem.classList.add('active');
+            const content = document.querySelector('.settings-content');
+            if (content) content.scrollTop = 0;
+            if (name === 'profile')       sLoadProfile();
+            if (name === 'account')       sLoadAccount();
+            if (name === 'availability')  sLoadAvailability();
+            if (name === 'notifications') sLoadNotifications();
+            if (name === 'privacy')       sLoadPrivacy();
+        }
+
+        function saveSection(name) {
+            if (name === 'profile')            sSaveProfile();
+            else if (name === 'email')         sUpdateEmail();
+            else if (name === 'password')      sUpdatePassword();
+            else if (name === 'notifications') sSaveNotifications();
+            else if (name === 'privacy')       sSavePrivacy();
+            else if (name === 'appearance')    sSaveAppearance();
+            else if (name === 'availability')  sSaveAvailability();
+            else sShowToast('✓ Changes saved');
+        }
+
+        function selectTheme(el, theme) {
+            document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            if (typeof applyTheme === 'function') applyTheme(theme);
+            sShowToast('✓ Theme updated');
+        }
+
+        function addTag(event, containerId) {
+            if (event.key === 'Enter' || event.key === ',') {
+                event.preventDefault();
+                const input = event.target;
+                const value = input.value.trim().replace(/,$/, '');
+                if (!value) return;
+                const type = containerId.replace('-container', '');
+                if (sTags[type] && !sTags[type].includes(value)) sTags[type].push(value);
+                const container = document.getElementById(containerId);
+                const pill = document.createElement('div');
+                pill.className = 'tag-pill';
+                pill.innerHTML = `${value}<button onclick="removeTagPill(this,'${containerId}','${value.replace(/'/g,"\\'")}');" type="button">×</button>`;
+                container.insertBefore(pill, input);
+                input.value = '';
+            }
+        }
+
+        function removeTagPill(btn, containerId, value) {
+            btn.parentElement.remove();
+            const type = containerId.replace('-container', '');
+            if (sTags[type]) sTags[type] = sTags[type].filter(t => t !== value);
+        }
+
+        function confirmDelete() { sDeleteAccount(); }
+
         function sShowToast(msg) {
-            const t = document.getElementById('s-saved-toast');
+            const t = document.getElementById('s-toast');
             if (!t) return;
             t.textContent = msg || '✓ Changes saved';
-            t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 2800);
+            t.classList.add('show');
+            setTimeout(() => { t.classList.remove('show'); }, 2800);
         }
 
         async function sLoadProfile() {
@@ -7296,7 +7354,7 @@
                 sv('s-role',         data.role);
                 sv('s-company',      data.company);
                 sv('s-linkedin',     data.linkedin_url);
-                sv('s-career-goals', data.goals);
+                sv('s-goals',        data.goals);
 
                 sTags.interests = Array.isArray(data.interests) ? [...data.interests] : [];
                 sTags.hobbies   = Array.isArray(data.hobbies)   ? [...data.hobbies]   : [];
@@ -7304,24 +7362,16 @@
                 sRenderTags('hobbies');
 
                 // Avatar
-                const preview  = document.getElementById('s-avatar-preview');
-                const initials = document.getElementById('s-avatar-initials');
-                if (data.profile_picture && preview) {
-                    preview.innerHTML = `<img src="${data.profile_picture}" alt="avatar">`;
-                } else if (initials) {
-                    const fn = (data.first_name || '?')[0].toUpperCase();
-                    const ln = data.last_name ? data.last_name[0].toUpperCase() : '';
-                    initials.textContent = fn + ln;
-                    if (data.avatar_color && preview) preview.style.background = data.avatar_color;
-                }
-
-                // Cover photo preview
-                const cover = document.getElementById('s-cover-preview');
-                if (cover && data.banner_image) {
-                    cover.style.backgroundImage = `url('${data.banner_image}')`;
-                    cover.style.backgroundSize = 'cover';
-                    cover.style.backgroundPosition = 'center';
-                    cover.textContent = '';
+                const preview = document.getElementById('s-avatar-preview');
+                if (preview) {
+                    if (data.profile_picture) {
+                        preview.innerHTML = `<img src="${data.profile_picture}" alt="avatar">`;
+                    } else {
+                        const fn = (data.first_name || '?')[0].toUpperCase();
+                        const ln = data.last_name ? data.last_name[0].toUpperCase() : '';
+                        preview.textContent = fn + ln;
+                        if (data.avatar_color) preview.style.background = data.avatar_color;
+                    }
                 }
 
                 // Resume
@@ -7394,7 +7444,7 @@
                 role:         gv('s-role'),
                 company:      gv('s-company'),
                 linkedin_url: gv('s-linkedin'),
-                goals:        gv('s-career-goals'),
+                goals:        gv('s-goals'),
                 interests:    sTags.interests,
                 hobbies:      sTags.hobbies,
                 updated_at:   new Date().toISOString()
@@ -7568,14 +7618,14 @@
         }
 
         function sRenderTags(type) {
-            const container = document.getElementById('s-' + type + '-container');
-            const input     = document.getElementById('s-' + type + '-input');
+            const container = document.getElementById(type + '-container');
+            const input     = document.getElementById(type + '-input');
             if (!container || !input) return;
-            container.querySelectorAll('.s-tag').forEach(el => el.remove());
+            container.querySelectorAll('.tag-pill').forEach(el => el.remove());
             sTags[type].forEach(tag => {
-                const el = document.createElement('span');
-                el.className = 's-tag';
-                el.innerHTML = `${tag}<button class="s-tag-remove" onclick="sRemoveTag('${type}','${encodeURIComponent(tag)}')" type="button">×</button>`;
+                const el = document.createElement('div');
+                el.className = 'tag-pill';
+                el.innerHTML = `${tag}<button onclick="removeTagPill(this,'${type}-container','${tag.replace(/'/g,"\\'")}');" type="button">×</button>`;
                 container.insertBefore(el, input);
             });
         }
