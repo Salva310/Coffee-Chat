@@ -1607,38 +1607,18 @@
               </div>
             </div>
 
-            <!-- Academic & Career -->
+            <!-- Student Info -->
             <div class="s-card">
-              <div class="s-card-header"><div class="s-card-title">Academic &amp; Career</div></div>
+              <div class="s-card-header">
+                <div>
+                  <div class="s-card-title">Academic Info</div>
+                  <div style="font-size:12px;color:#8b6a52;margin-top:2px;">For current students &amp; graduate students</div>
+                </div>
+              </div>
               <div class="s-card-body">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Major</label>
-                    <input class="form-input" type="text" id="s-major" placeholder="e.g. Finance">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Industry / Field</label>
-                    <select class="form-select" id="s-industry">
-                      <option value="">Select industry</option>
-                      <option>Business / Finance</option><option>Computer Science / Tech</option>
-                      <option>Engineering</option><option>Pre-Med / Healthcare</option>
-                      <option>Liberal Arts / Humanities</option><option>Undecided / Exploring</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Role / Title</label>
-                    <input class="form-input" type="text" id="s-role" placeholder="e.g. Finance Intern">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Company / Org</label>
-                    <input class="form-input" type="text" id="s-company" placeholder="e.g. Goldman Sachs">
-                  </div>
-                </div>
                 <div class="form-group">
-                  <label class="form-label">LinkedIn URL</label>
-                  <input class="form-input" type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
+                  <label class="form-label">Major</label>
+                  <input class="form-input" type="text" id="s-major" placeholder="e.g. Finance, Computer Science">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Career Goals</label>
@@ -1655,6 +1635,48 @@
                   <div class="tags-container" id="hobbies-container" onclick="document.getElementById('hobbies-input').focus()">
                     <input class="tags-input" id="hobbies-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'hobbies-container')">
                   </div>
+                </div>
+              </div>
+              <div class="s-card-footer">
+                <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
+                <button class="btn-ghost" onclick="sLoadProfile()">Discard</button>
+              </div>
+            </div>
+
+            <!-- Professional Info -->
+            <div class="s-card">
+              <div class="s-card-header">
+                <div>
+                  <div class="s-card-title">Professional Info</div>
+                  <div style="font-size:12px;color:#8b6a52;margin-top:2px;">For recent grads &amp; alumni</div>
+                </div>
+              </div>
+              <div class="s-card-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Role / Title</label>
+                    <input class="form-input" type="text" id="s-role" placeholder="e.g. Software Engineer, Analyst">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Company / Organization</label>
+                    <input class="form-input" type="text" id="s-company" placeholder="e.g. Goldman Sachs, Google">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Industry / Field</label>
+                  <select class="form-select" id="s-industry">
+                    <option value="">Select industry</option>
+                    <option>Business / Finance</option>
+                    <option>Computer Science / Tech</option>
+                    <option>Engineering</option>
+                    <option>Pre-Med / Healthcare</option>
+                    <option>Liberal Arts / Humanities</option>
+                    <option>Undecided / Exploring</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">LinkedIn URL</label>
+                  <input class="form-input" type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
                 </div>
               </div>
               <div class="s-card-footer">
