@@ -7401,7 +7401,6 @@
                 sv('s-role',       data.role);
                 sv('s-company',    data.company);
                 sv('s-linkedin',   data.linkedin_url);
-                sv('s-website',    data.website_url);
                 sv('s-goals',      data.goals);
 
                 // Status chips
@@ -7515,7 +7514,6 @@
                 company:      gv('s-company'),
                 goals:        gv('s-goals'),
                 linkedin_url: gv('s-linkedin'),
-                website_url:  gv('s-website'),
                 interests:    sTags.interests,
                 hobbies:      sTags.hobbies,
                 chat_open:    !!(document.getElementById('s-chat-open')?.checked),
