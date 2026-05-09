@@ -7232,7 +7232,7 @@
         }
 
         function confirmDeleteAccount() {
-            showStToast('To delete your account, email Sal.FirstSip@Outlook.com — we\'ll process it within 24 hours.');
+            showStToast('To delete your account, email sal@firstsipapp.com — we\'ll process it within 24 hours.');
         }
 
         let stToastTimer = null;
