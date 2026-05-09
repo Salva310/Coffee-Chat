@@ -1,3 +1,31 @@
+        // ── Legal page helpers ──
+        function openLegal(tab) {
+            switchLegalTab(tab);
+            switchView('legalView');
+        }
+
+        function switchLegalTab(tab, btnEl) {
+            const privacy = document.getElementById('legal-privacy');
+            const tos     = document.getElementById('legal-tos');
+            if (privacy) privacy.style.display = tab === 'privacy' ? '' : 'none';
+            if (tos)     tos.style.display     = tab === 'tos'     ? '' : 'none';
+            // Update tab button active states
+            document.querySelectorAll('.legal-tab').forEach(b => b.classList.remove('active'));
+            if (btnEl) {
+                btnEl.classList.add('active');
+            } else {
+                document.querySelectorAll('.legal-tab').forEach(b => {
+                    if ((tab === 'privacy' && b.textContent.includes('Privacy')) ||
+                        (tab === 'tos'     && b.textContent.includes('Terms'))) {
+                        b.classList.add('active');
+                    }
+                });
+            }
+            // Scroll to top
+            const content = document.querySelector('.legal-content');
+            if (content) content.scrollTop = 0;
+        }
+
         // ── Navigation: which views belong to which tab ──
         const VIEW_TAB = {
             dashboardView:     'home',
@@ -15,6 +43,7 @@
             myProfileView:     'profile',
             settingsView:      'profile',
             availabilityView:  'profile',
+            legalView:         '',
         };
 
         // ── 5 primary tabs ──
@@ -1162,7 +1191,7 @@
 
             updateNavActive(viewId);
 
-            if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView' && viewId !== 'groupDetailView') {
+            if (viewId !== 'scheduleView' && viewId !== 'profileDetailView' && viewId !== 'callView' && viewId !== 'groupDetailView' && viewId !== 'legalView') {
                 previousView = viewId;
             }
         }

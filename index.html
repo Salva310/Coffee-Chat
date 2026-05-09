@@ -435,6 +435,8 @@
                             <li><a onclick="document.getElementById('lpFounder').scrollIntoView({behavior:'smooth'})">About</a></li>
                             <li><a onclick="document.getElementById('lpHow').scrollIntoView({behavior:'smooth'})">How It Works</a></li>
                             <li><a href="mailto:Sal.FirstSip@Outlook.com">Contact</a></li>
+                            <li><a onclick="openLegal('privacy')">Privacy Policy</a></li>
+                            <li><a onclick="openLegal('tos')">Terms of Service</a></li>
                         </ul>
                     </footer>
 
@@ -532,6 +534,219 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ── Legal (Privacy Policy + Terms of Service) ── -->
+            <div id="legalView" class="content-view">
+                <div class="legal-page">
+                    <div class="legal-header">
+                        <button class="legal-back-btn" onclick="switchView(previousView||'landingView')">← Back</button>
+                        <div class="legal-brand">First<span>Sip</span></div>
+                    </div>
+                    <div class="legal-tabs">
+                        <button class="legal-tab active" onclick="switchLegalTab('privacy',this)">Privacy Policy</button>
+                        <button class="legal-tab" onclick="switchLegalTab('tos',this)">Terms of Service</button>
+                    </div>
+                    <div class="legal-content">
+
+                        <!-- PRIVACY POLICY -->
+                        <div id="legal-privacy" class="legal-doc">
+                            <p class="legal-effective">Effective Date: May 09, 2026</p>
+
+                            <h1>Privacy Policy</h1>
+
+                            <h2>1. Introduction</h2>
+                            <p>First Sip ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and your rights with respect to your personal data when you use the First Sip platform (the "Service").</p>
+                            <p>By creating an account or using the Service, you agree to the collection and use of your information as described in this Privacy Policy.</p>
+
+                            <h2>2. Information We Collect</h2>
+                            <h3>2.1 Information You Provide to Us</h3>
+                            <p>When you create an account and use First Sip, you may provide us with:</p>
+                            <ul>
+                                <li>Name, email address (including .edu verification), graduation year, and university affiliation</li>
+                                <li>Profile information such as your major, career goals, industry, headline, and bio</li>
+                                <li>Profile photo and resume (if uploaded)</li>
+                                <li>Messages and communications sent through the platform</li>
+                                <li>Availability and scheduling preferences</li>
+                                <li>Community group memberships and posts</li>
+                                <li>Feedback, support requests, or other communications you send us</li>
+                            </ul>
+                            <h3>2.2 Information We Collect Automatically</h3>
+                            <p>When you use the Service, we may automatically collect:</p>
+                            <ul>
+                                <li>Device information (browser type, operating system, device identifiers)</li>
+                                <li>Log data (IP address, pages visited, time and date of visits, referring URL)</li>
+                                <li>Usage data (features used, coffee chats completed, connection activity)</li>
+                                <li>Cookies and similar tracking technologies to maintain session state and improve the Service</li>
+                            </ul>
+                            <h3>2.3 Information from Third Parties</h3>
+                            <p>If you connect a third-party account (such as LinkedIn) or sign in using a third-party service, we may receive information from that service consistent with your privacy settings there.</p>
+
+                            <h2>3. How We Use Your Information</h2>
+                            <p>We use the information we collect to:</p>
+                            <ul>
+                                <li>Create and manage your account and profile</li>
+                                <li>Match you with other users for coffee chats and networking</li>
+                                <li>Facilitate messaging, scheduling, and community participation</li>
+                                <li>Send notifications related to your account, connections, and scheduled chats</li>
+                                <li>Improve the platform, develop new features, and analyze usage patterns</li>
+                                <li>Respond to your support requests and feedback</li>
+                                <li>Enforce our Terms of Service and maintain the safety of the platform</li>
+                                <li>Comply with legal obligations</li>
+                            </ul>
+                            <p><strong>We do not sell your personal information to third parties. We do not use your data for advertising purposes on behalf of third parties.</strong></p>
+
+                            <h2>4. How We Share Your Information</h2>
+                            <h3>4.1 With Other Users</h3>
+                            <p>Your profile information (name, photo, major, headline, bio, career goals, and school) is visible to other First Sip users in accordance with your privacy settings. Messages you send are visible to the recipient(s). Content posted in community groups is visible to group members.</p>
+                            <h3>4.2 With Service Providers</h3>
+                            <p>We may share your information with trusted third-party service providers who help us operate the platform, including:</p>
+                            <ul>
+                                <li>Supabase (database and authentication infrastructure)</li>
+                                <li>Vercel (hosting and deployment)</li>
+                                <li>Email service providers for transactional notifications</li>
+                            </ul>
+                            <p>These providers are contractually obligated to use your information only to provide services to us and in accordance with this Privacy Policy.</p>
+                            <h3>4.3 For Legal Reasons</h3>
+                            <p>We may disclose your information if required by law or to protect the rights, property, or safety of First Sip, its users, or the public.</p>
+                            <h3>4.4 Business Transfers</h3>
+                            <p>If First Sip is acquired or merges with another entity, your information may be transferred as part of that transaction. We will notify you before your information becomes subject to a materially different privacy policy.</p>
+
+                            <h2>5. Data Retention</h2>
+                            <p>We retain your personal information for as long as your account is active or as needed to provide the Service. If you delete your account, we will delete or anonymize your personal information within a reasonable time, except where required by law.</p>
+                            <p>Anonymized, aggregated data that cannot identify you may be retained indefinitely for analytics and product improvement.</p>
+
+                            <h2>6. Your Privacy Choices</h2>
+                            <p>You have control over your personal information on First Sip:</p>
+                            <ul>
+                                <li>Profile visibility: Control who can see your profile through Settings &gt; Privacy</li>
+                                <li>Discovery: Opt out of appearing in Discover or matching suggestions</li>
+                                <li>Notifications: Manage email and in-app notification preferences in Settings</li>
+                                <li>Account deletion: Permanently delete your account through Settings &gt; Danger Zone</li>
+                                <li>Data export: Request a copy of your data by contacting <a href="mailto:sal@firstsipapp.com">sal@firstsipapp.com</a></li>
+                            </ul>
+
+                            <h2>7. Cookies and Tracking</h2>
+                            <p>First Sip uses cookies and similar technologies to maintain your session, remember your preferences, and understand how users interact with the platform. You can control cookies through your browser settings, but disabling cookies may affect the functionality of the Service.</p>
+
+                            <h2>8. Security</h2>
+                            <p>We take reasonable technical and organizational measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction, including encrypted data transmission, secure authentication, and access controls.</p>
+                            <p>However, no method of transmission over the internet is 100% secure. Please use a strong, unique password and notify us immediately if you suspect your account has been compromised.</p>
+
+                            <h2>9. Children's Privacy</h2>
+                            <p>First Sip is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will delete it promptly.</p>
+
+                            <h2>10. Links to Third-Party Sites</h2>
+                            <p>The Service may contain links to third-party websites. We are not responsible for the privacy practices of those sites and encourage you to review their privacy policies.</p>
+
+                            <h2>11. Changes to This Privacy Policy</h2>
+                            <p>We may update this Privacy Policy from time to time. If we make material changes, we will notify you by email or through a prominent notice on the platform. Your continued use of the Service after changes take effect constitutes your acceptance of the updated Policy.</p>
+
+                            <h2>12. Contact Us</h2>
+                            <p>If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:</p>
+                            <p><strong>Email:</strong> <a href="mailto:sal@firstsipapp.com">sal@firstsipapp.com</a><br>
+                            <strong>Website:</strong> firstsipapp.com</p>
+                            <p>We will respond to your request within a reasonable timeframe.</p>
+                        </div>
+
+                        <!-- TERMS OF SERVICE -->
+                        <div id="legal-tos" class="legal-doc" style="display:none;">
+                            <p class="legal-effective">Effective Date: May 09, 2026</p>
+
+                            <h1>Terms of Service</h1>
+
+                            <h2>1. Agreement to Terms</h2>
+                            <p>Welcome to First Sip. By accessing or using the First Sip platform, mobile application, or any related services (collectively, the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the Service.</p>
+                            <p>First Sip is operated by Salvatore Altadonna ("we," "us," or "our"). These Terms apply to all users of the Service, including students, recent graduates, alumni, and any other visitors.</p>
+
+                            <h2>2. Eligibility</h2>
+                            <p>To use First Sip, you must:</p>
+                            <ul>
+                                <li>Be at least 13 years of age (or the age of majority in your jurisdiction if higher)</li>
+                                <li>Be currently enrolled at, or a graduate of, an accredited college or university</li>
+                                <li>Provide a valid .edu email address or otherwise verify your student or alumni status</li>
+                                <li>Not have been previously suspended or removed from the Service</li>
+                            </ul>
+                            <p>By creating an account, you represent and warrant that you meet these eligibility requirements.</p>
+
+                            <h2>3. User Accounts</h2>
+                            <h3>3.1 Account Creation</h3>
+                            <p>To access most features of the Service, you must create an account. You agree to provide accurate, complete, and current information during registration and to keep your account information up to date.</p>
+                            <h3>3.2 Account Security</h3>
+                            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. Notify us immediately at <a href="mailto:sal@firstsipapp.com">sal@firstsipapp.com</a> if you suspect unauthorized access.</p>
+                            <h3>3.3 One Account Per Person</h3>
+                            <p>You may only maintain one active First Sip account. Creating multiple accounts to circumvent suspensions or platform limits is strictly prohibited.</p>
+
+                            <h2>4. The First Sip Platform</h2>
+                            <h3>4.1 What First Sip Provides</h3>
+                            <p>First Sip is a professional networking platform designed to help college students and recent graduates build authentic career connections through coffee chats, messaging, and community groups. The Service includes:</p>
+                            <ul>
+                                <li>Profile creation and discovery features</li>
+                                <li>Coffee chat scheduling and matching</li>
+                                <li>Direct messaging between connected users</li>
+                                <li>Community groups organized by major, industry, or interest</li>
+                                <li>Feed and activity updates</li>
+                            </ul>
+                            <h3>4.2 No Employment Guarantee</h3>
+                            <p>First Sip is a networking platform only. We make no guarantees that use of the Service will result in employment, internships, mentorship opportunities, or any specific career outcome.</p>
+                            <h3>4.3 Coffee Chats</h3>
+                            <p>First Sip facilitates scheduling of casual professional conversations between users. These meetings take place between users independently. First Sip is not a party to any meeting or arrangement made between users through the platform.</p>
+
+                            <h2>5. User Conduct</h2>
+                            <p>You agree not to use First Sip to:</p>
+                            <ul>
+                                <li>Harass, bully, threaten, or intimidate other users</li>
+                                <li>Post false, misleading, or fraudulent information on your profile</li>
+                                <li>Impersonate another person or misrepresent your affiliation with any school or organization</li>
+                                <li>Spam, solicit, or send unsolicited commercial messages to other users</li>
+                                <li>Share content that is obscene, defamatory, discriminatory, or otherwise objectionable</li>
+                                <li>Scrape or collect user data without our express written consent</li>
+                                <li>Attempt to gain unauthorized access to any part of the Service or another user's account</li>
+                                <li>Use the Service for any unlawful purpose or in violation of any applicable law</li>
+                            </ul>
+                            <p>We reserve the right to remove content and suspend or terminate accounts that violate these standards, at our sole discretion.</p>
+
+                            <h2>6. Content You Post</h2>
+                            <h3>6.1 Your Content</h3>
+                            <p>You retain ownership of content you post on First Sip. By posting content on the Service, you grant First Sip a non-exclusive, royalty-free, worldwide license to use, display, and distribute your content as necessary to operate and improve the Service.</p>
+                            <h3>6.2 Content Standards</h3>
+                            <p>You are solely responsible for the content you post. Content must be accurate, lawful, and not infringe upon the rights of any third party. First Sip does not endorse any user-submitted content.</p>
+                            <h3>6.3 Removal of Content</h3>
+                            <p>We reserve the right to remove any content that violates these Terms or that we determine is harmful to users or the platform.</p>
+
+                            <h2>7. Privacy</h2>
+                            <p>Your privacy is important to us. Our Privacy Policy explains how we collect, use, and protect your personal information. By using the Service, you agree to the collection and use of your information as described in our Privacy Policy.</p>
+
+                            <h2>8. Intellectual Property</h2>
+                            <p>The First Sip name, logo, platform design, and all related content (excluding user-generated content) are the intellectual property of First Sip and its operator. You may not use, reproduce, or distribute any First Sip intellectual property without our prior written consent.</p>
+
+                            <h2>9. Third-Party Services</h2>
+                            <p>First Sip may integrate with or link to third-party services. We are not responsible for the content, privacy practices, or terms of any third-party services. Your use of third-party services is governed by their respective terms.</p>
+
+                            <h2>10. Disclaimers</h2>
+                            <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND. TO THE FULLEST EXTENT PERMITTED BY LAW, FIRST SIP DISCLAIMS ALL WARRANTIES, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+
+                            <h2>11. Limitation of Liability</h2>
+                            <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, FIRST SIP AND ITS OPERATOR SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE.</p>
+
+                            <h2>12. Termination</h2>
+                            <p>We reserve the right to suspend or terminate your account at any time, with or without cause and without notice, including if we believe you have violated these Terms.</p>
+                            <p>You may delete your account at any time through the Settings page. Some data may be retained as required by law or for legitimate business purposes as described in our Privacy Policy.</p>
+
+                            <h2>13. Changes to These Terms</h2>
+                            <p>We may update these Terms from time to time. If we make material changes, we will notify you by email or through the app. Your continued use of the Service after changes take effect constitutes your acceptance of the updated Terms.</p>
+
+                            <h2>14. Governing Law</h2>
+                            <p>These Terms are governed by the laws of the State of New Jersey, without regard to conflict of law principles. Any disputes arising from these Terms shall be resolved in the courts located in New Jersey.</p>
+
+                            <h2>15. Contact Us</h2>
+                            <p>If you have any questions about these Terms, please contact us at:</p>
+                            <p><strong>Email:</strong> <a href="mailto:sal@firstsipapp.com">sal@firstsipapp.com</a><br>
+                            <strong>Website:</strong> firstsipapp.com</p>
+                        </div>
+
+                    </div><!-- /legal-content -->
+                </div><!-- /legal-page -->
+            </div><!-- /legalView -->
 
             <div id="signupView" class="content-view">
                 <div class="su-page">
@@ -706,7 +921,14 @@
 
                             <button class="su-btn" onclick="handleSignup()">Join Rowan's Founding Cohort ☕</button>
 
-                            <div class="auth-toggle" style="margin-top: 20px;">
+                            <p style="font-size:11.5px;color:var(--muted);text-align:center;margin:10px 0 0;line-height:1.5;">
+                                By signing up, you agree to our
+                                <a onclick="openLegal('tos')" style="color:var(--caramel);cursor:pointer;text-decoration:underline;">Terms of Service</a>
+                                and
+                                <a onclick="openLegal('privacy')" style="color:var(--caramel);cursor:pointer;text-decoration:underline;">Privacy Policy</a>.
+                            </p>
+
+                            <div class="auth-toggle" style="margin-top: 16px;">
                                 Already have an account? <button onclick="switchView('loginView')">Sign in →</button>
                             </div>
 
