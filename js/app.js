@@ -4292,77 +4292,75 @@
         }
 
         // Profile Management
-        function editMyProfile() {
-            document.getElementById('avatarInitials').textContent = currentUser.firstName[0] + currentUser.lastName[0];
-            document.getElementById('editFirstName').value = currentUser.firstName;
-            document.getElementById('editLastName').value = currentUser.lastName;
-            document.getElementById('editRole').value = currentUser.role || '';
-            document.getElementById('editCompany').value = currentUser.company || '';
-            document.getElementById('editLocation').value = currentUser.location || '';
-            document.getElementById('editBio').value = currentUser.bio || '';
-            document.getElementById('editIndustry').value = currentUser.industry;
-            document.getElementById('editInterests').value = (currentUser.interests || []).join(', ');
-            document.getElementById('editHobbies').value = (currentUser.hobbies || []).join(', ');
-            document.getElementById('editGoals').value = currentUser.goals || '';
+        async function editMyProfile() {
+            if (!currentUser) return;
+            // Fetch fresh data so the modal always reflects what's actually saved
+            let data = {};
+            try {
+                const { data: d } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+                if (d) data = d;
+            } catch(e) { console.error('editMyProfile fetch:', e); }
+
+            const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            const initials = ((data.first_name||currentUser.firstName||'?')[0] + (data.last_name||currentUser.lastName||'')[0]).toUpperCase();
+            document.getElementById('avatarInitials').textContent = initials;
+
+            sv('editFirstName', data.first_name  || currentUser.firstName);
+            sv('editLastName',  data.last_name   || currentUser.lastName);
+            sv('editHeadline',  data.headline    || currentUser.headline);
+            sv('editBio',       data.bio         || currentUser.bio);
+            sv('editSchool',    data.school_name || currentUser.schoolName || 'Rowan University');
+            sv('editStatus',    data.status      || currentUser.status);
+            sv('editGradYear',  data.grad_year   || currentUser.gradYear);
+            sv('editMajor',     data.major       || currentUser.major);
+            sv('editIndustry',  data.industry    || currentUser.industry);
+            sv('editRole',      data.role        || currentUser.role);
+            sv('editCompany',   data.company     || currentUser.company);
+            sv('editGoals',     data.goals       || currentUser.goals);
+            sv('editInterests', (Array.isArray(data.interests) ? data.interests : (currentUser.interests||[])).join(', '));
+            sv('editHobbies',   (Array.isArray(data.hobbies)   ? data.hobbies   : (currentUser.hobbies  ||[])).join(', '));
+
             openModal('editProfileModal');
         }
 
         async function saveProfile() {
             if (!currentUser) return;
-
-            // Get all form values
-            const firstName = document.getElementById('editFirstName').value;
-            const lastName = document.getElementById('editLastName').value;
-            const role = document.getElementById('editRole').value;
-            const company = document.getElementById('editCompany').value;
-            const location = document.getElementById('editLocation').value;
-            const bio = document.getElementById('editBio').value;
-            const industry = document.getElementById('editIndustry').value;
-            const interests = document.getElementById('editInterests').value.split(',').map(i => i.trim()).filter(Boolean);
-            const hobbies = document.getElementById('editHobbies').value.split(',').map(h => h.trim()).filter(Boolean);
-            const goals = document.getElementById('editGoals').value;
-
+            const gv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const updates = {
+                first_name:   gv('editFirstName'),
+                last_name:    gv('editLastName'),
+                headline:     gv('editHeadline'),
+                bio:          gv('editBio'),
+                school_name:  gv('editSchool') || 'Rowan University',
+                status:       gv('editStatus'),
+                grad_year:    gv('editGradYear'),
+                major:        gv('editMajor'),
+                industry:     gv('editIndustry'),
+                role:         gv('editRole'),
+                company:      gv('editCompany'),
+                goals:        gv('editGoals'),
+                interests:    gv('editInterests').split(',').map(i => i.trim()).filter(Boolean),
+                hobbies:      gv('editHobbies').split(',').map(h => h.trim()).filter(Boolean),
+                updated_at:   new Date().toISOString()
+            };
             try {
-                // Update profile in Supabase
-                const { error } = await supabaseClient
-                    .from('profiles')
-                    .update({
-                        first_name: firstName,
-                        last_name: lastName,
-                        role,
-                        company,
-                        location,
-                        bio,
-                        industry,
-                        interests,
-                        hobbies,
-                        goals,
-                        profile_picture: currentUser.profilePicture || null,
-                        resume_url: currentUser.resume || null,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', currentUser.id);
-
+                const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
                 if (error) throw error;
-
-                // Update local currentUser object
-                currentUser.firstName = firstName;
-                currentUser.lastName = lastName;
-                currentUser.role = role;
-                currentUser.company = company;
-                currentUser.location = location;
-                currentUser.bio = bio;
-                currentUser.industry = industry;
-                currentUser.interests = interests;
-                currentUser.hobbies = hobbies;
-                currentUser.goals = goals;
-
-                alert('Profile updated successfully!');
+                Object.assign(currentUser, {
+                    firstName:  updates.first_name,  lastName:   updates.last_name,
+                    headline:   updates.headline,     bio:        updates.bio,
+                    schoolName: updates.school_name,  status:     updates.status,
+                    gradYear:   updates.grad_year,    major:      updates.major,
+                    industry:   updates.industry,     role:       updates.role,
+                    company:    updates.company,      goals:      updates.goals,
+                    interests:  updates.interests,    hobbies:    updates.hobbies,
+                });
+                showToast('Profile updated!', 'success');
                 closeModal('editProfileModal');
-                await updateDashboard();
-            } catch (error) {
-                console.error('Error saving profile:', error);
-                alert('Failed to update profile: ' + error.message);
+                renderMyProfile();
+            } catch (err) {
+                console.error('saveProfile:', err);
+                showToast('Failed to save — try again', 'error');
             }
         }
 
@@ -5130,6 +5128,7 @@
                         role:           profileData.role          ?? currentUser.role,
                         company:        profileData.company       ?? currentUser.company,
                         gradYear:       profileData.grad_year     ?? currentUser.gradYear,
+                        schoolName:     profileData.school_name   ?? currentUser.schoolName ?? null,
                         isOnline:       profileData.is_online,
                         chatOpen:       profileData.chat_open,
                     };
@@ -5239,11 +5238,13 @@
                 { label: 'Career goals',     done: !!(profile.goals && profile.goals.trim()) },
             ];
 
-            // Hero chips
+            // Hero chips — school_name is the dedicated school field; company is employer
+            const school = profile.schoolName || (!profile.role && profile.company ? profile.company : null);
             const chips = [
-                profile.company  ? `🎓 ${profile.company}`                         : null,
-                profile.gradYear ? `📅 Class of ${profile.gradYear}`               : null,
-                (profile.major || profile.industry) ? `💼 ${profile.major || profile.industry}` : null,
+                school           ? `🎓 ${school}`                                                   : null,
+                profile.gradYear ? `📅 Class of ${profile.gradYear}`                               : null,
+                profile.major    ? `📚 ${profile.major}`                                            : null,
+                profile.role     ? `💼 ${[profile.role, profile.company].filter(Boolean).join(' · ')}` : null,
             ].filter(Boolean);
 
             // Cache data for preview modal
