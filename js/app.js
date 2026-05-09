@@ -1324,13 +1324,20 @@
                 const dt   = new Date(dtRaw);
                 const now  = new Date();
                 const diff = dt - now;
-                const hoursAway = Math.round(diff / 3600000);
+                const hoursAway = diff / 3600000;
+                const daysAway  = Math.round(diff / 86400000);
                 const today = new Date(); today.setHours(0,0,0,0);
                 const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
                 const dayLabel = dt.toDateString() === today.toDateString() ? 'Today' : dt.toDateString() === tomorrow.toDateString() ? 'Tomorrow' : dt.toLocaleDateString('en-US',{weekday:'long'});
                 const timeStr  = next.time || dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
                 dateTimeStr  = `${dayLabel} at ${timeStr}`;
-                countdownStr = diff > 0 ? ` · ${hoursAway < 1 ? 'very soon' : hoursAway + 'h away'}` : '';
+                let awayLabel = '';
+                if (diff > 0) {
+                    if (hoursAway < 1)       awayLabel = 'very soon';
+                    else if (hoursAway < 24) awayLabel = `${Math.round(hoursAway)}h away`;
+                    else                     awayLabel = `${daysAway} day${daysAway !== 1 ? 's' : ''} away`;
+                }
+                countdownStr = awayLabel ? ` · ${awayLabel}` : '';
             }
 
             const meetType = next.meeting_type || next.type || 'Video Call';
@@ -2865,8 +2872,6 @@
             // ── Mini calendar ──
             renderMiniCal();
 
-            // ── Next Up sidebar ──
-            renderNextUp();
         }
 
         async function renderMeetingCards() {
@@ -2941,9 +2946,8 @@
             } else if (status === 'completed') {
                 actionsHTML = `
                     <div class="mc-card-actions">
-                        <button class="mc-btn-sm secondary">⭐ Leave a Review</button>
-                        <button class="mc-btn-sm secondary">🔄 Schedule Again</button>
-                        <button class="mc-btn-sm secondary">✉ Message</button>
+                        <button class="mc-btn-sm secondary" onclick="event.stopPropagation();openScheduleChatModalFor('${partnerId}')">🔄 Schedule Again</button>
+                        <button class="mc-btn-sm secondary" onclick="event.stopPropagation();openChatWith('${partnerId}')">✉ Message</button>
                     </div>`;
             } else {
                 if (isOrganizer) {
@@ -3082,6 +3086,11 @@
         // ── Helper: open the schedule modal (routes to existing scheduleChatModal) ──
         function openScheduleChatModal() {
             openScheduleModal();
+        }
+
+        function openScheduleChatModalFor(userId) {
+            if (userId) openScheduleForUser(userId);
+            else openScheduleModal();
         }
 
         // ─── renderMessages — loads inbox via the `inbox` view ───────
@@ -5418,6 +5427,14 @@
                                             <div style="display:flex;align-items:center;gap:12px;">
                                                 <span style="font-size:11px;color:var(--muted);">${timeAgo}</span>
                                                 <button class="post-action-btn${liked ? ' liked' : ''}" id="mplike-${post.id}" onclick="likePost('${post.id}', this)" style="font-size:12px;padding:3px 8px;${liked ? 'color:var(--primary);font-weight:700;' : ''}">👍 <span id="mplikecount-${post.id}">${likeCount}</span></button>
+                                                <button class="post-action-btn" onclick="toggleComments('${post.id}')" style="font-size:12px;padding:3px 8px;">💬 Comments</button>
+                                            </div>
+                                            <div id="comments-${post.id}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--latte-soft);">
+                                                <div id="comments-list-${post.id}" style="margin-bottom:8px;"></div>
+                                                <div style="display:flex;gap:8px;">
+                                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;font-family:'DM Sans',sans-serif;" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
+                                                    <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')" style="font-size:12px;padding:5px 12px;">Post</button>
+                                                </div>
                                             </div>
                                         </div>`;
                                     }).join('')
