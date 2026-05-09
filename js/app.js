@@ -7343,6 +7343,45 @@
             setTimeout(() => { t.classList.remove('show'); }, 2800);
         }
 
+        // ── Live preview updater ──
+        function spUpdatePreview() {
+            const fn = (document.getElementById('s-first-name')?.value || '').trim();
+            const ln = (document.getElementById('s-last-name')?.value  || '').trim();
+            const nameEl = document.getElementById('sp-preview-name');
+            if (nameEl) nameEl.textContent = (fn || ln) ? `${fn} ${ln}`.trim() : 'Your Name';
+
+            const hl = (document.getElementById('s-headline')?.value || '').trim();
+            const hlEl = document.getElementById('sp-preview-headline');
+            if (hlEl) hlEl.textContent = hl || 'Add a headline below';
+
+            const school = (document.getElementById('s-school')?.value || '').trim();
+            const schoolEl = document.getElementById('sp-preview-school');
+            if (schoolEl) schoolEl.textContent = school || 'Rowan University';
+
+            const open = document.getElementById('s-chat-open')?.checked;
+            const pill = document.getElementById('sp-chat-pill');
+            if (pill) {
+                pill.textContent = open ? '🟢 Open to chats' : '⛔ Closed to chats';
+                pill.style.background   = open ? '#eafaf1' : '#f5f5f5';
+                pill.style.color        = open ? '#2d6a4f' : '#999';
+                pill.style.borderColor  = open ? '#a9dfbf' : '#ddd';
+            }
+
+            // Avatar initials
+            const initEl = document.getElementById('sp-avatar-initials');
+            if (initEl && !document.querySelector('#s-avatar-preview img')) {
+                initEl.textContent = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
+            }
+        }
+
+        // ── Status chip selection ──
+        function selectStatusChip(btn) {
+            document.querySelectorAll('#sp-status-chips .sp-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const hidden = document.getElementById('s-status');
+            if (hidden) hidden.value = btn.dataset.value;
+        }
+
         async function sLoadProfile() {
             if (!currentUser) return;
             try {
@@ -7351,57 +7390,79 @@
                 if (error || !data) return;
 
                 const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-                sv('s-first-name',   data.first_name);
-                sv('s-last-name',    data.last_name);
-                sv('s-headline',     data.headline);
-                sv('s-status',       data.status);
-                sv('s-grad-year',    data.grad_year);
-                sv('s-bio',          data.bio);
-                sv('s-major',        data.major);
-                sv('s-industry',     data.industry);
-                sv('s-role',         data.role);
-                sv('s-company',      data.company);
-                sv('s-linkedin',     data.linkedin_url);
-                sv('s-goals',        data.goals);
+                sv('s-first-name', data.first_name);
+                sv('s-last-name',  data.last_name);
+                sv('s-headline',   data.headline);
+                sv('s-grad-year',  data.grad_year);
+                sv('s-bio',        data.bio);
+                sv('s-school',     data.school_name || 'Rowan University');
+                sv('s-major',      data.major);
+                sv('s-industry',   data.industry);
+                sv('s-role',       data.role);
+                sv('s-company',    data.company);
+                sv('s-linkedin',   data.linkedin_url);
+                sv('s-website',    data.website_url);
+                sv('s-goals',      data.goals);
 
+                // Status chips
+                const statusVal = data.status || '';
+                const hidden = document.getElementById('s-status');
+                if (hidden) hidden.value = statusVal;
+                document.querySelectorAll('#sp-status-chips .sp-chip').forEach(c => {
+                    c.classList.toggle('active', c.dataset.value === statusVal);
+                });
+
+                // Chat open toggle
+                const chatOpen = document.getElementById('s-chat-open');
+                if (chatOpen) chatOpen.checked = !!data.chat_open;
+
+                // Tags
                 sTags.interests = Array.isArray(data.interests) ? [...data.interests] : [];
                 sTags.hobbies   = Array.isArray(data.hobbies)   ? [...data.hobbies]   : [];
                 sRenderTags('interests');
                 sRenderTags('hobbies');
 
                 // Avatar
-                const preview = document.getElementById('s-avatar-preview');
-                if (preview) {
+                const avatarEl = document.getElementById('s-avatar-preview');
+                const initialsEl = document.getElementById('sp-avatar-initials');
+                if (avatarEl) {
                     if (data.profile_picture) {
-                        preview.innerHTML = `<img src="${data.profile_picture}" alt="avatar">`;
+                        avatarEl.innerHTML = `<img src="${data.profile_picture}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                     } else {
-                        const fn = (data.first_name || '?')[0].toUpperCase();
-                        const ln = data.last_name ? data.last_name[0].toUpperCase() : '';
-                        preview.textContent = fn + ln;
-                        if (data.avatar_color) preview.style.background = data.avatar_color;
+                        const initials = ((data.first_name||'?')[0] + (data.last_name ? data.last_name[0] : '')).toUpperCase();
+                        if (initialsEl) initialsEl.textContent = initials;
+                        if (data.avatar_color) avatarEl.style.background = data.avatar_color;
                     }
+                }
+
+                // Banner
+                const banner = document.getElementById('sp-banner');
+                if (banner && data.banner_image) {
+                    banner.style.backgroundImage = `url('${data.banner_image}')`;
+                    banner.style.backgroundSize = 'cover';
+                    banner.style.backgroundPosition = 'center';
                 }
 
                 // Resume
                 sShowResume(data.resume_url || null);
 
+                // Update live preview
+                spUpdatePreview();
+
             } catch(e) { console.error('sLoadProfile', e); }
 
-            // Load achievements list
             loadAchievements();
         }
 
         function sShowResume(resumePath) {
-            const current = document.getElementById('s-resume-current');
-            const empty   = document.getElementById('s-resume-empty');
-            const nameEl  = document.getElementById('s-resume-name');
+            const current = document.getElementById('sp-resume-current');
+            const empty   = document.getElementById('sp-resume-empty');
+            const nameEl  = document.getElementById('sp-resume-name');
             if (!current || !empty) return;
             if (resumePath) {
-                const displayName = (currentUser && (currentUser.firstName || currentUser.lastName))
-                    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''} — Resume`.trim()
-                    : 'Resume';
-                if (nameEl) nameEl.textContent = displayName;
-                current.style.display = 'block';
+                const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ');
+                if (nameEl) nameEl.textContent = displayName ? `${displayName} — Resume` : 'Resume.pdf';
+                current.style.display = 'flex';
                 empty.style.display   = 'none';
             } else {
                 current.style.display = 'none';
@@ -7444,29 +7505,38 @@
                 first_name:   gv('s-first-name'),
                 last_name:    gv('s-last-name'),
                 headline:     gv('s-headline'),
+                bio:          gv('s-bio'),
+                school_name:  gv('s-school') || 'Rowan University',
                 status:       gv('s-status'),
                 grad_year:    gv('s-grad-year'),
-                bio:          gv('s-bio'),
                 major:        gv('s-major'),
                 industry:     gv('s-industry'),
                 role:         gv('s-role'),
                 company:      gv('s-company'),
-                linkedin_url: gv('s-linkedin'),
                 goals:        gv('s-goals'),
+                linkedin_url: gv('s-linkedin'),
+                website_url:  gv('s-website'),
                 interests:    sTags.interests,
                 hobbies:      sTags.hobbies,
+                chat_open:    !!(document.getElementById('s-chat-open')?.checked),
                 updated_at:   new Date().toISOString()
             };
             const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
             if (error) { sShowToast('❌ Error saving — try again'); console.error(error); return; }
-            // Sync into currentUser cache
             Object.assign(currentUser, {
-                firstName: updates.first_name, lastName: updates.last_name,
-                headline: updates.headline, bio: updates.bio,
-                major: updates.major, industry: updates.industry,
-                role: updates.role, company: updates.company,
-                linkedinUrl: updates.linkedin_url, goals: updates.goals,
-                interests: updates.interests, hobbies: updates.hobbies,
+                firstName:   updates.first_name,
+                lastName:    updates.last_name,
+                headline:    updates.headline,
+                bio:         updates.bio,
+                major:       updates.major,
+                industry:    updates.industry,
+                role:        updates.role,
+                company:     updates.company,
+                linkedinUrl: updates.linkedin_url,
+                goals:       updates.goals,
+                interests:   updates.interests,
+                hobbies:     updates.hobbies,
+                chatOpen:    updates.chat_open,
             });
             sShowToast('✓ Profile saved');
         }
@@ -7650,7 +7720,7 @@
             if (url) {
                 await supabaseClient.from('profiles').update({ profile_picture: url }).eq('id', currentUser.id);
                 const prev = document.getElementById('s-avatar-preview');
-                if (prev) prev.innerHTML = `<img src="${url}" alt="avatar">`;
+                if (prev) prev.innerHTML = `<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                 currentUser.profilePicture = url;
                 sShowToast('✓ Photo updated');
             }

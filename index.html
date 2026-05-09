@@ -1538,167 +1538,188 @@
 
           <!-- ─────────────── PROFILE ─────────────── -->
           <div class="settings-section active" id="settings-profile">
-            <div class="section-eyebrow">Your identity</div>
-            <h1 class="section-title">Your <em>Profile</em></h1>
-            <p class="section-desc">This is how other Rowan students and alumni see you. A complete profile gets 3× more connection requests.</p>
 
-            <!-- Photo -->
-            <div class="s-card">
-              <div class="s-card-header"><div class="s-card-title">Photos</div></div>
-              <div class="s-card-body">
-                <div class="avatar-upload-row">
-                  <div class="avatar-circle" id="s-avatar-preview">S</div>
-                  <div>
-                    <div class="avatar-upload-btns">
-                      <button class="btn-upload" onclick="document.getElementById('s-avatar-input').click()">📁 Upload Photo</button>
-                      <input type="file" id="s-avatar-input" accept="image/*" style="display:none" onchange="sHandlePhotoUpload(this)">
-                    </div>
-                    <div class="avatar-hint" style="margin-top:6px">JPG or PNG · Max 5 MB</div>
+            <!-- ── 1. Profile Preview ── -->
+            <div class="sp-preview-card">
+              <div class="sp-banner" id="sp-banner" onclick="document.getElementById('s-banner-input').click()">
+                <div class="sp-banner-overlay">📷 Change banner</div>
+                <input type="file" id="s-banner-input" accept="image/*" style="display:none" onchange="sHandleCoverUpload(this)">
+              </div>
+              <div class="sp-preview-body">
+                <div class="sp-avatar-wrap">
+                  <div class="sp-avatar" id="s-avatar-preview" onclick="document.getElementById('s-avatar-input').click()">
+                    <span id="sp-avatar-initials">?</span>
+                    <div class="sp-avatar-overlay">📷</div>
                   </div>
+                  <input type="file" id="s-avatar-input" accept="image/*" style="display:none" onchange="sHandlePhotoUpload(this)">
                 </div>
+                <div class="sp-preview-info">
+                  <div class="sp-preview-name" id="sp-preview-name">Your Name</div>
+                  <div class="sp-preview-headline" id="sp-preview-headline">Add a headline below</div>
+                  <div class="sp-preview-school" id="sp-preview-school">Rowan University</div>
+                </div>
+                <label class="sp-chat-badge" title="Toggle open to chats">
+                  <input type="checkbox" id="s-chat-open" onchange="spUpdatePreview()" style="display:none">
+                  <span class="sp-chat-pill" id="sp-chat-pill">🟢 Open to chats</span>
+                </label>
               </div>
             </div>
 
-            <!-- Basic info -->
-            <div class="s-card">
-              <div class="s-card-header"><div class="s-card-title">Basic Info</div></div>
-              <div class="s-card-body">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">First Name</label>
-                    <input class="form-input" type="text" id="s-first-name" placeholder="First name">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Last Name</label>
-                    <input class="form-input" type="text" id="s-last-name" placeholder="Last name">
-                  </div>
+            <!-- ── 2. Basic Info ── -->
+            <div class="sp-card">
+              <div class="sp-card-label">Basic Info</div>
+              <div class="sp-grid-2">
+                <div class="sp-field">
+                  <label class="sp-label">First Name</label>
+                  <input class="sp-input" type="text" id="s-first-name" placeholder="Jane" oninput="spUpdatePreview()">
                 </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Current Status</label>
-                    <select class="form-select" id="s-status">
-                      <option value="">Select status</option>
-                      <option>Freshman</option><option>Sophomore</option><option>Junior</option>
-                      <option>Senior</option><option>Recent Grad</option><option>Alumni</option>
-                      <option>Graduate Student</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Graduation Year</label>
-                    <select class="form-select" id="s-grad-year">
-                      <option value="">Select year</option>
-                      <option>2025</option><option>2026</option><option>2027</option>
-                      <option>2028</option><option>2029</option><option>2030</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Headline</label>
-                  <input class="form-input" type="text" id="s-headline" placeholder="e.g. Finance Junior → Investment Banking">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Bio</label>
-                  <textarea class="form-textarea" id="s-bio" placeholder="A genuine bio gets more chats than a resume bullet..."></textarea>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Interests &amp; Passions</label>
-                  <div class="tags-container" id="interests-container" onclick="document.getElementById('interests-input').focus()">
-                    <input class="tags-input" id="interests-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'interests-container')">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Hobbies</label>
-                  <div class="tags-container" id="hobbies-container" onclick="document.getElementById('hobbies-input').focus()">
-                    <input class="tags-input" id="hobbies-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'hobbies-container')">
-                  </div>
+                <div class="sp-field">
+                  <label class="sp-label">Last Name</label>
+                  <input class="sp-input" type="text" id="s-last-name" placeholder="Smith" oninput="spUpdatePreview()">
                 </div>
               </div>
-              <div class="s-card-footer">
-                <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
-                <button class="btn-ghost" onclick="sLoadProfile()">Discard</button>
+              <div class="sp-field">
+                <label class="sp-label">Headline</label>
+                <input class="sp-input" type="text" id="s-headline" placeholder="e.g. Finance Junior → Investment Banking" oninput="spUpdatePreview()">
+                <div class="sp-hint">Appears under your name on your profile card</div>
+              </div>
+              <div class="sp-field">
+                <label class="sp-label">Bio</label>
+                <textarea class="sp-input sp-textarea" id="s-bio" placeholder="A genuine bio gets more chats than a resume bullet…"></textarea>
+              </div>
+              <div class="sp-field">
+                <label class="sp-label">Interests &amp; Passions</label>
+                <div class="sp-tags-wrap" id="interests-container" onclick="document.getElementById('interests-input').focus()">
+                  <input class="sp-tag-input" id="interests-input" placeholder="Type and press Enter…" onkeydown="addTag(event,'interests-container')">
+                </div>
+                <div class="sp-hint">Press Enter or comma to add · click × to remove</div>
+              </div>
+              <div class="sp-field" style="margin-bottom:0">
+                <label class="sp-label">Hobbies</label>
+                <div class="sp-tags-wrap" id="hobbies-container" onclick="document.getElementById('hobbies-input').focus()">
+                  <input class="sp-tag-input" id="hobbies-input" placeholder="Type and press Enter…" onkeydown="addTag(event,'hobbies-container')">
+                </div>
+              </div>
+              <div class="sp-save-row">
+                <button class="sp-btn-ghost" onclick="sLoadProfile()">Discard</button>
+                <button class="sp-btn-primary" onclick="saveSection('profile')">Save Changes</button>
               </div>
             </div>
 
-            <!-- Student Info -->
-            <div class="s-card">
-              <div class="s-card-header">
-                <div>
-                  <div class="s-card-title">Academic Info</div>
-                  <div style="font-size:12px;color:#8b6a52;margin-top:2px;">For current students &amp; graduate students</div>
-                </div>
+            <!-- ── 3. Education ── -->
+            <div class="sp-card">
+              <div class="sp-card-label">Education</div>
+              <div class="sp-field">
+                <label class="sp-label">School</label>
+                <input class="sp-input" type="text" id="s-school" placeholder="Rowan University" oninput="spUpdatePreview()">
               </div>
-              <div class="s-card-body">
-                <div class="form-group">
-                  <label class="form-label">Major</label>
-                  <input class="form-input" type="text" id="s-major" placeholder="e.g. Finance, Computer Science">
+              <div class="sp-field">
+                <label class="sp-label">Current Status</label>
+                <div class="sp-chips" id="sp-status-chips">
+                  <button type="button" class="sp-chip" data-value="Freshman"    onclick="selectStatusChip(this)">Freshman</button>
+                  <button type="button" class="sp-chip" data-value="Sophomore"   onclick="selectStatusChip(this)">Sophomore</button>
+                  <button type="button" class="sp-chip" data-value="Junior"      onclick="selectStatusChip(this)">Junior</button>
+                  <button type="button" class="sp-chip" data-value="Senior"      onclick="selectStatusChip(this)">Senior</button>
+                  <button type="button" class="sp-chip" data-value="Grad Student" onclick="selectStatusChip(this)">Grad Student</button>
+                  <button type="button" class="sp-chip" data-value="Recent Grad" onclick="selectStatusChip(this)">Recent Grad</button>
+                  <button type="button" class="sp-chip" data-value="Alumni"      onclick="selectStatusChip(this)">Alumni</button>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Career Goals</label>
-                  <textarea class="form-textarea" id="s-goals" rows="2" placeholder="What do you want to achieve in the next 1–3 years?"></textarea>
-                </div>
+                <input type="hidden" id="s-status" value="">
               </div>
-              <div class="s-card-footer">
-                <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
-                <button class="btn-ghost" onclick="sLoadProfile()">Discard</button>
-              </div>
-            </div>
-
-            <!-- Professional Info -->
-            <div class="s-card">
-              <div class="s-card-header">
-                <div>
-                  <div class="s-card-title">Professional Info</div>
-                  <div style="font-size:12px;color:#8b6a52;margin-top:2px;">For recent grads &amp; alumni</div>
-                </div>
-              </div>
-              <div class="s-card-body">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Role / Title</label>
-                    <input class="form-input" type="text" id="s-role" placeholder="e.g. Software Engineer, Analyst">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Company / Organization</label>
-                    <input class="form-input" type="text" id="s-company" placeholder="e.g. Goldman Sachs, Google">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Industry / Field</label>
-                  <select class="form-select" id="s-industry">
-                    <option value="">Select industry</option>
-                    <option>Business / Finance</option>
-                    <option>Computer Science / Tech</option>
-                    <option>Engineering</option>
-                    <option>Pre-Med / Healthcare</option>
-                    <option>Liberal Arts / Humanities</option>
-                    <option>Undecided / Exploring</option>
+              <div class="sp-grid-2">
+                <div class="sp-field">
+                  <label class="sp-label">Graduation Year</label>
+                  <select class="sp-input" id="s-grad-year">
+                    <option value="">Select year</option>
+                    <option>2025</option><option>2026</option><option>2027</option>
+                    <option>2028</option><option>2029</option><option>2030</option>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">LinkedIn URL</label>
-                  <input class="form-input" type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
+                <div class="sp-field">
+                  <label class="sp-label">Major</label>
+                  <input class="sp-input" type="text" id="s-major" placeholder="e.g. Finance">
                 </div>
               </div>
-              <div class="s-card-footer">
-                <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
-                <button class="btn-ghost" onclick="sLoadProfile()">Discard</button>
+              <div class="sp-field" style="margin-bottom:0">
+                <label class="sp-label">Field / Industry</label>
+                <select class="sp-input" id="s-industry">
+                  <option value="">Select field</option>
+                  <option>Business / Finance</option>
+                  <option>Computer Science / Tech</option>
+                  <option>Engineering</option>
+                  <option>Pre-Med / Healthcare</option>
+                  <option>Liberal Arts / Humanities</option>
+                  <option>Undecided / Exploring</option>
+                </select>
+              </div>
+              <div class="sp-save-row">
+                <button class="sp-btn-ghost" onclick="sLoadProfile()">Discard</button>
+                <button class="sp-btn-primary" onclick="saveSection('profile')">Save Changes</button>
               </div>
             </div>
 
-            <!-- Resume -->
-            <div class="s-card">
-              <div class="s-card-header"><div class="s-card-title">Resume</div></div>
-              <div class="s-card-body">
-                <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
-                  <div>
-                    <div style="font-size:14px;font-weight:500;color:#1a0e07">📄 Resume</div>
-                    <div style="font-size:12px;color:#8b6a52;margin-top:2px">PDF · Visible to approved connections</div>
-                  </div>
-                  <button class="btn-upload" onclick="document.getElementById('s-resume-input').click()">📁 Upload Resume (PDF)</button>
-                  <input type="file" id="s-resume-input" accept=".pdf" style="display:none" onchange="sHandleResumeUpload(this)">
+            <!-- ── 4. Career ── -->
+            <div class="sp-card">
+              <div class="sp-card-label">Professional Info</div>
+              <div class="sp-grid-2">
+                <div class="sp-field">
+                  <label class="sp-label">Role / Title</label>
+                  <input class="sp-input" type="text" id="s-role" placeholder="e.g. Software Engineer">
+                </div>
+                <div class="sp-field">
+                  <label class="sp-label">Company / Organization</label>
+                  <input class="sp-input" type="text" id="s-company" placeholder="e.g. Goldman Sachs">
                 </div>
               </div>
+              <div class="sp-field">
+                <label class="sp-label">Career Goals</label>
+                <textarea class="sp-input sp-textarea" id="s-goals" rows="2" placeholder="What do you want to achieve in the next 1–3 years?"></textarea>
+              </div>
+              <div class="sp-field">
+                <label class="sp-label">LinkedIn URL</label>
+                <input class="sp-input" type="url" id="s-linkedin" placeholder="https://linkedin.com/in/yourname">
+              </div>
+              <div class="sp-field" style="margin-bottom:0">
+                <label class="sp-label">Personal Website</label>
+                <input class="sp-input" type="url" id="s-website" placeholder="https://yourwebsite.com">
+              </div>
+              <div class="sp-save-row">
+                <button class="sp-btn-ghost" onclick="sLoadProfile()">Discard</button>
+                <button class="sp-btn-primary" onclick="saveSection('profile')">Save Changes</button>
+              </div>
             </div>
+
+            <!-- ── 5. Resume ── -->
+            <div class="sp-card">
+              <div class="sp-card-label">Resume</div>
+              <div id="sp-resume-current" style="display:none;" class="sp-resume-row">
+                <span style="font-size:22px;">📄</span>
+                <div class="sp-resume-info">
+                  <div class="sp-resume-name" id="sp-resume-name">Resume.pdf</div>
+                  <div class="sp-hint" style="margin:0">PDF · Visible to approved connections</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0;">
+                  <button class="sp-btn-ghost" onclick="sViewResume()">View</button>
+                  <button class="sp-btn-danger" onclick="sRemoveResume()">Remove</button>
+                </div>
+              </div>
+              <div id="sp-resume-empty">
+                <p class="sp-hint" style="margin-bottom:14px;">No resume uploaded yet · PDF only · max 10 MB</p>
+                <button class="sp-btn-ghost" onclick="document.getElementById('s-resume-input').click()">📁 Upload Resume (PDF)</button>
+              </div>
+              <input type="file" id="s-resume-input" accept=".pdf" style="display:none" onchange="sHandleResumeUpload(this)">
+            </div>
+
+            <!-- ── 6. Achievements ── -->
+            <div class="sp-card">
+              <div class="sp-card-label">Achievements</div>
+              <div id="stAchievementsList"></div>
+              <div id="achInlineForm" style="display:none;"></div>
+              <div style="margin-top:14px;">
+                <button class="sp-btn-ghost" id="achAddBtn" onclick="openAchForm()">+ Add Achievement</button>
+              </div>
+            </div>
+
           </div>
 
           <!-- ─────────────── ACCOUNT & SECURITY ─────────────── -->
