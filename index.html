@@ -1600,6 +1600,18 @@
                   <label class="form-label">Bio</label>
                   <textarea class="form-textarea" id="s-bio" placeholder="A genuine bio gets more chats than a resume bullet..."></textarea>
                 </div>
+                <div class="form-group">
+                  <label class="form-label">Interests &amp; Passions</label>
+                  <div class="tags-container" id="interests-container" onclick="document.getElementById('interests-input').focus()">
+                    <input class="tags-input" id="interests-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'interests-container')">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Hobbies</label>
+                  <div class="tags-container" id="hobbies-container" onclick="document.getElementById('hobbies-input').focus()">
+                    <input class="tags-input" id="hobbies-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'hobbies-container')">
+                  </div>
+                </div>
               </div>
               <div class="s-card-footer">
                 <button class="btn-primary" onclick="saveSection('profile')">Save Changes</button>
@@ -1623,18 +1635,6 @@
                 <div class="form-group">
                   <label class="form-label">Career Goals</label>
                   <textarea class="form-textarea" id="s-goals" rows="2" placeholder="What do you want to achieve in the next 1–3 years?"></textarea>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Interests &amp; Passions</label>
-                  <div class="tags-container" id="interests-container" onclick="document.getElementById('interests-input').focus()">
-                    <input class="tags-input" id="interests-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'interests-container')">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Hobbies</label>
-                  <div class="tags-container" id="hobbies-container" onclick="document.getElementById('hobbies-input').focus()">
-                    <input class="tags-input" id="hobbies-input" placeholder="Type and press Enter..." onkeydown="addTag(event,'hobbies-container')">
-                  </div>
                 </div>
               </div>
               <div class="s-card-footer">
