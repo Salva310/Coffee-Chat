@@ -1,3 +1,31 @@
+        // ── Navigation: which views belong to which tab ──
+        const VIEW_TAB = {
+            dashboardView:     'home',
+            feedView:          'home',
+            discoverView:      'discover',
+            profileDetailView: 'discover',
+            messagesView:      'chats',
+            inboxView:         'chats',
+            scheduleView:      'chats',
+            calendarView:      'chats',
+            callView:          'chats',
+            networkView:       'network',
+            groupsView:        'network',
+            groupDetailView:   'network',
+            myProfileView:     'profile',
+            settingsView:      'profile',
+            availabilityView:  'profile',
+        };
+
+        // ── 5 primary tabs ──
+        const NAV_TABS = [
+            { id: 'home',     icon: '🏠', label: 'Home',     view: 'dashboardView' },
+            { id: 'discover', icon: '🔍', label: 'Discover', view: 'discoverView'  },
+            { id: 'chats',    icon: '☕', label: 'Chats',    view: 'messagesView'  },
+            { id: 'network',  icon: '🤝', label: 'Network',  view: 'networkView'   },
+            { id: 'profile',  icon: '👤', label: 'Profile',  view: 'myProfileView' },
+        ];
+
         // Supabase Configuration
         const SUPABASE_URL = 'https://vmrmkkngjlicuvrpejxx.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UZ6aNCU1qZ5TfGCHXdPz4w_ferczbVL';
@@ -1027,114 +1055,50 @@
 
         // Navigation
         function renderNav() {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.innerHTML = '';
-
-            // Topbar + sidebar visibility
-            const topbar = document.getElementById('appTopbar');
+            const topbar      = document.getElementById('appTopbar');
             const bellContainer = document.getElementById('notifBellContainer');
-            const userChip = document.getElementById('topbarUserChip');
+            const userChip    = document.getElementById('topbarUserChip');
+            const logoutBtn   = document.getElementById('logoutBtn');
+            const mainNav     = document.getElementById('mainNav');
 
             if (currentUser) {
-                // Show topbar, sidebar, bell, user chip
                 document.body.classList.add('app-mode');
-                if (topbar) topbar.classList.add('visible');
+                if (topbar)       topbar.classList.add('visible');
                 if (bellContainer) bellContainer.style.display = 'flex';
+                if (logoutBtn)    logoutBtn.style.display = 'flex';
                 if (userChip) {
                     userChip.style.display = 'flex';
-                    const initials = (currentUser.firstName[0] || '') + (currentUser.lastName ? currentUser.lastName[0] : '');
-                    document.getElementById('topbarUserAv').textContent = initials.toUpperCase();
-                    document.getElementById('topbarUserName').textContent = currentUser.firstName + ' ' + (currentUser.lastName ? currentUser.lastName[0] + '.' : '');
-                }
-
-                // Populate sidebar user section
-                const sidebarUserSection = document.getElementById('sidebarUserSection');
-                if (sidebarUserSection) {
-                    sidebarUserSection.style.display = 'flex';
                     const initials = ((currentUser.firstName||'')[0]||'') + ((currentUser.lastName||'')[0]||'');
-                    const avEl = document.getElementById('sidebarUserAv');
-                    if (avEl) avEl.textContent = initials.toUpperCase() || '?';
-                    const nameEl = document.getElementById('sidebarUserName');
-                    if (nameEl) nameEl.textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
-                    const statusEl = document.getElementById('sidebarUserStatus');
-                    if (statusEl) {
-                        const parts = [currentUser.industry, currentUser.status].filter(Boolean);
-                        statusEl.textContent = parts.join(' · ');
-                    }
+                    document.getElementById('topbarUserAv').textContent = initials.toUpperCase();
+                    document.getElementById('topbarUserName').textContent =
+                        (currentUser.firstName || '') + ' ' + (currentUser.lastName ? currentUser.lastName[0] + '.' : '');
                 }
 
-                // Build nav items with icons and labels
-                const mainItems = [
-                    { id: 'dashboardView', icon: '🏠', label: 'Dashboard' },
-                    { id: 'discoverView', icon: '🔍', label: 'Discover' },
-                    { id: 'networkView', icon: '🤝', label: 'My Network' },
-                    { id: 'inboxView', icon: '💬', label: 'Messages' },
-                ];
-                const communityItems = [
-                    { id: 'feedView', icon: '📰', label: 'Feed' },
-                    { id: 'groupsView', icon: '👥', label: 'Communities' },
-                    { id: 'messagesView', icon: '☕', label: 'My Chats' },
-                ];
-
-                // Label: Main
-                mainItems.forEach(item => {
-                    const btn = document.createElement('button');
-                    btn.className = 'nav-item';
-                    btn.innerHTML = `<span class="nav-icon">${item.icon}</span>${item.label}`;
-                    btn.onclick = () => switchView(item.id);
-                    navMenu.appendChild(btn);
-                });
-
-                // Label: Community
-                const communityLabel = document.createElement('div');
-                communityLabel.className = 'sidebar-label';
-                communityLabel.textContent = 'Community';
-                navMenu.appendChild(communityLabel);
-
-                communityItems.forEach(item => {
-                    const btn = document.createElement('button');
-                    btn.className = 'nav-item';
-                    btn.innerHTML = `<span class="nav-icon">${item.icon}</span>${item.label}`;
-                    btn.onclick = () => switchView(item.id);
-                    navMenu.appendChild(btn);
-                });
-
-                // Divider + My Profile
-                const divider = document.createElement('div');
-                divider.className = 'sidebar-divider';
-                navMenu.appendChild(divider);
-
-                const profileBtn = document.createElement('button');
-                profileBtn.className = 'nav-item';
-                profileBtn.innerHTML = `<span class="nav-icon">👤</span>My Profile`;
-                profileBtn.onclick = () => switchView('myProfileView');
-                navMenu.appendChild(profileBtn);
-
-                const settingsBtn = document.createElement('button');
-                settingsBtn.className = 'nav-item';
-                settingsBtn.innerHTML = `<span class="nav-icon">⚙️</span>Settings`;
-                settingsBtn.onclick = () => switchView('settingsView');
-                navMenu.appendChild(settingsBtn);
+                // Build desktop 5-tab nav
+                if (mainNav) {
+                    mainNav.innerHTML = NAV_TABS.map(t => `
+                        <button class="main-nav-tab" data-tab="${t.id}" onclick="switchView('${t.view}')">
+                            <span class="main-nav-tab-icon">${t.icon}</span>
+                            <span class="main-nav-tab-label">${t.label}</span>
+                        </button>`).join('');
+                }
             } else {
-                // Hide topbar, sidebar, bell
                 document.body.classList.remove('app-mode');
-                if (topbar) topbar.classList.remove('visible');
+                if (topbar)       topbar.classList.remove('visible');
                 if (bellContainer) bellContainer.style.display = 'none';
-                if (userChip) userChip.style.display = 'none';
-                const sidebarUserSection = document.getElementById('sidebarUserSection');
-                if (sidebarUserSection) sidebarUserSection.style.display = 'none';
+                if (logoutBtn)    logoutBtn.style.display = 'none';
+                if (userChip)     userChip.style.display = 'none';
+                if (mainNav)      mainNav.innerHTML = '';
             }
         }
 
         function updateNavActive(viewId) {
-            document.querySelectorAll('#navMenu .nav-item').forEach(btn => {
-                btn.classList.remove('active');
+            const activeTab = VIEW_TAB[viewId] || '';
+            document.querySelectorAll('.main-nav-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === activeTab);
             });
-            // Match by onclick reference
-            document.querySelectorAll('#navMenu .nav-item').forEach(btn => {
-                if (btn.onclick && btn.onclick.toString().includes(viewId)) {
-                    btn.classList.add('active');
-                }
+            document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === activeTab);
             });
         }
 
@@ -1146,11 +1110,6 @@
             // hide main-content when settings is open so settingsView fills the space
             const _mc = document.getElementById('mainContent');
             if (_mc) _mc.style.display = (viewId === 'settingsView') ? 'none' : '';
-
-            // Update mobile bottom nav active state
-            document.querySelectorAll('.mob-nav-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.view === viewId);
-            });
 
             if (viewId === 'discoverView') {
                 // Always re-fetch profiles so newly created accounts appear immediately
@@ -5318,7 +5277,10 @@
                                     ? `<a href="${/^https?:\/\//i.test(profile.linkedinUrl) ? profile.linkedinUrl : 'https://' + profile.linkedinUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:6px 13px;background:#f0f4ff;border:1px solid #c0cff5;border-radius:8px;font-size:13px;font-weight:500;color:#2563eb;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='#e0ebff'" onmouseout="this.style.background='#f0f4ff'"><svg width="14" height="14" viewBox="0 0 24 24" fill="#2563eb"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn Profile</a>`
                                     : `<span onclick="editMyProfile()" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 13px;background:var(--latte-soft);border:1px dashed var(--latte);border-radius:8px;font-size:12.5px;color:var(--muted);cursor:pointer;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor='var(--caramel)';this.style.color='var(--caramel)'" onmouseout="this.style.borderColor='var(--latte)';this.style.color='var(--muted)'">+ Add LinkedIn URL</span>`}
                             </div>
-                            <button class="mp2-ghost" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;margin-top:2px;" onclick="showToast('Share link copied!','success')">Share Profile</button>
+                            <div style="display:flex;gap:8px;flex-shrink:0;margin-top:2px;">
+                                <button class="mp2-ghost" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="showToast('Share link copied!','success')">Share Profile</button>
+                                <button title="Settings" onclick="switchView('settingsView')" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;transition:background .15s,border-color .15s;" onmouseover="this.style.background='var(--latte-soft)';this.style.borderColor='var(--caramel)'" onmouseout="this.style.background='transparent';this.style.borderColor='var(--latte)'">⚙️</button>
+                            </div>
                         </div>
                         <!-- Stats bar -->
                         <div class="mp2-stats" style="display:flex;border-top:1px solid var(--latte);margin:0 -28px;">

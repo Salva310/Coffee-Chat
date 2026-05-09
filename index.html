@@ -23,9 +23,8 @@
             <svg width="22" height="24" viewBox="0 0 72 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 18 Q27 12 24 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M36 18 Q39 12 36 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M48 18 Q51 12 48 6" stroke="#e8944a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M14 22 L20 66 H52 L58 22 Z" fill="#c17d3c"/><path d="M18 22 L23 58 H28 L23.5 22 Z" fill="rgba(255,255,255,0.07)"/><ellipse cx="36" cy="27" rx="20" ry="4" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="24" ry="5" fill="#9a5f28"/><ellipse cx="36" cy="68" rx="20" ry="3.5" fill="#c17d3c"/><path d="M58 30 Q72 30 72 44 Q72 58 58 58" stroke="#c17d3c" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M58 30 Q68 30 68 44 Q68 58 58 58" stroke="#9a5f28" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
             <span>First</span><span style="color:var(--caramel)">Sip</span>
         </div>
-        <div class="topbar-search">
-            <input class="topbar-search-input" placeholder="Search people, groups..." />
-        </div>
+        <!-- Desktop 5-tab nav (hidden on mobile) -->
+        <nav class="main-nav" id="mainNav"></nav>
         <div class="topbar-right">
             <div id="notifBellContainer" style="display:none;">
                 <button class="icon-btn" onclick="toggleNotifications()" id="notifBell" title="Notifications">
@@ -33,6 +32,7 @@
                     <div class="notif-dot" id="notifDot" style="display:none;"></div>
                 </button>
             </div>
+            <button class="icon-btn" onclick="handleLogout()" id="logoutBtn" title="Sign Out" style="display:none;">🚪</button>
             <div class="user-chip" onclick="switchView('myProfileView')" id="topbarUserChip" style="display:none;">
                 <div class="user-chip-av" id="topbarUserAv">?</div>
                 <div class="user-chip-name" id="topbarUserName">You</div>
@@ -60,25 +60,25 @@
             </div>
         </div>
 
-        <!-- Mobile Bottom Navigation -->
+        <!-- Mobile Bottom Navigation (5 tabs) -->
         <nav class="mobile-bottom-nav" id="mobileBottomNav">
-            <button class="mob-nav-btn" onclick="switchView('dashboardView')" data-view="dashboardView">
+            <button class="mob-nav-btn" onclick="switchView('dashboardView')" data-tab="home">
                 <span class="mob-nav-icon">🏠</span>
                 <span class="mob-nav-lbl">Home</span>
             </button>
-            <button class="mob-nav-btn" onclick="switchView('discoverView')" data-view="discoverView">
+            <button class="mob-nav-btn" onclick="switchView('discoverView')" data-tab="discover">
                 <span class="mob-nav-icon">🔍</span>
                 <span class="mob-nav-lbl">Discover</span>
             </button>
-            <button class="mob-nav-btn" onclick="switchView('inboxView')" data-view="inboxView">
-                <span class="mob-nav-icon">💬</span>
-                <span class="mob-nav-lbl">Messages</span>
-            </button>
-            <button class="mob-nav-btn" onclick="switchView('messagesView')" data-view="messagesView">
+            <button class="mob-nav-btn" onclick="switchView('messagesView')" data-tab="chats">
                 <span class="mob-nav-icon">☕</span>
                 <span class="mob-nav-lbl">Chats</span>
             </button>
-            <button class="mob-nav-btn" onclick="switchView('myProfileView')" data-view="myProfileView">
+            <button class="mob-nav-btn" onclick="switchView('networkView')" data-tab="network">
+                <span class="mob-nav-icon">🤝</span>
+                <span class="mob-nav-lbl">Network</span>
+            </button>
+            <button class="mob-nav-btn" onclick="switchView('myProfileView')" data-tab="profile">
                 <span class="mob-nav-icon">👤</span>
                 <span class="mob-nav-lbl">Profile</span>
             </button>
