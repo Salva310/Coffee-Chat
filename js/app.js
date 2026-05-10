@@ -2816,6 +2816,50 @@
                 </div>`;
         }
 
+        function buildReceivedInviteCard(invite) {
+            const senderId = invite.sender_id || invite.user_id;
+            const partner  = users.find(u => u.id === senderId);
+            const pFirst   = partner?.firstName || partner?.first_name || 'Someone';
+            const pLast    = partner?.lastName  || partner?.last_name  || '';
+            const role     = partner?.role    || '';
+            const company  = partner?.company || '';
+            const initials = ((pFirst[0]||'') + (pLast[0]||'')).toUpperCase();
+            const topic    = invite.topic || invite.note || '';
+            const gradients = [
+                'linear-gradient(135deg,#5c3317,#b5651d)',
+                'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                'linear-gradient(135deg,#2d7a4f,#52c887)',
+                'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                'linear-gradient(135deg,#be185d,#f472b6)',
+            ];
+            const gradIdx = (senderId||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
+            return `
+                <div class="mc-chat-card pending">
+                    <div class="mc-card-top">
+                        <div class="mc-avatar-wrap">
+                            <div class="mc-avatar" style="background:${gradients[gradIdx]}">${initials||'?'}</div>
+                        </div>
+                        <div>
+                            <div class="mc-chat-name">${pFirst} ${pLast}</div>
+                            <div class="mc-chat-meta">
+                                ${role ? `<span>${role}</span>` : ''}
+                                ${role && company ? '<span class="mc-meta-dot"></span>' : ''}
+                                ${company ? `<span>${company}</span>` : ''}
+                            </div>
+                            ${topic ? `<div class="mc-chat-topic">"${topic}"</div>` : ''}
+                        </div>
+                        <div class="mc-card-right">
+                            <span class="mc-status-badge pending">☕ Invite</span>
+                            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Wants to chat</div>
+                        </div>
+                    </div>
+                    <div class="mc-card-actions">
+                        <button class="mc-btn-sm primary" onclick="event.stopPropagation();acceptChatInvite('${invite.id}')">✓ Accept</button>
+                        <button class="mc-btn-sm danger"  onclick="event.stopPropagation();declineChatInvite('${invite.id}')">✗ Decline</button>
+                    </div>
+                </div>`;
+        }
+
         // Messages
         async function startMessage(userId) {
             switchView('inboxView');
@@ -2878,6 +2922,7 @@
 
             const pendingHtml = [
                 ...pendingMtgs.map(m => buildChatCard(m, 'pending', false)),
+                ...chatInvites.map(inv => buildReceivedInviteCard(inv)),
                 ...sentChatInvites.map(inv => buildInviteCard(inv))
             ].join('');
             pendingEl.innerHTML = pendingHtml || emptyMcState('⏳','No pending requests','When you send or receive a chat request it will appear here.','pending');
@@ -2929,7 +2974,7 @@
                     <div class="mc-card-actions">
                         <button class="mc-btn-sm secondary">📅 Reschedule</button>
                         <button class="mc-btn-sm secondary" onclick="event.stopPropagation();startMessage('${partnerId}')">✉ Message</button>
-                        <button class="mc-btn-sm danger" onclick="event.stopPropagation()">Cancel</button>
+                        <button class="mc-btn-sm danger" onclick="event.stopPropagation();cancelMeetingRequest('${m.id}')">Cancel</button>
                     </div>`;
             } else if (status === 'completed') {
                 actionsHTML = `
