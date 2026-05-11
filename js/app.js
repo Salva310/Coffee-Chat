@@ -1201,6 +1201,98 @@
         }
 
         // Dashboard
+        function switchHomeTab(tab) {
+            const homePanel = document.getElementById('home-panel-home');
+            const feedPanel = document.getElementById('home-panel-feed');
+            const homeBtn   = document.getElementById('homeTabHome');
+            const feedBtn   = document.getElementById('homeTabFeed');
+            if (!homePanel || !feedPanel) return;
+            if (tab === 'feed') {
+                homePanel.style.display = 'none';
+                feedPanel.style.display = 'block';
+                if (homeBtn) homeBtn.classList.remove('active');
+                if (feedBtn) feedBtn.classList.add('active');
+                renderHomeFeed();
+            } else {
+                feedPanel.style.display = 'none';
+                homePanel.style.display = 'block';
+                if (feedBtn) feedBtn.classList.remove('active');
+                if (homeBtn) homeBtn.classList.add('active');
+            }
+        }
+
+        function switchHomeFeedTab(tab) {
+            const connBtn = document.getElementById('homeFeedTabConnections');
+            const grpBtn  = document.getElementById('homeFeedTabGroups');
+            if (connBtn) connBtn.classList.toggle('active', tab === 'connections');
+            if (grpBtn)  grpBtn.classList.toggle('active',  tab === 'groups');
+            renderHomeFeed(tab);
+        }
+
+        async function renderHomeFeed(tab) {
+            const container = document.getElementById('homeFeedPosts');
+            if (!container) return;
+            // Determine active tab from button state if not passed
+            if (!tab) {
+                tab = document.getElementById('homeFeedTabGroups')?.classList.contains('active') ? 'groups' : 'connections';
+            }
+            // Reuse renderFeed logic but target homeFeedPosts
+            // Temporarily swap the feedPosts container, render, swap back
+            const realFeedPosts = document.getElementById('feedPosts');
+            const realTabConn   = document.getElementById('feedTabConnections');
+            const realTabGrps   = document.getElementById('feedTabGroups');
+            // Sync tab state on the real feedView controls so renderFeed reads it correctly
+            if (realTabConn) realTabConn.classList.toggle('active', tab === 'connections');
+            if (realTabGrps) realTabGrps.classList.toggle('active', tab === 'groups');
+            // Render into the home feed container directly
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">Loading feed…</div>';
+            if (tab === 'groups') {
+                await renderGroupsFeedTab(container);
+            } else {
+                // Fetch connection posts
+                if (!currentUser) return;
+                try {
+                    const connectedIds = new Set(connections.map(c =>
+                        c.user_id === currentUser.id ? c.connected_user_id : c.user_id));
+                    connectedIds.add(currentUser.id);
+                    const { data: posts } = await supabaseClient
+                        .from('posts').select('*').is('group_id', null)
+                        .in('author_id', [...connectedIds])
+                        .order('created_at', { ascending: false }).limit(30);
+                    if (!posts || posts.length === 0) {
+                        container.innerHTML = `<div class="fv-empty"><div class="fv-empty-icon">📰</div><p>No posts from your connections yet.</p><button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top:1rem;">Find people to connect with</button></div>`;
+                        return;
+                    }
+                    const { data: likesData } = await supabaseClient.from('post_likes').select('post_id,user_id').in('post_id', posts.map(p => p.id));
+                    const likeMap = {}; const likedSet = new Set();
+                    (likesData||[]).forEach(l => { likeMap[l.post_id] = (likeMap[l.post_id]||0)+1; if (l.user_id===currentUser.id) likedSet.add(l.post_id); });
+                    container.innerHTML = posts.map(post => {
+                        const author = users.find(u => u.id === post.author_id) || {};
+                        const name   = [author.firstName, author.lastName].filter(Boolean).join(' ') || 'Someone';
+                        const init   = ((author.firstName||'?')[0]+(author.lastName||'')[0]).toUpperCase();
+                        const liked  = likedSet.has(post.id);
+                        const lc     = likeMap[post.id] || 0;
+                        const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                        return `<div class="feed-post-card">
+                            <div class="post-header">
+                                <div class="post-avatar" style="background:linear-gradient(135deg,var(--caramel),var(--espresso));">${init}</div>
+                                <div class="post-author-info"><div class="post-author-name">${name}</div><div class="post-author-meta">${timeAgo}</div></div>
+                            </div>
+                            <p class="post-content">${post.content}</p>
+                            <div class="post-actions">
+                                <button class="post-action-btn${liked?' liked':''}" id="hflike-${post.id}" onclick="likePost('${post.id}',this)">👍 <span id="hflikecount-${post.id}">${lc}</span> ${lc===1?'Like':'Likes'}</button>
+                                <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
+                            </div>
+                            <div id="comments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                                <div id="comments-list-${post.id}" style="margin-bottom:8px;"></div>
+                                <div style="display:flex;gap:8px;"><input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;" onkeypress="if(event.key==='Enter')submitComment('${post.id}')"><button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button></div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } catch(e) { console.error('renderHomeFeed:', e); container.innerHTML = '<p style="padding:20px;color:var(--muted);">Could not load feed.</p>'; }
+            }
+        }
+
         function updateDashboard() {
             if (!currentUser) return;
 

@@ -959,6 +959,15 @@
             <!-- Dashboard -->
             <div id="dashboardView" class="content-view" style="padding:0; overflow-y:auto;">
 
+                <!-- Home / Feed tab bar -->
+                <div class="home-tab-bar">
+                    <button class="home-tab active" id="homeTabHome" onclick="switchHomeTab('home')">🏠 Home</button>
+                    <button class="home-tab" id="homeTabFeed" onclick="switchHomeTab('feed')">📰 Feed</button>
+                </div>
+
+                <!-- HOME PANEL -->
+                <div id="home-panel-home">
+
                 <!-- HEADER: Greeting + Alert Pill -->
                 <div class="db-header">
                     <div class="db-greeting-row">
@@ -1029,6 +1038,20 @@
                         <span id="progressPercent"></span>
                         <div id="completionMsg"></div>
                     </div>
+                </div>
+
+                </div><!-- /home-panel-home -->
+
+                <!-- FEED PANEL -->
+                <div id="home-panel-feed" style="display:none; padding:24px 24px 80px;">
+                    <div class="fv-toolbar" style="margin-bottom:20px;">
+                        <div class="fv-tabs">
+                            <button id="homeFeedTabConnections" class="fv-tab active" onclick="switchHomeFeedTab('connections')">Connections</button>
+                            <button id="homeFeedTabGroups" class="fv-tab" onclick="switchHomeFeedTab('groups')">Groups</button>
+                        </div>
+                        <button class="fv-create-btn" onclick="createPost()">✍️ Create Post</button>
+                    </div>
+                    <div id="homeFeedPosts"></div>
                 </div>
 
             </div>
