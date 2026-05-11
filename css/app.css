@@ -8492,3 +8492,20 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
 [data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(212,137,74,0.2); }
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(212,137,74,0.35); }
 
+
+/* ── Network hero: keep dark background in dark mode ── */
+[data-theme="dark"] .nw-hero {
+  background: #1a1410 !important;
+  border-bottom: 1px solid rgba(212,137,74,0.15) !important;
+}
+[data-theme="dark"] .nw-hero-title { color: #EDE4D4 !important; }
+[data-theme="dark"] .nw-hero-title em { color: var(--caramel-light) !important; }
+[data-theme="dark"] .nw-hero-sub { color: rgba(237,228,212,0.55) !important; }
+[data-theme="dark"] .nw-eyebrow { color: var(--caramel-light) !important; }
+[data-theme="dark"] .nw-stat-val { color: var(--caramel) !important; }
+[data-theme="dark"] .nw-stat-lbl { color: rgba(237,228,212,0.5) !important; }
+[data-theme="dark"] .nw-stat { border-right-color: rgba(212,137,74,0.15) !important; }
+[data-theme="dark"] .nw-tabs { background: var(--card) !important; border-bottom-color: var(--border) !important; }
+[data-theme="dark"] .nw-tab { color: var(--muted) !important; }
+[data-theme="dark"] .nw-tab.active { color: var(--caramel) !important; border-bottom-color: var(--caramel) !important; }
+[data-theme="dark"] .nw-content { background: var(--cream) !important; }
