@@ -5622,258 +5622,359 @@
             // Cache data for preview modal
             _myProfilePreviewData = { profile, availRows, tagsHtml, chips };
 
-            container.innerHTML = `
-                <style>
-                    @keyframes mpFillBar { from { width:0% } to { width:${percentage}%; } }
-                    .mp2-btn  { transition: transform .18s, box-shadow .18s; }
-                    .mp2-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(28,18,8,.22) !important; }
-                    .mp2-ghost { transition: border-color .15s, color .15s; }
-                    .mp2-ghost:hover { border-color: var(--caramel) !important; color: var(--caramel) !important; }
-                    .mp2-card  { transition: box-shadow .15s; }
-                    .mp2-card:hover  { box-shadow: 0 6px 28px rgba(107,63,42,.14) !important; }
-                    .mp2-stat:hover  { background: var(--latte-soft) !important; }
-                    .mp2-resume:hover { border-color: var(--caramel) !important; background: #fef3e2 !important; }
-                    @media (max-width: 720px) {
-                        .mp2-lower { grid-template-columns: 1fr !important; }
-                        .mp2-stats { flex-wrap: wrap; }
-                        .mp2-stats > div { min-width: 33%; }
-                    }
-                </style>
+            // ── Build derived values for new template ──
+            const school = profile.schoolName || (!profile.role && profile.company ? profile.company : null) || 'Rowan University';
+            const coverStyle = profile.bannerImage
+                ? `background-image:url('${profile.bannerImage}');background-size:cover;background-position:center;`
+                : `background:linear-gradient(135deg,#EAD5BC 0%,#D4A574 50%,#C47B3A 100%);`;
+            const profilePicHTML = profile.profilePicture
+                ? `<img src="${profile.profilePicture}" alt="${profile.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                : initials;
+            const metaSchool = [school, profile.gradYear ? `Class of ${profile.gradYear}` : ''].filter(Boolean).join(' · ');
+            const metaRole   = [profile.role, profile.company].filter(Boolean).join(' at ');
 
-                <!-- Page header -->
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+            // Connections grid (top 7 + overflow badge)
+            const connectedUsers = connections.map(c => {
+                const uid = c.user_id === currentUser.id ? c.connected_user_id : c.user_id;
+                return users.find(u => u.id === uid);
+            }).filter(Boolean);
+            const connSlice   = connectedUsers.slice(0, 7);
+            const connExtra   = Math.max(0, connections.length - 7);
+            const gradients   = ['linear-gradient(135deg,#D4894A,#B5651D)','linear-gradient(135deg,#7B9E87,#4A7C5E)','linear-gradient(135deg,#8B7BAB,#6B5B8E)','linear-gradient(135deg,#D4896A,#B56540)','linear-gradient(135deg,#6B9EC4,#4A7EA8)'];
+            const connGridHTML = connSlice.map((u, i) => {
+                const fn = u.firstName || '?'; const ln = u.lastName || '';
+                const ini = (fn[0] + (ln[0]||'')).toUpperCase();
+                const bg  = gradients[i % gradients.length];
+                const pic = u.profilePicture ? `<img src="${u.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : ini;
+                return `<div class="mpn-conn-item" onclick="viewProfile('${u.id}')">
+                    <div class="mpn-conn-av" style="background:${u.profilePicture?'transparent':bg}">${pic}</div>
+                    <div class="mpn-conn-name">${fn} ${ln[0]||''}${ln[0]?'.':''}</div>
+                </div>`;
+            }).join('') + (connExtra > 0 ? `<div class="mpn-conn-item" onclick="switchView('networkView')">
+                <div class="mpn-conn-av" style="background:var(--latte-soft);color:var(--caramel);font-size:11px;font-weight:600;">+${connExtra}</div>
+                <div class="mpn-conn-name">More</div>
+            </div>` : '');
+
+            // Communities (joined groups)
+            const joinedGroupsList = groups.filter(g => myGroupIds.has(g.id)).slice(0, 3);
+            const communityHTML = joinedGroupsList.length
+                ? joinedGroupsList.map(g => `<div class="mpn-community-item" onclick="viewGroup('${g.id}')">
+                    <div class="mpn-community-icon">${g.icon || '👥'}</div>
                     <div>
-                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:4px;">Your presence on First Sip</div>
-                        <h1 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--espresso);line-height:1.2;">My <em style="font-style:italic;color:var(--caramel);">Profile</em></h1>
+                        <div class="mpn-community-name">${g.name}</div>
+                        <div class="mpn-community-sub">${g.member_count || 0} members</div>
                     </div>
-                    <div style="display:flex;gap:8px;">
-                        <button class="mp2-ghost" onclick="showProfilePreview()" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:9px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;">👁 Preview</button>
-                        <button class="mp2-btn" onclick="editMyProfile()" style="padding:10px 20px;background:var(--espresso);color:var(--cream);border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 3px 12px rgba(28,18,8,.2);">✏️ Edit Profile</button>
+                </div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No communities joined yet. <span onclick="switchView('networkView')" style="color:var(--caramel);cursor:pointer;font-style:normal;">Browse →</span></p>`;
+
+            // Achievements → Experience cards
+            const ACH_ICON = { internship:'💼', job:'💼', research:'🔬', club:'🏆', exam:'📜', award:'🏅', project:'🛠', other:'⭐' };
+            const expHTML = _myAchs.length
+                ? _myAchs.map(a => `<div class="mpn-exp-item">
+                    <div class="mpn-exp-logo">${ACH_ICON[a.type]||'⭐'}</div>
+                    <div class="mpn-exp-info">
+                        <div class="mpn-exp-role">${a.title || ''}</div>
+                        ${a.organization ? `<div class="mpn-exp-company">${a.organization}</div>` : ''}
+                        ${_fmtAchDate(a.start_date,a.end_date,a.is_current) ? `<div class="mpn-exp-date">${_fmtAchDate(a.start_date,a.end_date,a.is_current)}</div>` : ''}
+                        ${a.description ? `<div class="mpn-exp-desc">${a.description}</div>` : ''}
                     </div>
+                </div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No experience added yet. <span onclick="openAchForm()" style="color:var(--caramel);cursor:pointer;font-style:normal;">Add one →</span></p>`;
+
+            // Availability rows for sidebar
+            const fullDayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const availMap = {};
+            availRows.forEach(r => { availMap[r.day_of_week] = r; });
+            const availSidebarHTML = fullDayNames.map((day, i) => {
+                const row = availMap[i];
+                return `<div class="mpn-avail-row">
+                    <span class="mpn-avail-day">${day}</span>
+                    ${row ? `<span class="mpn-avail-time">${fmt(row.start_time)} – ${fmt(row.end_time)}</span>`
+                          : `<span class="mpn-avail-off">Not available</span>`}
+                </div>`;
+            }).join('');
+
+            // Profile strength tip
+            const missing = compItems.filter(c => !c.done).map(c => c.label);
+            const strengthTip = missing.length
+                ? `Add your <strong>${missing.slice(0,2).join('</strong> and <strong>')}</strong> to reach 100% and get 3× more requests.`
+                : `Your profile is complete! You're showing up at your best. ☕`;
+
+            // Goals — show as bullets if newlines, else single block
+            const goalLines = (profile.goals || '').split('\n').map(l => l.trim()).filter(Boolean);
+            const goalsHTML = goalLines.length
+                ? goalLines.map(l => `<div class="mpn-goal-item"><div class="mpn-goal-dot"></div><div class="mpn-goal-text">${l}</div></div>`).join('')
+                : `<p class="mpn-empty-text">No career goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add some →</span></p>`;
+
+            container.innerHTML = `
+            <div class="mpn-page">
+
+              <!-- Hero card -->
+              <div class="mpn-hero">
+                <div class="mpn-cover" style="${coverStyle}" onclick="document.getElementById('mpnBannerFile').click()">
+                  <input type="file" id="mpnBannerFile" accept="image/*" style="display:none;" onchange="sHandleCoverUpload(this)">
+                </div>
+                <div class="mpn-hero-body">
+                  <div class="mpn-avatar-row">
+                    <div class="mpn-avatar-wrap">
+                      <div class="mpn-avatar" style="background:${profile.profilePicture?'transparent':avatarBg}" onclick="document.getElementById('mpnAvatarFile').click()">
+                        ${profilePicHTML}
+                        <div class="mpn-avatar-edit">
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </div>
+                      </div>
+                      <input type="file" id="mpnAvatarFile" accept="image/*" style="display:none;" onchange="sHandlePhotoUpload(this)">
+                    </div>
+                    <div class="mpn-hero-actions">
+                      <button class="mpn-btn-primary" onclick="editMyProfile()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        Edit profile
+                      </button>
+                      <button class="mpn-btn-ghost" onclick="switchView('settingsView')">⚙️ Settings</button>
+                      <button class="mpn-btn-ghost" onclick="showToast('Share link copied!','success')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        Share
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="mpn-name">${profile.firstName || ''} ${profile.lastName || ''}</div>
+                  ${(profile.headline || metaRole) ? `<div class="mpn-headline">${profile.headline || metaRole}</div>` : ''}
+
+                  <div class="mpn-meta">
+                    ${metaSchool ? `<div class="mpn-meta-item">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      ${metaSchool}
+                    </div>` : ''}
+                    ${profile.major ? `<div class="mpn-meta-item">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      ${profile.major}${profile.industry ? ` · ${profile.industry}` : ''}
+                    </div>` : ''}
+                    ${profile.linkedinUrl ? `<div class="mpn-meta-item">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                      <a href="${/^https?:\/\//i.test(profile.linkedinUrl)?profile.linkedinUrl:'https://'+profile.linkedinUrl}" target="_blank" rel="noopener" style="color:var(--caramel);text-decoration:none;">LinkedIn</a>
+                    </div>` : ''}
+                  </div>
+
+                  <div class="mpn-stat-row">
+                    <div class="mpn-stat-item" onclick="switchView('networkView')">
+                      <div class="mpn-stat-num">${connections.length}</div>
+                      <div class="mpn-stat-label">Connections</div>
+                    </div>
+                    <div class="mpn-stat-item" onclick="switchView('messagesView')">
+                      <div class="mpn-stat-num">${chatsCompleted || '—'}</div>
+                      <div class="mpn-stat-label">Coffee chats</div>
+                    </div>
+                    <div class="mpn-stat-item">
+                      <div class="mpn-stat-num">${myGroupIds.size || '—'}</div>
+                      <div class="mpn-stat-label">Communities</div>
+                    </div>
+                    <div class="mpn-stat-item">
+                      <div class="mpn-stat-num">${_myAchs.length || '—'}</div>
+                      <div class="mpn-stat-label">Achievements</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Two-col body -->
+              <div class="mpn-two-col">
+
+                <!-- Left column -->
+                <div>
+
+                  <!-- Profile strength -->
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">Profile strength</div>
+                    </div>
+                    <div class="mpn-card-body">
+                      <div class="mpn-strength-bar-wrap">
+                        <div class="mpn-strength-label">
+                          <span>${percentage < 40 ? 'Just getting started' : percentage < 70 ? 'Making progress' : percentage < 100 ? 'Almost there' : 'Complete!'}</span>
+                          <span class="mpn-strength-pct">${percentage}%</span>
+                        </div>
+                        <div class="mpn-bar-track">
+                          <div class="mpn-bar-fill" style="width:${percentage}%;animation:mpnFillBar 1s ease forwards;"></div>
+                        </div>
+                      </div>
+                      <div class="mpn-strength-tip">${strengthTip}</div>
+                    </div>
+                  </div>
+
+                  <!-- About -->
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">About</div>
+                      <button class="mpn-card-edit" onclick="editMyProfile()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      </button>
+                    </div>
+                    <div class="mpn-card-body">
+                      ${profile.bio
+                          ? `<p class="mpn-about-text">${profile.bio}</p>`
+                          : `<p class="mpn-empty-text">No bio yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add one →</span></p>`}
+                    </div>
+                  </div>
+
+                  <!-- Career goals -->
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">Career goals</div>
+                      <button class="mpn-card-edit" onclick="editMyProfile()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      </button>
+                    </div>
+                    <div class="mpn-card-body">${goalsHTML}</div>
+                  </div>
+
+                  <!-- Experience / Achievements -->
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">Experience &amp; Achievements</div>
+                      <button class="mpn-card-edit" onclick="openAchForm()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      </button>
+                    </div>
+                    <div class="mpn-card-body">
+                      ${expHTML}
+                      <div id="stAchievementsList" style="display:none;"></div>
+                      <div id="achInlineForm" style="display:none;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Interests & Passions -->
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">Interests &amp; Passions</div>
+                      <button class="mpn-card-edit" onclick="editMyProfile()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      </button>
+                    </div>
+                    <div class="mpn-card-body">
+                      ${(profile.interests||[]).length ? `
+                      <div style="margin-bottom:14px;">
+                        <div class="mpn-tags-label">Interests</div>
+                        <div class="mpn-tags-wrap">
+                          ${(profile.interests||[]).map(t=>`<span class="mpn-tag mpn-tag-interest">${t}</span>`).join('')}
+                        </div>
+                      </div>` : ''}
+                      ${(profile.hobbies||[]).length ? `
+                      <div>
+                        <div class="mpn-tags-label">Hobbies</div>
+                        <div class="mpn-tags-wrap">
+                          ${(profile.hobbies||[]).map(t=>`<span class="mpn-tag">${t}</span>`).join('')}
+                        </div>
+                      </div>` : ''}
+                      ${!(profile.interests||[]).length && !(profile.hobbies||[]).length
+                          ? `<p class="mpn-empty-text">No interests added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add some →</span></p>`
+                          : ''}
+                    </div>
+                  </div>
+
+                  <!-- Resume -->
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">Resume</div>
+                    </div>
+                    <div class="mpn-card-body">
+                      <div class="mpn-resume-row">
+                        <div class="mpn-resume-info">
+                          <div class="mpn-resume-icon">📄</div>
+                          <div>
+                            <div class="mpn-resume-name">${profile.resume ? `${profile.firstName || ''} ${profile.lastName || ''} — Resume`.trim() : 'No resume uploaded yet'}</div>
+                            <div class="mpn-resume-sub">PDF · Visible to approved connections</div>
+                          </div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                          ${profile.resume ? `<button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="sViewResume()">View</button>
+                          <button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;color:#C0392B;border-color:rgba(192,57,43,0.25);" onclick="sRemoveResume()">Remove</button>` : ''}
+                          <button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('mpnResumeFile').click()">${profile.resume ? 'Replace' : 'Upload'}</button>
+                          <input type="file" id="mpnResumeFile" accept=".pdf" style="display:none;" onchange="sHandleResumeUpload(this)">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Posts -->
+                  ${_myPosts.length > 0 ? `
+                  <div class="mpn-card">
+                    <div class="mpn-card-header">
+                      <div class="mpn-card-title">Your posts</div>
+                      <button class="mpn-card-edit" onclick="switchView('dashboardView')">+ New</button>
+                    </div>
+                    <div class="mpn-card-body">
+                      ${_myPosts.slice(0,3).map(post => {
+                          const lc = _myPostLikeMap[post.id] || 0;
+                          const liked = _myPostLikedSet.has(post.id);
+                          const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                          return `<div style="padding:12px 0;border-bottom:1px solid var(--border);">
+                            <p style="font-size:14px;color:var(--espresso);line-height:1.6;margin:0 0 8px;">${post.content}</p>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                              <span style="font-size:11px;color:var(--muted-2);">${timeAgo}</span>
+                              <button class="post-action-btn${liked?' liked':''}" id="mplike-${post.id}" onclick="likePost('${post.id}',this)" style="font-size:12px;padding:3px 10px;">👍 <span id="mplikecount-${post.id}">${lc}</span></button>
+                              <button class="post-action-btn" onclick="toggleComments('${post.id}')" style="font-size:12px;padding:3px 10px;">💬</button>
+                            </div>
+                            <div id="comments-${post.id}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+                              <div id="comments-list-${post.id}"></div>
+                              <div style="display:flex;gap:8px;margin-top:6px;">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;" onkeypress="if(event.key==='Enter')submitComment('${post.id}')">
+                                <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
+                              </div>
+                            </div>
+                          </div>`;
+                      }).join('')}
+                    </div>
+                  </div>` : ''}
+
+                  <!-- Hidden containers for badges/legacy compat -->
+                  <div id="myProfileBadgesView" style="display:none;"></div>
+                  <div id="profileBadges" style="display:none;"></div>
+
                 </div>
 
-                <!-- HERO CARD -->
-                <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:20px;">
-                    <div style="height:96px;background:${profile.bannerImage ? `url('${profile.bannerImage}') center/cover no-repeat` : 'linear-gradient(135deg,var(--espresso) 0%,var(--caramel) 60%,#e8c49a 100%)'};position:relative;">
-                        ${!profile.bannerImage ? `<div style="position:absolute;inset:0;opacity:.12;background-image:radial-gradient(circle at 20% 50%,#fff 1px,transparent 1px),radial-gradient(circle at 80% 30%,#fff 1px,transparent 1px),radial-gradient(circle at 50% 80%,#fff 1px,transparent 1px);background-size:40px 40px;"></div>` : ''}
+                <!-- Right sidebar -->
+                <div>
+
+                  <!-- Availability -->
+                  <div class="mpn-sidebar-card">
+                    <div class="mpn-sidebar-header">
+                      <div class="mpn-sidebar-title">Availability</div>
+                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="showSettingsSection('availability');switchView('settingsView')">Edit</span>
                     </div>
-                    <div style="padding:0 28px 0;position:relative;">
-                        <div style="display:inline-block;margin-top:-36px;margin-bottom:12px;position:relative;">
-                            <div onclick="editMyProfile()" style="width:72px;height:72px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;border:3px solid var(--card);box-shadow:0 2px 10px rgba(107,63,42,.22);cursor:pointer;overflow:hidden;position:relative;"
-                                onmouseover="this.querySelector('.av-ov').style.opacity=1"
-                                onmouseout="this.querySelector('.av-ov').style.opacity=0">
-                                ${avatarInner}
-                                <div class="av-ov" style="position:absolute;inset:0;border-radius:50%;background:rgba(107,63,42,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:18px;color:#fff;">📷</div>
-                            </div>
-                            <div style="width:14px;height:14px;background:#4caf50;border:2.5px solid var(--card);border-radius:50%;position:absolute;bottom:3px;right:3px;"></div>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:20px;">
-                            <div>
-                                <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--espresso);line-height:1.2;margin-bottom:3px;">${profile.firstName} ${profile.lastName}</div>
-                                <div style="font-size:13.5px;color:var(--brown);font-weight:500;margin-bottom:8px;">${profile.headline || [profile.role, profile.industry].filter(Boolean).join(' · ') || 'Add a headline in Settings'}</div>
-                                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                                    ${chips.map(c => `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">${c}</span>`).join('')}
-                                    <span style="display:inline-flex;align-items:center;gap:4px;background:#eaf4ee;border:1px solid #b7dfc9;border-radius:99px;padding:3px 10px;font-size:12px;color:#2d6a4f;font-weight:500;">🟢 Open to chats</span>
-                                </div>
-                                ${profile.linkedinUrl
-                                    ? `<a href="${/^https?:\/\//i.test(profile.linkedinUrl) ? profile.linkedinUrl : 'https://' + profile.linkedinUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:6px 13px;background:#f0f4ff;border:1px solid #c0cff5;border-radius:8px;font-size:13px;font-weight:500;color:#2563eb;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='#e0ebff'" onmouseout="this.style.background='#f0f4ff'"><svg width="14" height="14" viewBox="0 0 24 24" fill="#2563eb"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn Profile</a>`
-                                    : `<span onclick="editMyProfile()" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 13px;background:var(--latte-soft);border:1px dashed var(--latte);border-radius:8px;font-size:12.5px;color:var(--muted);cursor:pointer;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor='var(--caramel)';this.style.color='var(--caramel)'" onmouseout="this.style.borderColor='var(--latte)';this.style.color='var(--muted)'">+ Add LinkedIn URL</span>`}
-                            </div>
-                            <div style="display:flex;gap:8px;flex-shrink:0;margin-top:2px;">
-                                <button class="mp2-ghost" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="showToast('Share link copied!','success')">Share Profile</button>
-                                <button title="Settings" onclick="switchView('settingsView')" style="background:transparent;border:1.5px solid var(--latte);border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;transition:background .15s,border-color .15s;" onmouseover="this.style.background='var(--latte-soft)';this.style.borderColor='var(--caramel)'" onmouseout="this.style.background='transparent';this.style.borderColor='var(--latte)'">⚙️</button>
-                            </div>
-                        </div>
-                        <!-- Stats bar -->
-                        <div class="mp2-stats" style="display:flex;border-top:1px solid var(--latte);margin:0 -28px;">
-                            <div class="mp2-stat" onclick="switchView('networkView')" style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--latte);cursor:pointer;transition:background .15s;">
-                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${connections.length}</div>
-                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Connections</div>
-                            </div>
-                            <div class="mp2-stat" style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--latte);transition:background .15s;">
-                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${chatsCompleted}</div>
-                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Chats Done</div>
-                            </div>
-                            <div class="mp2-stat" style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--latte);transition:background .15s;">
-                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${upcomingCount}</div>
-                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Upcoming</div>
-                            </div>
-                            <div class="mp2-stat" style="flex:1;text-align:center;padding:14px 8px;transition:background .15s;">
-                                <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--caramel);line-height:1;margin-bottom:3px;">${percentage}%</div>
-                                <div style="font-size:11.5px;color:var(--muted);font-weight:500;">Profile Complete</div>
-                            </div>
-                        </div>
+                    <div class="mpn-sidebar-body">
+                      ${availRows.length
+                          ? availSidebarHTML
+                          : `<p class="mpn-empty-text" style="margin:0;">No availability set. <span onclick="showSettingsSection('availability');switchView('settingsView')" style="color:var(--caramel);cursor:pointer;">Set hours →</span></p>`}
                     </div>
+                  </div>
+
+                  <!-- Connections -->
+                  <div class="mpn-sidebar-card">
+                    <div class="mpn-sidebar-header">
+                      <div class="mpn-sidebar-title">Connections</div>
+                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('networkView')">See all</span>
+                    </div>
+                    <div class="mpn-sidebar-body">
+                      ${connections.length
+                          ? `<div class="mpn-conn-grid">${connGridHTML}</div>`
+                          : `<p class="mpn-empty-text" style="margin:0;">No connections yet. <span onclick="switchView('discoverView')" style="color:var(--caramel);cursor:pointer;">Find people →</span></p>`}
+                    </div>
+                  </div>
+
+                  <!-- Communities -->
+                  <div class="mpn-sidebar-card">
+                    <div class="mpn-sidebar-header">
+                      <div class="mpn-sidebar-title">Communities</div>
+                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('networkView')">See all</span>
+                    </div>
+                    <div class="mpn-sidebar-body">${communityHTML}</div>
+                  </div>
+
                 </div>
-
-                <!-- LOWER TWO-COLUMN -->
-                <div class="mp2-lower" style="display:grid;grid-template-columns:1fr 300px;gap:20px;">
-
-                    <!-- LEFT: About / Interests / Goals / Badges -->
-                    <div style="display:flex;flex-direction:column;gap:20px;">
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">About</h3>
-                                <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
-                            </div>
-                            <div style="padding:20px 22px;">
-                                ${profile.bio
-                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;">${profile.bio}</p>`
-                                    : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No bio added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add one →</span></p>`}
-                            </div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Interests &amp; Passions</h3>
-                                <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
-                            </div>
-                            <div style="padding:20px 22px;"><div style="display:flex;flex-wrap:wrap;gap:7px;">${tagsHtml}</div></div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Career Goals</h3>
-                                <button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
-                            </div>
-                            <div style="padding:20px 22px;">
-                                ${profile.goals
-                                    ? `<p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;border-left:3px solid var(--caramel);padding-left:14px;">${profile.goals}</p>`
-                                    : `<p style="font-size:14px;color:var(--muted);font-style:italic;margin:0;">No goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add yours →</span></p>`}
-                            </div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Achievements</h3>
-                                <button onclick="switchView('settingsView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Manage</button>
-                            </div>
-                            <div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px;">
-                                ${_myAchs.length ? _myAchs.map(a => {
-                                    const icon = ACH_TYPE_ICON[a.type] || '⭐';
-                                    const dateStr = _fmtAchDate(a.start_date, a.end_date, a.is_current);
-                                    return `<div style="display:flex;gap:12px;align-items:flex-start;">
-                                        <div style="font-size:22px;flex-shrink:0;margin-top:2px;">${icon}</div>
-                                        <div>
-                                            <div style="font-size:14px;font-weight:600;color:var(--espresso);">${_achEsc(a.title)}</div>
-                                            ${a.organization ? `<div style="font-size:12.5px;color:var(--brown);margin-top:1px;">${_achEsc(a.organization)}</div>` : ''}
-                                            ${dateStr ? `<div style="font-size:12px;color:var(--muted);margin-top:1px;">${dateStr}</div>` : ''}
-                                            ${a.description ? `<div style="font-size:13px;color:var(--brown);margin-top:4px;line-height:1.5;">${_achEsc(a.description)}</div>` : ''}
-                                        </div>
-                                    </div>`;
-                                }).join('<hr style="border:none;border-top:1px solid var(--latte);margin:0;">')
-                                : `<p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;">No achievements yet. <span onclick="switchView('settingsView')" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Add some →</span></p>`}
-                            </div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">🏅 Badges</h3>
-                            </div>
-                            <div style="padding:20px 22px;"><div class="badge-grid" id="myProfileBadgesView"></div></div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Your Posts</h3>
-                                <button onclick="switchView('dashboardView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ New Post</button>
-                            </div>
-                            <div style="padding:14px 22px 20px;">
-                                ${_myPosts.length > 0
-                                    ? _myPosts.map(post => {
-                                        const likeCount = _myPostLikeMap[post.id] || 0;
-                                        const liked = _myPostLikedSet.has(post.id);
-                                        const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
-                                        return `
-                                        <div style="padding:12px 0;border-bottom:1px solid var(--latte-soft);">
-                                            <p style="font-size:14px;color:var(--brown);line-height:1.6;margin:0 0 8px;">${post.content}</p>
-                                            <div style="display:flex;align-items:center;gap:12px;">
-                                                <span style="font-size:11px;color:var(--muted);">${timeAgo}</span>
-                                                <button class="post-action-btn${liked ? ' liked' : ''}" id="mplike-${post.id}" onclick="likePost('${post.id}', this)" style="font-size:12px;padding:3px 8px;${liked ? 'color:var(--primary);font-weight:700;' : ''}">👍 <span id="mplikecount-${post.id}">${likeCount}</span></button>
-                                                <button class="post-action-btn" onclick="toggleComments('${post.id}')" style="font-size:12px;padding:3px 8px;">💬 Comments</button>
-                                            </div>
-                                            <div id="comments-${post.id}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--latte-soft);">
-                                                <div id="comments-list-${post.id}" style="margin-bottom:8px;"></div>
-                                                <div style="display:flex;gap:8px;">
-                                                    <input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;font-family:'DM Sans',sans-serif;" onkeypress="if(event.key==='Enter') submitComment('${post.id}')">
-                                                    <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')" style="font-size:12px;padding:5px 12px;">Post</button>
-                                                </div>
-                                            </div>
-                                        </div>`;
-                                    }).join('')
-                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;">You haven't posted anything yet. <span onclick="switchView('dashboardView')" style="color:var(--caramel);cursor:pointer;font-weight:600;font-style:normal;">Share something in the Feed →</span></p>`}
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- RIGHT: Strength / Availability / Resume -->
-                    <div style="display:flex;flex-direction:column;gap:20px;">
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Profile Strength</h3>
-                            </div>
-                            <div style="padding:20px 22px;">
-                                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">
-                                    <span>Progress</span>
-                                    <strong style="color:var(--caramel);font-weight:700;">${percentage}% complete</strong>
-                                </div>
-                                <div style="background:var(--latte-soft);border-radius:99px;height:8px;overflow:hidden;margin:10px 0 6px;">
-                                    <div style="height:100%;width:${percentage}%;background:linear-gradient(90deg,var(--espresso),var(--caramel));border-radius:99px;animation:mpFillBar 1.2s cubic-bezier(0.22,1,0.36,1) forwards;"></div>
-                                </div>
-                                <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">Complete profiles get 3× more requests</div>
-                                <div style="display:flex;flex-direction:column;gap:8px;">
-                                    ${compItems.map(item => `
-                                        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:${item.done ? 'var(--brown)' : 'var(--muted)'};">
-                                            <span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:${item.done ? '#2d6a4f' : 'transparent'};border:${item.done ? 'none' : '1.5px solid var(--muted)'};display:inline-block;"></span>
-                                            ${item.label}
-                                        </div>`).join('')}
-                                </div>
-                                <button onclick="switchView('settingsView')" class="mp2-btn" style="width:100%;margin-top:16px;padding:10px;background:var(--espresso);color:var(--cream);border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;box-shadow:0 3px 12px rgba(28,18,8,.2);">✏️ Complete Profile</button>
-                            </div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Availability</h3>
-                                <button onclick="switchView('settingsView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit</button>
-                            </div>
-                            <div style="padding:14px 22px 20px;">
-                                ${availRows.length > 0
-                                    ? openDaysHtml + closedHtml
-                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;padding:6px 0;">No availability set. <span onclick="switchView('settingsView')" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Set hours →</span></p>`}
-                                ${availRows.length > 0 ? `
-                                <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
-                                    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">💻 Virtual</span>
-                                    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">☕ In-person</span>
-                                </div>` : ''}
-                            </div>
-                        </div>
-
-                        <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                            <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
-                                <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Resume</h3>
-                                ${profile.resume ? `<button onclick="editMyProfile()" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Replace</button>` : ''}
-                            </div>
-                            <div style="padding:20px 22px;">
-                                ${profile.resume
-                                    ? `<div class="mp2-resume" onclick="openResume('${profile.resume}')" style="display:flex;align-items:center;gap:12px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .15s;">
-                                        <span style="font-size:22px;">📄</span>
-                                        <div>
-                                            <div style="font-size:13.5px;font-weight:600;color:var(--espresso);">${profile.firstName} ${profile.lastName} — Resume</div>
-                                            <div style="font-size:11.5px;color:var(--muted);margin-top:1px;">Click to view</div>
-                                        </div>
-                                       </div>
-                                       <p style="font-size:12px;color:var(--muted);margin-top:10px;">Only visible to connections you approve.</p>`
-                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No resume uploaded. <span onclick="editMyProfile()" style="color:var(--caramel);font-weight:600;cursor:pointer;font-style:normal;">Upload one →</span></p>`}
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            `;
+              </div>
+            </div>
+`;
 
             setTimeout(() => renderBadges('myProfileBadgesView'), 50);
         }
