@@ -2354,6 +2354,68 @@
         </div>
     </div>
 
+    <!-- ── Chat Detail Modal ── -->
+    <div id="chatDetailModal" class="cdm-overlay" onclick="if(event.target===this)closeChatDetailModal()" style="display:none;">
+        <div class="cdm-card">
+            <button class="cdm-close" onclick="closeChatDetailModal()">×</button>
+
+            <!-- Partner profile row -->
+            <div class="cdm-profile-row">
+                <div class="cdm-avatar" id="cdmAvatar"></div>
+                <div class="cdm-profile-info">
+                    <div class="cdm-name" id="cdmName"></div>
+                    <div class="cdm-role" id="cdmRole"></div>
+                    <div class="cdm-school" id="cdmSchool"></div>
+                </div>
+                <span class="cdm-status-badge" id="cdmStatusBadge"></span>
+            </div>
+
+            <div class="cdm-divider"></div>
+
+            <!-- Chat details -->
+            <div class="cdm-details-grid">
+                <div class="cdm-detail-item">
+                    <span class="cdm-detail-icon">📅</span>
+                    <div>
+                        <div class="cdm-detail-label">Date &amp; Time</div>
+                        <div class="cdm-detail-value" id="cdmDateTime"></div>
+                    </div>
+                </div>
+                <div class="cdm-detail-item">
+                    <span class="cdm-detail-icon">⏱</span>
+                    <div>
+                        <div class="cdm-detail-label">Duration</div>
+                        <div class="cdm-detail-value" id="cdmDuration"></div>
+                    </div>
+                </div>
+                <div class="cdm-detail-item">
+                    <span class="cdm-detail-icon">💻</span>
+                    <div>
+                        <div class="cdm-detail-label">Format</div>
+                        <div class="cdm-detail-value" id="cdmFormat"></div>
+                    </div>
+                </div>
+                <div class="cdm-detail-item" id="cdmLinkRow" style="display:none;">
+                    <span class="cdm-detail-icon">🔗</span>
+                    <div>
+                        <div class="cdm-detail-label">Link</div>
+                        <a class="cdm-detail-value cdm-link" id="cdmLink" target="_blank" rel="noopener"></a>
+                    </div>
+                </div>
+                <div class="cdm-detail-item" id="cdmNotesRow" style="display:none;">
+                    <span class="cdm-detail-icon">📝</span>
+                    <div>
+                        <div class="cdm-detail-label">Notes</div>
+                        <div class="cdm-detail-value" id="cdmNotes"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="cdm-actions" id="cdmActions"></div>
+        </div>
+    </div>
+
     <div id="createPostModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

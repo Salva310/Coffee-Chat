@@ -3414,6 +3414,123 @@
             filterInboxConvs();
         }
 
+        async function openChatDetailModal(meetingId) {
+            const m = meetings.find(x => x.id === meetingId);
+            if (!m || !currentUser) return;
+
+            const isOrganizer = m.organizer_id === currentUser.id;
+            const partnerId   = isOrganizer ? m.participant_id : m.organizer_id;
+
+            // Fetch fresh partner profile
+            let partner = null;
+            try {
+                const { data } = await supabaseClient
+                    .from('profiles')
+                    .select('first_name, last_name, role, company, school_name, profile_picture, avatar_color, status')
+                    .eq('id', partnerId)
+                    .maybeSingle();
+                partner = data;
+            } catch(e) { console.error('openChatDetailModal profile fetch:', e); }
+
+            const pFirst  = partner?.first_name  || users.find(u=>u.id===partnerId)?.firstName || 'User';
+            const pLast   = partner?.last_name   || users.find(u=>u.id===partnerId)?.lastName  || '';
+            const role    = partner?.role        || '';
+            const school  = partner?.school_name || partner?.company || 'Rowan University';
+            const pic     = partner?.profile_picture;
+            const initials = ((pFirst[0]||'?') + (pLast[0]||'')).toUpperCase();
+
+            // Avatar
+            const avEl = document.getElementById('cdmAvatar');
+            if (avEl) {
+                avEl.style.background = pic ? 'transparent' : (partner?.avatar_color || 'linear-gradient(135deg,#D4894A,#B5651D)');
+                avEl.innerHTML = pic
+                    ? `<img src="${pic}" alt="${pFirst}">`
+                    : initials;
+            }
+
+            // Name / role / school
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || ''; };
+            set('cdmName',   `${pFirst} ${pLast}`.trim());
+            set('cdmRole',   role);
+            set('cdmSchool', school);
+
+            // Status badge
+            const dt   = new Date(m.start_time || m.date);
+            const now  = new Date();
+            const today = new Date(); today.setHours(0,0,0,0);
+            const isToday = dt.toDateString() === today.toDateString();
+            const badge = document.getElementById('cdmStatusBadge');
+            if (badge) {
+                if (m.status === 'pending')       { badge.textContent = '⏳ Pending'; badge.className = 'cdm-status-badge pending'; }
+                else if (isToday)                  { badge.textContent = '📅 Today';   badge.className = 'cdm-status-badge today'; }
+                else if (dt > now)                 { badge.textContent = '✓ Confirmed'; badge.className = 'cdm-status-badge upcoming'; }
+                else                               { badge.textContent = '✓ Completed'; badge.className = 'cdm-status-badge upcoming'; }
+            }
+
+            // Date & time
+            const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+            let dayLabel = dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'});
+            if (dt.toDateString() === today.toDateString())    dayLabel = 'Today';
+            if (dt.toDateString() === tomorrow.toDateString()) dayLabel = 'Tomorrow';
+            const timeStr = m.time || dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+            set('cdmDateTime', `${dayLabel} at ${timeStr}`);
+
+            // Duration
+            const dur = m.duration ? `${m.duration} minutes` : '30 minutes';
+            set('cdmDuration', dur);
+
+            // Format
+            const typeMap = { video:'Video Call', zoom:'Zoom', facetime:'FaceTime', phone:'Phone Call', coffee:'In Person (First Sip)' };
+            set('cdmFormat', typeMap[m.meeting_type] || m.meeting_type || m.type || 'Virtual');
+
+            // Link
+            const linkRow = document.getElementById('cdmLinkRow');
+            const linkEl  = document.getElementById('cdmLink');
+            const url     = m.meeting_url || m.zoom_link || m.link || '';
+            if (url && linkRow && linkEl) {
+                linkRow.style.display  = 'flex';
+                linkEl.href            = url.startsWith('http') ? url : 'https://' + url;
+                linkEl.textContent     = url.length > 40 ? url.substring(0,40)+'…' : url;
+            } else if (linkRow) {
+                linkRow.style.display = 'none';
+            }
+
+            // Notes
+            const notesRow = document.getElementById('cdmNotesRow');
+            const note     = m.note || m.description || m.topic || '';
+            if (note && notesRow) {
+                notesRow.style.display = 'flex';
+                set('cdmNotes', note);
+            } else if (notesRow) {
+                notesRow.style.display = 'none';
+            }
+
+            // Action buttons
+            const actionsEl = document.getElementById('cdmActions');
+            if (actionsEl) {
+                const isUpcoming = dt > now && m.status !== 'completed';
+                actionsEl.innerHTML = [
+                    isToday && isUpcoming
+                        ? `<button class="cdm-btn cdm-btn-primary" onclick="startCall('${partnerId}');closeChatDetailModal()">☕ Join Now</button>`
+                        : '',
+                    `<button class="cdm-btn cdm-btn-secondary" onclick="openChatWith('${partnerId}');closeChatDetailModal()">✉ Message</button>`,
+                    isUpcoming
+                        ? `<button class="cdm-btn cdm-btn-secondary" onclick="closeChatDetailModal();openScheduleForUser('${partnerId}')">📅 Reschedule</button>`
+                        : '',
+                    isUpcoming
+                        ? `<button class="cdm-btn cdm-btn-danger" onclick="closeChatDetailModal();cancelMeetingRequest('${meetingId}')">✕ Cancel</button>`
+                        : '',
+                ].filter(Boolean).join('');
+            }
+
+            document.getElementById('chatDetailModal').style.display = 'flex';
+        }
+
+        function closeChatDetailModal() {
+            const el = document.getElementById('chatDetailModal');
+            if (el) el.style.display = 'none';
+        }
+
         function ibxRenderUpcomingPanel() {
             const list = document.getElementById('ibxUpcomingList');
             if (!list) return;
@@ -3457,7 +3574,7 @@
                 const duration = m.duration ? `${m.duration} min` : '30 min';
                 const type     = m.meeting_type || m.type || 'Virtual';
                 const isToday  = dt.toDateString() === new Date().toDateString();
-                return `<div class="ibx-up-card" onclick="switchView('messagesView')">
+                return `<div class="ibx-up-card" onclick="openChatDetailModal('${m.id}')">
                     <div class="ibx-up-card-top">
                         <div class="ibx-up-av" style="background:${gradients[gradIdx]}">${initials}</div>
                         <div>
@@ -3469,9 +3586,9 @@
                     <div class="ibx-up-time">🕐 ${timeStr} · ${duration} · ${type}</div>
                     <div class="ibx-up-actions">
                         ${isToday
-                            ? `<button class="ibx-up-btn join" onclick="event.stopPropagation();startCall('${partnerId}')">Join now</button>`
+                            ? `<button class="ibx-up-btn join" onclick="event.stopPropagation();openChatDetailModal('${m.id}')">Join now</button>`
                             : ''}
-                        <button class="ibx-up-btn details" onclick="event.stopPropagation();switchView('messagesView')" style="flex:2">View details</button>
+                        <button class="ibx-up-btn details" onclick="event.stopPropagation();openChatDetailModal('${m.id}')" style="flex:2">View details</button>
                     </div>
                 </div>`;
             }).join('');
