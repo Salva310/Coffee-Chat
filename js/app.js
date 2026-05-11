@@ -3790,6 +3790,9 @@
 
         // Groups
         function renderGroups() {
+            // Render into both groupsView and the nw-communities panel if present
+            const nwList    = document.getElementById('nwGroupsList');
+            const nwMyList  = document.getElementById('nwMyGroupsList');
             const list = document.getElementById('groupsList');
             list.innerHTML = groups.map(group => {
                 const joined = myGroupIds.has(group.id);
@@ -3811,6 +3814,7 @@
                     }
                 </div>`;
             }).join('') || '<div class="empty-state"><p>No groups available yet</p></div>';
+            if (nwList) nwList.innerHTML = list.innerHTML;
 
             const myGroups = groups.filter(g => myGroupIds.has(g.id));
             const myList = document.getElementById('myGroupsList');
@@ -3831,6 +3835,7 @@
                     </div>`
                 ).join('');
             }
+            if (nwMyList) nwMyList.innerHTML = myList.innerHTML;
         }
 
         async function viewGroup(groupId) {
@@ -5638,6 +5643,7 @@
             document.querySelectorAll('.nw-panel').forEach(p => p.classList.remove('active'));
             const panel = document.getElementById(panelId);
             if (panel) panel.classList.add('active');
+            if (panelId === 'nw-communities') renderGroups();
         }
 
         // Generate a deterministic gradient color from a user ID or name

@@ -1099,7 +1099,7 @@
                         <button class="nw-tab active" onclick="switchNwTab(this,'nw-connections')">Connections <span class="nw-tab-count" id="nwTabCountConn">0</span></button>
                         <button class="nw-tab" onclick="switchNwTab(this,'nw-requests')">Requests <span class="nw-tab-count" id="nwTabCountReq">0</span></button>
                         <button class="nw-tab" onclick="switchNwTab(this,'nw-suggestions')">Suggested <span class="nw-tab-count" id="nwTabCountSug">0</span></button>
-                        <button class="nw-tab" onclick="switchView('groupsView')">Communities 👥</button>
+                        <button class="nw-tab" onclick="switchNwTab(this,'nw-communities')">Communities 👥</button>
                     </div>
                 </div>
 
@@ -1133,6 +1133,21 @@
                     <!-- Suggestions -->
                     <div class="nw-panel" id="nw-suggestions">
                         <div id="nwSuggestionsContent"></div>
+                    </div>
+
+                    <!-- Communities -->
+                    <div class="nw-panel" id="nw-communities">
+                        <div class="gv-header-row" style="margin-bottom:20px;">
+                            <div>
+                                <h2 class="view-title" style="margin-bottom:4px;font-size:22px;">Communities &amp; <em>Groups</em></h2>
+                                <p class="view-subtitle" style="margin:0;">Join groups aligned with your industry and interests</p>
+                            </div>
+                            <button class="gv-create-btn" onclick="openModal('createGroupModal')">+ Create Group</button>
+                        </div>
+                        <div class="gv-section-head"><h2 class="gv-section-title">Featured Groups</h2></div>
+                        <div class="gv-group-grid" id="nwGroupsList"></div>
+                        <div class="gv-section-head" style="margin-top:28px;"><h2 class="gv-section-title">My Groups</h2></div>
+                        <div id="nwMyGroupsList"></div>
                     </div>
                 </div>
             </div>
