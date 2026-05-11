@@ -1210,56 +1210,90 @@
         async function renderHomeFeed(tab) {
             const container = document.getElementById('homeFeedPosts');
             if (!container) return;
-            // Determine active tab from button state if not passed
             if (!tab) {
                 tab = document.getElementById('homeFeedTabGroups')?.classList.contains('active') ? 'groups' : 'connections';
             }
-            // Render into the home feed container directly
             container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">Loading feed…</div>';
             if (tab === 'groups') {
                 await renderGroupsFeedTab(container);
-            } else {
-                // Fetch connection posts
-                if (!currentUser) return;
-                try {
-                    const connectedIds = new Set(connections.map(c =>
-                        c.user_id === currentUser.id ? c.connected_user_id : c.user_id));
-                    connectedIds.add(currentUser.id);
-                    const { data: posts } = await supabaseClient
-                        .from('posts').select('*').is('group_id', null)
-                        .in('author_id', [...connectedIds])
-                        .order('created_at', { ascending: false }).limit(30);
-                    if (!posts || posts.length === 0) {
-                        container.innerHTML = `<div class="fv-empty"><div class="fv-empty-icon">📰</div><p>No posts from your connections yet.</p><button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top:1rem;">Find people to connect with</button></div>`;
-                        return;
-                    }
-                    const { data: likesData } = await supabaseClient.from('post_likes').select('post_id,user_id').in('post_id', posts.map(p => p.id));
-                    const likeMap = {}; const likedSet = new Set();
-                    (likesData||[]).forEach(l => { likeMap[l.post_id] = (likeMap[l.post_id]||0)+1; if (l.user_id===currentUser.id) likedSet.add(l.post_id); });
-                    container.innerHTML = posts.map(post => {
-                        const author = users.find(u => u.id === post.author_id) || {};
-                        const name   = [author.firstName, author.lastName].filter(Boolean).join(' ') || 'Someone';
-                        const init   = ((author.firstName||'?')[0]+(author.lastName||'')[0]).toUpperCase();
-                        const liked  = likedSet.has(post.id);
-                        const lc     = likeMap[post.id] || 0;
-                        const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
-                        return `<div class="feed-post-card">
-                            <div class="post-header">
-                                <div class="post-avatar" style="background:linear-gradient(135deg,var(--caramel),var(--espresso));">${init}</div>
-                                <div class="post-author-info"><div class="post-author-name">${name}</div><div class="post-author-meta">${timeAgo}</div></div>
+                return;
+            }
+            if (!currentUser) return;
+            try {
+                // Only include connections — never the logged-in user's own posts
+                const connectedIds = connections.map(c =>
+                    c.user_id === currentUser.id ? c.connected_user_id : c.user_id
+                ).filter(Boolean);
+
+                if (connectedIds.length === 0) {
+                    container.innerHTML = `<div class="fv-empty"><div class="fv-empty-icon">📰</div><p>No posts from your connections yet.</p><button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top:1rem;">Find people to connect with</button></div>`;
+                    return;
+                }
+
+                // Join profiles so we always get fresh name + avatar — no in-memory lookup
+                const { data: posts, error } = await supabaseClient
+                    .from('posts')
+                    .select('*, author:profiles!posts_author_id_fkey(first_name, last_name, profile_picture, avatar_color)')
+                    .is('group_id', null)
+                    .in('author_id', connectedIds)
+                    .order('created_at', { ascending: false })
+                    .limit(30);
+
+                if (error) throw error;
+
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = `<div class="fv-empty"><div class="fv-empty-icon">📰</div><p>No posts from your connections yet.</p><button class="btn btn-primary" onclick="switchView('discoverView')" style="margin-top:1rem;">Find people to connect with</button></div>`;
+                    return;
+                }
+
+                const { data: likesData } = await supabaseClient
+                    .from('post_likes').select('post_id,user_id')
+                    .in('post_id', posts.map(p => p.id));
+                const likeMap = {}; const likedSet = new Set();
+                (likesData || []).forEach(l => {
+                    likeMap[l.post_id] = (likeMap[l.post_id] || 0) + 1;
+                    if (l.user_id === currentUser.id) likedSet.add(l.post_id);
+                });
+
+                container.innerHTML = posts.map(post => {
+                    const a         = post.author || {};
+                    const firstName = a.first_name || '';
+                    const lastName  = a.last_name  || '';
+                    const name      = [firstName, lastName].filter(Boolean).join(' ') || 'Someone';
+                    const initials  = ((firstName[0] || '?') + (lastName[0] || '')).toUpperCase();
+                    const pic       = a.profile_picture;
+                    const avatarBg  = pic ? 'transparent' : (a.avatar_color || 'linear-gradient(135deg,var(--caramel),var(--espresso))');
+                    const avatarInner = pic
+                        ? `<img src="${pic}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : initials;
+                    const liked    = likedSet.has(post.id);
+                    const lc       = likeMap[post.id] || 0;
+                    const timeAgo  = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                    return `<div class="feed-post-card">
+                        <div class="post-header">
+                            <div class="post-avatar" style="background:${avatarBg};overflow:hidden;">${avatarInner}</div>
+                            <div class="post-author-info">
+                                <div class="post-author-name">${name}</div>
+                                <div class="post-author-meta">${timeAgo}</div>
                             </div>
-                            <p class="post-content">${post.content}</p>
-                            <div class="post-actions">
-                                <button class="post-action-btn${liked?' liked':''}" id="hflike-${post.id}" onclick="likePost('${post.id}',this)">👍 <span id="hflikecount-${post.id}">${lc}</span> ${lc===1?'Like':'Likes'}</button>
-                                <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
+                        </div>
+                        <p class="post-content">${post.content}</p>
+                        <div class="post-actions">
+                            <button class="post-action-btn${liked ? ' liked' : ''}" id="hflike-${post.id}" onclick="likePost('${post.id}',this)">👍 <span id="hflikecount-${post.id}">${lc}</span> ${lc === 1 ? 'Like' : 'Likes'}</button>
+                            <button class="post-action-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
+                        </div>
+                        <div id="comments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                            <div id="comments-list-${post.id}" style="margin-bottom:8px;"></div>
+                            <div style="display:flex;gap:8px;">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;" onkeypress="if(event.key==='Enter')submitComment('${post.id}')">
+                                <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
                             </div>
-                            <div id="comments-${post.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
-                                <div id="comments-list-${post.id}" style="margin-bottom:8px;"></div>
-                                <div style="display:flex;gap:8px;"><input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;" onkeypress="if(event.key==='Enter')submitComment('${post.id}')"><button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button></div>
-                            </div>
-                        </div>`;
-                    }).join('');
-                } catch(e) { console.error('renderHomeFeed:', e); container.innerHTML = '<p style="padding:20px;color:var(--muted);">Could not load feed.</p>'; }
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch(e) {
+                console.error('renderHomeFeed:', e);
+                container.innerHTML = '<p style="padding:20px;color:var(--muted);">Could not load feed.</p>';
             }
         }
 
