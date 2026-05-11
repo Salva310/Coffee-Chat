@@ -5,62 +5,66 @@
         }
 
         :root {
-            /* New design system */
-            --cream: #F5F0E8;
-            --warm-white: #FDFAF4;
-            --espresso: #1C1208;
-            --brown: #3D2B1A;
-            --caramel: #C07C3A;
-            --caramel-light: #D4964F;
-            --latte: #EAD9B8;
-            --latte-soft: #F2E9D6;
-            --sage: #8A9E85;
-            --muted: #7A6E62;
-            --card: #FFFDF8;
-            --border: rgba(192,124,58,0.14);
-            --sidebar-w: 228px;
+            /* ── First Sip Design System 2.0 ── */
+            --cream:        #FAF7F2;
+            --warm-white:   #FAF7F2;
+            --espresso:     #1C0F07;
+            --brown:        #3D2B1A;
+            --caramel:      #B5651D;
+            --caramel-light:#D4894A;
+            --latte:        rgba(139,90,43,0.15);
+            --latte-soft:   #F5EDE3;
+            --sage:         #4CAF7D;
+            --muted:        #8C7B6E;
+            --muted-2:      #B8A898;
+            --card:         #FFFFFF;
+            --border:       rgba(139,90,43,0.12);
+            --border-strong:rgba(139,90,43,0.22);
+            --sidebar-w:    228px;
+            --surface:      #FFFFFF;
 
-            /* Legacy aliases so existing JS-generated HTML still works */
-            --primary: #C07C3A;
-            --primary-light: #D4964F;
-            --primary-dark: #1C1208;
-            --accent: #EAD9B8;
-            --accent-light: #F2E9D6;
-            --success: #4CAF50;
-            --danger: #FF6B6B;
-            --bg-dark: #1C1208;
-            --bg-light: #F5F0E8;
-            --text-dark: #1C1208;
-            --text-light: #FDFAF4;
-            --shadow: 0 4px 12px rgba(0,0,0,0.06);
-            --shadow-hover: 0 8px 24px rgba(192,124,58,0.15);
+            /* Legacy aliases */
+            --primary:      #B5651D;
+            --primary-light:#D4894A;
+            --primary-dark: #1C0F07;
+            --accent:       #F5EDE3;
+            --accent-light: #F5EDE3;
+            --success:      #4CAF7D;
+            --danger:       #C0392B;
+            --bg-dark:      #1C0F07;
+            --bg-light:     #FAF7F2;
+            --text-dark:    #1C0F07;
+            --text-light:   #FAF7F2;
+            --shadow:       0 1px 3px rgba(28,15,7,0.05), 0 4px 16px rgba(28,15,7,0.03);
+            --shadow-hover: 0 4px 20px rgba(28,15,7,0.08);
         }
 
         [data-theme="dark"] {
-            --cream: #1e1914;
-            --warm-white: #231e17;
-            --espresso: #EDE4D4;
-            --brown: #D4C4A8;
-            --caramel: #D4964F;
-            --caramel-light: #E0A85A;
-            --latte: #3d3228;
-            --latte-soft: #2d2820;
-            --sage: #8A9E85;
-            --muted: #9A8E82;
-            --card: #251f18;
-            --border: rgba(192,124,58,0.22);
-            /* Legacy aliases */
-            --primary: #D4964F;
-            --primary-light: #E0A85A;
+            --cream:        #1a1410;
+            --warm-white:   #1a1410;
+            --espresso:     #EDE4D4;
+            --brown:        #D4C4A8;
+            --caramel:      #D4894A;
+            --caramel-light:#E0A060;
+            --latte:        rgba(212,137,74,0.15);
+            --latte-soft:   #2a2218;
+            --muted:        #9A8E82;
+            --muted-2:      #7A6E62;
+            --card:         #221c15;
+            --border:       rgba(212,137,74,0.15);
+            --border-strong:rgba(212,137,74,0.25);
+            --surface:      #221c15;
+            --primary:      #D4894A;
+            --primary-light:#E0A060;
             --primary-dark: #EDE4D4;
-            --accent: #3d3228;
-            --accent-light: #2d2820;
-            --bg-dark: #1e1914;
-            --bg-light: #EDE4D4;
-            --text-dark: #EDE4D4;
-            --text-light: #1e1914;
-            --shadow: 0 4px 12px rgba(0,0,0,0.4);
-            --shadow-hover: 0 8px 24px rgba(192,124,58,0.3);
+            --accent:       #2a2218;
+            --accent-light: #2a2218;
+            --bg-dark:      #1a1410;
+            --bg-light:     #EDE4D4;
+            --text-dark:    #EDE4D4;
+            --text-light:   #1a1410;
+            --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.35);
         }
 
         body {
@@ -7617,3 +7621,468 @@
     font-family: 'Playfair Display', serif;
     margin-bottom: 12px;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   FIRST SIP — DESIGN SYSTEM 2.0
+   Warm · Premium · Minimal
+   All rules here override earlier declarations to apply the new system.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Base typography ── */
+body, button, input, select, textarea {
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+body { background: var(--cream); color: var(--espresso); }
+
+/* Playfair only for display headings */
+h1, h2, .view-title, .section-title, .db-greeting-h1,
+.spanel-title, .su-steps-headline, .lp-hero-headline,
+.mp2-stat div:first-child, .auth-headline,
+.legal-doc h1 { font-family: 'Playfair Display', Georgia, serif; }
+
+/* Global heading refinements */
+h1, h2, h3 { letter-spacing: -0.02em; font-weight: 400; }
+
+/* ── Page background ── */
+.main-content, #mainContent, .content-view,
+.settings-content, .settings-shell { background: var(--cream); }
+
+/* ── Top navigation ── */
+.topbar {
+  background: var(--cream) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+.topbar-logo { color: var(--espresso); border-right: none !important; }
+.topbar-logo span { color: var(--caramel); }
+
+/* Desktop tab nav */
+.main-nav-tab {
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+.main-nav-tab:hover { background: var(--latte-soft); color: var(--espresso); }
+.main-nav-tab.active {
+  background: var(--latte-soft) !important;
+  color: var(--caramel) !important;
+  font-weight: 500;
+}
+.main-nav-tab.active::after { background: var(--caramel); }
+.main-nav-tab-label { font-size: 10px; }
+
+/* ── Mobile bottom nav ── */
+.mobile-bottom-nav {
+  background: var(--cream) !important;
+  border-top: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  height: 64px;
+}
+.mob-nav-btn {
+  font-family: 'Sora', sans-serif;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.mob-nav-btn.active { color: var(--caramel) !important; }
+.mob-nav-icon { font-size: 20px; }
+
+/* ── Cards & surfaces ── */
+.s-card, .sp-card, .mc-chat-card, .group-card, .st-card,
+.nw-conn-card, .db-section, .pv-card, .av-card,
+.feed-post-card, .ibx-up-card, .mc-widget,
+div[style*="border-radius: 14px"], div[style*="border-radius:14px"] {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow) !important;
+}
+.s-card:hover, .sp-card:hover, .mc-chat-card:hover,
+.group-card:hover, .nw-conn-card:hover, .ibx-up-card:hover {
+  border-color: var(--border-strong) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover) !important;
+}
+
+/* ── Buttons — primary ── */
+.btn-primary, .sp-btn-primary, .s-btn-primary,
+button.btn.btn-primary, .su-btn, .lp-btn-primary,
+.fv-create-btn, .send-btn, .ibx-send-btn,
+.nw-btn-connect, .mc-btn-sm.primary,
+.db-no-sip-btn, .gv-create-btn, .ibx-up-btn.join,
+.event-btn.join, .card-btn.accept {
+  background: var(--caramel) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 9px !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 500 !important;
+  transition: all 0.15s !important;
+}
+.btn-primary:hover, .sp-btn-primary:hover, .su-btn:hover,
+.nw-btn-connect:hover, .db-no-sip-btn:hover {
+  background: #9A5418 !important;
+  box-shadow: 0 4px 12px rgba(181,101,29,0.25) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Buttons — ghost/secondary ── */
+.btn-ghost, .sp-btn-ghost, .s-btn-ghost,
+button.btn.btn-secondary, .btn-secondary,
+.mc-btn-sm.secondary, .ibx-up-btn.details,
+.event-btn.view, .card-btn.decline,
+.lp-btn-ghost, .nw-btn-message {
+  background: transparent !important;
+  border: 1px solid var(--border-strong) !important;
+  color: var(--muted) !important;
+  border-radius: 9px !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 400 !important;
+  transition: all 0.15s !important;
+}
+.btn-ghost:hover, .sp-btn-ghost:hover, .btn-secondary:hover {
+  border-color: var(--caramel) !important;
+  color: var(--caramel) !important;
+  background: var(--latte-soft) !important;
+}
+
+/* ── Buttons — danger ── */
+.btn-danger, .sp-btn-danger, .s-btn-danger,
+.mc-btn-sm.danger, .nw-btn-decline {
+  background: transparent !important;
+  border: 1px solid rgba(192,57,43,0.3) !important;
+  color: #C0392B !important;
+  border-radius: 9px !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 400 !important;
+  transition: all 0.15s !important;
+}
+.btn-danger:hover, .sp-btn-danger:hover { background: #FFF0EE !important; border-color: #C0392B !important; }
+
+/* ── Form inputs ── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+select, textarea,
+.sp-input, .form-input, .form-select, .form-textarea,
+.ibx-search-input, .ibx-nm-search, .nwSearchInput,
+.ibx-textarea, .su-input {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 14px !important;
+  border: 1px solid rgba(139,90,43,0.18) !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: var(--espresso) !important;
+  padding: 10px 14px !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+input:focus, select:focus, textarea:focus,
+.sp-input:focus, .form-input:focus {
+  border-color: var(--caramel) !important;
+  box-shadow: 0 0 0 3px rgba(181,101,29,0.08) !important;
+  outline: none !important;
+}
+input::placeholder, textarea::placeholder { color: var(--muted-2) !important; }
+
+/* ── Labels ── */
+.sp-label, .form-label, label {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--brown) !important;
+}
+
+/* ── Section eyebrows & titles ── */
+.section-eyebrow, .view-eyebrow, .db-section-label,
+.sp-card-label, .s-card-title, .panel-title {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--caramel) !important;
+}
+.view-title, .section-title {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--espresso) !important;
+}
+.view-title em, .section-title em { color: var(--caramel); font-style: italic; }
+.view-subtitle { font-family: 'Sora', sans-serif !important; font-size: 14px !important; color: var(--muted) !important; font-weight: 300 !important; }
+
+/* ── Dashboard ── */
+.db-header { background: var(--cream) !important; border-bottom: 1px solid var(--border) !important; }
+.db-greeting-h1 { font-weight: 400 !important; letter-spacing: -0.02em !important; }
+.db-greeting-h1 em { color: var(--caramel); font-style: italic; }
+.db-greeting-sub { font-family: 'Sora', sans-serif !important; color: var(--muted) !important; font-size: 14px !important; font-weight: 300 !important; }
+.db-see-all { font-family: 'Sora', sans-serif !important; color: var(--caramel) !important; font-size: 13px !important; font-weight: 500 !important; background: none !important; border: none !important; cursor: pointer; }
+.db-alert-pill {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
+  border-radius: 12px !important;
+}
+.db-alert-dot { background: var(--caramel) !important; }
+.db-alert-text { font-family: 'Sora', sans-serif !important; font-weight: 500 !important; font-size: 14px !important; color: var(--espresso) !important; }
+.db-alert-sub { font-family: 'Sora', sans-serif !important; font-size: 12px !important; color: var(--muted) !important; }
+
+/* ── Discover / user cards ── */
+.discover-card, .pv-card, .user-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow) !important;
+}
+.discover-card:hover { border-color: var(--border-strong) !important; transform: translateY(-2px); box-shadow: var(--shadow-hover) !important; }
+
+/* Default avatars everywhere */
+.pv-av-circle, .nw-av-circle, .discover-av,
+div[class*="avatar"]:not([class*="upload"]):not([class*="preview"]),
+.ibx-conv-av-inner, .msg-avatar, .chat-event-avatar {
+  background: linear-gradient(135deg, #D4894A, #B5651D) !important;
+}
+
+/* Interest / hobby tags */
+.tag-pill, .pv-chip, .sp-chip.active,
+span[style*="background:var(--latte-soft)"],
+span[style*="background: var(--latte-soft)"] {
+  background: var(--latte-soft) !important;
+  color: var(--caramel) !important;
+  border: 1px solid rgba(181,101,29,0.15) !important;
+  border-radius: 20px !important;
+  font-family: 'Sora', sans-serif !important;
+  font-size: 12px !important;
+  padding: 3px 10px !important;
+  font-weight: 400 !important;
+}
+
+/* ── Feed / Home post cards ── */
+.feed-post-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  padding: 20px 22px !important;
+  margin-bottom: 16px !important;
+  box-shadow: var(--shadow) !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.feed-post-card:hover { border-color: var(--border-strong) !important; }
+.post-author-name { font-family: 'Playfair Display', serif !important; font-size: 15px !important; color: var(--espresso) !important; font-weight: 400 !important; }
+.post-author-meta { font-family: 'Sora', sans-serif !important; font-size: 12px !important; color: var(--muted-2) !important; }
+.post-content { font-family: 'Sora', sans-serif !important; font-size: 14px !important; line-height: 1.7 !important; color: var(--espresso) !important; margin: 12px 0 !important; }
+.post-action-btn {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 13px !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  padding: 5px 12px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+}
+.post-action-btn:hover { color: var(--caramel) !important; border-color: var(--caramel) !important; }
+.post-action-btn.liked { color: var(--caramel) !important; border-color: var(--caramel) !important; background: var(--latte-soft) !important; }
+
+/* ── Home feed section ── */
+.home-tab-bar { background: var(--cream) !important; border-bottom: 1px solid var(--border) !important; }
+.home-tab { font-family: 'Sora', sans-serif !important; font-size: 13px !important; font-weight: 400 !important; color: var(--muted) !important; }
+.home-tab.active { color: var(--caramel) !important; border-bottom-color: var(--caramel) !important; font-weight: 500 !important; }
+
+/* ── Network view ── */
+.nw-tab { font-family: 'Sora', sans-serif !important; font-size: 13px !important; font-weight: 400 !important; }
+.nw-tab.active { color: var(--caramel) !important; border-bottom-color: var(--caramel) !important; font-weight: 500 !important; }
+.nw-stat-val { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; color: var(--caramel) !important; }
+.nw-stat-lbl { font-family: 'Sora', sans-serif !important; color: var(--muted) !important; font-size: 12px !important; }
+.nw-conn-name { font-family: 'Sora', sans-serif !important; font-weight: 500 !important; color: var(--espresso) !important; }
+.nw-conn-role { font-family: 'Sora', sans-serif !important; color: var(--muted) !important; font-size: 12px !important; }
+
+/* ── My Chats (messagesView) ── */
+.mc-tab-btn {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 13px !important;
+  color: var(--muted) !important;
+  font-weight: 400 !important;
+}
+.mc-tab-btn.active { color: var(--caramel) !important; border-bottom-color: var(--caramel) !important; font-weight: 500 !important; }
+.mc-chat-name { font-family: 'Sora', sans-serif !important; font-size: 14px !important; font-weight: 500 !important; color: var(--espresso) !important; }
+.mc-status-badge.pending { background: var(--latte-soft) !important; color: var(--caramel) !important; border: 1px solid rgba(181,101,29,0.2) !important; }
+.mc-status-badge.completed { background: #E8F5E9 !important; color: #2E7D32 !important; }
+.mc-btn-sm {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 12px !important;
+  border-radius: 7px !important;
+  font-weight: 400 !important;
+}
+
+/* ── Inbox / Messages ── */
+.ibx-conv-panel, .ibx-upcoming-panel {
+  background: var(--cream) !important;
+  border-color: var(--border) !important;
+}
+.ibx-conv-header h2 {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+}
+.ibx-conv-name { font-family: 'Sora', sans-serif !important; font-weight: 500 !important; color: var(--espresso) !important; }
+.ibx-conv-preview { font-family: 'Sora', sans-serif !important; font-size: 13px !important; color: var(--muted) !important; }
+.ibx-conv-time { font-family: 'Sora', sans-serif !important; font-size: 11px !important; color: var(--muted-2) !important; }
+.ibx-tab-btn { font-family: 'Sora', sans-serif !important; font-size: 12px !important; font-weight: 400 !important; }
+.ibx-tab-btn.active { color: var(--caramel) !important; border-bottom-color: var(--caramel) !important; }
+.ibx-ch-name { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; color: var(--espresso) !important; letter-spacing: -0.01em !important; }
+.ibx-ch-sub { font-family: 'Sora', sans-serif !important; font-size: 12px !important; color: var(--muted) !important; }
+.ibx-input-wrap {
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: var(--shadow) !important;
+}
+.ibx-input-wrap:focus-within { border-color: var(--caramel) !important; box-shadow: 0 0 0 3px rgba(181,101,29,0.08), var(--shadow) !important; }
+.ibx-textarea { font-family: 'Sora', sans-serif !important; font-size: 14px !important; background: transparent !important; border: none !important; }
+.ibx-send-btn { background: var(--caramel) !important; border-radius: 9px !important; }
+.ibx-send-btn:hover { background: #9A5418 !important; }
+
+/* Message bubbles */
+.ibx-msg-bubble {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  font-family: 'Sora', sans-serif !important;
+  font-size: 14px !important;
+  border-radius: 16px 16px 16px 4px !important;
+}
+.ibx-msg-bubble.out {
+  background: var(--caramel) !important;
+  color: #fff !important;
+  border-color: var(--caramel) !important;
+  border-radius: 16px 16px 4px 16px !important;
+}
+.ibx-msg-time { font-family: 'Sora', sans-serif !important; font-size: 11px !important; color: var(--muted-2) !important; }
+
+/* ── Settings page ── */
+.settings-sidebar { background: var(--cream) !important; border-right: 1px solid var(--border) !important; }
+.settings-nav-item { font-family: 'Sora', sans-serif !important; font-size: 13px !important; font-weight: 400 !important; color: var(--muted) !important; }
+.settings-nav-item.active { background: var(--latte-soft) !important; color: var(--caramel) !important; border-left-color: var(--caramel) !important; font-weight: 500 !important; }
+.settings-nav-item:hover { background: var(--latte-soft) !important; }
+.settings-sidebar-label { font-family: 'Sora', sans-serif !important; color: var(--muted-2) !important; }
+.settings-nav-divider { background: var(--border) !important; }
+.section-desc { font-family: 'Sora', sans-serif !important; color: var(--muted) !important; font-size: 14px !important; font-weight: 300 !important; }
+.s-card-header { border-bottom: 1px solid var(--border) !important; }
+.s-card-footer { background: var(--cream) !important; border-top: 1px solid var(--border) !important; }
+.s-card-title { font-family: 'Sora', sans-serif !important; font-size: 14px !important; font-weight: 500 !important; color: var(--espresso) !important; }
+.sp-card-label { border-bottom: 1px solid var(--border) !important; }
+
+/* Status chips in settings */
+.sp-chip { font-family: 'Sora', sans-serif !important; font-size: 12px !important; font-weight: 400 !important; }
+.sp-chip.active { background: var(--caramel) !important; color: #fff !important; border-color: var(--caramel) !important; }
+
+/* Settings toggle */
+.toggle-track { background: var(--border) !important; }
+input:checked + .toggle-track { background: var(--caramel) !important; }
+
+/* Privacy pills */
+.privacy-option.selected { background: var(--latte-soft) !important; color: var(--caramel) !important; border-color: var(--caramel) !important; }
+
+/* ── Profile page (My Profile) ── */
+.mp2-stat div:first-child { color: var(--caramel) !important; font-weight: 400 !important; }
+.pv-chip { font-family: 'Sora', sans-serif !important; font-size: 12px !important; font-weight: 400 !important; background: var(--latte-soft) !important; color: var(--caramel) !important; border-radius: 20px !important; padding: 4px 12px !important; }
+.pv-chip.caramel { background: var(--latte-soft) !important; color: var(--caramel) !important; }
+.pv-chip.open { background: #E8F5E9 !important; color: #2E7D32 !important; border: 1px solid #A9DFBF !important; }
+
+/* ── Communities / Groups ── */
+.group-card { padding: 18px 20px !important; }
+.group-card h3 { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; color: var(--espresso) !important; letter-spacing: -0.01em !important; }
+.industry-pill { background: var(--latte-soft) !important; color: var(--caramel) !important; border-radius: 20px !important; font-family: 'Sora', sans-serif !important; font-size: 11px !important; padding: 2px 10px !important; }
+.gv-section-title { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; color: var(--espresso) !important; letter-spacing: -0.01em !important; }
+
+/* ── Toast notifications ── */
+.toast { font-family: 'Sora', sans-serif !important; border-radius: 10px !important; font-size: 13px !important; }
+.toast.success { background: #E8F5E9 !important; color: #1B5E20 !important; border: 1px solid #A5D6A7 !important; }
+.toast.info { background: var(--latte-soft) !important; color: var(--caramel) !important; border: 1px solid rgba(181,101,29,0.2) !important; }
+.toast.error { background: #FFF0EE !important; color: #C0392B !important; border: 1px solid #F5C6C2 !important; }
+.s-toast { border-radius: 10px !important; font-family: 'Sora', sans-serif !important; font-size: 13px !important; }
+
+/* ── Modals ── */
+.modal-content {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 40px rgba(28,15,7,0.12) !important;
+}
+.modal-header { border-bottom: 1px solid var(--border) !important; }
+.modal-header h2, .modal-header h3 { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; letter-spacing: -0.02em !important; color: var(--espresso) !important; }
+
+/* ── Auth pages (login/signup) ── */
+.auth-container {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow) !important;
+}
+.auth-headline { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; letter-spacing: -0.02em !important; }
+.auth-form-input { font-family: 'Sora', sans-serif !important; }
+
+/* ── Schedule modal ── */
+.sv-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow) !important;
+}
+.sv-card-eyebrow { font-family: 'Sora', sans-serif !important; font-size: 11px !important; letter-spacing: 0.1em !important; color: var(--caramel) !important; text-transform: uppercase !important; }
+.sv-card-title { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; letter-spacing: -0.02em !important; color: var(--espresso) !important; }
+.sv-form-label { font-family: 'Sora', sans-serif !important; font-size: 12px !important; font-weight: 500 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; color: var(--muted) !important; }
+.sv-input { font-family: 'Sora', sans-serif !important; border: 1px solid rgba(139,90,43,0.18) !important; border-radius: 8px !important; }
+.sv-btn { background: var(--caramel) !important; border-radius: 9px !important; font-family: 'Sora', sans-serif !important; font-weight: 500 !important; }
+.sv-btn:hover { background: #9A5418 !important; }
+
+/* ── Notification panel ── */
+.notification-panel {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 8px 32px rgba(28,15,7,0.10) !important;
+}
+.notification-panel-header { border-bottom: 1px solid var(--border) !important; }
+.notification-panel-header h3 { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; }
+
+/* ── Legal page ── */
+.legal-brand { font-family: 'Playfair Display', serif !important; }
+.legal-tab { font-family: 'Sora', sans-serif !important; font-size: 13px !important; }
+.legal-tab.active { color: var(--caramel) !important; border-bottom-color: var(--caramel) !important; }
+.legal-back-btn { font-family: 'Sora', sans-serif !important; }
+
+/* ── Availability view ── */
+.av-card { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: 14px !important; }
+.av-slots-title { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; color: var(--espresso) !important; }
+
+/* ── Calendar (mini) ── */
+.mc-cal-month { font-family: 'Sora', sans-serif !important; font-weight: 500 !important; color: var(--espresso) !important; }
+.mc-cal-day { font-family: 'Sora', sans-serif !important; font-size: 12px !important; }
+.mc-cal-day.today { background: var(--caramel) !important; color: #fff !important; border-radius: 50% !important; }
+.mc-cal-day.has-event { color: var(--caramel) !important; font-weight: 500 !important; }
+
+/* ── Profile preview card ── */
+.sp-preview-card { border: 1px solid var(--border) !important; border-radius: 14px !important; box-shadow: var(--shadow) !important; overflow: hidden; }
+.sp-preview-name { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; letter-spacing: -0.01em !important; }
+.sp-preview-headline { font-family: 'Sora', sans-serif !important; font-size: 13px !important; color: var(--muted) !important; }
+.sp-preview-school { font-family: 'Sora', sans-serif !important; font-size: 12px !important; color: var(--muted-2) !important; }
+.sp-chat-pill { font-family: 'Sora', sans-serif !important; font-size: 12px !important; }
+
+/* ── Achievement items ── */
+.ach-card, .ach-item {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(139,90,43,0.15); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(139,90,43,0.25); }
+
+/* ── Utility ── */
+.page-content { max-width: 860px; margin: 0 auto; }
+
