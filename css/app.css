@@ -8243,3 +8243,23 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   margin-bottom: 12px !important;
 }
 .post-author-info { flex: 1; min-width: 0; }
+
+/* ── Restore icon-padding for inputs with absolute-positioned icons ──
+   The global input override sets padding:10px 14px, which overwrites
+   the original padding-left:40px needed to clear the icon. ── */
+.su-input-wrap .su-input,
+.auth-input-wrapper .auth-form-input {
+  padding-left: 40px !important;
+}
+
+/* su-no-icon inputs (selects, textareas in signup that have no icon) */
+.su-input.su-no-icon {
+  padding-left: 14px !important;
+}
+
+/* Search inputs that use a background-image icon (not absolute-positioned) */
+.topbar-search-input,
+.ibx-search-input,
+.ibx-nm-search {
+  padding-left: 34px !important;
+}
