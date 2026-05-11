@@ -1966,53 +1966,7 @@
             <div class="s-card">
               <div class="s-card-header"><div class="s-card-title">Weekly Availability</div></div>
               <div class="s-card-body">
-                <div class="avail-grid">
-                  <div class="avail-day-row" style="font-size:11px;font-weight:600;color:#8b6a52;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">
-                    <div>Day</div><div>From</div><div>To</div><div></div>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Monday</div>
-                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option></select>
-                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Tuesday</div>
-                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option></select>
-                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Wednesday</div>
-                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>2:00 PM</option><option>3:00 PM</option></select>
-                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Thursday</div>
-                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option></select>
-                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Friday</div>
-                    <select class="form-select"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option></select>
-                    <select class="form-select"><option>3:00 PM</option><option>4:00 PM</option><option>5:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox" checked><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Saturday</div>
-                    <select class="form-select"><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option></select>
-                    <select class="form-select"><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                  <div class="avail-day-row">
-                    <div class="avail-day-name">Sunday</div>
-                    <select class="form-select"><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option></select>
-                    <select class="form-select"><option>5:00 PM</option><option>6:00 PM</option></select>
-                    <label class="toggle" style="flex-shrink:0"><input type="checkbox"><div class="toggle-track"><div class="toggle-thumb"></div></div></label>
-                  </div>
-                </div>
+                <div id="s-avail-days"></div>
               </div>
               <div class="s-card-footer">
                 <button class="btn-primary" onclick="saveSection('availability')">Save Availability</button>

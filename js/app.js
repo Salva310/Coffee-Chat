@@ -2370,6 +2370,17 @@
                 `<span class="pv-chip open">✅ Open to chats</span>`
             ].filter(Boolean).join('');
 
+            // Fetch availability
+            let _pvAvailRows = [];
+            try {
+                const { data: availData } = await supabaseClient
+                    .from('availability')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('day_of_week');
+                _pvAvailRows = (availData || []).filter(r => r.is_available);
+            } catch(e) { console.error('viewProfile availability:', e); }
+
             // Fetch achievements from dedicated table
             let _pvAchs = [];
             try {
@@ -2544,6 +2555,28 @@
                                 ${[...(user.interests || []), ...(user.hobbies || [])].map(t => `<span class="pv-tag">${t}</span>`).join('')}
                             </div>
                         </div>` : ''}
+
+                        ${_pvAvailRows.length > 0 ? (() => {
+                            const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                            const fmt = t => {
+                                if (!t) return '';
+                                const [h, m] = t.split(':');
+                                const hr = parseInt(h);
+                                return `${hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr)}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+                            };
+                            return `<div class="pv-card">
+                                <div class="pv-card-eyebrow">Availability</div>
+                                <div class="pv-card-title">When they're <em>open</em></div>
+                                <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+                                    ${_pvAvailRows.map(r => `
+                                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+                                        <span style="font-weight:600;width:36px;color:var(--brown);">${dayNames[r.day_of_week]}</span>
+                                        <span style="color:var(--muted);">${fmt(r.start_time)} – ${fmt(r.end_time)}</span>
+                                        <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:#eaf4ee;color:#2d6a4f;">Open</span>
+                                    </div>`).join('')}
+                                </div>
+                            </div>`;
+                        })() : ''}
 
                         <div class="pv-card">
                             <div class="pv-card-eyebrow">Achievements</div>
@@ -7607,7 +7640,7 @@
             if (activeNav)   activeNav.classList.add('active');
             if (tab === 'profile')       sLoadProfile();
             if (tab === 'account')       sLoadAccount();
-            if (tab === 'availability')  sLoadAvailability();
+            if (tab === 'availability')  { sRenderAvailDays(); sLoadAvailability(); }
             if (tab === 'notifications') sLoadNotifications();
             if (tab === 'privacy')       sLoadPrivacy();
         }
@@ -7628,7 +7661,7 @@
             if (content) content.scrollTop = 0;
             if (name === 'profile')       sLoadProfile();
             if (name === 'account')       sLoadAccount();
-            if (name === 'availability')  sLoadAvailability();
+            if (name === 'availability')  { sRenderAvailDays(); sLoadAvailability(); }
             if (name === 'notifications') sLoadNotifications();
             if (name === 'privacy')       sLoadPrivacy();
         }
