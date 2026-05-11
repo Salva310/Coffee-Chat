@@ -8213,3 +8213,33 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   .cdm-btn { flex: none; width: 100%; }
   .cdm-actions { flex-direction: column; }
 }
+
+/* ── Home feed post avatar — small circle ── */
+.post-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+  flex-shrink: 0 !important;
+}
+.post-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  display: block !important;
+}
+.post-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+.post-author-info { flex: 1; min-width: 0; }
