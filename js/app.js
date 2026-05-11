@@ -49,7 +49,7 @@
         const NAV_TABS = [
             { id: 'home',     icon: '🏠', label: 'Home',     view: 'dashboardView' },
             { id: 'discover', icon: '🔍', label: 'Discover', view: 'discoverView'  },
-            { id: 'chats',    icon: '☕', label: 'Chats',    view: 'messagesView'  },
+            { id: 'chats',    icon: '☕', label: 'Chats',    view: 'inboxView'     },
             { id: 'network',  icon: '🤝', label: 'Network',  view: 'networkView'   },
             { id: 'profile',  icon: '👤', label: 'Profile',  view: 'myProfileView' },
         ];
@@ -3347,6 +3347,7 @@
                     other_profile: profileMap[row.other_user_id] || null
                 }));
                 ibxRenderConvList(ibxAllConvs);
+                ibxRenderUpcomingPanel();
             } catch (err) {
                 console.error('renderInboxView:', err);
                 const list = document.getElementById('inboxConvList');
@@ -3395,13 +3396,85 @@
 
         function filterInboxConvs() {
             const q = (document.getElementById('inboxSearchInput')?.value || '').toLowerCase();
-            if (!q) { ibxRenderConvList(ibxAllConvs); return; }
-            const filtered = ibxAllConvs.filter(c => {
+            const tab = document.querySelector('.ibx-tab-btn.active')?.dataset.tab || 'all';
+            let list = ibxAllConvs;
+            if (tab === 'unread') list = list.filter(c => (c.unread_count || 0) > 0);
+            if (q) list = list.filter(c => {
                 const p = c.other_profile;
                 const name = `${p?.first_name || ''} ${p?.last_name || ''}`.toLowerCase();
-                return name.includes(q) || (c.last_message || '').toLowerCase().includes(q);
+                return name.includes(q) || (c.last_message_preview || '').toLowerCase().includes(q);
             });
-            ibxRenderConvList(filtered);
+            ibxRenderConvList(list);
+        }
+
+        function ibxSwitchTab(btn, tab) {
+            document.querySelectorAll('.ibx-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            btn.dataset.tab = tab;
+            filterInboxConvs();
+        }
+
+        function ibxRenderUpcomingPanel() {
+            const list = document.getElementById('ibxUpcomingList');
+            if (!list) return;
+            const now = new Date();
+            const upcoming = meetings
+                .filter(m => m.status !== 'completed' && new Date(m.start_time || m.date) > now)
+                .sort((a, b) => new Date(a.start_time || a.date) - new Date(b.start_time || b.date))
+                .slice(0, 5);
+
+            if (!upcoming.length) {
+                list.innerHTML = `<div class="ibx-up-empty">No upcoming chats scheduled.<br>Schedule one with a connection!</div>`;
+                return;
+            }
+
+            const gradients = [
+                'linear-gradient(135deg,#D4894A,#B5651D)',
+                'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                'linear-gradient(135deg,#2d7a4f,#52c887)',
+                'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                'linear-gradient(135deg,#be185d,#f472b6)',
+            ];
+
+            list.innerHTML = upcoming.map(m => {
+                const isOrganizer = m.organizer_id === currentUser?.id;
+                const partnerId   = isOrganizer ? m.participant_id : m.organizer_id;
+                const partner     = users.find(u => u.id === partnerId);
+                const pFirst      = partner?.firstName || 'User';
+                const pLast       = partner?.lastName  || '';
+                const initials    = ((pFirst[0]||'') + (pLast[0]||'')).toUpperCase();
+                const role        = partner?.role || partner?.status || '';
+                const gradIdx     = (partnerId||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
+                const dt          = new Date(m.start_time || m.date);
+                const today       = new Date(); today.setHours(0,0,0,0);
+                const tomorrow    = new Date(today); tomorrow.setDate(today.getDate()+1);
+                const diffDays    = Math.ceil((dt - today) / 86400000);
+                let badgeClass = 'upcoming', badgeText = 'Upcoming';
+                if (dt.toDateString() === today.toDateString())    { badgeClass = 'today';  badgeText = 'Today'; }
+                else if (dt.toDateString() === tomorrow.toDateString()) { badgeClass = 'soon'; badgeText = 'Tomorrow'; }
+                else if (diffDays <= 7) { badgeClass = 'soon'; badgeText = dt.toLocaleDateString('en-US',{weekday:'short'}); }
+                const timeStr  = m.time || dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+                const duration = m.duration ? `${m.duration} min` : '30 min';
+                const type     = m.meeting_type || m.type || 'Virtual';
+                const isToday  = dt.toDateString() === new Date().toDateString();
+                return `<div class="ibx-up-card" onclick="switchView('messagesView')">
+                    <div class="ibx-up-card-top">
+                        <div class="ibx-up-av" style="background:${gradients[gradIdx]}">${initials}</div>
+                        <div>
+                            <div class="ibx-up-name">${pFirst} ${pLast}</div>
+                            ${role ? `<div class="ibx-up-role">${role}</div>` : ''}
+                        </div>
+                        <span class="ibx-up-badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="ibx-up-time">🕐 ${timeStr} · ${duration} · ${type}</div>
+                    <div class="ibx-up-actions">
+                        ${isToday
+                            ? `<button class="ibx-up-btn join" onclick="event.stopPropagation();startCall('${partnerId}')">Join now</button>`
+                            : ''}
+                        <button class="ibx-up-btn details" onclick="event.stopPropagation();switchView('messagesView')" style="flex:2">View details</button>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         async function selectInboxConv(userId, conversationId = null) {

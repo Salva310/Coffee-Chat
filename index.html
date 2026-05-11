@@ -70,7 +70,7 @@
                 <span class="mob-nav-icon">🔍</span>
                 <span class="mob-nav-lbl">Discover</span>
             </button>
-            <button class="mob-nav-btn" onclick="switchView('messagesView')" data-tab="chats">
+            <button class="mob-nav-btn" onclick="switchView('inboxView')" data-tab="chats">
                 <span class="mob-nav-icon">☕</span>
                 <span class="mob-nav-lbl">Chats</span>
             </button>
@@ -1234,13 +1234,17 @@
                     <div class="ibx-conv-panel">
                         <div class="ibx-conv-header">
                             <div class="ibx-header-row">
-                                <h2>Your <em>Inbox</em></h2>
+                                <h2>Messages</h2>
                                 <button class="ibx-compose-btn" onclick="ibxOpenNewMessage()" title="New message">✏</button>
                             </div>
                             <div class="ibx-search-wrap">
                                 <span class="ibx-search-icon">🔍</span>
                                 <input type="text" class="ibx-search-input" id="inboxSearchInput" placeholder="Search conversations…" oninput="filterInboxConvs()">
                             </div>
+                        </div>
+                        <div class="ibx-tabs-row">
+                            <button class="ibx-tab-btn active" onclick="ibxSwitchTab(this,'all')">All</button>
+                            <button class="ibx-tab-btn" onclick="ibxSwitchTab(this,'unread')">Unread</button>
                         </div>
                         <div class="ibx-conv-list" id="inboxConvList">
                             <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>
@@ -1271,6 +1275,18 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Right panel: Upcoming Chats -->
+                    <div class="ibx-upcoming-panel" id="ibxUpcomingPanel">
+                        <div class="ibx-up-header">
+                            <div class="ibx-up-title">Upcoming Chats</div>
+                            <div class="ibx-up-sub">Your scheduled coffee chats</div>
+                        </div>
+                        <div class="ibx-up-list" id="ibxUpcomingList"></div>
+                        <button class="ibx-up-new-btn" onclick="openScheduleChatModal()">
+                            + Schedule new chat
+                        </button>
                     </div>
                 </div>
 
