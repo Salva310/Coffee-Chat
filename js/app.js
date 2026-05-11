@@ -29,7 +29,6 @@
         // ── Navigation: which views belong to which tab ──
         const VIEW_TAB = {
             dashboardView:     'home',
-            feedView:          'home',
             discoverView:      'discover',
             profileDetailView: 'discover',
             messagesView:      'chats',
@@ -1177,7 +1176,6 @@
                         });
                 }
             }
-            if (viewId === 'feedView') renderFeed();
             if (viewId === 'groupsView') renderGroups();
             if (viewId === 'messagesView') renderMyChatView();
             if (viewId === 'dashboardView') updateDashboard();
@@ -1201,26 +1199,6 @@
         }
 
         // Dashboard
-        function switchHomeTab(tab) {
-            const homePanel = document.getElementById('home-panel-home');
-            const feedPanel = document.getElementById('home-panel-feed');
-            const homeBtn   = document.getElementById('homeTabHome');
-            const feedBtn   = document.getElementById('homeTabFeed');
-            if (!homePanel || !feedPanel) return;
-            if (tab === 'feed') {
-                homePanel.style.display = 'none';
-                feedPanel.style.display = 'block';
-                if (homeBtn) homeBtn.classList.remove('active');
-                if (feedBtn) feedBtn.classList.add('active');
-                renderHomeFeed();
-            } else {
-                feedPanel.style.display = 'none';
-                homePanel.style.display = 'block';
-                if (feedBtn) feedBtn.classList.remove('active');
-                if (homeBtn) homeBtn.classList.add('active');
-            }
-        }
-
         function switchHomeFeedTab(tab) {
             const connBtn = document.getElementById('homeFeedTabConnections');
             const grpBtn  = document.getElementById('homeFeedTabGroups');
@@ -1236,14 +1214,6 @@
             if (!tab) {
                 tab = document.getElementById('homeFeedTabGroups')?.classList.contains('active') ? 'groups' : 'connections';
             }
-            // Reuse renderFeed logic but target homeFeedPosts
-            // Temporarily swap the feedPosts container, render, swap back
-            const realFeedPosts = document.getElementById('feedPosts');
-            const realTabConn   = document.getElementById('feedTabConnections');
-            const realTabGrps   = document.getElementById('feedTabGroups');
-            // Sync tab state on the real feedView controls so renderFeed reads it correctly
-            if (realTabConn) realTabConn.classList.toggle('active', tab === 'connections');
-            if (realTabGrps) realTabGrps.classList.toggle('active', tab === 'groups');
             // Render into the home feed container directly
             container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">Loading feed…</div>';
             if (tab === 'groups') {
@@ -1329,6 +1299,9 @@
             renderProfileCompletion();
             renderGettingStarted();
             generateNotifications();
+
+            // Feed runs inline below the dashboard sections
+            renderHomeFeed();
         }
 
         function renderDbSetupBar() {
@@ -2565,7 +2538,7 @@
                         <div class="pv-card">
                             <div class="pv-card-eyebrow">Posts</div>
                             <div class="pv-card-title">Your <em>posts</em></div>
-                            <p style="font-size:13px;color:var(--muted);opacity:.7;">You haven't posted anything yet. Share your thoughts in the <span onclick="switchView('feedView')" style="color:var(--caramel);cursor:pointer;font-weight:600;">Feed →</span></p>
+                            <p style="font-size:13px;color:var(--muted);opacity:.7;">You haven't posted anything yet. Share your thoughts in the <span onclick="switchView('dashboardView')" style="color:var(--caramel);cursor:pointer;font-weight:600;">Feed →</span></p>
                         </div>` : ''}
                     </div>
 
@@ -4610,9 +4583,9 @@
                 closeModal('createPostModal');
                 alert('Post published successfully!');
 
-                // Refresh feed if we're on it
-                if (document.getElementById('feedView').classList.contains('active')) {
-                    await renderFeed();
+                // Refresh home feed if dashboard is active
+                if (document.getElementById('dashboardView').classList.contains('active')) {
+                    renderHomeFeed();
                 }
             } catch (error) {
                 console.error('Error publishing post:', error);
@@ -5547,7 +5520,7 @@
                         <div class="mp2-card" style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
                             <div style="padding:18px 22px 14px;border-bottom:1px solid var(--latte);display:flex;align-items:center;justify-content:space-between;">
                                 <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--espresso);">Your Posts</h3>
-                                <button onclick="switchView('feedView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ New Post</button>
+                                <button onclick="switchView('dashboardView')" style="background:none;border:none;color:var(--caramel);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ New Post</button>
                             </div>
                             <div style="padding:14px 22px 20px;">
                                 ${_myPosts.length > 0
@@ -5572,7 +5545,7 @@
                                             </div>
                                         </div>`;
                                     }).join('')
-                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;">You haven't posted anything yet. <span onclick="switchView('feedView')" style="color:var(--caramel);cursor:pointer;font-weight:600;font-style:normal;">Share something in the Feed →</span></p>`}
+                                    : `<p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;">You haven't posted anything yet. <span onclick="switchView('dashboardView')" style="color:var(--caramel);cursor:pointer;font-weight:600;font-style:normal;">Share something in the Feed →</span></p>`}
                             </div>
                         </div>
 

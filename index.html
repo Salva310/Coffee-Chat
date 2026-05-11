@@ -959,15 +959,6 @@
             <!-- Dashboard -->
             <div id="dashboardView" class="content-view" style="padding:0; overflow-y:auto;">
 
-                <!-- Home / Feed tab bar -->
-                <div class="home-tab-bar">
-                    <button class="home-tab active" id="homeTabHome" onclick="switchHomeTab('home')">🏠 Home</button>
-                    <button class="home-tab" id="homeTabFeed" onclick="switchHomeTab('feed')">📰 Feed</button>
-                </div>
-
-                <!-- HOME PANEL -->
-                <div id="home-panel-home">
-
                 <!-- HEADER: Greeting + Alert Pill -->
                 <div class="db-header">
                     <div class="db-greeting-row">
@@ -1040,16 +1031,17 @@
                     </div>
                 </div>
 
-                </div><!-- /home-panel-home -->
-
-                <!-- FEED PANEL -->
-                <div id="home-panel-feed" style="display:none; padding:24px 24px 80px;">
-                    <div class="fv-toolbar" style="margin-bottom:20px;">
+                <!-- FEED — runs directly below the dashboard sections -->
+                <div class="db-section" style="padding-bottom:80px;">
+                    <div class="db-section-header">
+                        <div class="db-section-label">What's happening</div>
+                        <button class="fv-create-btn" onclick="createPost()" style="font-size:13px;padding:6px 14px;">✍️ Post</button>
+                    </div>
+                    <div class="fv-toolbar" style="padding:0 0 16px;">
                         <div class="fv-tabs">
                             <button id="homeFeedTabConnections" class="fv-tab active" onclick="switchHomeFeedTab('connections')">Connections</button>
                             <button id="homeFeedTabGroups" class="fv-tab" onclick="switchHomeFeedTab('groups')">Groups</button>
                         </div>
-                        <button class="fv-create-btn" onclick="createPost()">✍️ Create Post</button>
                     </div>
                     <div id="homeFeedPosts"></div>
                 </div>
@@ -1470,24 +1462,6 @@
             </div>
 
             <!-- Feed View -->
-            <div id="feedView" class="content-view">
-                <div class="view-header-row" style="margin-bottom:22px;">
-                    <div>
-                        <div class="view-eyebrow">Your Network</div>
-                        <h1 class="view-title" style="margin-bottom:0;">The <em>Feed</em></h1>
-                    </div>
-                </div>
-
-                <div class="fv-toolbar">
-                    <div class="fv-tabs">
-                        <button id="feedTabConnections" class="fv-tab active" onclick="switchFeedTab('connections')">Connections</button>
-                        <button id="feedTabGroups" class="fv-tab" onclick="switchFeedTab('groups')">Groups</button>
-                    </div>
-                    <button class="fv-create-btn" onclick="createPost()">✍️ Create Post</button>
-                </div>
-
-                <div id="feedPosts"></div>
-            </div>
 
             <!-- Availability View -->
             <div id="availabilityView" class="content-view">
