@@ -1087,12 +1087,14 @@
             const bellContainer = document.getElementById('notifBellContainer');
             const userChip    = document.getElementById('topbarUserChip');
             const logoutBtn   = document.getElementById('logoutBtn');
+            const settingsBtn = document.getElementById('settingsBtn');
             const mainNav     = document.getElementById('mainNav');
 
             if (currentUser) {
                 document.body.classList.add('app-mode');
                 if (topbar)       topbar.classList.add('visible');
                 if (bellContainer) bellContainer.style.display = 'flex';
+                if (settingsBtn)  settingsBtn.style.display = 'flex';
                 if (logoutBtn)    logoutBtn.style.display = 'flex';
                 if (userChip) {
                     userChip.style.display = 'flex';
@@ -1114,6 +1116,7 @@
                 document.body.classList.remove('app-mode');
                 if (topbar)       topbar.classList.remove('visible');
                 if (bellContainer) bellContainer.style.display = 'none';
+                if (settingsBtn)  settingsBtn.style.display = 'none';
                 if (logoutBtn)    logoutBtn.style.display = 'none';
                 if (userChip)     userChip.style.display = 'none';
                 if (mainNav)      mainNav.innerHTML = '';
