@@ -2779,6 +2779,10 @@
                 showToast('Chat accepted! ☕', 'success');
                 renderMeetingCards();
                 updateDashboard();
+                // Fire confirmation emails to both participants
+                supabaseClient.functions.invoke('meeting-confirmed', {
+                    body: { meeting_id: meetingId }
+                }).catch(e => console.warn('meeting-confirmed function:', e));
             } catch (err) {
                 console.error('acceptMeetingInvite:', err);
                 showToast('Failed to accept: ' + err.message, 'error');
