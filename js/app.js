@@ -5610,17 +5610,9 @@
                 { label: 'Career goals',     done: !!(profile.goals && profile.goals.trim()) },
             ];
 
-            // Hero chips — school_name is the dedicated school field; company is employer
-            const school = profile.schoolName || (!profile.role && profile.company ? profile.company : null);
-            const chips = [
-                school           ? `🎓 ${school}`                                                   : null,
-                profile.gradYear ? `📅 Class of ${profile.gradYear}`                               : null,
-                profile.major    ? `📚 ${profile.major}`                                            : null,
-                profile.role     ? `💼 ${[profile.role, profile.company].filter(Boolean).join(' · ')}` : null,
-            ].filter(Boolean);
-
-            // Cache data for preview modal
-            _myProfilePreviewData = { profile, availRows, tagsHtml, chips };
+            // Cache data for preview modal (chips kept for preview modal compatibility)
+            const _chips = [profile.schoolName, profile.gradYear ? `Class of ${profile.gradYear}` : null, profile.major].filter(Boolean);
+            _myProfilePreviewData = { profile, availRows, tagsHtml, chips: _chips };
 
             // ── Build derived values for new template ──
             const school = profile.schoolName || (!profile.role && profile.company ? profile.company : null) || 'Rowan University';
