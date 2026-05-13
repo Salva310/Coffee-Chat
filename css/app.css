@@ -8858,3 +8858,38 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   .mpn-stat-row { gap: 16px; }
   .mpn-conn-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ── Profile hero: gear button (top-right) + actions below name ── */
+.mpn-hero { position: relative; }
+
+.mpn-gear-btn {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 10;
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff;
+  transition: all 0.15s;
+}
+.mpn-gear-btn:hover {
+  background: rgba(255,255,255,0.32);
+  border-color: rgba(255,255,255,0.6);
+}
+.mpn-gear-btn svg { stroke: #fff; flex-shrink: 0; }
+
+/* After cover strip, avatar row no longer has action buttons on the right */
+.mpn-avatar-row { margin-bottom: 12px; }
+
+/* Action buttons sit below name+headline, flush left */
+.mpn-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  margin-bottom: 16px;
+}

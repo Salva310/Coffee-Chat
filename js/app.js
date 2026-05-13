@@ -5703,10 +5703,15 @@
 
               <!-- Hero card -->
               <div class="mpn-hero">
+                <!-- Gear icon: top-right of hero -->
+                <button class="mpn-gear-btn" onclick="switchView('settingsView')" title="Settings">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
                 <div class="mpn-cover" style="${coverStyle}" onclick="document.getElementById('mpnBannerFile').click()">
                   <input type="file" id="mpnBannerFile" accept="image/*" style="display:none;" onchange="sHandleCoverUpload(this)">
                 </div>
                 <div class="mpn-hero-body">
+                  <!-- Avatar row: avatar only, no action buttons -->
                   <div class="mpn-avatar-row">
                     <div class="mpn-avatar-wrap">
                       <div class="mpn-avatar" style="background:${profile.profilePicture?'transparent':avatarBg}" onclick="document.getElementById('mpnAvatarFile').click()">
@@ -5717,21 +5722,26 @@
                       </div>
                       <input type="file" id="mpnAvatarFile" accept="image/*" style="display:none;" onchange="sHandlePhotoUpload(this)">
                     </div>
-                    <div class="mpn-hero-actions">
-                      <button class="mpn-btn-primary" onclick="editMyProfile()">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        Edit profile
-                      </button>
-                      <button class="mpn-btn-ghost" onclick="switchView('settingsView')">⚙️ Settings</button>
-                      <button class="mpn-btn-ghost" onclick="showToast('Share link copied!','success')">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                        Share
-                      </button>
-                    </div>
                   </div>
 
                   <div class="mpn-name">${profile.firstName || ''} ${profile.lastName || ''}</div>
                   ${(profile.headline || metaRole) ? `<div class="mpn-headline">${profile.headline || metaRole}</div>` : ''}
+
+                  <!-- Action buttons sit below name/headline -->
+                  <div class="mpn-hero-actions">
+                    <button class="mpn-btn-primary" onclick="editMyProfile()">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      Edit Profile
+                    </button>
+                    <button class="mpn-btn-ghost" onclick="showProfilePreview()">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      Preview
+                    </button>
+                    <button class="mpn-btn-ghost" onclick="showToast('Share link copied!','success')">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                      Share
+                    </button>
+                  </div>
 
                   <div class="mpn-meta">
                     ${metaSchool ? `<div class="mpn-meta-item">
