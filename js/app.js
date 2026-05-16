@@ -1496,7 +1496,7 @@
                         <div class="db-person-card-av" style="background:${bgColor}">${initials}</div>
                         <div class="db-person-card-name">${fn} ${ln}</div>
                         <div class="db-person-card-role">${roleLine}</div>
-                        <button class="db-person-card-btn" onclick="event.stopPropagation();connectUser('${u.id}')">Connect</button>
+                        <button class="db-person-card-btn" onclick="event.stopPropagation();openConnectModal('${u.id}')">Connect</button>
                     </div>`;
             }).join('');
         }
@@ -2304,9 +2304,10 @@
                 } else if (isPending) {
                     actionBtn = `<button class="btn btn-secondary btn-sm" disabled style="flex: 1; justify-content: center; opacity: 0.6;">Request Sent</button>`;
                 } else {
-                    actionBtn = `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1; justify-content: center;">Connect</button>`;
+                    actionBtn = `<button class="btn btn-accent btn-sm" onclick="openConnectModal('${user.id}')" style="flex: 1; justify-content: center;">Connect</button>`;
                 }
 
+                const msgBtn = `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();startMessage('${user.id}')" style="padding:4px 10px;font-size:11px;" title="Message">💬</button>`;
                 return `
                     <div class="card person-card">
                         ${avatarHTML}
@@ -2319,6 +2320,7 @@
                         <div class="profile-actions">
                             <button class="btn btn-primary btn-sm" onclick="viewProfile('${user.id}')" style="flex: 1; justify-content: center;">View Profile</button>
                             ${actionBtn}
+                            ${!isConnected ? msgBtn : ''}
                         </div>
                     </div>
                 `;
@@ -2648,14 +2650,47 @@
         function pvHandleConnect(btn, userId) {
             const alreadySent = sentRequests.find(r => r.connected_user_id === userId);
             if (alreadySent) return;
-            connectUser(userId);
-            // Update both top and card buttons
-            document.querySelectorAll('#pvConnectBtnTop, #pvConnectBtn').forEach(el => {
-                if (el) { el.textContent = '✓ Request Sent'; el.disabled = true; el.style.opacity = '.7'; }
-            });
+            openConnectModal(userId);
         }
 
-        async function connectUser(userId) {
+        let _connectTargetId = null;
+
+        function openConnectModal(userId) {
+            if (!currentUser) return;
+            if (userId === currentUser.id) return;
+            const alreadyConnected = connections.find(c =>
+                (c.user_id === currentUser.id && c.connected_user_id === userId) ||
+                (c.user_id === userId && c.connected_user_id === currentUser.id));
+            if (alreadyConnected) { showToast('Already connected!', 'info'); return; }
+            const alreadySent = sentRequests.find(c => c.connected_user_id === userId);
+            if (alreadySent) { showToast('Request already sent!', 'info'); return; }
+            _connectTargetId = userId;
+            const user = users.find(u => u.id === userId);
+            const fn = user?.firstName || '?'; const ln = user?.lastName || '';
+            const initials = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
+            const pic = user?.profilePicture;
+            const recEl = document.getElementById('connectRequestRecipient');
+            if (recEl) recEl.innerHTML = `
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#D4894A,#B5651D);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#fff;overflow:hidden;flex-shrink:0;">
+                    ${pic ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : initials}
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:14px;color:var(--espresso);">${fn} ${ln}</div>
+                    <div style="font-size:12px;color:var(--muted);">${user?.industry || user?.major || 'Rowan University'}</div>
+                </div>`;
+            const noteEl = document.getElementById('connectRequestNote');
+            if (noteEl) noteEl.value = '';
+            openModal('connectRequestModal');
+        }
+
+        async function submitConnectRequest() {
+            const note = (document.getElementById('connectRequestNote')?.value || '').trim();
+            closeModal('connectRequestModal');
+            await connectUser(_connectTargetId, note);
+            _connectTargetId = null;
+        }
+
+        async function connectUser(userId, noteText = '') {
             if (!currentUser) return;
             if (userId === currentUser.id) return; // never connect with self
 
@@ -2671,8 +2706,6 @@
             // Already sent a request?
             const alreadySent = sentRequests.find(c => c.connected_user_id === userId);
             if (alreadySent) { showToast('Request already sent!', 'info'); return; }
-
-            const noteText = prompt(`Add a personal note to ${user ? user.firstName : 'this person'} (optional):`, '') ?? '';
 
             try {
                 const { data, error } = await supabaseClient
@@ -2720,6 +2753,10 @@
 
         async function acceptConnection(connectionId) {
             try {
+                // Capture requester before removing from pendingRequests
+                const req = pendingRequests.find(r => r.id === connectionId);
+                const requesterId = req?.user_id || req?.sender_id;
+
                 const { error } = await supabaseClient
                     .from('connections')
                     .update({ status: 'accepted' })
@@ -2735,15 +2772,42 @@
                         .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`);
                     if (connsData) connections = connsData.filter(c => c.status === 'accepted');
                 } catch(e) {}
-                showToast('Connection accepted!', 'success');
                 checkBadgesWithCelebration();
                 renderHubNetworkFeed();
                 generateNotifications();
                 renderDiscovery();
+                // Show nudge to schedule a chat
+                const requester = requesterId ? users.find(u => u.id === requesterId) : null;
+                const rName = requester ? requester.firstName : 'your new connection';
+                showConnectionNudge(requesterId, rName);
             } catch (err) {
                 console.error('Error accepting connection:', err);
                 showToast('Failed to accept: ' + err.message, 'error');
             }
+        }
+
+        function showConnectionNudge(userId, firstName) {
+            // Show a persistent toast with a one-tap "Schedule a Chat" action
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast success';
+            toast.style.cssText = 'max-width:340px;display:flex;flex-direction:column;gap:8px;padding:14px 16px;';
+            toast.innerHTML = `
+                <div style="font-size:14px;font-weight:500;">🎉 You're now connected with ${firstName}!</div>
+                <div style="font-size:12px;opacity:.85;">Want to schedule a coffee chat?</div>
+                <div style="display:flex;gap:8px;margin-top:2px;">
+                    <button onclick="this.closest('.toast').remove();${userId ? `openScheduleForUser('${userId}')` : `openScheduleModal()`}"
+                        style="flex:1;background:#fff;color:var(--caramel);border:none;border-radius:7px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">
+                        ☕ Schedule a Chat
+                    </button>
+                    <button onclick="this.closest('.toast').remove()"
+                        style="background:transparent;color:rgba(255,255,255,0.7);border:none;padding:6px 8px;font-size:12px;cursor:pointer;font-family:'Sora',sans-serif;">
+                        Later
+                    </button>
+                </div>`;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 8000);
         }
 
         async function rejectConnection(connectionId) {
@@ -2807,6 +2871,44 @@
 
         // ── Chat Invite actions (chat_invites table) ──
 
+        let _chatInviteTargetId = null;
+
+        function openChatInviteModal(userId) {
+            _chatInviteTargetId = userId;
+            const user = users.find(u => u.id === userId);
+            const fn = user?.firstName || 'them';
+            const ln = user?.lastName || '';
+            const initials = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
+            const pic = user?.profilePicture;
+            const school = user?.schoolName || user?.company || 'Rowan University';
+            const major  = user?.major || user?.industry || '';
+            const row = document.getElementById('chatInviteRecipientRow');
+            if (row) row.innerHTML = `
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#D4894A,#B5651D);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#fff;overflow:hidden;flex-shrink:0;">
+                    ${pic ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : initials}
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:14px;color:var(--espresso);">${fn} ${ln}</div>
+                    <div style="font-size:12px;color:var(--muted);">${[school, major].filter(Boolean).join(' · ')}</div>
+                </div>`;
+            const noteEl = document.getElementById('chatInviteNote');
+            const topicEl = document.getElementById('chatInviteTopic');
+            const countEl = document.getElementById('chatInviteNoteCount');
+            if (noteEl) { noteEl.value = ''; noteEl.placeholder = `Hi ${fn}! I'd love to connect and hear about your experience in…`; }
+            if (topicEl) topicEl.value = '';
+            if (countEl) countEl.textContent = '0/100';
+            openModal('chatInviteModal');
+        }
+
+        async function submitChatInvite() {
+            const note = (document.getElementById('chatInviteNote')?.value || '').trim();
+            const topic = (document.getElementById('chatInviteTopic')?.value || '').trim();
+            if (!note) { showToast('Please add an intro message ☕', 'info'); return; }
+            closeModal('chatInviteModal');
+            await sendChatInvite(_chatInviteTargetId, note, topic);
+            _chatInviteTargetId = null;
+        }
+
         async function sendChatInvite(userId, note = '', topic = '') {
             if (!currentUser) return;
             if (sentChatInvites.find(i => i.receiver_id === userId)) {
@@ -2849,11 +2951,12 @@
                 if (error) throw error;
                 const invite = chatInvites.find(i => i.id === inviteId);
                 chatInvites = chatInvites.filter(i => i.id !== inviteId);
-                showToast('Coffee chat invite accepted! ☕', 'success');
+                showToast('Chat invite accepted! ☕ Schedule a time below.', 'success');
                 renderHubNetworkFeed();
                 generateNotifications();
-                // Open a chat thread with the sender
-                if (invite) openChatWith(invite.sender_id);
+                renderMeetingCards();
+                // Open scheduling modal with the sender pre-selected
+                if (invite?.sender_id) openScheduleForUser(invite.sender_id);
             } catch (err) {
                 console.error('acceptChatInvite:', err);
                 showToast('Failed to accept: ' + err.message, 'error');
@@ -2960,10 +3063,12 @@
             const partner  = users.find(u => u.id === senderId);
             const pFirst   = partner?.firstName || partner?.first_name || 'Someone';
             const pLast    = partner?.lastName  || partner?.last_name  || '';
-            const role     = partner?.role    || '';
-            const company  = partner?.company || '';
+            const school   = partner?.schoolName || partner?.company || 'Rowan University';
+            const major    = partner?.major || partner?.industry || '';
+            const pic      = partner?.profilePicture;
             const initials = ((pFirst[0]||'') + (pLast[0]||'')).toUpperCase();
-            const topic    = invite.topic || invite.note || '';
+            const note     = invite.note || '';
+            const topic    = invite.topic || '';
             const gradients = [
                 'linear-gradient(135deg,#5c3317,#b5651d)',
                 'linear-gradient(135deg,#2563eb,#5c9ef5)',
@@ -2972,24 +3077,26 @@
                 'linear-gradient(135deg,#be185d,#f472b6)',
             ];
             const gradIdx = (senderId||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
+            const avatarHTML = pic
+                ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                : (initials||'?');
             return `
                 <div class="mc-chat-card pending">
                     <div class="mc-card-top">
                         <div class="mc-avatar-wrap">
-                            <div class="mc-avatar" style="background:${gradients[gradIdx]}">${initials||'?'}</div>
+                            <div class="mc-avatar" style="background:${pic?'transparent':gradients[gradIdx]};overflow:hidden;">${avatarHTML}</div>
                         </div>
-                        <div>
+                        <div style="flex:1;min-width:0;">
                             <div class="mc-chat-name">${pFirst} ${pLast}</div>
-                            <div class="mc-chat-meta">
-                                ${role ? `<span>${role}</span>` : ''}
-                                ${role && company ? '<span class="mc-meta-dot"></span>' : ''}
-                                ${company ? `<span>${company}</span>` : ''}
+                            <div class="mc-chat-meta" style="font-size:11.5px;">
+                                ${school ? `<span>🎓 ${school}</span>` : ''}
+                                ${major  ? `<span class="mc-meta-dot"></span><span>${major}</span>` : ''}
                             </div>
-                            ${topic ? `<div class="mc-chat-topic">"${topic}"</div>` : ''}
+                            ${note ? `<div class="mc-invite-note">"${note}"</div>` : ''}
+                            ${topic ? `<div style="font-size:11.5px;color:var(--muted);margin-top:3px;">⏰ ${topic}</div>` : ''}
                         </div>
                         <div class="mc-card-right">
                             <span class="mc-status-badge pending">☕ Invite</span>
-                            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Wants to chat</div>
                         </div>
                     </div>
                     <div class="mc-card-actions">
@@ -4205,7 +4312,7 @@
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
                                 <button class="btn btn-secondary btn-sm" onclick="viewProfile('${p.id}')" style="font-size: 11px; padding: 4px 10px;">View</button>
-                                ${p.id !== currentUser.id ? (isConnected ? `<span style="font-size: 11px; color: var(--success);">&#10003; Connected</span>` : `<button class="btn btn-primary btn-sm" onclick="connectUser('${p.id}')" style="font-size: 11px; padding: 4px 10px;">Connect</button>`) : ''}
+                                ${p.id !== currentUser.id ? (isConnected ? `<span style="font-size: 11px; color: var(--success);">&#10003; Connected</span>` : `<button class="btn btn-primary btn-sm" onclick="openConnectModal('${p.id}')" style="font-size: 11px; padding: 4px 10px;">Connect</button>`) : ''}
                             </div>
                         </div>`;
                 }).join('');
@@ -5339,7 +5446,7 @@
                             } else if (isPending) {
                                 recActionBtn = `<button class="btn btn-secondary btn-sm" disabled style="flex: 1; opacity: 0.6;">Request Sent</button>`;
                             } else {
-                                recActionBtn = `<button class="btn btn-accent btn-sm" onclick="connectUser('${user.id}')" style="flex: 1;">Connect</button>`;
+                                recActionBtn = `<button class="btn btn-accent btn-sm" onclick="openConnectModal('${user.id}')" style="flex: 1;">Connect</button>`;
                             }
 
                             return `
@@ -6209,7 +6316,7 @@
                     <div class="nw-cc-footer" onclick="event.stopPropagation()">
                         ${sentChatInvites.find(i => i.receiver_id === u.id)
                             ? `<button class="nw-btn-chat" disabled style="opacity:.55;cursor:default;">✓ Invited</button>`
-                            : `<button class="nw-btn-chat" onclick="sendChatInvite('${u.id}')">☕ Chat</button>`}
+                            : `<button class="nw-btn-chat" onclick="openChatInviteModal('${u.id}')">☕ Chat</button>`}
                         <button class="nw-btn-msg" onclick="startMessage('${u.id}')">💬</button>
                     </div>
                 </div>`;
@@ -6333,7 +6440,7 @@
                         ${tags.length ? `<div class="nw-sug-tags">${tags.map(t => `<span class="nw-sug-tag">${t}</span>`).join('')}</div>` : ''}
                     </div>
                     <div class="nw-sug-footer">
-                        <button class="nw-btn-connect" onclick="connectUser('${u.id}')">🤝 Connect</button>
+                        <button class="nw-btn-connect" onclick="openConnectModal('${u.id}')">🤝 Connect</button>
                         <button class="nw-btn-view" onclick="viewProfile('${u.id}')">View</button>
                     </div>
                 </div>`;

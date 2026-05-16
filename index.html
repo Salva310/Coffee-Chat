@@ -2373,6 +2373,56 @@
         </div>
     </div>
 
+    <!-- Chat Invite Modal (Flow 1) -->
+    <div id="chatInviteModal" class="modal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h3 style="margin:0;">Send a Chat Request ☕</h3>
+                <button class="modal-close" onclick="closeModal('chatInviteModal')">×</button>
+            </div>
+            <div id="chatInviteRecipientRow" style="display:flex;align-items:center;gap:12px;padding:14px 0 4px;"></div>
+            <div class="form-group" style="margin-top:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--brown);">Intro message <span style="font-weight:400;color:var(--muted);">(required · max 100 chars)</span></label>
+                <textarea id="chatInviteNote" maxlength="100" rows="3"
+                    placeholder="Hi! I'd love to connect and hear about your experience in…"
+                    oninput="document.getElementById('chatInviteNoteCount').textContent=this.value.length+'/100'"
+                    style="margin-top:6px;width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;resize:none;"></textarea>
+                <div id="chatInviteNoteCount" style="font-size:11px;color:var(--muted);text-align:right;margin-top:2px;">0/100</div>
+            </div>
+            <div class="form-group" style="margin-top:12px;">
+                <label style="font-size:13px;font-weight:600;color:var(--brown);">Suggested time <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+                <input type="text" id="chatInviteTopic" maxlength="80"
+                    placeholder="e.g. This week, any afternoon works"
+                    style="margin-top:6px;width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;">
+            </div>
+            <div style="display:flex;gap:10px;margin-top:18px;">
+                <button class="btn btn-secondary" onclick="closeModal('chatInviteModal')" style="flex:1;">Cancel</button>
+                <button class="btn btn-primary" onclick="submitChatInvite()" style="flex:1;">Send Request ☕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Request Modal (Flow 4) -->
+    <div id="connectRequestModal" class="modal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h3 style="margin:0;">Send Connection Request</h3>
+                <button class="modal-close" onclick="closeModal('connectRequestModal')">×</button>
+            </div>
+            <div id="connectRequestRecipient" style="display:flex;align-items:center;gap:12px;padding:14px 0 4px;"></div>
+            <div class="form-group" style="margin-top:14px;">
+                <label style="font-size:13px;font-weight:600;color:var(--brown);">Personal note <span style="font-weight:400;color:var(--muted);">(optional · max 80 chars)</span></label>
+                <input type="text" id="connectRequestNote" maxlength="80"
+                    placeholder="e.g. I loved your post about IB recruiting!"
+                    style="margin-top:6px;width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;">
+            </div>
+            <div style="display:flex;gap:10px;margin-top:18px;">
+                <button class="btn btn-secondary" onclick="closeModal('connectRequestModal')" style="flex:1;">Cancel</button>
+                <button class="btn btn-primary" onclick="submitConnectRequest()" style="flex:1;">Connect</button>
+            </div>
+        </div>
+    </div>
+
     <div id="createPostModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
