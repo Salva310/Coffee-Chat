@@ -2895,15 +2895,28 @@
             const topicEl = document.getElementById('chatInviteTopic');
             const countEl = document.getElementById('chatInviteNoteCount');
             if (noteEl) { noteEl.value = ''; noteEl.placeholder = `Hi ${fn}! I'd love to connect and hear about your experience in…`; }
-            if (topicEl) topicEl.value = '';
+            const dateEl = document.getElementById('chatInviteDate');
+            const timeEl = document.getElementById('chatInviteTime');
+            if (dateEl) dateEl.value = '';
+            if (timeEl) timeEl.value = '';
             if (countEl) countEl.textContent = '0/100';
             openModal('chatInviteModal');
         }
 
         async function submitChatInvite() {
             const note = (document.getElementById('chatInviteNote')?.value || '').trim();
-            const topic = (document.getElementById('chatInviteTopic')?.value || '').trim();
             if (!note) { showToast('Please add an intro message ☕', 'info'); return; }
+            // Build topic string from date + time pickers
+            const dateVal = document.getElementById('chatInviteDate')?.value || '';
+            const timeVal = document.getElementById('chatInviteTime')?.value || '';
+            let topic = '';
+            if (dateVal) {
+                const d = new Date(dateVal + 'T12:00:00');
+                const dateLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                topic = timeVal ? `${dateLabel} at ${timeVal}` : dateLabel;
+            } else if (timeVal) {
+                topic = timeVal;
+            }
             closeModal('chatInviteModal');
             await sendChatInvite(_chatInviteTargetId, note, topic);
             _chatInviteTargetId = null;
@@ -6848,6 +6861,18 @@
             renderNotifications();
         }
 
+        async function notifAcceptConnection(connectionId, btn) {
+            btn.disabled = true; btn.textContent = '…';
+            await acceptConnection(connectionId);
+            renderNotifications();
+        }
+
+        async function notifDeclineConnection(connectionId, btn) {
+            btn.disabled = true; btn.textContent = '…';
+            await rejectConnection(connectionId);
+            renderNotifications();
+        }
+
         async function notifAcceptInvite(inviteId, senderId, notifId, btn) {
             btn.disabled = true;
             btn.textContent = '…';
@@ -6896,23 +6921,39 @@
 
             list.innerHTML = notifications.map(n => {
                 const hasAction = !!n.action;
+
+                // ── Chat invite inline actions ──
                 const isChatInvite = n.type === 'chat_invite';
-                // Extract invite ID from notification id (format: 'cinvite-<uuid>')
-                const inviteId = isChatInvite ? n.id.replace('cinvite-', '') : null;
+                const inviteId  = isChatInvite ? n.id.replace('cinvite-', '') : null;
                 const inviteObj = inviteId ? chatInvites.find(i => i.id === inviteId) : null;
                 const senderId  = inviteObj?.sender_id || inviteObj?.user_id || null;
-                const stillPending = isChatInvite && inviteObj && inviteObj.status !== 'declined' && inviteObj.status !== 'accepted';
+                const chatInvitePending = isChatInvite && inviteObj && !['accepted','declined'].includes(inviteObj.status);
+
+                // ── Connection request inline actions ──
+                const isConnReq = n.type === 'connection' && n.id.startsWith('pending-');
+                const connectionId = isConnReq ? n.id.replace('pending-', '') : null;
+                const connReqObj   = connectionId ? pendingRequests.find(r => r.id === connectionId) : null;
+                const connReqPending = isConnReq && connReqObj;
+
+                const hasInlineAction = chatInvitePending || connReqPending;
+
                 return `
-                <div class="notification-item ${n.unread ? 'unread' : ''}${hasAction ? ' notif-clickable' : ''}" onclick="${!isChatInvite ? `handleNotifClick('${n.id}')` : ''}">
+                <div class="notification-item ${n.unread ? 'unread' : ''}${(hasAction && !hasInlineAction) ? ' notif-clickable' : ''}"
+                     onclick="${!hasInlineAction ? `handleNotifClick('${n.id}')` : ''}">
                     <div class="notification-icon ${n.type}">${n.icon}</div>
                     <div class="notification-text" style="flex:1;">
                         <p>${n.text}</p>
                         <span class="notif-time">${getTimeAgo(n.time)}</span>
-                        ${stillPending ? `
+                        ${chatInvitePending ? `
                         <div class="notif-invite-actions">
                             <button class="notif-inv-btn accept" onclick="event.stopPropagation();notifAcceptInvite('${inviteId}','${senderId}','${n.id}',this)">✓ Accept</button>
                             <button class="notif-inv-btn decline" onclick="event.stopPropagation();notifDeclineInvite('${inviteId}','${n.id}',this)">✗ Decline</button>
-                        </div>` : (isChatInvite && !stillPending && inviteObj ? `<span style="font-size:11px;color:var(--muted);font-style:italic;">${inviteObj.status === 'accepted' ? '✓ Accepted' : '✗ Declined'}</span>` : '')}
+                        </div>` : (isChatInvite && inviteObj ? `<span style="font-size:11px;color:var(--muted);font-style:italic;">${inviteObj.status === 'accepted' ? '✓ Accepted' : '✗ Declined'}</span>` : '')}
+                        ${connReqPending ? `
+                        <div class="notif-invite-actions">
+                            <button class="notif-inv-btn accept" onclick="event.stopPropagation();notifAcceptConnection('${connectionId}',this)">✓ Accept</button>
+                            <button class="notif-inv-btn decline" onclick="event.stopPropagation();notifDeclineConnection('${connectionId}',this)">✗ Decline</button>
+                        </div>` : ''}
                     </div>
                 </div>`;
             }).join('');

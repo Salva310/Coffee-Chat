@@ -8257,6 +8257,11 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   padding-left: 40px !important;
 }
 
+/* Inbox search bar has a left icon — restore its padding-left */
+#inboxSearchInput {
+  padding-left: 34px !important;
+}
+
 /* Search inputs that use a background-image icon (not absolute-positioned) */
 .topbar-search-input,
 .ibx-search-input,
