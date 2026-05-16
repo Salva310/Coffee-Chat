@@ -3494,6 +3494,7 @@
                     other_profile: profileMap[row.other_user_id] || null
                 }));
                 ibxRenderConvList(ibxAllConvs);
+                ibxRenderPendingInvites();
                 ibxRenderUpcomingPanel();
             } catch (err) {
                 console.error('renderInboxView:', err);
@@ -3676,6 +3677,111 @@
         function closeChatDetailModal() {
             const el = document.getElementById('chatDetailModal');
             if (el) el.style.display = 'none';
+        }
+
+        async function ibxRenderPendingInvites() {
+            const panel = document.getElementById('ibxPendingInvitesPanel');
+            const list  = document.getElementById('ibxPendingInvitesList');
+            if (!panel || !list || !currentUser) return;
+
+            try {
+                // Fetch pending invites with sender profile joined
+                const { data: invites, error } = await supabaseClient
+                    .from('chat_invites')
+                    .select(`
+                        id, note, topic, created_at,
+                        sender:profiles!chat_invites_sender_id_fkey(
+                            id, first_name, last_name, profile_picture, avatar_color,
+                            school_name, company, major, industry, headline
+                        )
+                    `)
+                    .eq('receiver_id', currentUser.id)
+                    .eq('status', 'pending')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!invites || invites.length === 0) {
+                    panel.style.display = 'none';
+                    return;
+                }
+
+                panel.style.display = 'flex';
+                const gradients = [
+                    'linear-gradient(135deg,#D4894A,#B5651D)',
+                    'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                    'linear-gradient(135deg,#2d7a4f,#52c887)',
+                    'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                    'linear-gradient(135deg,#be185d,#f472b6)',
+                ];
+                list.innerHTML = invites.map(inv => {
+                    const s       = inv.sender || {};
+                    const fn      = s.first_name  || 'Someone';
+                    const ln      = s.last_name   || '';
+                    const pic     = s.profile_picture;
+                    const initials = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
+                    const school  = s.school_name || s.company || 'Rowan University';
+                    const major   = s.major || s.industry || '';
+                    const note    = inv.note || '';
+                    const topic   = inv.topic || '';
+                    const gradIdx = (s.id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
+                    const avHTML  = pic
+                        ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : initials;
+                    return `
+                        <div class="ibx-invite-card" id="ibx-inv-${inv.id}">
+                            <div class="ibx-invite-top">
+                                <div class="ibx-invite-av" style="background:${pic?'transparent':gradients[gradIdx]}">${avHTML}</div>
+                                <div class="ibx-invite-info">
+                                    <div class="ibx-invite-name">${fn} ${ln}</div>
+                                    <div class="ibx-invite-meta">${[school, major].filter(Boolean).join(' · ')}</div>
+                                </div>
+                            </div>
+                            ${note ? `<div class="ibx-invite-note">"${note}"</div>` : ''}
+                            ${topic ? `<div class="ibx-invite-time">⏰ ${topic}</div>` : ''}
+                            <div class="ibx-invite-actions">
+                                <button class="ibx-inv-btn accept" onclick="ibxAcceptInvite('${inv.id}','${s.id}')">✓ Accept</button>
+                                <button class="ibx-inv-btn decline" onclick="ibxDeclineInvite('${inv.id}')">✕ Decline</button>
+                            </div>
+                        </div>`;
+                }).join('');
+            } catch(e) {
+                console.error('ibxRenderPendingInvites:', e);
+                panel.style.display = 'none';
+            }
+        }
+
+        async function ibxAcceptInvite(inviteId, senderId) {
+            try {
+                await supabaseClient.from('chat_invites').update({ status: 'accepted' }).eq('id', inviteId);
+                // Remove card immediately
+                document.getElementById('ibx-inv-' + inviteId)?.remove();
+                const remaining = document.querySelectorAll('#ibxPendingInvitesList .ibx-invite-card');
+                if (remaining.length === 0) document.getElementById('ibxPendingInvitesPanel').style.display = 'none';
+                showToast('Chat invite accepted! ☕ Schedule a time.', 'success');
+                // Open schedule modal pre-filled with sender
+                if (senderId) openScheduleForUser(senderId);
+                // Sync local chatInvites array
+                chatInvites = chatInvites.filter(i => i.id !== inviteId);
+                renderMeetingCards && renderMeetingCards();
+            } catch(e) {
+                console.error('ibxAcceptInvite:', e);
+                showToast('Failed to accept — please try again.', 'error');
+            }
+        }
+
+        async function ibxDeclineInvite(inviteId) {
+            try {
+                await supabaseClient.from('chat_invites').update({ status: 'declined' }).eq('id', inviteId);
+                document.getElementById('ibx-inv-' + inviteId)?.remove();
+                const remaining = document.querySelectorAll('#ibxPendingInvitesList .ibx-invite-card');
+                if (remaining.length === 0) document.getElementById('ibxPendingInvitesPanel').style.display = 'none';
+                chatInvites = chatInvites.filter(i => i.id !== inviteId);
+                showToast('Invite declined.', 'info');
+            } catch(e) {
+                console.error('ibxDeclineInvite:', e);
+                showToast('Failed to decline — please try again.', 'error');
+            }
         }
 
         function ibxRenderUpcomingPanel() {
@@ -6742,6 +6848,25 @@
             renderNotifications();
         }
 
+        async function notifAcceptInvite(inviteId, senderId, notifId, btn) {
+            btn.disabled = true;
+            btn.textContent = '…';
+            await ibxAcceptInvite(inviteId, senderId);
+            // Refresh notifications so button row clears
+            const inv = chatInvites.find(i => i.id === inviteId);
+            if (inv) inv.status = 'accepted';
+            renderNotifications();
+        }
+
+        async function notifDeclineInvite(inviteId, notifId, btn) {
+            btn.disabled = true;
+            btn.textContent = '…';
+            await ibxDeclineInvite(inviteId);
+            const inv = chatInvites.find(i => i.id === inviteId);
+            if (inv) inv.status = 'declined';
+            renderNotifications();
+        }
+
         function renderNotifications() {
             const list = document.getElementById('notifList');
             if (!list) return;
@@ -6771,12 +6896,23 @@
 
             list.innerHTML = notifications.map(n => {
                 const hasAction = !!n.action;
+                const isChatInvite = n.type === 'chat_invite';
+                // Extract invite ID from notification id (format: 'cinvite-<uuid>')
+                const inviteId = isChatInvite ? n.id.replace('cinvite-', '') : null;
+                const inviteObj = inviteId ? chatInvites.find(i => i.id === inviteId) : null;
+                const senderId  = inviteObj?.sender_id || inviteObj?.user_id || null;
+                const stillPending = isChatInvite && inviteObj && inviteObj.status !== 'declined' && inviteObj.status !== 'accepted';
                 return `
-                <div class="notification-item ${n.unread ? 'unread' : ''}${hasAction ? ' notif-clickable' : ''}" onclick="handleNotifClick('${n.id}')">
+                <div class="notification-item ${n.unread ? 'unread' : ''}${hasAction ? ' notif-clickable' : ''}" onclick="${!isChatInvite ? `handleNotifClick('${n.id}')` : ''}">
                     <div class="notification-icon ${n.type}">${n.icon}</div>
-                    <div class="notification-text">
+                    <div class="notification-text" style="flex:1;">
                         <p>${n.text}</p>
                         <span class="notif-time">${getTimeAgo(n.time)}</span>
+                        ${stillPending ? `
+                        <div class="notif-invite-actions">
+                            <button class="notif-inv-btn accept" onclick="event.stopPropagation();notifAcceptInvite('${inviteId}','${senderId}','${n.id}',this)">✓ Accept</button>
+                            <button class="notif-inv-btn decline" onclick="event.stopPropagation();notifDeclineInvite('${inviteId}','${n.id}',this)">✗ Decline</button>
+                        </div>` : (isChatInvite && !stillPending && inviteObj ? `<span style="font-size:11px;color:var(--muted);font-style:italic;">${inviteObj.status === 'accepted' ? '✓ Accepted' : '✗ Declined'}</span>` : '')}
                     </div>
                 </div>`;
             }).join('');
