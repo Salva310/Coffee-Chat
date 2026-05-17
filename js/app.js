@@ -2955,6 +2955,29 @@
             }
         }
 
+        // Finds the most recent pending meeting between two users and marks it accepted.
+        // This ensures edge functions (chat-reminder etc.) that query status='accepted' fire correctly.
+        async function acceptRelatedMeeting(userA, userB) {
+            try {
+                const { data: mtg } = await supabaseClient
+                    .from('meetings')
+                    .select('id')
+                    .or(`and(organizer_id.eq.${userA},participant_id.eq.${userB}),and(organizer_id.eq.${userB},participant_id.eq.${userA})`)
+                    .eq('status', 'pending')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                if (mtg?.id) {
+                    await supabaseClient.from('meetings').update({ status: 'accepted' }).eq('id', mtg.id);
+                    // Keep local meetings array in sync
+                    const idx = meetings.findIndex(m => m.id === mtg.id);
+                    if (idx >= 0) meetings[idx] = { ...meetings[idx], status: 'accepted' };
+                }
+            } catch(e) {
+                console.warn('acceptRelatedMeeting:', e);
+            }
+        }
+
         async function acceptChatInvite(inviteId) {
             try {
                 const { error } = await supabaseClient
@@ -2964,11 +2987,14 @@
                 if (error) throw error;
                 const invite = chatInvites.find(i => i.id === inviteId);
                 chatInvites = chatInvites.filter(i => i.id !== inviteId);
+                // Also mark the corresponding meetings row as accepted so email reminders fire
+                if (invite?.sender_id) {
+                    await acceptRelatedMeeting(invite.sender_id, currentUser.id);
+                }
                 showToast('Chat invite accepted! ☕ Schedule a time below.', 'success');
                 renderHubNetworkFeed();
                 generateNotifications();
                 renderMeetingCards();
-                // Open scheduling modal with the sender pre-selected
                 if (invite?.sender_id) openScheduleForUser(invite.sender_id);
             } catch (err) {
                 console.error('acceptChatInvite:', err);
@@ -3767,14 +3793,14 @@
         async function ibxAcceptInvite(inviteId, senderId) {
             try {
                 await supabaseClient.from('chat_invites').update({ status: 'accepted' }).eq('id', inviteId);
+                // Also mark the corresponding meetings row as accepted so email reminders fire
+                if (senderId) await acceptRelatedMeeting(senderId, currentUser.id);
                 // Remove card immediately
                 document.getElementById('ibx-inv-' + inviteId)?.remove();
                 const remaining = document.querySelectorAll('#ibxPendingInvitesList .ibx-invite-card');
                 if (remaining.length === 0) document.getElementById('ibxPendingInvitesPanel').style.display = 'none';
                 showToast('Chat invite accepted! ☕ Schedule a time.', 'success');
-                // Open schedule modal pre-filled with sender
                 if (senderId) openScheduleForUser(senderId);
-                // Sync local chatInvites array
                 chatInvites = chatInvites.filter(i => i.id !== inviteId);
                 renderMeetingCards && renderMeetingCards();
             } catch(e) {
