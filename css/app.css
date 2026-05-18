@@ -9119,3 +9119,96 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
 
 /* Remove old ibx-up-new-btn since schedule is now in rail footer */
 .ibx-up-new-btn { display: none !important; }
+
+/* ════════════════════════════════════════════════════════════
+   CHATS PAGE LAYOUT & DESIGN FIXES
+   ════════════════════════════════════════════════════════════ */
+
+/* Fix 1: inboxView must be column flex so stats bar spans full width */
+#inboxView { display: none; flex-direction: column; }
+#inboxView.active { display: flex !important; flex-direction: column !important; }
+
+/* Stats bar — full width horizontal strip */
+.ibx-stats-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+/* ibx-shell fills the remaining height below the stats bar */
+.ibx-shell { flex: 1; min-height: 0; }
+
+/* Fix 2: Message bubbles — caramel outgoing, white incoming */
+.ibx-msg-row.mine .ibx-bubble {
+  background: #B5651D !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(181,101,29,0.25) !important;
+  border-bottom-right-radius: 5px !important;
+  border-bottom-left-radius: 18px !important;
+}
+.ibx-msg-row:not(.mine) .ibx-bubble {
+  background: #ffffff !important;
+  color: #1C0F07 !important;
+  border: 1px solid rgba(139,90,43,0.14) !important;
+  border-bottom-left-radius: 5px !important;
+  border-bottom-right-radius: 18px !important;
+  box-shadow: 0 1px 3px rgba(28,15,7,0.06) !important;
+}
+
+/* Fix 3: Active conversation — 2px caramel left border */
+.ibx-conv-row.active {
+  border-left: 2px solid #B5651D !important;
+  padding-left: 12px !important;
+  background: #F5EDE3 !important;
+}
+.ibx-conv-row.active .ibx-conv-name { color: #B5651D !important; font-weight: 600 !important; }
+
+/* Fix 4: Compose button hidden */
+.ibx-compose-btn { display: none !important; }
+
+/* Right rail sections — always visible with empty state */
+.ibx-rail-section { display: block !important; }
+
+/* Review modal stars */
+.review-stars {
+  display: flex;
+  gap: 6px;
+}
+.review-star {
+  font-size: 32px;
+  color: #DDD0C0;
+  cursor: pointer;
+  transition: color 0.12s, transform 0.12s;
+  user-select: none;
+  line-height: 1;
+}
+.review-star:hover,
+.review-star.selected { color: #B5651D; transform: scale(1.15); }
+.review-star.lit { color: #B5651D; }
+
+/* Past chat card — reviewed badge */
+.ibx-reviewed-badge {
+  font-family: 'Sora', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #2d7a4f;
+  background: #E8F5E9;
+  border: 1px solid #A5D6A7;
+  border-radius: 20px;
+  padding: 4px 12px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+/* Dark mode bubble override */
+[data-theme="dark"] .ibx-msg-row.mine .ibx-bubble {
+  background: #B5651D !important;
+  color: #fff !important;
+}
+[data-theme="dark"] .ibx-msg-row:not(.mine) .ibx-bubble {
+  background: var(--card) !important;
+  color: var(--espresso) !important;
+  border-color: var(--border) !important;
+}

@@ -1257,7 +1257,6 @@
                         <div class="ibx-conv-header">
                             <div class="ibx-header-row">
                                 <h2>Messages</h2>
-                                <button class="ibx-compose-btn" onclick="ibxOpenNewMessage()" title="New message">✏</button>
                             </div>
                             <div class="ibx-search-wrap">
                                 <span class="ibx-search-icon">🔍</span>
@@ -2268,6 +2267,44 @@
     </div>
 
     <!-- ── Chat Detail Modal ── -->
+    <!-- Anonymous Review Modal -->
+    <div id="reviewModal" class="cdm-overlay" onclick="if(event.target===this)closeReviewModal()" style="display:none;">
+        <div class="cdm-card" style="max-width:440px;">
+            <button class="cdm-close" onclick="closeReviewModal()">×</button>
+            <div class="section-eyebrow" style="margin-bottom:6px;">Anonymous Review</div>
+            <h2 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#1C0F07;margin-bottom:4px;letter-spacing:-0.02em;">How was your chat?</h2>
+            <p style="font-size:13px;color:#8C7B6E;margin-bottom:22px;">Your identity is never revealed — reviews are 100% anonymous.</p>
+
+            <!-- Star rating -->
+            <div style="margin-bottom:20px;">
+                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#8C7B6E;margin-bottom:10px;">Rating</div>
+                <div class="review-stars" id="reviewStars">
+                    <span class="review-star" data-val="1" onclick="selectStar(1)">★</span>
+                    <span class="review-star" data-val="2" onclick="selectStar(2)">★</span>
+                    <span class="review-star" data-val="3" onclick="selectStar(3)">★</span>
+                    <span class="review-star" data-val="4" onclick="selectStar(4)">★</span>
+                    <span class="review-star" data-val="5" onclick="selectStar(5)">★</span>
+                </div>
+                <input type="hidden" id="reviewRating" value="0">
+            </div>
+
+            <!-- Comment -->
+            <div style="margin-bottom:20px;">
+                <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#8C7B6E;margin-bottom:8px;">Comment <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+                <textarea id="reviewComment" rows="3" placeholder="Share your thoughts about this chat (anonymous)"
+                    style="width:100%;padding:10px 13px;border:1px solid rgba(139,90,43,0.18);border-radius:9px;font-size:13px;font-family:'Sora',sans-serif;resize:none;background:#fff;color:#1C0F07;outline:none;box-sizing:border-box;"
+                    onfocus="this.style.borderColor='#B5651D'" onblur="this.style.borderColor='rgba(139,90,43,0.18)'"></textarea>
+            </div>
+
+            <p style="font-size:11.5px;color:#B8A898;margin-bottom:18px;text-align:center;">🔒 Your review is completely anonymous</p>
+
+            <div style="display:flex;gap:10px;">
+                <button class="cdm-btn cdm-btn-secondary" onclick="closeReviewModal()" style="flex:1;">Skip</button>
+                <button class="cdm-btn cdm-btn-primary" onclick="submitReview()" style="flex:2;">Submit Review ★</button>
+            </div>
+        </div>
+    </div>
+
     <div id="chatDetailModal" class="cdm-overlay" onclick="if(event.target===this)closeChatDetailModal()" style="display:none;">
         <div class="cdm-card">
             <button class="cdm-close" onclick="closeChatDetailModal()">×</button>

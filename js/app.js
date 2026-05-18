@@ -3741,18 +3741,13 @@
                     .eq('status', 'accepted')
                     .gt('start_time', now);
 
-                // Average rating from reviews table
+                // Average rating — pull from profiles.avg_rating (updated by DB trigger)
                 let avgRating = '—';
                 try {
-                    const { data: reviews } = await supabaseClient
-                        .from('reviews')
-                        .select('rating')
-                        .eq('reviewee_id', currentUser.id);
-                    if (reviews && reviews.length > 0) {
-                        const avg = reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length;
-                        avgRating = avg.toFixed(1) + ' ★';
-                    }
-                } catch(e) { /* reviews table may not exist yet */ }
+                    const { data: prof } = await supabaseClient
+                        .from('profiles').select('avg_rating').eq('id', currentUser.id).maybeSingle();
+                    if (prof?.avg_rating) avgRating = Number(prof.avg_rating).toFixed(1) + ' ★';
+                } catch(e) { /* column may not exist yet */ }
 
                 const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
                 set('ibxStatCompleted', completed ?? 0);
@@ -3783,6 +3778,17 @@
                 if (!past || past.length === 0) { panel.style.display = 'none'; return; }
                 panel.style.display = 'block';
 
+                // Check which meetings the current user has already reviewed
+                const meetingIds = past.map(m => m.id);
+                let reviewedIds = new Set();
+                try {
+                    const { data: myReviews } = await supabaseClient
+                        .from('reviews').select('meeting_id')
+                        .eq('reviewer_id', currentUser.id)
+                        .in('meeting_id', meetingIds);
+                    (myReviews || []).forEach(r => reviewedIds.add(r.meeting_id));
+                } catch(e) { /* reviews table may not exist yet */ }
+
                 const gradients = [
                     'linear-gradient(135deg,#D4894A,#B5651D)',
                     'linear-gradient(135deg,#2563eb,#5c9ef5)',
@@ -3803,8 +3809,10 @@
                         : initials;
                     const dt = new Date(m.start_time);
                     const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const alreadyReviewed = reviewedIds.has(m.id);
+                    const revieweeId = other?.id || '';
                     return `
-                        <div class="ibx-past-card">
+                        <div class="ibx-past-card" id="ibx-past-${m.id}">
                             <div class="ibx-past-top">
                                 <div class="ibx-invite-av" style="background:${pic?'transparent':gradients[gradIdx]};width:32px;height:32px;font-size:11px;">${avHTML}</div>
                                 <div style="flex:1;min-width:0;">
@@ -3812,12 +3820,77 @@
                                     <div class="ibx-invite-meta">${dateStr}</div>
                                 </div>
                             </div>
-                            <button class="ibx-past-review-btn" onclick="openChatWith('${other?.id}')">💬 Message again</button>
+                            ${alreadyReviewed
+                                ? `<span class="ibx-reviewed-badge">⭐ Reviewed</span>`
+                                : `<button class="ibx-past-review-btn" onclick="openReviewModal('${m.id}','${revieweeId}')">⭐ Leave Review</button>`}
                         </div>`;
                 }).join('');
             } catch(e) {
                 console.warn('ibxRenderPastChats:', e);
                 panel.style.display = 'none';
+            }
+        }
+
+        // ── Review modal ──
+        let _reviewMeetingId = null, _reviewRevieweeId = null, _reviewRating = 0;
+
+        function openReviewModal(meetingId, revieweeId) {
+            _reviewMeetingId  = meetingId;
+            _reviewRevieweeId = revieweeId;
+            _reviewRating     = 0;
+            document.getElementById('reviewRating').value = '0';
+            document.getElementById('reviewComment').value = '';
+            document.querySelectorAll('.review-star').forEach(s => s.classList.remove('selected','lit'));
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            _reviewMeetingId = _reviewRevieweeId = null;
+            _reviewRating = 0;
+        }
+
+        function selectStar(val) {
+            _reviewRating = val;
+            document.getElementById('reviewRating').value = val;
+            document.querySelectorAll('.review-star').forEach(s => {
+                const v = parseInt(s.dataset.val);
+                s.classList.toggle('lit', v <= val);
+                s.classList.toggle('selected', v === val);
+            });
+        }
+
+        async function submitReview() {
+            if (_reviewRating < 1) { showToast('Please select a star rating ★', 'info'); return; }
+            const comment = (document.getElementById('reviewComment')?.value || '').trim();
+            try {
+                const { error } = await supabaseClient.from('reviews').insert({
+                    meeting_id:   _reviewMeetingId,
+                    reviewer_id:  currentUser.id,
+                    reviewee_id:  _reviewRevieweeId,
+                    rating:       _reviewRating,
+                    comment:      comment || null,
+                    anonymous:    true
+                });
+                if (error) throw error;
+                showToast('Review submitted — thank you! ⭐', 'success');
+                // Replace the Leave Review button with the reviewed badge
+                const card = document.getElementById('ibx-past-' + _reviewMeetingId);
+                if (card) {
+                    const btn = card.querySelector('.ibx-past-review-btn');
+                    if (btn) {
+                        const badge = document.createElement('span');
+                        badge.className = 'ibx-reviewed-badge';
+                        badge.textContent = '⭐ Reviewed';
+                        btn.replaceWith(badge);
+                    }
+                }
+                // Refresh stats bar so avg_rating updates
+                ibxRenderStatsBar();
+                closeReviewModal();
+            } catch(e) {
+                console.error('submitReview:', e);
+                showToast('Failed to submit review — ' + e.message, 'error');
             }
         }
 
