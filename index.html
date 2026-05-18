@@ -1232,6 +1232,25 @@
 
             <!-- Messages / Inbox View -->
             <div id="inboxView" class="content-view">
+
+                <!-- Stats bar -->
+                <div class="ibx-stats-bar">
+                    <div class="ibx-stat-item">
+                        <div class="ibx-stat-num" id="ibxStatCompleted">—</div>
+                        <div class="ibx-stat-label">Chats completed</div>
+                    </div>
+                    <div class="ibx-stat-divider"></div>
+                    <div class="ibx-stat-item">
+                        <div class="ibx-stat-num" id="ibxStatUpcoming">—</div>
+                        <div class="ibx-stat-label">Upcoming</div>
+                    </div>
+                    <div class="ibx-stat-divider"></div>
+                    <div class="ibx-stat-item">
+                        <div class="ibx-stat-num" id="ibxStatRating">—</div>
+                        <div class="ibx-stat-label">Avg rating</div>
+                    </div>
+                </div>
+
                 <div class="ibx-shell">
                     <!-- Conversation List -->
                     <div class="ibx-conv-panel">
@@ -1280,25 +1299,35 @@
                         </div>
                     </div>
 
-                    <!-- Right panel: Pending Invites (hidden when empty) -->
-                    <div class="ibx-upcoming-panel ibx-pending-section" id="ibxPendingInvitesPanel" style="display:none;">
-                        <div class="ibx-up-header">
-                            <div class="ibx-up-title">Chat Requests</div>
-                            <div class="ibx-up-sub">People who want to connect</div>
-                        </div>
-                        <div id="ibxPendingInvitesList"></div>
-                    </div>
+                    <!-- Right rail: Pending · Upcoming · Past · Schedule -->
+                    <div class="ibx-right-rail">
+                        <div class="ibx-right-scroll">
 
-                    <!-- Right panel: Upcoming Chats -->
-                    <div class="ibx-upcoming-panel" id="ibxUpcomingPanel">
-                        <div class="ibx-up-header">
-                            <div class="ibx-up-title">Upcoming Chats</div>
-                            <div class="ibx-up-sub">Your scheduled coffee chats</div>
+                            <!-- Pending Invites (hidden when empty) -->
+                            <div class="ibx-rail-section ibx-pending-section" id="ibxPendingInvitesPanel" style="display:none;">
+                                <div class="ibx-rail-label">Chat Requests</div>
+                                <div id="ibxPendingInvitesList"></div>
+                            </div>
+
+                            <!-- Upcoming Chats -->
+                            <div class="ibx-rail-section" id="ibxUpcomingPanel">
+                                <div class="ibx-rail-label">Upcoming Chats</div>
+                                <div id="ibxUpcomingList"></div>
+                            </div>
+
+                            <!-- Past Chats -->
+                            <div class="ibx-rail-section" id="ibxPastChatsPanel" style="display:none;">
+                                <div class="ibx-rail-label">Past Chats</div>
+                                <div id="ibxPastChatsList"></div>
+                            </div>
+
                         </div>
-                        <div class="ibx-up-list" id="ibxUpcomingList"></div>
-                        <button class="ibx-up-new-btn" onclick="openScheduleChatModal()">
-                            + Schedule new chat
-                        </button>
+                        <!-- Schedule button pinned to bottom -->
+                        <div class="ibx-rail-footer">
+                            <button class="ibx-schedule-btn" onclick="openScheduleChatModal()">
+                                ☕ Schedule a Chat
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1320,88 +1349,6 @@
             </div>
 
             <!-- My Chats View (redesigned) -->
-            <div id="messagesView" class="content-view">
-
-                <!-- Page Header -->
-                <div class="mc-page-header">
-                    <div>
-                        <div class="mc-page-eyebrow">Your Connections</div>
-                        <h1 class="mc-page-title">My <em>Coffee Chats</em></h1>
-                    </div>
-                    <button class="mc-btn-schedule" onclick="openScheduleChatModal()">☕ Schedule a Sip</button>
-                </div>
-
-                <!-- Stats Row -->
-                <div class="mc-stats-row" id="mcStatsRow">
-                    <div class="mc-stat-card">
-                        <div class="mc-stat-icon orange">☕</div>
-                        <div><div class="mc-stat-val" id="mcStatTotal">0</div><div class="mc-stat-lbl">Total Chats</div></div>
-                    </div>
-                    <div class="mc-stat-card">
-                        <div class="mc-stat-icon green">✅</div>
-                        <div><div class="mc-stat-val" id="mcStatCompleted">0</div><div class="mc-stat-lbl">Completed</div></div>
-                    </div>
-                    <div class="mc-stat-card">
-                        <div class="mc-stat-icon cream">📅</div>
-                        <div><div class="mc-stat-val" id="mcStatUpcoming">0</div><div class="mc-stat-lbl">Upcoming</div></div>
-                    </div>
-                </div>
-
-                <!-- Content grid: left (tabs+cards) / right (widgets) -->
-                <div class="mc-content-grid">
-
-                    <!-- LEFT -->
-                    <div>
-                        <!-- Tabs -->
-                        <div class="mc-tabs-bar">
-                            <button class="mc-tab-btn active" onclick="switchChatTab(this,'mc-tab-upcoming')">Upcoming</button>
-                            <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-past')">Past Chats</button>
-                            <button class="mc-tab-btn" onclick="switchChatTab(this,'mc-tab-pending')">Pending</button>
-                            <button class="mc-tab-btn" onclick="switchView('inboxView')" style="margin-left:auto;">💬 Messages</button>
-                        </div>
-
-                        <!-- Tab: Upcoming -->
-                        <div id="mc-tab-upcoming" class="mc-chat-list"></div>
-
-                        <!-- Tab: Past Chats -->
-                        <div id="mc-tab-past" class="mc-chat-list" style="display:none;"></div>
-
-                        <!-- Tab: Pending -->
-                        <div id="mc-tab-pending" style="display:none;"></div>
-
-                    </div>
-
-                    <!-- RIGHT COLUMN -->
-                    <div class="mc-right-col">
-
-                        <!-- Mini Calendar -->
-                        <div class="mc-widget">
-                            <div class="mc-widget-header">
-                                <span class="mc-widget-title">Calendar</span>
-                            </div>
-                            <div class="mc-cal-wrap">
-                                <div class="mc-cal-nav">
-                                    <button class="mc-cal-nav-btn" onclick="miniCalPrev()">‹</button>
-                                    <span class="mc-cal-month" id="miniCalMonth"></span>
-                                    <button class="mc-cal-nav-btn" onclick="miniCalNext()">›</button>
-                                </div>
-                                <div class="mc-cal-days-grid" id="miniCalGrid"></div>
-                            </div>
-                        </div>
-
-                        <!-- Tips -->
-                        <div class="mc-tips-widget">
-                            <div class="mc-tips-body">
-                                <div class="mc-tips-icon">💡</div>
-                                <div class="mc-tips-title">Make the most of your sip</div>
-                                <div class="mc-tips-text">Quick tips to turn a 30-minute chat into a lasting connection.</div>
-                                <div class="mc-tips-tip">"Do your homework first — check their profile and have one specific question ready. People love talking about their own journey."</div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
 
             <!-- Video Call View -->
             <div id="callView" class="content-view">

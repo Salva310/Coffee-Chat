@@ -1180,7 +1180,7 @@
                 }
             }
             if (viewId === 'groupsView') renderGroups();
-            if (viewId === 'messagesView') renderMyChatView();
+            
             if (viewId === 'dashboardView') updateDashboard();
             if (viewId === 'calendarView') renderCalendarView();
             if (viewId === 'availabilityView') renderAvailability();
@@ -3533,8 +3533,10 @@
                     other_profile: profileMap[row.other_user_id] || null
                 }));
                 ibxRenderConvList(ibxAllConvs);
+                ibxRenderStatsBar();
                 ibxRenderPendingInvites();
                 ibxRenderUpcomingPanel();
+                ibxRenderPastChats();
             } catch (err) {
                 console.error('renderInboxView:', err);
                 const list = document.getElementById('inboxConvList');
@@ -3717,6 +3719,108 @@
             const el = document.getElementById('chatDetailModal');
             if (el) el.style.display = 'none';
         }
+
+
+        async function ibxRenderStatsBar() {
+            if (!currentUser) return;
+            const now = new Date().toISOString();
+            try {
+                // Completed chats
+                const { count: completed } = await supabaseClient
+                    .from('meetings')
+                    .select('id', { count: 'exact', head: true })
+                    .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
+                    .eq('status', 'accepted')
+                    .lt('end_time', now);
+
+                // Upcoming chats
+                const { count: upcoming } = await supabaseClient
+                    .from('meetings')
+                    .select('id', { count: 'exact', head: true })
+                    .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
+                    .eq('status', 'accepted')
+                    .gt('start_time', now);
+
+                // Average rating from reviews table
+                let avgRating = '—';
+                try {
+                    const { data: reviews } = await supabaseClient
+                        .from('reviews')
+                        .select('rating')
+                        .eq('reviewee_id', currentUser.id);
+                    if (reviews && reviews.length > 0) {
+                        const avg = reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length;
+                        avgRating = avg.toFixed(1) + ' ★';
+                    }
+                } catch(e) { /* reviews table may not exist yet */ }
+
+                const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
+                set('ibxStatCompleted', completed ?? 0);
+                set('ibxStatUpcoming',  upcoming  ?? 0);
+                set('ibxStatRating',    avgRating);
+            } catch(e) { console.warn('ibxRenderStatsBar:', e); }
+        }
+
+        async function ibxRenderPastChats() {
+            const panel = document.getElementById('ibxPastChatsPanel');
+            const list  = document.getElementById('ibxPastChatsList');
+            if (!panel || !list || !currentUser) return;
+            const now = new Date().toISOString();
+            try {
+                const { data: past } = await supabaseClient
+                    .from('meetings')
+                    .select(`
+                        id, start_time, end_time, meeting_type,
+                        organizer:profiles!meetings_organizer_id_fkey(id, first_name, last_name, profile_picture, avatar_color),
+                        participant:profiles!meetings_participant_id_fkey(id, first_name, last_name, profile_picture, avatar_color)
+                    `)
+                    .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`)
+                    .eq('status', 'accepted')
+                    .lt('end_time', now)
+                    .order('end_time', { ascending: false })
+                    .limit(5);
+
+                if (!past || past.length === 0) { panel.style.display = 'none'; return; }
+                panel.style.display = 'block';
+
+                const gradients = [
+                    'linear-gradient(135deg,#D4894A,#B5651D)',
+                    'linear-gradient(135deg,#2563eb,#5c9ef5)',
+                    'linear-gradient(135deg,#2d7a4f,#52c887)',
+                    'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                ];
+
+                list.innerHTML = past.map(m => {
+                    const isOrg  = m.organizer?.id === currentUser.id;
+                    const other  = isOrg ? m.participant : m.organizer;
+                    const fn     = other?.first_name || 'User';
+                    const ln     = other?.last_name  || '';
+                    const pic    = other?.profile_picture;
+                    const initials = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
+                    const gradIdx  = (other?.id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
+                    const avHTML   = pic
+                        ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : initials;
+                    const dt = new Date(m.start_time);
+                    const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    return `
+                        <div class="ibx-past-card">
+                            <div class="ibx-past-top">
+                                <div class="ibx-invite-av" style="background:${pic?'transparent':gradients[gradIdx]};width:32px;height:32px;font-size:11px;">${avHTML}</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div class="ibx-invite-name" style="font-size:12.5px;">${fn} ${ln}</div>
+                                    <div class="ibx-invite-meta">${dateStr}</div>
+                                </div>
+                            </div>
+                            <button class="ibx-past-review-btn" onclick="openChatWith('${other?.id}')">💬 Message again</button>
+                        </div>`;
+                }).join('');
+            } catch(e) {
+                console.warn('ibxRenderPastChats:', e);
+                panel.style.display = 'none';
+            }
+        }
+
 
         async function ibxRenderPendingInvites() {
             const panel = document.getElementById('ibxPendingInvitesPanel');
@@ -4900,7 +5004,7 @@
 
         function endCall() {
             if (callInterval) clearInterval(callInterval);
-            switchView('messagesView');
+            switchView('inboxView');
         }
 
         function toggleMic() {
@@ -6022,7 +6126,7 @@
                       <div class="mpn-stat-num">${connections.length}</div>
                       <div class="mpn-stat-label">Connections</div>
                     </div>
-                    <div class="mpn-stat-item" onclick="switchView('messagesView')">
+                    <div class="mpn-stat-item" onclick="switchView('inboxView')">
                       <div class="mpn-stat-num">${chatsCompleted || '—'}</div>
                       <div class="mpn-stat-label">Coffee chats</div>
                     </div>
@@ -6781,8 +6885,8 @@
                 { label: 'Complete your profile', done: percentage >= 80, action: 'editMyProfile()' },
                 { label: 'Discover people to connect with', done: hasConnections, action: "switchView('discoverView')" },
                 { label: 'Join a community', done: hasJoinedGroup, action: "switchView('groupsView')" },
-                { label: 'Send your first message', done: hasSentMessage, action: "switchView('messagesView')" },
-                { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('messagesView')" }
+                { label: 'Send your first message', done: hasSentMessage, action: "switchView('inboxView')" },
+                { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('inboxView')" }
             ];
 
             list.innerHTML = items.map(item => `

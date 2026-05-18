@@ -8976,3 +8976,146 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
 .notif-inv-btn.accept:hover  { background: #9A5418; }
 .notif-inv-btn.decline { background: var(--latte-soft); color: var(--muted); border: 1px solid var(--border); }
 .notif-inv-btn.decline:hover { color: #C0392B; }
+
+/* ════════════════════════════════════════════════════════════
+   CHATS PAGE (inboxView) — stats bar + right rail redesign
+   ════════════════════════════════════════════════════════════ */
+
+/* Stats bar */
+.ibx-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 14px 28px;
+  background: #fff;
+  border-bottom: 1px solid rgba(139,90,43,0.11);
+  flex-shrink: 0;
+}
+.ibx-stat-item {
+  flex: 1;
+  text-align: center;
+}
+.ibx-stat-num {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #B5651D;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.ibx-stat-label {
+  font-family: 'Sora', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8C7B6E;
+}
+.ibx-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(139,90,43,0.12);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+/* Right rail */
+.ibx-right-rail {
+  width: 260px;
+  flex-shrink: 0;
+  border-left: 1px solid rgba(139,90,43,0.11);
+  display: flex;
+  flex-direction: column;
+  background: #FAF7F2;
+  overflow: hidden;
+}
+.ibx-right-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 8px;
+}
+.ibx-right-scroll::-webkit-scrollbar { width: 0; }
+
+.ibx-rail-section {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid rgba(139,90,43,0.08);
+}
+.ibx-rail-section:last-child { border-bottom: none; }
+
+.ibx-rail-label {
+  font-family: 'Sora', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #B5651D;
+  margin-bottom: 10px;
+}
+
+/* Schedule button pinned to bottom */
+.ibx-rail-footer {
+  padding: 12px 14px 16px;
+  border-top: 1px solid rgba(139,90,43,0.11);
+  flex-shrink: 0;
+  background: #FAF7F2;
+}
+.ibx-schedule-btn {
+  width: 100%;
+  padding: 11px 16px;
+  background: #B5651D;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ibx-schedule-btn:hover { background: #9A5418; }
+
+/* Past chats cards */
+.ibx-past-card {
+  background: #fff;
+  border: 1px solid rgba(139,90,43,0.11);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(28,15,7,0.04);
+}
+.ibx-past-card:last-child { margin-bottom: 0; }
+.ibx-past-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ibx-past-review-btn {
+  width: 100%;
+  padding: 5px 0;
+  background: #F5EDE3;
+  color: #B5651D;
+  border: 1px solid rgba(181,101,29,0.18);
+  border-radius: 7px;
+  font-family: 'Sora', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ibx-past-review-btn:hover { background: #B5651D; color: #fff; border-color: #B5651D; }
+
+/* Invite cards inside the new rail sections */
+#ibxPendingInvitesList .ibx-invite-card { margin: 0 0 8px; }
+#ibxPendingInvitesList .ibx-invite-card:last-child { margin-bottom: 0; }
+#ibxUpcomingList .ibx-up-card { margin: 0 0 8px; }
+
+/* Hide old ibx-upcoming-panel styles now that rail takes over */
+.ibx-pending-section { background: transparent; border: none; box-shadow: none; }
+
+/* Responsive: hide right rail on narrow screens */
+@media (max-width: 900px) { .ibx-right-rail { display: none !important; } }
+
+/* Remove old ibx-up-new-btn since schedule is now in rail footer */
+.ibx-up-new-btn { display: none !important; }
