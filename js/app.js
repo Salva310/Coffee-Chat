@@ -87,6 +87,7 @@
         let callInterval = null;
         let currentMonth = new Date();
         let selectedTime = null;
+        let _scheduleAfterAccept = false; // true when schedule modal opened after accepting a chat invite
 
         const mockUsers = [
             {
@@ -2087,6 +2088,9 @@
             const startTime = new Date(`${date}T${selectedModalTime}:00`);
             const endTime = new Date(startTime.getTime() + parseInt(duration) * 60000);
 
+            const isAcceptanceFlow = _scheduleAfterAccept;
+            _scheduleAfterAccept = false;
+
             try {
                 const { data, error } = await supabaseClient
                     .from('meetings')
@@ -2101,7 +2105,7 @@
                         location: meetingLocation,
                         start_time: startTime.toISOString(),
                         end_time: endTime.toISOString(),
-                        status: 'pending'
+                        status: isAcceptanceFlow ? 'accepted' : 'pending'
                     }])
                     .select()
                     .single();
@@ -2115,9 +2119,19 @@
                 document.getElementById('meetingLinkInput').value = '';
                 document.getElementById('meetingPhoneInput').value = '';
                 document.getElementById('meetingLocationInput').value = '';
-                showToast(`Chat request sent to ${selectedPerson.firstName}! ☕`, 'success');
+
+                if (isAcceptanceFlow) {
+                    showToast(`Chat with ${selectedPerson.firstName} is confirmed! ☕`, 'success');
+                    supabaseClient.functions.invoke('meeting-confirmed', {
+                        body: { meeting_id: data.id }
+                    }).catch(e => console.warn('meeting-confirmed:', e));
+                    ibxRenderUpcomingPanel();
+                } else {
+                    showToast(`Chat request sent to ${selectedPerson.firstName}! ☕`, 'success');
+                }
                 updateDashboard();
             } catch (err) {
+                _scheduleAfterAccept = false;
                 console.error('Error sending meeting request:', err);
                 alert('Failed to send chat request: ' + err.message);
             }
@@ -2995,7 +3009,7 @@
                 renderHubNetworkFeed();
                 generateNotifications();
                 renderMeetingCards();
-                if (invite?.sender_id) openScheduleForUser(invite.sender_id);
+                if (invite?.sender_id) { _scheduleAfterAccept = true; openScheduleForUser(invite.sender_id); }
             } catch (err) {
                 console.error('acceptChatInvite:', err);
                 showToast('Failed to accept: ' + err.message, 'error');
@@ -3977,7 +3991,7 @@
                 const remaining = document.querySelectorAll('#ibxPendingInvitesList .ibx-invite-card');
                 if (remaining.length === 0) document.getElementById('ibxPendingInvitesPanel').style.display = 'none';
                 showToast('Chat invite accepted! ☕ Schedule a time.', 'success');
-                if (senderId) openScheduleForUser(senderId);
+                if (senderId) { _scheduleAfterAccept = true; openScheduleForUser(senderId); }
                 chatInvites = chatInvites.filter(i => i.id !== inviteId);
                 renderMeetingCards && renderMeetingCards();
             } catch(e) {
@@ -4005,7 +4019,7 @@
             if (!list) return;
             const now = new Date();
             const upcoming = meetings
-                .filter(m => m.status !== 'completed' && new Date(m.start_time || m.date) > now)
+                .filter(m => m.status === 'accepted' && new Date(m.start_time || m.date) > now)
                 .sort((a, b) => new Date(a.start_time || a.date) - new Date(b.start_time || b.date))
                 .slice(0, 5);
 
@@ -5097,6 +5111,7 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+            if (modalId === 'scheduleChatModal') _scheduleAfterAccept = false;
         }
 
         // Profile Management
