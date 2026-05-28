@@ -8961,6 +8961,20 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   font-size: 12px; color: var(--brown); line-height: 1.4;
 }
 
+/* Availability hint — used in invite modal (sender) and invite card (receiver) */
+.avail-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Sora', sans-serif; font-size: 12px;
+  color: var(--muted); margin-top: 6px; min-height: 18px;
+}
+.avail-hint--card {
+  margin-top: 4px; margin-bottom: 6px;
+}
+.avail-hint-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; flex-shrink: 0;
+}
+
 .ibx-invite-actions { display: flex; gap: 6px; }
 
 .ibx-inv-btn {

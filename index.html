@@ -2387,9 +2387,9 @@
             <div class="form-group" style="margin-top:12px;">
                 <label style="font-size:13px;font-weight:600;color:var(--brown);">Proposed date &amp; time</label>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
-                    <input type="date" id="chatInviteDate"
+                    <input type="date" id="chatInviteDate" onchange="updateChatInviteAvailHint()"
                         style="width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;background:#fff;color:var(--espresso);box-sizing:border-box;">
-                    <select id="chatInviteTime"
+                    <select id="chatInviteTime" onchange="updateChatInviteAvailHint()"
                         style="width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;background:#fff;color:var(--espresso);">
                         <option value="">Select time</option>
                         <option value="09:00">9:00 AM</option><option value="09:30">9:30 AM</option>
@@ -2405,6 +2405,7 @@
                         <option value="19:00">7:00 PM</option>
                     </select>
                 </div>
+                <div id="chatInviteAvailHint" class="avail-hint"></div>
             </div>
 
             <div class="form-group" style="margin-top:12px;">

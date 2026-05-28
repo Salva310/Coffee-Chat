@@ -2871,6 +2871,76 @@
         // ── Chat Invite actions (chat_invites table) ──
 
         let _chatInviteTargetId = null;
+        let _availCache = {}; // userId → { [dayOfWeek]: [{start_time,end_time,is_available}] }
+
+        async function fetchAvailability(userId) {
+            if (_availCache[userId]) return _availCache[userId];
+            try {
+                const { data } = await supabaseClient
+                    .from('availability')
+                    .select('day_of_week, start_time, end_time, is_available')
+                    .eq('user_id', userId);
+                const byDay = {};
+                (data || []).forEach(a => {
+                    if (!byDay[a.day_of_week]) byDay[a.day_of_week] = [];
+                    byDay[a.day_of_week].push(a);
+                });
+                _availCache[userId] = byDay;
+                return byDay;
+            } catch(e) {
+                return {};
+            }
+        }
+
+        function checkAvailState(byDay, dayOfWeek, timeStr) {
+            // returns 'available' | 'unavailable' | 'unknown'
+            const slots = (byDay[dayOfWeek] || []).filter(s => s.is_available);
+            if (!slots.length) return 'unknown';
+            if (!timeStr) return 'unknown';
+            const [h, m] = timeStr.split(':').map(Number);
+            const prop = h * 60 + m;
+            const fits = slots.some(s => {
+                const [sh, sm] = s.start_time.split(':').map(Number);
+                const [eh, em] = s.end_time.split(':').map(Number);
+                return prop >= sh * 60 + sm && prop < eh * 60 + em;
+            });
+            return fits ? 'available' : 'unavailable';
+        }
+
+        function availHintHTML(state, name, isReceiver = false) {
+            const dot = { available: '#2d7a4f', unavailable: '#d97706', unknown: '#9ca3af' }[state] || '#9ca3af';
+            let text;
+            if (isReceiver) {
+                text = state === 'available'
+                    ? 'This time fits your availability ✓'
+                    : 'This is outside your usual availability hours';
+            } else {
+                text = {
+                    available:   `Within ${name}'s available hours ✓`,
+                    unavailable: `Outside ${name}'s usual hours — they may still accept`,
+                    unknown:     `${name} hasn't set availability for this day`,
+                }[state];
+            }
+            if (!text) return '';
+            return `<span class="avail-hint-dot" style="background:${dot}"></span>${text}`;
+        }
+
+        async function updateChatInviteAvailHint() {
+            const hint = document.getElementById('chatInviteAvailHint');
+            if (!hint) return;
+            const dateVal = document.getElementById('chatInviteDate')?.value || '';
+            if (!dateVal || !_chatInviteTargetId) { hint.innerHTML = ''; return; }
+
+            const timeVal = document.getElementById('chatInviteTime')?.value || '';
+            const dow = new Date(dateVal + 'T12:00:00').getDay();
+            const receiver = users.find(u => u.id === _chatInviteTargetId);
+            const name = receiver ? receiver.firstName : 'them';
+
+            hint.innerHTML = '<span style="color:var(--muted);font-size:12px;">Checking availability…</span>';
+            const byDay = await fetchAvailability(_chatInviteTargetId);
+            const state = checkAvailState(byDay, dow, timeVal);
+            hint.innerHTML = availHintHTML(state, name, false);
+        }
 
         function openChatInviteModal(userId) {
             _chatInviteTargetId = userId;
@@ -2904,6 +2974,8 @@
             if (durEl)  durEl.value = '30';
             if (typeEl) typeEl.value = 'video';
             if (detEl)  detEl.value = '';
+            const hintEl = document.getElementById('chatInviteAvailHint');
+            if (hintEl) hintEl.innerHTML = '';
             onChatInviteTypeChange();
             openModal('chatInviteModal');
         }
@@ -3946,7 +4018,10 @@
                 const formatMap = { video: '🎥 Video call', phone: '📞 Phone call', facetime: '📱 FaceTime', inperson: '📍 In person' };
                 const durLabel  = d => d === 60 ? '1 hour' : `${d} min`;
 
-                list.innerHTML = invites.map(inv => {
+                // Pre-fetch current user's availability for all invite time checks
+                const myAvailByDay = await fetchAvailability(currentUser.id);
+
+                list.innerHTML = await Promise.all(invites.map(async inv => {
                     const s       = inv.sender || {};
                     const fn      = s.first_name  || 'Someone';
                     const ln      = s.last_name   || '';
@@ -3960,9 +4035,16 @@
 
                     // Build meeting detail lines
                     let dateTimeLine = '';
+                    let availHint = '';
                     if (inv.proposed_at) {
-                        const dt = new Date(inv.proposed_at);
+                        const dt  = new Date(inv.proposed_at);
+                        const dow = dt.getDay();
+                        const timeStr = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
                         dateTimeLine = `<div class="ibx-invite-detail-row">📅 ${dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} at ${dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>`;
+
+                        const state = checkAvailState(myAvailByDay, dow, timeStr);
+                        const hint  = availHintHTML(state, null, true);
+                        if (hint) availHint = `<div class="avail-hint avail-hint--card">${hint}</div>`;
                     }
                     const dur = inv.duration_minutes || 30;
                     const mtype = inv.meeting_type || 'video';
@@ -3992,12 +4074,13 @@
                                 <div class="ibx-invite-detail-row">⏱ ${durLabel(dur)} · ${typeLabel}</div>
                                 ${detailLine}
                             </div>
+                            ${availHint}
                             <div class="ibx-invite-actions">
                                 <button class="ibx-inv-btn accept" onclick="ibxAcceptInvite('${inv.id}')">✓ Accept</button>
                                 <button class="ibx-inv-btn decline" onclick="ibxDeclineInvite('${inv.id}')">✕ Decline</button>
                             </div>
                         </div>`;
-                }).join('');
+                })).then(cards => { list.innerHTML = cards.join(''); });
             } catch(e) {
                 console.error('ibxRenderPendingInvites:', e);
                 panel.style.display = 'none';
