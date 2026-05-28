@@ -4117,7 +4117,7 @@
                     ? `Coffee Chat with ${senderUser.firstName} ${senderUser.lastName}`
                     : 'Coffee Chat';
 
-                // Create the meetings row as accepted immediately
+                // Insert as 'pending' first so the on_meeting_accepted trigger fires on the UPDATE below
                 const { data: mtg, error: mtgErr } = await supabaseClient
                     .from('meetings')
                     .insert([{
@@ -4130,13 +4130,21 @@
                         location:      location || meetingPhone,
                         start_time:    startTime.toISOString(),
                         end_time:      endTime.toISOString(),
-                        status:        'accepted'
+                        status:        'pending'
                     }])
                     .select()
                     .single();
                 if (mtgErr) throw mtgErr;
 
-                meetings.push(mtg);
+                // Update to 'accepted' — this fires the on_meeting_accepted DB trigger
+                const { error: updErr } = await supabaseClient
+                    .from('meetings')
+                    .update({ status: 'accepted' })
+                    .eq('id', mtg.id);
+                if (updErr) throw updErr;
+
+                const acceptedMtg = { ...mtg, status: 'accepted' };
+                meetings.push(acceptedMtg);
 
                 // Remove card from UI
                 document.getElementById('ibx-inv-' + inviteId)?.remove();
@@ -4149,10 +4157,10 @@
                 renderMeetingCards && renderMeetingCards();
                 updateDashboard && updateDashboard();
 
-                // Fire confirmation emails
-                supabaseClient.functions.invoke('meeting-confirmed', {
+                // Also invoke meeting-confirmed directly in case the trigger isn't wired to the function
+                await supabaseClient.functions.invoke('meeting-confirmed', {
                     body: { meeting_id: mtg.id }
-                }).catch(e => console.warn('meeting-confirmed:', e));
+                });
 
                 showToast('Chat confirmed! Check your email for details ☕', 'success');
             } catch(e) {
