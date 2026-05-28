@@ -4021,7 +4021,7 @@
                 // Pre-fetch current user's availability for all invite time checks
                 const myAvailByDay = await fetchAvailability(currentUser.id);
 
-                list.innerHTML = await Promise.all(invites.map(async inv => {
+                const cards = await Promise.all(invites.map(async inv => {
                     const s       = inv.sender || {};
                     const fn      = s.first_name  || 'Someone';
                     const ln      = s.last_name   || '';
@@ -4080,7 +4080,8 @@
                                 <button class="ibx-inv-btn decline" onclick="ibxDeclineInvite('${inv.id}')">✕ Decline</button>
                             </div>
                         </div>`;
-                })).then(cards => { list.innerHTML = cards.join(''); });
+                }));
+                list.innerHTML = cards.join('');
             } catch(e) {
                 console.error('ibxRenderPendingInvites:', e);
                 panel.style.display = 'none';
