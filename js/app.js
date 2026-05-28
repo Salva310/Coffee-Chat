@@ -87,7 +87,6 @@
         let callInterval = null;
         let currentMonth = new Date();
         let selectedTime = null;
-        let _scheduleAfterAccept = false; // true when schedule modal opened after accepting a chat invite
 
         const mockUsers = [
             {
@@ -2088,9 +2087,6 @@
             const startTime = new Date(`${date}T${selectedModalTime}:00`);
             const endTime = new Date(startTime.getTime() + parseInt(duration) * 60000);
 
-            const isAcceptanceFlow = _scheduleAfterAccept;
-            _scheduleAfterAccept = false;
-
             try {
                 const { data, error } = await supabaseClient
                     .from('meetings')
@@ -2105,7 +2101,7 @@
                         location: meetingLocation,
                         start_time: startTime.toISOString(),
                         end_time: endTime.toISOString(),
-                        status: isAcceptanceFlow ? 'accepted' : 'pending'
+                        status: 'pending'
                     }])
                     .select()
                     .single();
@@ -2115,23 +2111,12 @@
                 meetings.push(data);
                 closeModal('scheduleChatModal');
                 selectedModalTime = null;
-                // Reset detail fields
                 document.getElementById('meetingLinkInput').value = '';
                 document.getElementById('meetingPhoneInput').value = '';
                 document.getElementById('meetingLocationInput').value = '';
-
-                if (isAcceptanceFlow) {
-                    showToast(`Chat with ${selectedPerson.firstName} is confirmed! ☕`, 'success');
-                    supabaseClient.functions.invoke('meeting-confirmed', {
-                        body: { meeting_id: data.id }
-                    }).catch(e => console.warn('meeting-confirmed:', e));
-                    ibxRenderUpcomingPanel();
-                } else {
-                    showToast(`Chat request sent to ${selectedPerson.firstName}! ☕`, 'success');
-                }
+                showToast(`Chat request sent to ${selectedPerson.firstName}! ☕`, 'success');
                 updateDashboard();
             } catch (err) {
-                _scheduleAfterAccept = false;
                 console.error('Error sending meeting request:', err);
                 alert('Failed to send chat request: ' + err.message);
             }
@@ -2906,51 +2891,92 @@
                     <div style="font-size:12px;color:var(--muted);">${[school, major].filter(Boolean).join(' · ')}</div>
                 </div>`;
             const noteEl = document.getElementById('chatInviteNote');
-            const topicEl = document.getElementById('chatInviteTopic');
             const countEl = document.getElementById('chatInviteNoteCount');
-            if (noteEl) { noteEl.value = ''; noteEl.placeholder = `Hi ${fn}! I'd love to connect and hear about your experience in…`; }
+            if (noteEl) { noteEl.value = ''; }
+            if (countEl) countEl.textContent = '0/200';
             const dateEl = document.getElementById('chatInviteDate');
             const timeEl = document.getElementById('chatInviteTime');
+            const durEl  = document.getElementById('chatInviteDuration');
+            const typeEl = document.getElementById('chatInviteMeetingType');
+            const detEl  = document.getElementById('chatInviteDetail');
             if (dateEl) dateEl.value = '';
             if (timeEl) timeEl.value = '';
-            if (countEl) countEl.textContent = '0/100';
+            if (durEl)  durEl.value = '30';
+            if (typeEl) typeEl.value = 'video';
+            if (detEl)  detEl.value = '';
+            onChatInviteTypeChange();
             openModal('chatInviteModal');
+        }
+
+        function onChatInviteTypeChange() {
+            const type  = document.getElementById('chatInviteMeetingType')?.value || 'video';
+            const label = document.getElementById('chatInviteDetailLabel');
+            const input = document.getElementById('chatInviteDetail');
+            const cfg = {
+                video:    { label: 'Meeting link', placeholder: 'https://zoom.us/j/… (optional)', required: false },
+                phone:    { label: 'Your phone number', placeholder: 'e.g. (856) 555-0100', required: true },
+                facetime: { label: 'Phone number or Apple ID', placeholder: 'e.g. you@icloud.com', required: true },
+                inperson: { label: 'Location / address', placeholder: 'e.g. Rowan Library, Room 201', required: true },
+            };
+            const c = cfg[type] || cfg.video;
+            if (label) label.innerHTML = `${c.label}${c.required ? '' : ' <span style="font-weight:400;color:var(--muted);">(optional)</span>'}`;
+            if (input) input.placeholder = c.placeholder;
         }
 
         async function submitChatInvite() {
             const note = (document.getElementById('chatInviteNote')?.value || '').trim();
-            if (!note) { showToast('Please add an intro message ☕', 'info'); return; }
-            // Build topic string from date + time pickers
+            if (!note) { showToast('Please describe what you want to talk about ☕', 'info'); return; }
             const dateVal = document.getElementById('chatInviteDate')?.value || '';
             const timeVal = document.getElementById('chatInviteTime')?.value || '';
-            let topic = '';
-            if (dateVal) {
-                const d = new Date(dateVal + 'T12:00:00');
-                const dateLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                topic = timeVal ? `${dateLabel} at ${timeVal}` : dateLabel;
-            } else if (timeVal) {
-                topic = timeVal;
+            const duration = parseInt(document.getElementById('chatInviteDuration')?.value || '30');
+            const meetingType = document.getElementById('chatInviteMeetingType')?.value || 'video';
+            const detailVal = (document.getElementById('chatInviteDetail')?.value || '').trim();
+
+            // Build proposed_at ISO string if date+time provided
+            let proposed_at = null;
+            if (dateVal && timeVal) {
+                proposed_at = new Date(`${dateVal}T${timeVal}:00`).toISOString();
+            } else if (dateVal) {
+                proposed_at = new Date(`${dateVal}T12:00:00`).toISOString();
             }
+
+            // Required detail check for phone / facetime / inperson
+            if (['phone','facetime','inperson'].includes(meetingType) && !detailVal) {
+                const labels = { phone: 'phone number', facetime: 'phone number or Apple ID', inperson: 'location' };
+                showToast(`Please add your ${labels[meetingType]} ☕`, 'info');
+                return;
+            }
+
+            const meeting_url = meetingType === 'video' ? (detailVal || null) : null;
+            const phone       = ['phone','facetime'].includes(meetingType) ? (detailVal || null) : null;
+            const location    = meetingType === 'inperson' ? (detailVal || null) : null;
+
             closeModal('chatInviteModal');
-            await sendChatInvite(_chatInviteTargetId, note, topic);
+            await sendChatInvite(_chatInviteTargetId, note, { proposed_at, duration, meetingType, meeting_url, phone, location });
             _chatInviteTargetId = null;
         }
 
-        async function sendChatInvite(userId, note = '', topic = '') {
+        async function sendChatInvite(userId, note = '', details = {}) {
             if (!currentUser) return;
             if (sentChatInvites.find(i => i.receiver_id === userId)) {
                 showToast('You already sent a chat invite to this person! ☕', 'info');
                 return;
             }
             try {
+                const { proposed_at, duration, meetingType, meeting_url, phone, location } = details;
                 const { data, error } = await supabaseClient
                     .from('chat_invites')
                     .insert([{
                         sender_id: currentUser.id,
                         receiver_id: userId,
                         note: note,
-                        topic: topic,
-                        status: 'pending'
+                        status: 'pending',
+                        proposed_at:      proposed_at      || null,
+                        duration_minutes: duration         || 30,
+                        meeting_type:     meetingType      || 'video',
+                        meeting_url:      meeting_url      || null,
+                        phone:            phone            || null,
+                        location:         location         || null,
                     }])
                     .select()
                     .single();
@@ -2993,44 +3019,16 @@
         }
 
         async function acceptChatInvite(inviteId) {
-            try {
-                const { error } = await supabaseClient
-                    .from('chat_invites')
-                    .update({ status: 'accepted' })
-                    .eq('id', inviteId);
-                if (error) throw error;
-                const invite = chatInvites.find(i => i.id === inviteId);
-                chatInvites = chatInvites.filter(i => i.id !== inviteId);
-                // Also mark the corresponding meetings row as accepted so email reminders fire
-                if (invite?.sender_id) {
-                    await acceptRelatedMeeting(invite.sender_id, currentUser.id);
-                }
-                showToast('Chat invite accepted! ☕ Schedule a time below.', 'success');
-                renderHubNetworkFeed();
-                generateNotifications();
-                renderMeetingCards();
-                if (invite?.sender_id) { _scheduleAfterAccept = true; openScheduleForUser(invite.sender_id); }
-            } catch (err) {
-                console.error('acceptChatInvite:', err);
-                showToast('Failed to accept: ' + err.message, 'error');
-            }
+            // Delegate to ibxAcceptInvite which handles the full flow
+            await ibxAcceptInvite(inviteId);
+            renderHubNetworkFeed && renderHubNetworkFeed();
+            generateNotifications && generateNotifications();
         }
 
         async function declineChatInvite(inviteId) {
-            try {
-                const { error } = await supabaseClient
-                    .from('chat_invites')
-                    .update({ status: 'declined' })
-                    .eq('id', inviteId);
-                if (error) throw error;
-                chatInvites = chatInvites.filter(i => i.id !== inviteId);
-                showToast('Invite declined.', 'info');
-                renderHubNetworkFeed();
-                generateNotifications();
-            } catch (err) {
-                console.error('declineChatInvite:', err);
-                showToast('Failed to decline: ' + err.message, 'error');
-            }
+            await ibxDeclineInvite(inviteId);
+            renderHubNetworkFeed && renderHubNetworkFeed();
+            generateNotifications && generateNotifications();
         }
 
         async function cancelMeetingRequest(meetingId) {
@@ -3915,11 +3913,11 @@
             if (!panel || !list || !currentUser) return;
 
             try {
-                // Fetch pending invites with sender profile joined
                 const { data: invites, error } = await supabaseClient
                     .from('chat_invites')
                     .select(`
-                        id, note, topic, created_at,
+                        id, note, proposed_at, duration_minutes, meeting_type,
+                        meeting_url, phone, location, created_at,
                         sender:profiles!chat_invites_sender_id_fkey(
                             id, first_name, last_name, profile_picture, avatar_color,
                             school_name, company, major, industry, headline
@@ -3944,33 +3942,58 @@
                     'linear-gradient(135deg,#7c3aed,#a78bfa)',
                     'linear-gradient(135deg,#be185d,#f472b6)',
                 ];
+
+                const formatMap = { video: '🎥 Video call', phone: '📞 Phone call', facetime: '📱 FaceTime', inperson: '📍 In person' };
+                const durLabel  = d => d === 60 ? '1 hour' : `${d} min`;
+
                 list.innerHTML = invites.map(inv => {
                     const s       = inv.sender || {};
                     const fn      = s.first_name  || 'Someone';
                     const ln      = s.last_name   || '';
                     const pic     = s.profile_picture;
                     const initials = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
-                    const school  = s.school_name || s.company || 'Rowan University';
-                    const major   = s.major || s.industry || '';
-                    const note    = inv.note || '';
-                    const topic   = inv.topic || '';
+                    const school  = s.headline || s.major || s.school_name || s.company || 'Rowan University';
                     const gradIdx = (s.id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % gradients.length;
                     const avHTML  = pic
                         ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                         : initials;
+
+                    // Build meeting detail lines
+                    let dateTimeLine = '';
+                    if (inv.proposed_at) {
+                        const dt = new Date(inv.proposed_at);
+                        dateTimeLine = `<div class="ibx-invite-detail-row">📅 ${dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} at ${dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>`;
+                    }
+                    const dur = inv.duration_minutes || 30;
+                    const mtype = inv.meeting_type || 'video';
+                    const typeLabel = formatMap[mtype] || '☕ Coffee chat';
+
+                    let detailLine = '';
+                    if (mtype === 'video' && inv.meeting_url) {
+                        detailLine = `<div class="ibx-invite-detail-row">🔗 <a href="${inv.meeting_url}" target="_blank" style="color:var(--caramel);">${inv.meeting_url}</a></div>`;
+                    } else if ((mtype === 'phone' || mtype === 'facetime') && inv.phone) {
+                        detailLine = `<div class="ibx-invite-detail-row">${mtype === 'facetime' ? '📱' : '📞'} ${inv.phone}</div>`;
+                    } else if (mtype === 'inperson' && inv.location) {
+                        detailLine = `<div class="ibx-invite-detail-row">📍 ${inv.location}</div>`;
+                    }
+
                     return `
                         <div class="ibx-invite-card" id="ibx-inv-${inv.id}">
                             <div class="ibx-invite-top">
                                 <div class="ibx-invite-av" style="background:${pic?'transparent':gradients[gradIdx]}">${avHTML}</div>
                                 <div class="ibx-invite-info">
                                     <div class="ibx-invite-name">${fn} ${ln}</div>
-                                    <div class="ibx-invite-meta">${[school, major].filter(Boolean).join(' · ')}</div>
+                                    <div class="ibx-invite-meta">${school}</div>
                                 </div>
                             </div>
-                            ${note ? `<div class="ibx-invite-note">"${note}"</div>` : ''}
-                            ${topic ? `<div class="ibx-invite-time">⏰ ${topic}</div>` : ''}
+                            ${inv.note ? `<div class="ibx-invite-note">"${inv.note}"</div>` : ''}
+                            <div class="ibx-invite-details">
+                                ${dateTimeLine}
+                                <div class="ibx-invite-detail-row">⏱ ${durLabel(dur)} · ${typeLabel}</div>
+                                ${detailLine}
+                            </div>
                             <div class="ibx-invite-actions">
-                                <button class="ibx-inv-btn accept" onclick="ibxAcceptInvite('${inv.id}','${s.id}')">✓ Accept</button>
+                                <button class="ibx-inv-btn accept" onclick="ibxAcceptInvite('${inv.id}')">✓ Accept</button>
                                 <button class="ibx-inv-btn decline" onclick="ibxDeclineInvite('${inv.id}')">✕ Decline</button>
                             </div>
                         </div>`;
@@ -3981,19 +4004,73 @@
             }
         }
 
-        async function ibxAcceptInvite(inviteId, senderId) {
+        async function ibxAcceptInvite(inviteId) {
             try {
-                await supabaseClient.from('chat_invites').update({ status: 'accepted' }).eq('id', inviteId);
-                // Also mark the corresponding meetings row as accepted so email reminders fire
-                if (senderId) await acceptRelatedMeeting(senderId, currentUser.id);
-                // Remove card immediately
+                // Fetch the full invite to get meeting details
+                const { data: inv, error: fetchErr } = await supabaseClient
+                    .from('chat_invites')
+                    .select('sender_id, note, proposed_at, duration_minutes, meeting_type, meeting_url, phone, location')
+                    .eq('id', inviteId)
+                    .single();
+                if (fetchErr || !inv) throw fetchErr ?? new Error('Invite not found');
+
+                // Mark invite accepted
+                await supabaseClient.from('chat_invites').update({ status: 'accepted', responded_at: new Date().toISOString() }).eq('id', inviteId);
+
+                // Build start/end times from proposed_at + duration
+                const startTime = inv.proposed_at ? new Date(inv.proposed_at) : new Date();
+                const endTime   = new Date(startTime.getTime() + (inv.duration_minutes || 30) * 60000);
+
+                // Determine meeting detail fields
+                const mtype = inv.meeting_type || 'video';
+                const meeting_url  = mtype === 'video'    ? (inv.meeting_url || null) : null;
+                const meetingPhone = ['phone','facetime'].includes(mtype) ? (inv.phone || null) : null;
+                const location     = mtype === 'inperson' ? (inv.location || null) : null;
+
+                // Get sender display name for title
+                const senderUser = users.find(u => u.id === inv.sender_id);
+                const title = senderUser
+                    ? `Coffee Chat with ${senderUser.firstName} ${senderUser.lastName}`
+                    : 'Coffee Chat';
+
+                // Create the meetings row as accepted immediately
+                const { data: mtg, error: mtgErr } = await supabaseClient
+                    .from('meetings')
+                    .insert([{
+                        organizer_id:  inv.sender_id,
+                        participant_id: currentUser.id,
+                        title,
+                        note:          inv.note || null,
+                        meeting_type:  mtype,
+                        meeting_url,
+                        location:      location || meetingPhone,
+                        start_time:    startTime.toISOString(),
+                        end_time:      endTime.toISOString(),
+                        status:        'accepted'
+                    }])
+                    .select()
+                    .single();
+                if (mtgErr) throw mtgErr;
+
+                meetings.push(mtg);
+
+                // Remove card from UI
                 document.getElementById('ibx-inv-' + inviteId)?.remove();
                 const remaining = document.querySelectorAll('#ibxPendingInvitesList .ibx-invite-card');
                 if (remaining.length === 0) document.getElementById('ibxPendingInvitesPanel').style.display = 'none';
-                showToast('Chat invite accepted! ☕ Schedule a time.', 'success');
-                if (senderId) { _scheduleAfterAccept = true; openScheduleForUser(senderId); }
                 chatInvites = chatInvites.filter(i => i.id !== inviteId);
+
+                // Refresh upcoming panel immediately
+                ibxRenderUpcomingPanel();
                 renderMeetingCards && renderMeetingCards();
+                updateDashboard && updateDashboard();
+
+                // Fire confirmation emails
+                supabaseClient.functions.invoke('meeting-confirmed', {
+                    body: { meeting_id: mtg.id }
+                }).catch(e => console.warn('meeting-confirmed:', e));
+
+                showToast('Chat confirmed! Check your email for details ☕', 'success');
             } catch(e) {
                 console.error('ibxAcceptInvite:', e);
                 showToast('Failed to accept — please try again.', 'error');
@@ -4002,7 +4079,9 @@
 
         async function ibxDeclineInvite(inviteId) {
             try {
-                await supabaseClient.from('chat_invites').update({ status: 'declined' }).eq('id', inviteId);
+                await supabaseClient.from('chat_invites')
+                    .update({ status: 'declined', responded_at: new Date().toISOString() })
+                    .eq('id', inviteId);
                 document.getElementById('ibx-inv-' + inviteId)?.remove();
                 const remaining = document.querySelectorAll('#ibxPendingInvitesList .ibx-invite-card');
                 if (remaining.length === 0) document.getElementById('ibxPendingInvitesPanel').style.display = 'none';
@@ -5111,7 +5190,6 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
-            if (modalId === 'scheduleChatModal') _scheduleAfterAccept = false;
         }
 
         // Profile Management

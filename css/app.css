@@ -8952,6 +8952,15 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   font-size: 11px; color: var(--muted); margin-bottom: 8px;
 }
 
+.ibx-invite-details {
+  display: flex; flex-direction: column; gap: 3px;
+  margin-bottom: 8px;
+}
+.ibx-invite-detail-row {
+  font-family: 'Sora', sans-serif;
+  font-size: 12px; color: var(--brown); line-height: 1.4;
+}
+
 .ibx-invite-actions { display: flex; gap: 6px; }
 
 .ibx-inv-btn {
