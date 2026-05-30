@@ -255,11 +255,18 @@
                 await loadUserProfile(session.user.id);
                 recordLogin();
                 renderNav();
-                switchView('dashboardView');
+                // Handle /review/:id deep-link before defaulting to dashboard
+                const wasReview = await handleReviewRoute();
+                if (!wasReview) switchView('dashboardView');
                 await updateDashboard();
                 checkBadgesWithCelebration();
             } else {
-                // No session, show landing page
+                // No session — check for review deep-link first, store it, then show login
+                const reviewMatch = window.location.pathname.match(/^\/review\/([0-9a-f-]+)$/i);
+                if (reviewMatch) {
+                    localStorage.setItem('_pendingReview', reviewMatch[1]);
+                    window.history.replaceState({}, '', '/');
+                }
                 document.querySelector('.app-container').classList.add('sidebar-hidden');
                 switchView('landingView');
             }
@@ -640,10 +647,17 @@
                 document.querySelector('.app-container').classList.remove('sidebar-hidden');
                 recordLogin();
                 renderNav();
-                switchView('dashboardView');
+                showToast('Welcome back!', 'success');
+                // Check for pending review deep-link from before login
+                const pendingReview = localStorage.getItem('_pendingReview');
+                if (pendingReview) {
+                    localStorage.removeItem('_pendingReview');
+                    window.history.replaceState({}, '', `/review/${pendingReview}`);
+                }
+                const wasReview = await handleReviewRoute();
+                if (!wasReview) switchView('dashboardView');
                 await updateDashboard();
                 checkBadgesWithCelebration();
-                showToast('Welcome back!', 'success');
             } catch (error) {
                 console.error('Login error:', error);
                 alert('Login failed: ' + error.message);
@@ -732,9 +746,15 @@
                 document.querySelector('.app-container').classList.remove('sidebar-hidden');
                 recordLogin();
                 renderNav();
-                switchView('dashboardView');
-                await updateDashboard();
                 showToast('Welcome to First Sip! ☕', 'success');
+                const pendingReviewSignup = localStorage.getItem('_pendingReview');
+                if (pendingReviewSignup) {
+                    localStorage.removeItem('_pendingReview');
+                    window.history.replaceState({}, '', `/review/${pendingReviewSignup}`);
+                }
+                const wasReviewSignup = await handleReviewRoute();
+                if (!wasReviewSignup) switchView('dashboardView');
+                await updateDashboard();
             } catch (error) {
                 console.error('Signup error:', error);
                 alert('Signup failed: ' + error.message);
@@ -3918,13 +3938,22 @@
         // ── Review modal ──
         let _reviewMeetingId = null, _reviewRevieweeId = null, _reviewRating = 0;
 
-        function openReviewModal(meetingId, revieweeId) {
+        function openReviewModal(meetingId, revieweeId, context = null) {
             _reviewMeetingId  = meetingId;
             _reviewRevieweeId = revieweeId;
             _reviewRating     = 0;
             document.getElementById('reviewRating').value = '0';
             document.getElementById('reviewComment').value = '';
             document.querySelectorAll('.review-star').forEach(s => s.classList.remove('selected','lit'));
+            const ctxEl = document.getElementById('reviewModalContext');
+            if (ctxEl) {
+                if (context?.personName) {
+                    ctxEl.innerHTML = `Chat with <strong>${context.personName}</strong>${context.meetingDate ? ` &nbsp;·&nbsp; ${context.meetingDate}` : ''}`;
+                    ctxEl.style.display = 'block';
+                } else {
+                    ctxEl.style.display = 'none';
+                }
+            }
             document.getElementById('reviewModal').style.display = 'flex';
         }
 
@@ -3932,6 +3961,75 @@
             document.getElementById('reviewModal').style.display = 'none';
             _reviewMeetingId = _reviewRevieweeId = null;
             _reviewRating = 0;
+        }
+
+        // Handles /review/:meetingId deep-link. Returns true if the route was matched.
+        async function handleReviewRoute() {
+            const match = window.location.pathname.match(/^\/review\/([0-9a-f-]+)$/i);
+            if (!match) return false;
+            const meetingId = match[1];
+
+            // Clear the URL without a full reload
+            window.history.replaceState({}, '', '/');
+
+            if (!currentUser) {
+                // Store for after login
+                localStorage.setItem('_pendingReview', meetingId);
+                return true;
+            }
+
+            try {
+                // Check if already reviewed
+                const { data: existing } = await supabaseClient
+                    .from('reviews')
+                    .select('id')
+                    .eq('meeting_id', meetingId)
+                    .eq('reviewer_id', currentUser.id)
+                    .maybeSingle();
+
+                if (existing) {
+                    showToast("You've already reviewed this chat ✓", 'info');
+                    return true;
+                }
+
+                // Fetch meeting with both profiles
+                const { data: meeting, error } = await supabaseClient
+                    .from('meetings')
+                    .select(`
+                        id, start_time, status,
+                        organizer:profiles!meetings_organizer_id_fkey(id, first_name, last_name),
+                        participant:profiles!meetings_participant_id_fkey(id, first_name, last_name)
+                    `)
+                    .eq('id', meetingId)
+                    .single();
+
+                if (error || !meeting) {
+                    showToast('Meeting not found.', 'error');
+                    return true;
+                }
+
+                const isOrg  = meeting.organizer?.id  === currentUser.id;
+                const isPart = meeting.participant?.id === currentUser.id;
+                if (!isOrg && !isPart) {
+                    showToast('You are not a participant in this meeting.', 'error');
+                    return true;
+                }
+
+                const other = isOrg ? meeting.participant : meeting.organizer;
+                const dateStr = meeting.start_time
+                    ? new Date(meeting.start_time).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+                    : null;
+
+                switchView('inboxView');
+                openReviewModal(meetingId, other?.id, {
+                    personName:  `${other?.first_name || ''} ${other?.last_name || ''}`.trim(),
+                    meetingDate: dateStr
+                });
+            } catch(e) {
+                console.error('handleReviewRoute:', e);
+                showToast('Could not load review — please try again.', 'error');
+            }
+            return true;
         }
 
         function selectStar(val) {
