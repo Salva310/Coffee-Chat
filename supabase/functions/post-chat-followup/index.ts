@@ -39,6 +39,7 @@ serve(async () => {
       for (const person of [organizer, participant]) {
         if (!person?.email) continue;
         const other = person.id === organizer?.id ? participant : organizer;
+        const reviewUrl = `${APP_URL}/review/${meeting.id}`;
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
@@ -46,17 +47,24 @@ serve(async () => {
             from: `First Sip <${FROM_EMAIL}>`,
             to: person.email,
             subject: `☕ How did your chat with ${other?.first_name} go?`,
-            html: `<p>Hi ${person.first_name},</p>
-<p>Hope your coffee chat with <strong>${other?.first_name} ${other?.last_name}</strong> went well!</p>
-<p>A few ways to keep the momentum going:</p>
-<ul>
-  <li>Send ${other?.first_name} a message to say thanks</li>
-  <li>Schedule your next chat if you want to meet again</li>
-  <li>Expand your network — discover more people on First Sip</li>
-</ul>
-<p><a href="${APP_URL}" style="background:#B5651D;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;">Open First Sip →</a></p>
-<p>Keep building that network ☕<br>— The First Sip team</p>
-<p style="font-size:12px;color:#888;"><a href="${APP_URL}">firstsipapp.com</a></p>`,
+            html: `
+<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;color:#1C0F07">
+  <div style="background:#B5651D;padding:20px 28px;border-radius:12px 12px 0 0">
+    <div style="color:white;font-size:22px;font-weight:500">First Sip ☕</div>
+  </div>
+  <div style="background:#FAF7F2;padding:28px;border-radius:0 0 12px 12px;border:1px solid #E8D5C0;border-top:none">
+    <p style="font-size:16px;font-weight:500;margin:0 0 6px">Hi ${person.first_name}!</p>
+    <p style="font-size:15px;color:#5C3317;margin:0 0 20px">Hope your coffee chat with <strong>${other?.first_name} ${other?.last_name}</strong> went well ☕</p>
+    <a href="${reviewUrl}" style="display:block;background:#B5651D;color:white;text-align:center;padding:12px 20px;border-radius:9px;font-size:15px;font-weight:500;text-decoration:none;margin-bottom:10px">⭐ Leave an Anonymous Review</a>
+    <a href="${APP_URL}/chats" style="display:block;background:white;color:#B5651D;text-align:center;padding:12px 20px;border-radius:9px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid #E8D5C0;margin-bottom:24px">💬 Send ${other?.first_name} a message</a>
+    <div style="background:#F5EDE3;border-radius:8px;padding:12px 14px;margin-bottom:20px">
+      <div style="font-size:12px;font-weight:500;color:#B5651D;margin-bottom:4px">🔒 100% anonymous</div>
+      <div style="font-size:13px;color:#5C3317;line-height:1.5">Reviews are completely anonymous and help others find great people to connect with.</div>
+    </div>
+    <p style="font-size:13px;color:#8C7B6E;margin:0">Real talk. No small talk. ☕</p>
+    <p style="font-size:13px;color:#B8A898;margin:16px 0 0">— The First Sip team</p>
+  </div>
+</div>`,
           }),
         });
         sent++;
