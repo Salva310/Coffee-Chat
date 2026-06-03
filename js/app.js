@@ -7081,12 +7081,14 @@
             return `${fn[0]}${ln[0]}`.toUpperCase();
         }
 
+        // Stores full connection list for client-side search filtering
+        let _mnConns = [];
+
         async function renderMyNetworkSection() {
             const section = document.getElementById('myNetworkSection');
             if (!section || !currentUser) return;
 
             try {
-                // ── Fetch all three data sources in parallel ──
                 const [connRes, meetingsRes, profileRes, pendingRes] = await Promise.all([
                     supabaseClient
                         .from('connections')
@@ -7118,16 +7120,13 @@
                         .order('created_at', { ascending: false }),
                 ]);
 
-                const conns       = connRes.data || [];
-                const chatsHad    = meetingsRes.count ?? 0;
-                const avgRating   = profileRes.data?.avg_rating;
-                const pending     = pendingRes.data || [];
-                const connCount   = conns.length;
-
-                // ── Stats bar ──
+                const conns     = connRes.data || [];
+                const chatsHad  = meetingsRes.count ?? 0;
+                const avgRating = profileRes.data?.avg_rating;
+                const pending   = pendingRes.data || [];
+                const connCount = conns.length;
                 const ratingStr = avgRating ? Number(avgRating).toFixed(1) : '—';
 
-                // ── Connections grid ──
                 const GRAD = [
                     'linear-gradient(135deg,#D4894A,#B5651D)',
                     'linear-gradient(135deg,#7B9E87,#4A7C5E)',
@@ -7136,121 +7135,221 @@
                     'linear-gradient(135deg,#6B9EC4,#4A7EA8)',
                 ];
 
-                const connCards = conns.map((c, i) => {
+                // Build normalised connection data and cache for search
+                _mnConns = conns.map((c, i) => {
                     const other = c.profile_a?.id === currentUser.id ? c.profile_b : c.profile_a;
-                    if (!other) return '';
-                    const fn  = other.first_name || '?';
-                    const ln  = other.last_name  || '';
-                    const ini = (fn[0] + (ln[0]||'')).toUpperCase();
-                    const sub = other.headline || other.major || 'Rowan University';
-                    const bg  = GRAD[i % GRAD.length];
-                    const av  = other.profile_picture
-                        ? `<img src="${other.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-                        : ini;
-                    return `<div class="mn-conn-card" onclick="viewProfile('${other.id}')">
-                        <div class="mn-av" style="background:${other.profile_picture?'transparent':bg}">${av}</div>
-                        <div class="mn-conn-name">${fn} ${ln}</div>
-                        <div class="mn-conn-sub">${sub}</div>
-                    </div>`;
-                });
+                    if (!other) return null;
+                    return { id: c.id, userId: other.id, note: c.note, created_at: c.created_at,
+                        firstName: other.first_name || '', lastName: other.last_name || '',
+                        sub: other.headline || other.major || 'Rowan University',
+                        pic: other.profile_picture, grad: GRAD[i % GRAD.length] };
+                }).filter(Boolean);
 
-                const SHOW = 8;
-                const visibleCards  = connCards.slice(0, SHOW).join('');
-                const hiddenCards   = connCards.slice(SHOW).join('');
-                const seeAllLink    = connCards.length > SHOW
-                    ? `<div style="margin-top:14px;text-align:center;">
-                         <span id="mnSeeAllToggle" style="font-size:13px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="mnToggleSeeAll()">See all ${connCount} connections →</span>
-                       </div>
-                       <div id="mnHiddenCards" style="display:none;" class="mn-conn-grid">${hiddenCards}</div>`
-                    : '';
+                // ── Connections list HTML ──
+                const connListHTML = _mnConns.length
+                    ? _mnConns.map(c => mnConnRowHTML(c)).join('')
+                    : `<div class="mn2-empty-state">
+                        <div style="font-size:32px;margin-bottom:10px;">🤝</div>
+                        <div style="font-size:15px;font-weight:500;color:var(--espresso);margin-bottom:6px;">No connections yet</div>
+                        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Start building your network on Rowan's platform.</div>
+                        <button onclick="switchView('discoverView')" style="padding:9px 20px;background:var(--caramel);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">Discover People</button>
+                       </div>`;
 
-                // ── Pending requests ──
-                const pendingCards = pending.map(req => {
-                    const r   = req.requester || {};
-                    const fn  = r.first_name || 'Someone';
-                    const ln  = r.last_name  || '';
-                    const ini = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
-                    const sub = r.headline || r.major || 'Rowan University';
-                    const av  = r.profile_picture
-                        ? `<img src="${r.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                // ── Pending requests HTML ──
+                const pendingHTML = pending.length
+                    ? pending.map(req => {
+                        const r   = req.requester || {};
+                        const fn  = r.first_name || 'Someone';
+                        const ln  = r.last_name  || '';
+                        const ini = ((fn[0]||'?')+(ln[0]||'')).toUpperCase();
+                        const sub = r.headline || r.major || 'Rowan University';
+                        const av  = r.profile_picture
+                            ? `<img src="${r.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                            : ini;
+                        return `<div class="mn2-pending-item" id="mn-req-${req.id}">
+                            <div class="mn2-pending-top">
+                                <div class="mn2-pending-av" style="background:${r.profile_picture?'transparent':GRAD[0]}">${av}</div>
+                                <div>
+                                    <div class="mn2-pending-name">${fn} ${ln}</div>
+                                    <div class="mn2-pending-role">${sub}</div>
+                                </div>
+                            </div>
+                            ${req.note ? `<div class="mn2-pending-note">"${req.note}"</div>` : ''}
+                            <div class="mn2-pending-btns">
+                                <button class="mn2-btn-accept" onclick="mnAcceptRequest('${req.id}','${fn} ${ln}')">✓ Accept</button>
+                                <button class="mn2-btn-decline" onclick="mnDeclineRequest('${req.id}')">✕ Decline</button>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : `<div class="mn2-no-pending">No pending requests right now ✓</div>`;
+
+                // ── People you may know (unconnected users from local cache) ──
+                const connectedIds = new Set(_mnConns.map(c => c.userId));
+                connectedIds.add(currentUser.id);
+                const suggestions = users.filter(u => !connectedIds.has(u.id)).slice(0, 3);
+                const suggestHTML = suggestions.map((u, i) => {
+                    const fn  = u.firstName || '?';
+                    const ln  = u.lastName  || '';
+                    const ini = (fn[0]+(ln[0]||'')).toUpperCase();
+                    const sub = u.headline || u.major || 'Rowan University';
+                    const av  = u.profilePicture
+                        ? `<img src="${u.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                         : ini;
-                    return `<div class="mn-pending-row" id="mn-req-${req.id}">
-                        <div class="mn-av mn-av-sm" style="background:${r.profile_picture?'transparent':GRAD[0]}">${av}</div>
-                        <div class="mn-pending-info">
-                            <div class="mn-pending-name">${fn} ${ln}</div>
-                            <div class="mn-pending-sub">${sub}</div>
-                            ${req.note ? `<div class="mn-pending-note">"${req.note}"</div>` : ''}
+                    return `<div class="mn2-suggest-item">
+                        <div class="mn2-suggest-av" style="background:${u.profilePicture?'transparent':GRAD[i%GRAD.length]}">${av}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="mn2-suggest-name">${fn} ${ln}</div>
+                            <div class="mn2-suggest-role">${sub}</div>
                         </div>
-                        <div class="mn-pending-actions">
-                            <button class="mn-btn-accept" onclick="mnAcceptRequest('${req.id}')">Accept</button>
-                            <button class="mn-btn-decline" onclick="mnDeclineRequest('${req.id}')">Decline</button>
-                        </div>
+                        <button class="mn2-btn-connect" id="mn-sug-${u.id}" onclick="mnConnectSuggestion('${u.id}',this)">+ Connect</button>
                     </div>`;
-                }).join('');
+                }).join('') || `<div class="mn2-no-pending">No suggestions right now.</div>`;
+
+                // ── Recent activity (connections + meetings) ──
+                const recentActivity = [
+                    ..._mnConns.slice(0, 5).map(c => ({
+                        text: `<span class="mn2-act-name">${c.firstName} ${c.lastName}</span> connected with you`,
+                        time: c.created_at
+                    })),
+                ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
+
+                const activityHTML = recentActivity.length
+                    ? recentActivity.map(a => `<div class="mn2-act-item">
+                        <div class="mn2-act-dot"></div>
+                        <div>${a.text}<div class="mn2-act-time">${getTimeAgo(a.time)}</div></div>
+                      </div>`).join('')
+                    : `<div class="mn2-no-pending">No recent activity yet.</div>`;
 
                 section.innerHTML = `
-                <div class="mn-card">
-                    <!-- Stats bar -->
-                    <div class="mn-stats-bar">
-                        <div class="mn-stat">
-                            <div class="mn-stat-num">${connCount}</div>
-                            <div class="mn-stat-label">Connections</div>
+                <!-- Stats card -->
+                <div class="mn2-stats-card">
+                    <div class="mn2-stat-cell">
+                        <div class="mn2-stat-eyebrow">Connections</div>
+                        <div class="mn2-stat-num">${connCount}</div>
+                        <div class="mn2-stat-sub">People in your network</div>
+                    </div>
+                    <div class="mn2-stat-cell">
+                        <div class="mn2-stat-eyebrow">Chats Had</div>
+                        <div class="mn2-stat-num">${chatsHad}</div>
+                        <div class="mn2-stat-sub">Coffee chats completed</div>
+                    </div>
+                    <div class="mn2-stat-cell">
+                        <div class="mn2-stat-eyebrow">Avg Rating</div>
+                        <div class="mn2-stat-num">${ratingStr}</div>
+                        <div class="mn2-stat-sub">Based on chat reviews</div>
+                    </div>
+                    <div class="mn2-stat-cell">
+                        <div class="mn2-stat-eyebrow">Profile Views</div>
+                        <div class="mn2-stat-num">—</div>
+                        <div class="mn2-stat-sub">Views this month</div>
+                    </div>
+                </div>
+
+                <!-- Two-column layout -->
+                <div class="mn2-two-col">
+
+                    <!-- Left: connections list -->
+                    <div class="mn2-section-card">
+                        <div class="mn2-section-header">
+                            <div class="mn2-section-title">Your connections <span style="font-size:13px;color:var(--muted);font-weight:400;">(${connCount})</span></div>
                         </div>
-                        <div class="mn-stat-divider"></div>
-                        <div class="mn-stat">
-                            <div class="mn-stat-num">${chatsHad}</div>
-                            <div class="mn-stat-label">Chats Had</div>
+                        <div class="mn2-search-row">
+                            <div class="mn2-search-inner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="mnSearchInput" placeholder="Search your connections…" oninput="mnFilterConns(this.value)">
+                            </div>
                         </div>
-                        <div class="mn-stat-divider"></div>
-                        <div class="mn-stat">
-                            <div class="mn-stat-num">${ratingStr}</div>
-                            <div class="mn-stat-label">Avg Rating</div>
-                        </div>
+                        <div class="mn2-conn-list" id="mnConnList">${connListHTML}</div>
                     </div>
 
-                    <!-- Connections -->
-                    <div class="mn-section-head">Connections</div>
-                    ${connCount
-                        ? `<div class="mn-conn-grid">${visibleCards}</div>${seeAllLink}`
-                        : `<p class="mn-empty">No connections yet. <span onclick="switchView('discoverView')" style="color:var(--caramel);cursor:pointer;">Find people →</span></p>`
-                    }
+                    <!-- Right sidebar -->
+                    <div class="mn2-sidebar">
 
-                    <!-- Pending requests -->
-                    <div class="mn-section-head" style="margin-top:28px;">
-                        Pending Requests
-                        ${pending.length ? `<span class="mn-badge">${pending.length}</span>` : ''}
+                        <!-- Pending requests -->
+                        <div class="mn2-sidebar-card">
+                            <div class="mn2-sidebar-header">
+                                <div class="mn2-sidebar-title">Pending requests</div>
+                                ${pending.length ? `<span class="mn2-pending-badge">${pending.length}</span>` : ''}
+                            </div>
+                            <div class="mn2-sidebar-body" id="mnPendingBody">${pendingHTML}</div>
+                        </div>
+
+                        <!-- People you may know -->
+                        <div class="mn2-sidebar-card">
+                            <div class="mn2-sidebar-header">
+                                <div class="mn2-sidebar-title">People you may know</div>
+                            </div>
+                            <div class="mn2-sidebar-body">${suggestHTML}</div>
+                        </div>
+
+                        <!-- Recent activity -->
+                        <div class="mn2-sidebar-card">
+                            <div class="mn2-sidebar-header">
+                                <div class="mn2-sidebar-title">Recent activity</div>
+                            </div>
+                            <div class="mn2-sidebar-body">${activityHTML}</div>
+                        </div>
+
                     </div>
-                    ${pending.length
-                        ? `<div id="mnPendingList">${pendingCards}</div>`
-                        : `<p class="mn-empty">No pending requests.</p>`
-                    }
                 </div>`;
 
             } catch(e) {
                 console.error('renderMyNetworkSection:', e);
-                const section = document.getElementById('myNetworkSection');
-                if (section) section.innerHTML = '';
+                document.getElementById('myNetworkSection').innerHTML = '';
             }
         }
 
-        function mnToggleSeeAll() {
-            const hidden = document.getElementById('mnHiddenCards');
-            const toggle = document.getElementById('mnSeeAllToggle');
-            if (!hidden || !toggle) return;
-            const open = hidden.style.display === 'none';
-            hidden.style.display = open ? 'grid' : 'none';
-            const total = document.querySelectorAll('#myNetworkSection .mn-conn-card').length;
-            toggle.textContent = open ? 'Show less ↑' : `See all ${total} connections →`;
+        function mnConnRowHTML(c) {
+            const ini = ((c.firstName[0]||'?')+(c.lastName[0]||'')).toUpperCase();
+            const av  = c.pic
+                ? `<img src="${c.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                : ini;
+            const noteOrDate = c.note
+                ? `<div class="mn2-conn-note">"${c.note}"</div>`
+                : `<div class="mn2-conn-note" style="font-style:normal;color:var(--muted);">Connected ${new Date(c.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'})}</div>`;
+            return `<div class="mn2-conn-item" data-name="${(c.firstName+' '+c.lastName).toLowerCase()}" onclick="viewProfile('${c.userId}')">
+                <div class="mn2-conn-av" style="background:${c.pic?'transparent':c.grad}">${av}</div>
+                <div class="mn2-conn-info">
+                    <div class="mn2-conn-name">${c.firstName} ${c.lastName}</div>
+                    <div class="mn2-conn-role">${c.sub}</div>
+                    ${noteOrDate}
+                </div>
+                <div class="mn2-conn-actions" onclick="event.stopPropagation()">
+                    <button class="mn2-btn-msg" onclick="openConversationWith('${c.userId}')">Message</button>
+                    <button class="mn2-btn-chat" title="Schedule a coffee chat" onclick="openChatInviteModal('${c.userId}')">☕</button>
+                </div>
+            </div>`;
         }
 
-        async function mnAcceptRequest(connectionId) {
+        function mnFilterConns(q) {
+            const list = document.getElementById('mnConnList');
+            if (!list) return;
+            const lower = q.toLowerCase();
+            if (!lower) {
+                list.innerHTML = _mnConns.length ? _mnConns.map(c => mnConnRowHTML(c)).join('') : '';
+                return;
+            }
+            const filtered = _mnConns.filter(c => (c.firstName+' '+c.lastName).toLowerCase().includes(lower));
+            list.innerHTML = filtered.length
+                ? filtered.map(c => mnConnRowHTML(c)).join('')
+                : `<div style="padding:24px 20px;text-align:center;font-size:13px;color:var(--muted);">No connections match "${q}"</div>`;
+        }
+
+        async function mnAcceptRequest(connectionId, name) {
+            const row = document.getElementById('mn-req-' + connectionId);
+            if (row) { row.style.transition = 'all 0.3s'; row.style.opacity = '0'; row.style.transform = 'translateX(10px)'; setTimeout(() => row.remove(), 300); }
             try {
-                const { error } = await supabaseClient
-                    .from('connections').update({ status: 'accepted' }).eq('id', connectionId);
+                const { error } = await supabaseClient.from('connections').update({ status: 'accepted' }).eq('id', connectionId);
                 if (error) throw error;
                 pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
-                showToast('Connection accepted! 🤝', 'success');
-                await renderMyNetworkSection();
+                showToast(`${name || 'Connection'} added to your network! 🤝`, 'success');
+                setTimeout(async () => {
+                    const body = document.getElementById('mnPendingBody');
+                    if (body && !body.querySelector('.mn2-pending-item')) {
+                        body.innerHTML = `<div class="mn2-no-pending">No pending requests right now ✓</div>`;
+                    }
+                    await renderMyNetworkSection();
+                }, 350);
             } catch(e) {
                 showToast('Failed to accept: ' + e.message, 'error');
             }
@@ -7262,13 +7361,29 @@
             try {
                 await supabaseClient.from('connections').update({ status: 'declined' }).eq('id', connectionId);
                 pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
-                const list = document.getElementById('mnPendingList');
-                if (list && !list.children.length) {
-                    list.outerHTML = '<p class="mn-empty">No pending requests.</p>';
-                }
+                setTimeout(() => {
+                    const body = document.getElementById('mnPendingBody');
+                    if (body && !body.querySelector('.mn2-pending-item')) {
+                        body.innerHTML = `<div class="mn2-no-pending">No pending requests right now ✓</div>`;
+                    }
+                }, 350);
             } catch(e) {
                 showToast('Failed to decline: ' + e.message, 'error');
             }
+        }
+
+        async function mnConnectSuggestion(userId, btn) {
+            btn.textContent = '✓ Sent';
+            btn.disabled = true;
+            btn.style.cssText += ';background:#E1F5EE;color:#085041;border-color:#9FE1CB;';
+            try {
+                await supabaseClient.from('connections').insert([{ user_id: currentUser.id, connected_user_id: userId, status: 'pending' }]);
+            } catch(e) { console.warn('mnConnectSuggestion:', e); }
+        }
+
+        function openConversationWith(userId) {
+            switchView('inboxView');
+            setTimeout(() => selectConversation && selectConversation(userId), 300);
         }
 
         async function renderNetworkView() {
