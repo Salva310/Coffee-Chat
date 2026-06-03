@@ -7238,11 +7238,6 @@
                         <div class="mn2-stat-num">${ratingStr}</div>
                         <div class="mn2-stat-sub">Based on chat reviews</div>
                     </div>
-                    <div class="mn2-stat-cell">
-                        <div class="mn2-stat-eyebrow">Profile Views</div>
-                        <div class="mn2-stat-num">—</div>
-                        <div class="mn2-stat-sub">Views this month</div>
-                    </div>
                 </div>
 
                 <!-- Two-column layout -->
@@ -7304,15 +7299,11 @@
             const av  = c.pic
                 ? `<img src="${c.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                 : ini;
-            const noteOrDate = c.note
-                ? `<div class="mn2-conn-note">"${c.note}"</div>`
-                : `<div class="mn2-conn-note" style="font-style:normal;color:var(--muted);">Connected ${new Date(c.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'})}</div>`;
             return `<div class="mn2-conn-item" data-name="${(c.firstName+' '+c.lastName).toLowerCase()}" onclick="viewProfile('${c.userId}')">
                 <div class="mn2-conn-av" style="background:${c.pic?'transparent':c.grad}">${av}</div>
                 <div class="mn2-conn-info">
                     <div class="mn2-conn-name">${c.firstName} ${c.lastName}</div>
                     <div class="mn2-conn-role">${c.sub}</div>
-                    ${noteOrDate}
                 </div>
                 <div class="mn2-conn-actions" onclick="event.stopPropagation()">
                     <button class="mn2-btn-msg" onclick="openConversationWith('${c.userId}')">Message</button>

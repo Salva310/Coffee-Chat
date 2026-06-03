@@ -9168,7 +9168,7 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   border: 1px solid rgba(139,90,43,0.11);
   border-radius: 14px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   overflow: hidden;
   margin-bottom: 18px;
   box-shadow: 0 1px 3px rgba(28,15,7,0.04), 0 4px 16px rgba(28,15,7,0.03);
@@ -9365,9 +9365,7 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   .mn2-two-col { grid-template-columns: 1fr; }
   .mn2-stats-card { grid-template-columns: repeat(2, 1fr); }
   .mn2-stat-cell:nth-child(2) { border-right: none; }
-  .mn2-stat-cell:nth-child(3),
-  .mn2-stat-cell:nth-child(4) { border-top: 1px solid rgba(139,90,43,0.11); }
-  .mn2-stat-cell:nth-child(4) { border-right: none; }
+  .mn2-stat-cell:nth-child(3) { border-top: 1px solid rgba(139,90,43,0.11); border-right: none; }
 }
 
 /* ── Keep old mn-* vars for any legacy references ── */
