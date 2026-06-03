@@ -8960,6 +8960,55 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
 }
 .mpn-stat-item:hover .mpn-stat-num { color: var(--caramel); }
 
+/* ══ Profile 3-tab structure (mpv-*) ══ */
+.mpv-stats-strip {
+  display: flex; border-top: 1px solid var(--border);
+}
+.mpv-strip-stat {
+  flex: 1; padding: 12px 16px; text-align: left;
+  border-right: 1px solid var(--border);
+  border-top: none; border-bottom: none; border-left: none;
+  background: none; cursor: pointer; font-family: 'Sora', sans-serif;
+  transition: background 0.15s;
+}
+.mpv-strip-stat:last-child { border-right: none; }
+.mpv-strip-stat:hover { background: var(--latte-soft); }
+.mpv-strip-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 400;
+  color: var(--caramel); letter-spacing: -0.02em;
+}
+.mpv-strip-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.mpv-tab-nav {
+  display: flex; border-top: 1px solid var(--border);
+  padding: 0 28px; background: #fff;
+}
+.mpv-tab {
+  padding: 13px 16px; font-size: 13px; font-weight: 400;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  border-top: none; border-left: none; border-right: none;
+  background: none; font-family: 'Sora', sans-serif; transition: all 0.15s;
+}
+.mpv-tab:hover { color: var(--espresso); }
+.mpv-tab.active { color: var(--caramel); border-bottom-color: var(--caramel); font-weight: 500; }
+
+.mpv-tab-content { display: none; padding-top: 24px; animation: mpvFadeIn 0.2s ease; }
+.mpv-tab-content.active { display: block; }
+@keyframes mpvFadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+.mpv-info-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.mpv-info-row:last-child { border-bottom: none; }
+.mpv-info-label {
+  font-size: 11px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted); min-width: 76px; flex-shrink: 0; margin-top: 2px;
+}
+.mpv-info-val { font-size: 13px; color: var(--espresso); line-height: 1.5; }
+
 /* ── Two-column layout ── */
 .mpn-two-col {
   display: grid;

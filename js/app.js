@@ -6685,6 +6685,12 @@
                 ? goalLines.map(l => `<div class="mpn-goal-item"><div class="mpn-goal-dot"></div><div class="mpn-goal-text">${l}</div></div>`).join('')
                 : `<p class="mpn-empty-text">No career goals added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add some →</span></p>`;
 
+            // ── Stats for strip ──
+            const connCount   = connections.length;
+            const communityCount = myGroupIds.size;
+            const avgRating   = profile.avg_rating;
+            const avgStr      = avgRating ? Number(avgRating).toFixed(1) : '—';
+
             container.innerHTML = `
             <div class="mpn-page">
 
@@ -6714,7 +6720,6 @@
                   <div class="mpn-name">${profile.firstName || ''} ${profile.lastName || ''}</div>
                   ${(profile.headline || metaRole) ? `<div class="mpn-headline">${profile.headline || metaRole}</div>` : ''}
 
-                  <!-- Action buttons sit below name/headline -->
                   <div class="mpn-hero-actions">
                     <button class="mpn-btn-primary" onclick="editMyProfile()">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -6731,240 +6736,230 @@
                   </div>
 
                   <div class="mpn-meta">
-                    ${metaSchool ? `<div class="mpn-meta-item">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                      ${metaSchool}
-                    </div>` : ''}
-                    ${profile.major ? `<div class="mpn-meta-item">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                      ${profile.major}${profile.industry ? ` · ${profile.industry}` : ''}
-                    </div>` : ''}
-                    ${profile.linkedinUrl ? `<div class="mpn-meta-item">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                      <a href="${/^https?:\/\//i.test(profile.linkedinUrl)?profile.linkedinUrl:'https://'+profile.linkedinUrl}" target="_blank" rel="noopener" style="color:var(--caramel);text-decoration:none;">LinkedIn</a>
-                    </div>` : ''}
+                    ${metaSchool ? `<div class="mpn-meta-item">🎓 ${metaSchool}</div>` : ''}
+                    ${profile.major ? `<div class="mpn-meta-item">📚 ${profile.major}${profile.industry ? ` · ${profile.industry}` : ''}</div>` : ''}
+                    ${profile.linkedinUrl ? `<div class="mpn-meta-item">🔗 <a href="${/^https?:\/\//i.test(profile.linkedinUrl)?profile.linkedinUrl:'https://'+profile.linkedinUrl}" target="_blank" rel="noopener" style="color:var(--caramel);text-decoration:none;">LinkedIn</a></div>` : ''}
                   </div>
+                </div>
 
-                  <div class="mpn-stat-row">
-                    <div class="mpn-stat-item" onclick="switchView('communitiesView')">
-                      <div class="mpn-stat-num">${connections.length}</div>
-                      <div class="mpn-stat-label">Connections</div>
+                <!-- Stats strip -->
+                <div class="mpv-stats-strip">
+                  <button class="mpv-strip-stat" onclick="mpSwitchTab('network')">
+                    <div class="mpv-strip-num">${connCount}</div>
+                    <div class="mpv-strip-label">Connections</div>
+                  </button>
+                  <button class="mpv-strip-stat" style="cursor:default;">
+                    <div class="mpv-strip-num">${chatsCompleted || '—'}</div>
+                    <div class="mpv-strip-label">Coffee chats</div>
+                  </button>
+                  <button class="mpv-strip-stat" style="cursor:default;">
+                    <div class="mpv-strip-num">${avgStr}</div>
+                    <div class="mpv-strip-label">Avg rating</div>
+                  </button>
+                  <button class="mpv-strip-stat" onclick="mpSwitchTab('network')">
+                    <div class="mpv-strip-num">${communityCount}</div>
+                    <div class="mpv-strip-label">Communities</div>
+                  </button>
+                </div>
+
+                <!-- Profile tab nav -->
+                <div class="mpv-tab-nav">
+                  <button class="mpv-tab active" data-tab="about" onclick="mpSwitchTab('about')">About</button>
+                  <button class="mpv-tab" data-tab="experience" onclick="mpSwitchTab('experience')">Experience</button>
+                  <button class="mpv-tab" data-tab="network" onclick="mpSwitchTab('network')">My Network</button>
+                </div>
+              </div>
+
+              <!-- ══ ABOUT TAB ══ -->
+              <div class="mpv-tab-content active" id="mpvTab-about">
+                <div class="mpn-two-col">
+                  <div>
+
+                    <!-- Profile strength -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header"><div class="mpn-card-title">Profile strength</div></div>
+                      <div class="mpn-card-body">
+                        <div class="mpn-strength-bar-wrap">
+                          <div class="mpn-strength-label">
+                            <span>${percentage < 40 ? 'Just getting started' : percentage < 70 ? 'Making progress' : percentage < 100 ? 'Almost there' : 'Complete!'}</span>
+                            <span class="mpn-strength-pct">${percentage}%</span>
+                          </div>
+                          <div class="mpn-bar-track"><div class="mpn-bar-fill" style="width:${percentage}%"></div></div>
+                        </div>
+                        <div class="mpn-strength-tip">${strengthTip}</div>
+                      </div>
                     </div>
-                    <div class="mpn-stat-item" onclick="switchView('inboxView')">
-                      <div class="mpn-stat-num">${chatsCompleted || '—'}</div>
-                      <div class="mpn-stat-label">Coffee chats</div>
+
+                    <!-- About -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header">
+                        <div class="mpn-card-title">About</div>
+                        <button class="mpn-card-edit" onclick="editMyProfile()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                      </div>
+                      <div class="mpn-card-body">
+                        ${profile.bio ? `<p class="mpn-about-text">${profile.bio}</p>` : `<p class="mpn-empty-text">No bio yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add one →</span></p>`}
+                      </div>
                     </div>
-                    <div class="mpn-stat-item">
-                      <div class="mpn-stat-num">${myGroupIds.size || '—'}</div>
-                      <div class="mpn-stat-label">Communities</div>
+
+                    <!-- Career goals -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header">
+                        <div class="mpn-card-title">Career goals</div>
+                        <button class="mpn-card-edit" onclick="editMyProfile()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                      </div>
+                      <div class="mpn-card-body">${goalsHTML}</div>
                     </div>
-                    <div class="mpn-stat-item">
-                      <div class="mpn-stat-num">${_myAchs.length || '—'}</div>
-                      <div class="mpn-stat-label">Achievements</div>
+
+                    <!-- Interests & Passions -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header">
+                        <div class="mpn-card-title">Interests &amp; Passions</div>
+                        <button class="mpn-card-edit" onclick="editMyProfile()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                      </div>
+                      <div class="mpn-card-body">
+                        ${(profile.interests||[]).length ? `<div style="margin-bottom:14px;"><div class="mpn-tags-label">Interests</div><div class="mpn-tags-wrap">${(profile.interests||[]).map(t=>`<span class="mpn-tag mpn-tag-interest">${t}</span>`).join('')}</div></div>` : ''}
+                        ${(profile.hobbies||[]).length ? `<div><div class="mpn-tags-label">Hobbies</div><div class="mpn-tags-wrap">${(profile.hobbies||[]).map(t=>`<span class="mpn-tag">${t}</span>`).join('')}</div></div>` : ''}
+                        ${!(profile.interests||[]).length && !(profile.hobbies||[]).length ? `<p class="mpn-empty-text">No interests added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add some →</span></p>` : ''}
+                      </div>
+                    </div>
+
+                  </div>
+                  <div>
+                    <!-- Basic info -->
+                    <div class="mpn-sidebar-card">
+                      <div class="mpn-sidebar-header">
+                        <div class="mpn-sidebar-title">Basic info</div>
+                        <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="editMyProfile()">Edit</span>
+                      </div>
+                      <div class="mpn-sidebar-body">
+                        ${profile.role ? `<div class="mpv-info-row"><div class="mpv-info-label">Role</div><div class="mpv-info-val">${profile.role}${profile.company?' at '+profile.company:''}</div></div>` : ''}
+                        ${profile.major ? `<div class="mpv-info-row"><div class="mpv-info-label">Major</div><div class="mpv-info-val">${profile.major}</div></div>` : ''}
+                        ${profile.gradYear ? `<div class="mpv-info-row"><div class="mpv-info-label">Grad year</div><div class="mpv-info-val">Class of ${profile.gradYear}</div></div>` : ''}
+                        ${profile.industry ? `<div class="mpv-info-row"><div class="mpv-info-label">Industry</div><div class="mpv-info-val">${profile.industry}</div></div>` : ''}
+                        ${profile.location ? `<div class="mpv-info-row"><div class="mpv-info-label">Location</div><div class="mpv-info-val">${profile.location}</div></div>` : ''}
+                      </div>
+                    </div>
+
+                    <!-- Availability -->
+                    <div class="mpn-sidebar-card">
+                      <div class="mpn-sidebar-header">
+                        <div class="mpn-sidebar-title">Availability</div>
+                        <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="openSettingsTo('availability')">Edit</span>
+                      </div>
+                      <div class="mpn-sidebar-body">
+                        ${availRows.length ? availSidebarHTML : `<p class="mpn-empty-text" style="margin:0;">No availability set. <span onclick="openSettingsTo('availability')" style="color:var(--caramel);cursor:pointer;">Set hours →</span></p>`}
+                      </div>
+                    </div>
+
+                    <!-- Communities -->
+                    <div class="mpn-sidebar-card">
+                      <div class="mpn-sidebar-header">
+                        <div class="mpn-sidebar-title">Communities</div>
+                        <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('communitiesView')">See all</span>
+                      </div>
+                      <div class="mpn-sidebar-body">${communityHTML}</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Two-col body -->
-              <div class="mpn-two-col">
+              <!-- ══ EXPERIENCE TAB ══ -->
+              <div class="mpv-tab-content" id="mpvTab-experience">
+                <div class="mpn-two-col">
+                  <div>
 
-                <!-- Left column -->
-                <div>
-
-                  <!-- Profile strength -->
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">Profile strength</div>
-                    </div>
-                    <div class="mpn-card-body">
-                      <div class="mpn-strength-bar-wrap">
-                        <div class="mpn-strength-label">
-                          <span>${percentage < 40 ? 'Just getting started' : percentage < 70 ? 'Making progress' : percentage < 100 ? 'Almost there' : 'Complete!'}</span>
-                          <span class="mpn-strength-pct">${percentage}%</span>
-                        </div>
-                        <div class="mpn-bar-track">
-                          <div class="mpn-bar-fill" style="width:${percentage}%;animation:mpnFillBar 1s ease forwards;"></div>
-                        </div>
+                    <!-- Experience -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header">
+                        <div class="mpn-card-title">Experience &amp; Achievements</div>
+                        <button class="mpn-card-edit" onclick="openAchForm()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
                       </div>
-                      <div class="mpn-strength-tip">${strengthTip}</div>
+                      <div class="mpn-card-body">
+                        ${expHTML}
+                        <div id="stAchievementsList" style="display:none;"></div>
+                        <div id="achInlineForm" style="display:none;"></div>
+                      </div>
                     </div>
-                  </div>
 
-                  <!-- About -->
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">About</div>
-                      <button class="mpn-card-edit" onclick="editMyProfile()">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                      </button>
-                    </div>
-                    <div class="mpn-card-body">
-                      ${profile.bio
-                          ? `<p class="mpn-about-text">${profile.bio}</p>`
-                          : `<p class="mpn-empty-text">No bio yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add one →</span></p>`}
-                    </div>
-                  </div>
-
-                  <!-- Career goals -->
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">Career goals</div>
-                      <button class="mpn-card-edit" onclick="editMyProfile()">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                      </button>
-                    </div>
-                    <div class="mpn-card-body">${goalsHTML}</div>
-                  </div>
-
-                  <!-- Experience / Achievements -->
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">Experience &amp; Achievements</div>
-                      <button class="mpn-card-edit" onclick="openAchForm()">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                      </button>
-                    </div>
-                    <div class="mpn-card-body">
-                      ${expHTML}
-                      <div id="stAchievementsList" style="display:none;"></div>
-                      <div id="achInlineForm" style="display:none;"></div>
-                    </div>
-                  </div>
-
-                  <!-- Interests & Passions -->
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">Interests &amp; Passions</div>
-                      <button class="mpn-card-edit" onclick="editMyProfile()">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                      </button>
-                    </div>
-                    <div class="mpn-card-body">
-                      ${(profile.interests||[]).length ? `
-                      <div style="margin-bottom:14px;">
-                        <div class="mpn-tags-label">Interests</div>
-                        <div class="mpn-tags-wrap">
-                          ${(profile.interests||[]).map(t=>`<span class="mpn-tag mpn-tag-interest">${t}</span>`).join('')}
-                        </div>
-                      </div>` : ''}
-                      ${(profile.hobbies||[]).length ? `
-                      <div>
-                        <div class="mpn-tags-label">Hobbies</div>
-                        <div class="mpn-tags-wrap">
-                          ${(profile.hobbies||[]).map(t=>`<span class="mpn-tag">${t}</span>`).join('')}
-                        </div>
-                      </div>` : ''}
-                      ${!(profile.interests||[]).length && !(profile.hobbies||[]).length
-                          ? `<p class="mpn-empty-text">No interests added yet. <span onclick="editMyProfile()" style="color:var(--caramel);cursor:pointer;">Add some →</span></p>`
-                          : ''}
-                    </div>
-                  </div>
-
-                  <!-- Resume -->
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">Resume</div>
-                    </div>
-                    <div class="mpn-card-body">
-                      <div class="mpn-resume-row">
-                        <div class="mpn-resume-info">
-                          <div class="mpn-resume-icon">📄</div>
-                          <div>
-                            <div class="mpn-resume-name">${profile.resume ? `${profile.firstName || ''} ${profile.lastName || ''} — Resume`.trim() : 'No resume uploaded yet'}</div>
-                            <div class="mpn-resume-sub">PDF · Visible to approved connections</div>
+                    <!-- Education -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header"><div class="mpn-card-title">Education</div></div>
+                      <div class="mpn-card-body">
+                        <div class="mpn-exp-item">
+                          <div class="mpn-exp-logo">🏫</div>
+                          <div class="mpn-exp-info">
+                            <div class="mpn-exp-role">${profile.schoolName || 'Rowan University'}</div>
+                            ${profile.major ? `<div class="mpn-exp-company">${profile.major}</div>` : ''}
+                            ${profile.gradYear ? `<div class="mpn-exp-date">Expected ${profile.gradYear}</div>` : ''}
                           </div>
                         </div>
-                        <div style="display:flex;gap:8px;">
-                          ${profile.resume ? `<button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="sViewResume()">View</button>
-                          <button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;color:#C0392B;border-color:rgba(192,57,43,0.25);" onclick="sRemoveResume()">Remove</button>` : ''}
-                          <button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('mpnResumeFile').click()">${profile.resume ? 'Replace' : 'Upload'}</button>
-                          <input type="file" id="mpnResumeFile" accept=".pdf" style="display:none;" onchange="sHandleResumeUpload(this)">
+                      </div>
+                    </div>
+
+                    <!-- Resume -->
+                    <div class="mpn-card">
+                      <div class="mpn-card-header"><div class="mpn-card-title">Resume</div></div>
+                      <div class="mpn-card-body">
+                        <div class="mpn-resume-row">
+                          <div class="mpn-resume-info">
+                            <div class="mpn-resume-icon">📄</div>
+                            <div>
+                              <div class="mpn-resume-name">${profile.resume ? `${profile.firstName||''} ${profile.lastName||''} — Resume`.trim() : 'No resume uploaded yet'}</div>
+                              <div class="mpn-resume-sub">PDF · Visible to approved connections</div>
+                            </div>
+                          </div>
+                          <div style="display:flex;gap:8px;">
+                            ${profile.resume ? `<button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="sViewResume()">View</button><button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;color:#C0392B;border-color:rgba(192,57,43,0.25);" onclick="sRemoveResume()">Remove</button>` : ''}
+                            <button class="mpn-btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('mpnResumeFile').click()">${profile.resume ? 'Replace' : 'Upload'}</button>
+                            <input type="file" id="mpnResumeFile" accept=".pdf" style="display:none;" onchange="sHandleResumeUpload(this)">
+                          </div>
                         </div>
                       </div>
                     </div>
+
                   </div>
-
-                  <!-- Posts -->
-                  ${_myPosts.length > 0 ? `
-                  <div class="mpn-card">
-                    <div class="mpn-card-header">
-                      <div class="mpn-card-title">Your posts</div>
-                      <button class="mpn-card-edit" onclick="switchView('dashboardView')">+ New</button>
-                    </div>
-                    <div class="mpn-card-body">
-                      ${_myPosts.slice(0,3).map(post => {
-                          const lc = _myPostLikeMap[post.id] || 0;
-                          const liked = _myPostLikedSet.has(post.id);
-                          const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
-                          return `<div style="padding:12px 0;border-bottom:1px solid var(--border);">
-                            <p style="font-size:14px;color:var(--espresso);line-height:1.6;margin:0 0 8px;">${post.content}</p>
-                            <div style="display:flex;align-items:center;gap:12px;">
-                              <span style="font-size:11px;color:var(--muted-2);">${timeAgo}</span>
-                              <button class="post-action-btn${liked?' liked':''}" id="mplike-${post.id}" onclick="likePost('${post.id}',this)" style="font-size:12px;padding:3px 10px;">👍 <span id="mplikecount-${post.id}">${lc}</span></button>
-                              <button class="post-action-btn" onclick="toggleComments('${post.id}')" style="font-size:12px;padding:3px 10px;">💬</button>
-                            </div>
-                            <div id="comments-${post.id}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-                              <div id="comments-list-${post.id}"></div>
-                              <div style="display:flex;gap:8px;margin-top:6px;">
-                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment…" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;" onkeypress="if(event.key==='Enter')submitComment('${post.id}')">
-                                <button class="btn btn-primary btn-sm" onclick="submitComment('${post.id}')">Post</button>
-                              </div>
-                            </div>
-                          </div>`;
-                      }).join('')}
-                    </div>
-                  </div>` : ''}
-
-                  <!-- Hidden containers for badges/legacy compat -->
-                  <div id="myProfileBadgesView" style="display:none;"></div>
-                  <div id="profileBadges" style="display:none;"></div>
-
-                </div>
-
-                <!-- Right sidebar -->
-                <div>
-
-                  <!-- Availability -->
-                  <div class="mpn-sidebar-card">
-                    <div class="mpn-sidebar-header">
-                      <div class="mpn-sidebar-title">Availability</div>
-                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="openSettingsTo('availability')">Edit</span>
-                    </div>
-                    <div class="mpn-sidebar-body">
-                      ${availRows.length
-                          ? availSidebarHTML
-                          : `<p class="mpn-empty-text" style="margin:0;">No availability set. <span onclick="openSettingsTo('availability')" style="color:var(--caramel);cursor:pointer;">Set hours →</span></p>`}
-                    </div>
+                  <div>
+                    <!-- Posts (if any) -->
+                    ${_myPosts.length > 0 ? `
+                    <div class="mpn-sidebar-card">
+                      <div class="mpn-sidebar-header">
+                        <div class="mpn-sidebar-title">Your posts</div>
+                        <button class="mpn-card-edit" onclick="switchView('dashboardView')">+ New</button>
+                      </div>
+                      <div class="mpn-sidebar-body">
+                        ${_myPosts.slice(0,3).map(post => {
+                            const lc = _myPostLikeMap[post.id] || 0;
+                            const liked = _myPostLikedSet.has(post.id);
+                            const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
+                            return `<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--espresso);line-height:1.6;">${post.content}<div style="font-size:11px;color:var(--muted-2);margin-top:4px;">${timeAgo}</div></div>`;
+                        }).join('')}
+                      </div>
+                    </div>` : ''}
                   </div>
-
-                  <!-- My Network placeholder — populated by renderMyNetworkSection() -->
-
-                  <!-- Communities -->
-                  <div class="mpn-sidebar-card">
-                    <div class="mpn-sidebar-header">
-                      <div class="mpn-sidebar-title">Communities</div>
-                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('communitiesView')">See all</span>
-                    </div>
-                    <div class="mpn-sidebar-body">${communityHTML}</div>
-                  </div>
-
                 </div>
               </div>
-            </div>
 
-            <!-- My Network — full-width section below the profile grid -->
-            <div style="margin-top:32px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-              <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);">My Network</span>
-              <div style="flex:1;height:1px;background:var(--border);"></div>
-            </div>
-            <div id="myNetworkSection" style="margin-top:0;">
-              <div style="display:flex;align-items:center;justify-content:center;padding:32px;color:var(--muted);font-size:13px;">Loading network…</div>
+              <!-- ══ MY NETWORK TAB ══ -->
+              <div class="mpv-tab-content" id="mpvTab-network">
+                <div id="myNetworkSection">
+                  <div style="display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);font-size:13px;">Loading network…</div>
+                </div>
+              </div>
+
+              <!-- Hidden legacy containers -->
+              <div id="myProfileBadgesView" style="display:none;"></div>
+              <div id="profileBadges" style="display:none;"></div>
+
             </div>
 `;
 
             setTimeout(() => renderBadges('myProfileBadgesView'), 50);
-            setTimeout(() => renderMyNetworkSection(), 0);
+        }
+
+        function mpSwitchTab(name) {
+            document.querySelectorAll('.mpv-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+            document.querySelectorAll('.mpv-tab-content').forEach(c => c.classList.toggle('active', c.id === 'mpvTab-' + name));
+            if (name === 'network') renderMyNetworkSection();
         }
 
         function showProfilePreview() {
