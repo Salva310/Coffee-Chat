@@ -36,9 +36,10 @@
             scheduleView:      'chats',
             calendarView:      'chats',
             callView:          'chats',
-            networkView:       'network',
-            groupsView:        'network',
-            groupDetailView:   'network',
+            networkView:       'communities',   // legacy — keep nav highlight correct
+            groupsView:        'communities',
+            groupDetailView:   'communities',
+            communitiesView:   'communities',
             myProfileView:     'profile',
             settingsView:      'profile',
             availabilityView:  'profile',
@@ -47,11 +48,11 @@
 
         // ── 5 primary tabs ──
         const NAV_TABS = [
-            { id: 'home',     icon: '🏠', label: 'Home',     view: 'dashboardView' },
-            { id: 'discover', icon: '🔍', label: 'Discover', view: 'discoverView'  },
-            { id: 'chats',    icon: '☕', label: 'Chats',    view: 'inboxView'     },
-            { id: 'network',  icon: '🤝', label: 'Network',  view: 'networkView'   },
-            { id: 'profile',  icon: '👤', label: 'Profile',  view: 'myProfileView' },
+            { id: 'home',        icon: '🏠', label: 'Home',        view: 'dashboardView'  },
+            { id: 'discover',    icon: '🔍', label: 'Discover',    view: 'discoverView'   },
+            { id: 'chats',       icon: '☕', label: 'Chats',       view: 'inboxView'      },
+            { id: 'communities', icon: '👥', label: 'Communities', view: 'communitiesView'},
+            { id: 'profile',     icon: '👤', label: 'Profile',     view: 'myProfileView'  },
         ];
 
         // Supabase Configuration
@@ -1207,6 +1208,7 @@
             if (viewId === 'myProfileView') renderMyProfile();
             if (viewId === 'settingsView') initSettingsPage();
             if (viewId === 'networkView') renderNetworkView();
+            if (viewId === 'communitiesView') { nwcRenderList(); renderMyNetworkSection(); }
             if (viewId === 'inboxView') renderInboxView();
             if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
 
@@ -1589,14 +1591,14 @@
             if (joinedGroups.length === 0) {
                 const allGroups = groups.slice(0, 3);
                 if (allGroups.length === 0) {
-                    container.innerHTML = `<div style="padding:16px 18px;font-size:13px;color:var(--muted);">No groups yet. <button style="background:none;border:none;color:var(--caramel);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;" onclick="switchView('groupsView')">Browse communities →</button></div>`;
+                    container.innerHTML = `<div style="padding:16px 18px;font-size:13px;color:var(--muted);">No groups yet. <button style="background:none;border:none;color:var(--caramel);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;" onclick="switchView('communitiesView')">Browse communities →</button></div>`;
                     return;
                 }
                 // Show suggestable groups
                 container.innerHTML = allGroups.map((g, i) => {
                     const isLast = i === allGroups.length - 1;
                     return `
-                        <div class="db-group-item" onclick="switchView('groupsView')" style="${!isLast?'':''}">
+                        <div class="db-group-item" onclick="switchView('communitiesView')" style="${!isLast?'':''}">
                             <div class="db-group-icon">👥</div>
                             <div>
                                 <div class="db-group-name">${g.name}</div>
@@ -1786,7 +1788,7 @@
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>
                         <p>You haven't joined any groups yet.</p>
-                        <button class="btn btn-primary" onclick="switchView('groupsView')" style="margin-top:1rem;">Browse Communities</button>
+                        <button class="btn btn-primary" onclick="switchView('communitiesView')" style="margin-top:1rem;">Browse Communities</button>
                     </div>`;
                 return;
             }
@@ -1804,7 +1806,7 @@
                         </div>
                         <button class="btn btn-secondary btn-sm" onclick="viewGroup('${g.id}')">View Group</button>
                     </div>`).join('')}
-                <div class="find-more-banner" onclick="switchView('groupsView')">
+                <div class="find-more-banner" onclick="switchView('communitiesView')">
                     <div>
                         <div style="font-weight:700;font-size:14px;color:var(--primary);">Find more communities to join!</div>
                         <div style="font-size:13px;color:#888;margin-top:3px;">There are groups for every major, interest, and goal 🎓</div>
@@ -4886,8 +4888,14 @@
         }
 
         function nwcRenderList() {
-            const joinedRow = document.getElementById('nwcJoinedRow');
-            const grid      = document.getElementById('nwcGrid');
+            // Render into both the network panel and the standalone communitiesView
+            _nwcRenderInto('nwcJoinedRow', 'nwcGrid');
+            _nwcRenderInto('cvJoinedRow',  'cvGrid');
+        }
+
+        function _nwcRenderInto(joinedRowId, gridId) {
+            const joinedRow = document.getElementById(joinedRowId);
+            const grid      = document.getElementById(gridId);
             if (!joinedRow || !grid) return;
 
             const myGroups = groups.filter(g => myGroupIds.has(g.id));
@@ -4938,30 +4946,48 @@
         function nwcFilter(q) { _nwcSearchQ = q; nwcRenderList(); }
 
         function nwcSetChip(el, cat) {
-            document.querySelectorAll('#nwcChips .nwc-chip').forEach(c => c.classList.remove('active'));
+            // Sync both chip bars (network panel + communitiesView)
+            document.querySelectorAll('#nwcChips .nwc-chip, #cvChips .nwc-chip').forEach(c => c.classList.remove('active'));
+            // Mark all chips with same category active
+            document.querySelectorAll(`#nwcChips .nwc-chip, #cvChips .nwc-chip`).forEach(c => {
+                if (c.getAttribute('onclick') === el.getAttribute('onclick')) c.classList.add('active');
+            });
             el.classList.add('active');
             _nwcChipFilter = cat;
             nwcRenderList();
         }
 
         async function nwcOpenGroup(groupId) {
-            // Switch to the communities panel if not already there
-            if (!document.getElementById('nw-communities')?.offsetParent) {
-                switchView('networkView');
-                switchNwTab(document.querySelector('[onclick*="nw-communities"]'), 'nw-communities');
+            // Determine which panel is active: standalone communitiesView or network panel
+            const cvActive = document.getElementById('communitiesView')?.classList.contains('active');
+
+            let listEl, detailEl, heroEl, feedEl, sidebarEl;
+            if (cvActive) {
+                // Standalone Communities tab
+                listEl   = document.getElementById('communitiesView-list');
+                detailEl = document.getElementById('communitiesView-detail');
+                heroEl   = document.getElementById('cvHero');
+                feedEl   = document.getElementById('cvFeed');
+                sidebarEl= document.getElementById('cvSidebar');
+            } else {
+                // Network tab → communities panel
+                if (!document.getElementById('nw-communities')?.offsetParent) {
+                    switchView('communitiesView');
+                }
+                listEl   = document.getElementById('nwc-list');
+                detailEl = document.getElementById('nwc-detail');
+                heroEl   = document.getElementById('nwcHero');
+                feedEl   = document.getElementById('nwcFeed');
+                sidebarEl= document.getElementById('nwcSidebar');
             }
-            const listEl   = document.getElementById('nwc-list');
-            const detailEl = document.getElementById('nwc-detail');
+
             if (!listEl || !detailEl) { viewGroup(groupId); return; }
 
             listEl.style.display   = 'none';
             detailEl.style.display = 'block';
             detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-            const heroEl    = document.getElementById('nwcHero');
-            const feedEl    = document.getElementById('nwcFeed');
-            const sidebarEl = document.getElementById('nwcSidebar');
-            const group     = groups.find(g => g.id === groupId);
+            const group = groups.find(g => g.id === groupId);
 
             heroEl.innerHTML    = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>';
             feedEl.innerHTML    = '';
@@ -5071,15 +5097,24 @@
         }
 
         function nwcGoBack() {
+            // Network panel toggle
             const listEl   = document.getElementById('nwc-list');
             const detailEl = document.getElementById('nwc-detail');
             if (listEl)   listEl.style.display   = 'block';
             if (detailEl) detailEl.style.display = 'none';
-            // Also handle when coming from legacy groupDetailView
+            // Legacy groupDetailView → go to communitiesView
             if (document.getElementById('groupDetailView')?.classList.contains('active')) {
-                switchView('networkView');
-                setTimeout(() => switchNwTab(document.querySelector('[onclick*="nw-communities"]'), 'nw-communities'), 50);
+                switchView('communitiesView');
             }
+        }
+
+        function cvGoBack() {
+            // Standalone communitiesView toggle
+            const listEl   = document.getElementById('communitiesView-list');
+            const detailEl = document.getElementById('communitiesView-detail');
+            if (listEl)   listEl.style.display   = 'block';
+            if (detailEl) detailEl.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function nwcFocusComposer() {
@@ -6061,7 +6096,7 @@
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>
                         <p>Join a group to see posts from your communities here!</p>
-                        <button class="btn btn-primary" onclick="switchView('groupsView')" style="margin-top:1rem;">Browse Communities</button>
+                        <button class="btn btn-primary" onclick="switchView('communitiesView')" style="margin-top:1rem;">Browse Communities</button>
                     </div>`;
                 return;
             }
@@ -6584,7 +6619,7 @@
                     <div class="mpn-conn-av" style="background:${u.profilePicture?'transparent':bg}">${pic}</div>
                     <div class="mpn-conn-name">${fn} ${ln[0]||''}${ln[0]?'.':''}</div>
                 </div>`;
-            }).join('') + (connExtra > 0 ? `<div class="mpn-conn-item" onclick="switchView('networkView')">
+            }).join('') + (connExtra > 0 ? `<div class="mpn-conn-item" onclick="switchView('communitiesView')">
                 <div class="mpn-conn-av" style="background:var(--latte-soft);color:var(--caramel);font-size:11px;font-weight:600;">+${connExtra}</div>
                 <div class="mpn-conn-name">More</div>
             </div>` : '');
@@ -6599,7 +6634,7 @@
                         <div class="mpn-community-sub">${g.member_count || 0} members</div>
                     </div>
                 </div>`).join('')
-                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No communities joined yet. <span onclick="switchView('networkView')" style="color:var(--caramel);cursor:pointer;font-style:normal;">Browse →</span></p>`;
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No communities joined yet. <span onclick="switchView('communitiesView')" style="color:var(--caramel);cursor:pointer;font-style:normal;">Browse →</span></p>`;
 
             // Achievements → Experience cards
             const ACH_ICON = { internship:'💼', job:'💼', research:'🔬', club:'🏆', exam:'📜', award:'🏅', project:'🛠', other:'⭐' };
@@ -6701,7 +6736,7 @@
                   </div>
 
                   <div class="mpn-stat-row">
-                    <div class="mpn-stat-item" onclick="switchView('networkView')">
+                    <div class="mpn-stat-item" onclick="switchView('communitiesView')">
                       <div class="mpn-stat-num">${connections.length}</div>
                       <div class="mpn-stat-label">Connections</div>
                     </div>
@@ -6893,13 +6928,38 @@
                     </div>
                   </div>
 
-                  <!-- Connections -->
+                  <!-- My Network -->
                   <div class="mpn-sidebar-card">
                     <div class="mpn-sidebar-header">
-                      <div class="mpn-sidebar-title">Connections</div>
-                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('networkView')">See all</span>
+                      <div class="mpn-sidebar-title">My Network</div>
+                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('discoverView')">Discover →</span>
                     </div>
-                    <div class="mpn-sidebar-body">
+                    <div class="mpn-sidebar-body" id="mpnNetworkSidebarBody">
+                      ${pendingRequests.length > 0 ? `
+                      <div style="margin-bottom:14px;">
+                        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px;">Pending Requests</div>
+                        ${pendingRequests.slice(0,3).map(req => {
+                            const senderId = req.sender_id || req.from_user_id || req.user_id;
+                            const sender = users.find(u => u.id === senderId);
+                            const fn = sender?.firstName || req.first_name || 'Someone';
+                            const ln = sender?.lastName || req.last_name || '';
+                            const ini = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
+                            const bg  = gradients[0];
+                            const pic = sender?.profilePicture ? `<img src="${sender.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : ini;
+                            return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
+                              <div style="width:34px;height:34px;border-radius:50%;background:${sender?.profilePicture?'transparent':bg};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;overflow:hidden;">${pic}</div>
+                              <div style="flex:1;min-width:0;">
+                                <div style="font-size:13px;font-weight:500;color:var(--espresso);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${fn} ${ln}</div>
+                                <div style="font-size:11px;color:var(--muted);">wants to connect</div>
+                              </div>
+                              <div style="display:flex;gap:5px;flex-shrink:0;">
+                                <button onclick="acceptConnection('${req.id}')" style="padding:4px 10px;background:var(--caramel);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">Accept</button>
+                                <button onclick="declineConnection('${req.id}')" style="padding:4px 10px;background:var(--latte-soft);color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">Decline</button>
+                              </div>
+                            </div>`;
+                        }).join('')}
+                      </div>` : ''}
+                      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px;">${connections.length} Connection${connections.length !== 1 ? 's' : ''}</div>
                       ${connections.length
                           ? `<div class="mpn-conn-grid">${connGridHTML}</div>`
                           : `<p class="mpn-empty-text" style="margin:0;">No connections yet. <span onclick="switchView('discoverView')" style="color:var(--caramel);cursor:pointer;">Find people →</span></p>`}
@@ -6910,7 +6970,7 @@
                   <div class="mpn-sidebar-card">
                     <div class="mpn-sidebar-header">
                       <div class="mpn-sidebar-title">Communities</div>
-                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('networkView')">See all</span>
+                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('communitiesView')">See all</span>
                     </div>
                     <div class="mpn-sidebar-body">${communityHTML}</div>
                   </div>
@@ -7035,6 +7095,11 @@
             const fn = user.firstName || user.first_name || '?';
             const ln = user.lastName  || user.last_name  || '?';
             return `${fn[0]}${ln[0]}`.toUpperCase();
+        }
+
+        function renderMyNetworkSection() {
+            // No-op: My Network data is embedded in the profile page template via renderMyProfile.
+            // Called when communitiesView activates; profile data lives in myProfileView.
         }
 
         async function renderNetworkView() {
@@ -7463,7 +7528,7 @@
             const items = [
                 { label: 'Complete your profile', done: percentage >= 80, action: 'editMyProfile()' },
                 { label: 'Discover people to connect with', done: hasConnections, action: "switchView('discoverView')" },
-                { label: 'Join a community', done: hasJoinedGroup, action: "switchView('groupsView')" },
+                { label: 'Join a community', done: hasJoinedGroup, action: "switchView('communitiesView')" },
                 { label: 'Send your first message', done: hasSentMessage, action: "switchView('inboxView')" },
                 { label: 'Schedule a coffee chat', done: hasMeeting, action: "switchView('inboxView')" }
             ];

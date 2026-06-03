@@ -77,9 +77,9 @@
                 <span class="mob-nav-icon">☕</span>
                 <span class="mob-nav-lbl">Chats</span>
             </button>
-            <button class="mob-nav-btn" onclick="switchView('networkView')" data-tab="network">
-                <span class="mob-nav-icon">🤝</span>
-                <span class="mob-nav-lbl">Network</span>
+            <button class="mob-nav-btn" onclick="switchView('communitiesView')" data-tab="communities">
+                <span class="mob-nav-icon">👥</span>
+                <span class="mob-nav-lbl">Communities</span>
             </button>
             <button class="mob-nav-btn" onclick="switchView('myProfileView')" data-tab="profile">
                 <span class="mob-nav-icon">👤</span>
@@ -1213,6 +1213,53 @@
             <!-- Modals moved to end of body -->
 
             <!-- Groups View -->
+            <!-- Communities Tab (standalone) -->
+            <div id="communitiesView" class="content-view">
+                <div id="communitiesView-list">
+                    <div class="nwc-page-header">
+                        <div>
+                            <div class="nwc-eyebrow">Rowan University</div>
+                            <h1 class="nwc-title">Your <em>Communities</em></h1>
+                        </div>
+                        <button class="nwc-btn-create" onclick="openModal('createGroupModal')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Create
+                        </button>
+                    </div>
+                    <div class="nwc-filter-bar">
+                        <div class="nwc-search-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input class="nwc-search-input" id="cvSearchInput" placeholder="Search communities…" oninput="nwcFilter(this.value)">
+                        </div>
+                        <div class="nwc-chips" id="cvChips">
+                            <div class="nwc-chip active" onclick="nwcSetChip(this,'')">All</div>
+                            <div class="nwc-chip" onclick="nwcSetChip(this,'Finance')">Finance</div>
+                            <div class="nwc-chip" onclick="nwcSetChip(this,'Tech')">Tech</div>
+                            <div class="nwc-chip" onclick="nwcSetChip(this,'Pre-Med')">Pre-Med</div>
+                            <div class="nwc-chip" onclick="nwcSetChip(this,'Engineering')">Engineering</div>
+                            <div class="nwc-chip" onclick="nwcSetChip(this,'Career')">Career</div>
+                        </div>
+                    </div>
+                    <div class="nwc-section-head">Joined communities</div>
+                    <div class="nwc-joined-row" id="cvJoinedRow">
+                        <div class="nwc-joined-empty">You haven't joined any communities yet.</div>
+                    </div>
+                    <div class="nwc-section-head" style="margin-top:28px;">Featured communities</div>
+                    <div class="nwc-grid" id="cvGrid"></div>
+                </div>
+                <div id="communitiesView-detail" style="display:none;">
+                    <button class="nwc-back-btn" onclick="cvGoBack()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back to Communities
+                    </button>
+                    <div class="nwc-hero" id="cvHero"></div>
+                    <div class="nwc-detail-layout">
+                        <div id="cvFeed"></div>
+                        <div class="nwc-sidebar" id="cvSidebar"></div>
+                    </div>
+                </div>
+            </div>
+
             <div id="groupsView" class="content-view">
                 <div class="gv-header-row">
                     <div>
