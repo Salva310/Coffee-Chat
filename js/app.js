@@ -5279,7 +5279,17 @@
                 } else {
                     await supabaseClient.from('post_likes').insert([{ post_id: postId, user_id: currentUser.id }]);
                 }
-                await viewGroup(groupId);
+
+                // Update the like count in-place without re-rendering the whole view
+                const { data: countData } = await supabaseClient
+                    .from('posts').select('likes_count').eq('id', postId).single();
+                const newCount = countData?.likes_count ?? 0;
+                const liked    = !existing; // toggled
+                // Update every like button for this post (could be in nwc panel or cv panel)
+                document.querySelectorAll(`[onclick*="likeGroupPost('${postId}'"]`).forEach(btn => {
+                    btn.innerHTML = `${liked ? '♥' : '♡'} ${newCount}`;
+                    btn.style.color = liked ? 'var(--caramel)' : '';
+                });
             } catch (err) {
                 console.error('Error liking post:', err);
             }
