@@ -9664,6 +9664,43 @@ input:checked + .toggle-track { background: var(--caramel) !important; }
   .mn-card { padding: 18px 16px 22px; }
 }
 
+/* ── My Network — Reviews card ── */
+.mn2-reviews-card {
+  background: #fff; border: 1px solid rgba(139,90,43,0.11);
+  border-radius: 14px; overflow: hidden; margin-top: 18px;
+  box-shadow: 0 1px 3px rgba(28,15,7,0.04), 0 4px 16px rgba(28,15,7,0.03);
+}
+.mn2-reviews-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid rgba(139,90,43,0.09);
+}
+.mn2-reviews-title {
+  font-size: 14px; font-weight: 500; color: var(--espresso);
+  display: flex; align-items: center; gap: 8px;
+}
+.mn2-reviews-rating {
+  font-size: 13px; color: var(--caramel); font-weight: 400;
+}
+.mn2-reviews-count { font-size: 12px; color: var(--muted); }
+.mn2-reviews-body { padding: 4px 20px 8px; }
+.mn2-review-item {
+  padding: 12px 0; border-bottom: 1px solid rgba(139,90,43,0.07);
+}
+.mn2-review-item:last-of-type { border-bottom: none; }
+.mn2-review-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 5px;
+}
+.mn2-review-stars { color: var(--caramel); font-size: 13px; letter-spacing: 1px; }
+.mn2-review-date  { font-size: 11px; color: var(--muted); }
+.mn2-review-text  { font-size: 13px; color: var(--espresso); line-height: 1.6; font-style: italic; }
+.mn2-review-anon  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.mn2-reviews-see-all {
+  padding: 12px 0 4px;
+  font-size: 13px; font-weight: 500; color: var(--caramel);
+  cursor: pointer; transition: opacity 0.15s;
+}
+.mn2-reviews-see-all:hover { opacity: 0.75; }
+
 /* ── Communities ── */
 .mpn-community-item {
   display: flex; align-items: center; gap: 10px;

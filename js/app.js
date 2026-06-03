@@ -7103,7 +7103,7 @@
             if (!section || !currentUser) return;
 
             try {
-                const [connRes, meetingsRes, profileRes, pendingRes] = await Promise.all([
+                const [connRes, meetingsRes, profileRes, pendingRes, reviewsRes] = await Promise.all([
                     supabaseClient
                         .from('connections')
                         .select(`id, created_at, note,
@@ -7132,12 +7132,19 @@
                         .eq('connected_user_id', currentUser.id)
                         .eq('status', 'pending')
                         .order('created_at', { ascending: false }),
+
+                    supabaseClient
+                        .from('reviews')
+                        .select('rating, comment, created_at')
+                        .eq('reviewee_id', currentUser.id)
+                        .order('created_at', { ascending: false }),
                 ]);
 
                 const conns     = connRes.data || [];
                 const chatsHad  = meetingsRes.count ?? 0;
                 const avgRating = profileRes.data?.avg_rating;
                 const pending   = pendingRes.data || [];
+                const reviews   = reviewsRes.data || [];
                 const connCount = conns.length;
                 const ratingStr = avgRating ? Number(avgRating).toFixed(1) : '—';
 
@@ -7300,7 +7307,40 @@
                         </div>
 
                     </div>
-                </div>`;
+                </div>
+
+                <!-- Recent Reviews — full width below the two-col grid -->
+                ${reviews.length ? (() => {
+                    const starsHTML = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+                    const preview = reviews.slice(0, 3);
+                    const reviewCards = preview.map(r => `
+                        <div class="mn2-review-item">
+                            <div class="mn2-review-header">
+                                <span class="mn2-review-stars">${starsHTML(r.rating)}</span>
+                                <span class="mn2-review-date">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
+                            </div>
+                            ${r.comment ? `<div class="mn2-review-text">"${r.comment}"</div>` : ''}
+                            <div class="mn2-review-anon">🔒 Anonymous review</div>
+                        </div>`).join('');
+                    const avgStr = avgRating ? Number(avgRating).toFixed(1) : null;
+                    return `
+                    <div class="mn2-reviews-card">
+                        <div class="mn2-reviews-header">
+                            <div class="mn2-reviews-title">
+                                Chat reviews
+                                ${avgStr ? `<span class="mn2-reviews-rating">${avgStr} ⭐</span>` : ''}
+                            </div>
+                            <span class="mn2-reviews-count">${reviews.length} review${reviews.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="mn2-reviews-body">
+                            ${reviewCards}
+                            ${reviews.length > 3 ? `
+                            <div class="mn2-reviews-see-all" onclick="mnToggleAllReviews(this, ${JSON.stringify(reviews)})">
+                                See all ${reviews.length} reviews →
+                            </div>` : ''}
+                        </div>
+                    </div>`;
+                })() : ''}`;
 
             } catch(e) {
                 console.error('renderMyNetworkSection:', e);
@@ -7389,6 +7429,23 @@
         function openConversationWith(userId) {
             switchView('inboxView');
             setTimeout(() => selectConversation && selectConversation(userId), 300);
+        }
+
+        function mnToggleAllReviews(btn, allReviews) {
+            const body = btn.closest('.mn2-reviews-body');
+            if (!body) return;
+            const starsHTML = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+            const extra = allReviews.slice(3).map(r => `
+                <div class="mn2-review-item">
+                    <div class="mn2-review-header">
+                        <span class="mn2-review-stars">${starsHTML(r.rating)}</span>
+                        <span class="mn2-review-date">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
+                    </div>
+                    ${r.comment ? `<div class="mn2-review-text">"${r.comment}"</div>` : ''}
+                    <div class="mn2-review-anon">🔒 Anonymous review</div>
+                </div>`).join('');
+            btn.insertAdjacentHTML('beforebegin', extra);
+            btn.remove();
         }
 
         async function renderNetworkView() {
