@@ -6954,7 +6954,11 @@
             </div>
 
             <!-- My Network — full-width section below the profile grid -->
-            <div id="myNetworkSection" style="margin-top:28px;">
+            <div style="margin-top:32px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+              <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);">My Network</span>
+              <div style="flex:1;height:1px;background:var(--border);"></div>
+            </div>
+            <div id="myNetworkSection" style="margin-top:0;">
               <div style="display:flex;align-items:center;justify-content:center;padding:32px;color:var(--muted);font-size:13px;">Loading network…</div>
             </div>
 `;
