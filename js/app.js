@@ -6938,43 +6938,7 @@
                     </div>
                   </div>
 
-                  <!-- My Network -->
-                  <div class="mpn-sidebar-card">
-                    <div class="mpn-sidebar-header">
-                      <div class="mpn-sidebar-title">My Network</div>
-                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="switchView('discoverView')">Discover →</span>
-                    </div>
-                    <div class="mpn-sidebar-body" id="mpnNetworkSidebarBody">
-                      ${pendingRequests.length > 0 ? `
-                      <div style="margin-bottom:14px;">
-                        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px;">Pending Requests</div>
-                        ${pendingRequests.slice(0,3).map(req => {
-                            const senderId = req.sender_id || req.from_user_id || req.user_id;
-                            const sender = users.find(u => u.id === senderId);
-                            const fn = sender?.firstName || req.first_name || 'Someone';
-                            const ln = sender?.lastName || req.last_name || '';
-                            const ini = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
-                            const bg  = gradients[0];
-                            const pic = sender?.profilePicture ? `<img src="${sender.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : ini;
-                            return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
-                              <div style="width:34px;height:34px;border-radius:50%;background:${sender?.profilePicture?'transparent':bg};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;overflow:hidden;">${pic}</div>
-                              <div style="flex:1;min-width:0;">
-                                <div style="font-size:13px;font-weight:500;color:var(--espresso);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${fn} ${ln}</div>
-                                <div style="font-size:11px;color:var(--muted);">wants to connect</div>
-                              </div>
-                              <div style="display:flex;gap:5px;flex-shrink:0;">
-                                <button onclick="acceptConnection('${req.id}')" style="padding:4px 10px;background:var(--caramel);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">Accept</button>
-                                <button onclick="declineConnection('${req.id}')" style="padding:4px 10px;background:var(--latte-soft);color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;">Decline</button>
-                              </div>
-                            </div>`;
-                        }).join('')}
-                      </div>` : ''}
-                      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px;">${connections.length} Connection${connections.length !== 1 ? 's' : ''}</div>
-                      ${connections.length
-                          ? `<div class="mpn-conn-grid">${connGridHTML}</div>`
-                          : `<p class="mpn-empty-text" style="margin:0;">No connections yet. <span onclick="switchView('discoverView')" style="color:var(--caramel);cursor:pointer;">Find people →</span></p>`}
-                    </div>
-                  </div>
+                  <!-- My Network placeholder — populated by renderMyNetworkSection() -->
 
                   <!-- Communities -->
                   <div class="mpn-sidebar-card">
@@ -6988,9 +6952,15 @@
                 </div>
               </div>
             </div>
+
+            <!-- My Network — full-width section below the profile grid -->
+            <div id="myNetworkSection" style="margin-top:28px;">
+              <div style="display:flex;align-items:center;justify-content:center;padding:32px;color:var(--muted);font-size:13px;">Loading network…</div>
+            </div>
 `;
 
             setTimeout(() => renderBadges('myProfileBadgesView'), 50);
+            setTimeout(() => renderMyNetworkSection(), 0);
         }
 
         function showProfilePreview() {
@@ -7107,9 +7077,194 @@
             return `${fn[0]}${ln[0]}`.toUpperCase();
         }
 
-        function renderMyNetworkSection() {
-            // No-op: My Network data is embedded in the profile page template via renderMyProfile.
-            // Called when communitiesView activates; profile data lives in myProfileView.
+        async function renderMyNetworkSection() {
+            const section = document.getElementById('myNetworkSection');
+            if (!section || !currentUser) return;
+
+            try {
+                // ── Fetch all three data sources in parallel ──
+                const [connRes, meetingsRes, profileRes, pendingRes] = await Promise.all([
+                    supabaseClient
+                        .from('connections')
+                        .select(`id, created_at, note,
+                            profile_a:profiles!connections_user_id_fkey(id, first_name, last_name, major, headline, profile_picture),
+                            profile_b:profiles!connections_connected_user_id_fkey(id, first_name, last_name, major, headline, profile_picture)`)
+                        .or(`user_id.eq.${currentUser.id},connected_user_id.eq.${currentUser.id}`)
+                        .eq('status', 'accepted')
+                        .order('created_at', { ascending: false }),
+
+                    supabaseClient
+                        .from('meetings')
+                        .select('id', { count: 'exact', head: true })
+                        .eq('status', 'accepted')
+                        .or(`organizer_id.eq.${currentUser.id},participant_id.eq.${currentUser.id}`),
+
+                    supabaseClient
+                        .from('profiles')
+                        .select('avg_rating')
+                        .eq('id', currentUser.id)
+                        .single(),
+
+                    supabaseClient
+                        .from('connections')
+                        .select(`id, created_at, note,
+                            requester:profiles!connections_user_id_fkey(id, first_name, last_name, major, headline, profile_picture)`)
+                        .eq('connected_user_id', currentUser.id)
+                        .eq('status', 'pending')
+                        .order('created_at', { ascending: false }),
+                ]);
+
+                const conns       = connRes.data || [];
+                const chatsHad    = meetingsRes.count ?? 0;
+                const avgRating   = profileRes.data?.avg_rating;
+                const pending     = pendingRes.data || [];
+                const connCount   = conns.length;
+
+                // ── Stats bar ──
+                const ratingStr = avgRating ? Number(avgRating).toFixed(1) : '—';
+
+                // ── Connections grid ──
+                const GRAD = [
+                    'linear-gradient(135deg,#D4894A,#B5651D)',
+                    'linear-gradient(135deg,#7B9E87,#4A7C5E)',
+                    'linear-gradient(135deg,#8B7BAB,#6B5B8E)',
+                    'linear-gradient(135deg,#D4896A,#B56540)',
+                    'linear-gradient(135deg,#6B9EC4,#4A7EA8)',
+                ];
+
+                const connCards = conns.map((c, i) => {
+                    const other = c.profile_a?.id === currentUser.id ? c.profile_b : c.profile_a;
+                    if (!other) return '';
+                    const fn  = other.first_name || '?';
+                    const ln  = other.last_name  || '';
+                    const ini = (fn[0] + (ln[0]||'')).toUpperCase();
+                    const sub = other.headline || other.major || 'Rowan University';
+                    const bg  = GRAD[i % GRAD.length];
+                    const av  = other.profile_picture
+                        ? `<img src="${other.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : ini;
+                    return `<div class="mn-conn-card" onclick="viewProfile('${other.id}')">
+                        <div class="mn-av" style="background:${other.profile_picture?'transparent':bg}">${av}</div>
+                        <div class="mn-conn-name">${fn} ${ln}</div>
+                        <div class="mn-conn-sub">${sub}</div>
+                    </div>`;
+                });
+
+                const SHOW = 8;
+                const visibleCards  = connCards.slice(0, SHOW).join('');
+                const hiddenCards   = connCards.slice(SHOW).join('');
+                const seeAllLink    = connCards.length > SHOW
+                    ? `<div style="margin-top:14px;text-align:center;">
+                         <span id="mnSeeAllToggle" style="font-size:13px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="mnToggleSeeAll()">See all ${connCount} connections →</span>
+                       </div>
+                       <div id="mnHiddenCards" style="display:none;" class="mn-conn-grid">${hiddenCards}</div>`
+                    : '';
+
+                // ── Pending requests ──
+                const pendingCards = pending.map(req => {
+                    const r   = req.requester || {};
+                    const fn  = r.first_name || 'Someone';
+                    const ln  = r.last_name  || '';
+                    const ini = ((fn[0]||'?') + (ln[0]||'')).toUpperCase();
+                    const sub = r.headline || r.major || 'Rowan University';
+                    const av  = r.profile_picture
+                        ? `<img src="${r.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : ini;
+                    return `<div class="mn-pending-row" id="mn-req-${req.id}">
+                        <div class="mn-av mn-av-sm" style="background:${r.profile_picture?'transparent':GRAD[0]}">${av}</div>
+                        <div class="mn-pending-info">
+                            <div class="mn-pending-name">${fn} ${ln}</div>
+                            <div class="mn-pending-sub">${sub}</div>
+                            ${req.note ? `<div class="mn-pending-note">"${req.note}"</div>` : ''}
+                        </div>
+                        <div class="mn-pending-actions">
+                            <button class="mn-btn-accept" onclick="mnAcceptRequest('${req.id}')">Accept</button>
+                            <button class="mn-btn-decline" onclick="mnDeclineRequest('${req.id}')">Decline</button>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                section.innerHTML = `
+                <div class="mn-card">
+                    <!-- Stats bar -->
+                    <div class="mn-stats-bar">
+                        <div class="mn-stat">
+                            <div class="mn-stat-num">${connCount}</div>
+                            <div class="mn-stat-label">Connections</div>
+                        </div>
+                        <div class="mn-stat-divider"></div>
+                        <div class="mn-stat">
+                            <div class="mn-stat-num">${chatsHad}</div>
+                            <div class="mn-stat-label">Chats Had</div>
+                        </div>
+                        <div class="mn-stat-divider"></div>
+                        <div class="mn-stat">
+                            <div class="mn-stat-num">${ratingStr}</div>
+                            <div class="mn-stat-label">Avg Rating</div>
+                        </div>
+                    </div>
+
+                    <!-- Connections -->
+                    <div class="mn-section-head">Connections</div>
+                    ${connCount
+                        ? `<div class="mn-conn-grid">${visibleCards}</div>${seeAllLink}`
+                        : `<p class="mn-empty">No connections yet. <span onclick="switchView('discoverView')" style="color:var(--caramel);cursor:pointer;">Find people →</span></p>`
+                    }
+
+                    <!-- Pending requests -->
+                    <div class="mn-section-head" style="margin-top:28px;">
+                        Pending Requests
+                        ${pending.length ? `<span class="mn-badge">${pending.length}</span>` : ''}
+                    </div>
+                    ${pending.length
+                        ? `<div id="mnPendingList">${pendingCards}</div>`
+                        : `<p class="mn-empty">No pending requests.</p>`
+                    }
+                </div>`;
+
+            } catch(e) {
+                console.error('renderMyNetworkSection:', e);
+                const section = document.getElementById('myNetworkSection');
+                if (section) section.innerHTML = '';
+            }
+        }
+
+        function mnToggleSeeAll() {
+            const hidden = document.getElementById('mnHiddenCards');
+            const toggle = document.getElementById('mnSeeAllToggle');
+            if (!hidden || !toggle) return;
+            const open = hidden.style.display === 'none';
+            hidden.style.display = open ? 'grid' : 'none';
+            const total = document.querySelectorAll('#myNetworkSection .mn-conn-card').length;
+            toggle.textContent = open ? 'Show less ↑' : `See all ${total} connections →`;
+        }
+
+        async function mnAcceptRequest(connectionId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('connections').update({ status: 'accepted' }).eq('id', connectionId);
+                if (error) throw error;
+                pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
+                showToast('Connection accepted! 🤝', 'success');
+                await renderMyNetworkSection();
+            } catch(e) {
+                showToast('Failed to accept: ' + e.message, 'error');
+            }
+        }
+
+        async function mnDeclineRequest(connectionId) {
+            const row = document.getElementById('mn-req-' + connectionId);
+            if (row) { row.style.transition = 'opacity 0.3s'; row.style.opacity = '0'; setTimeout(() => row.remove(), 300); }
+            try {
+                await supabaseClient.from('connections').update({ status: 'declined' }).eq('id', connectionId);
+                pendingRequests = pendingRequests.filter(r => r.id !== connectionId);
+                const list = document.getElementById('mnPendingList');
+                if (list && !list.children.length) {
+                    list.outerHTML = '<p class="mn-empty">No pending requests.</p>';
+                }
+            } catch(e) {
+                showToast('Failed to decline: ' + e.message, 'error');
+            }
         }
 
         async function renderNetworkView() {
