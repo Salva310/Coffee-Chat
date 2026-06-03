@@ -2366,306 +2366,324 @@
         }
 
         async function viewProfile(userId) {
+            // Own profile → use the full tabbed profile page
+            if (currentUser && currentUser.id === userId) {
+                switchView('myProfileView');
+                return;
+            }
+
             const user = users.find(u => u.id === userId);
             if (!user) return;
-
             selectedPerson = user;
 
-            const isConnected = connections.find(c =>
+            const isConnected = !!connections.find(c =>
                 (c.user_id === currentUser.id && c.connected_user_id === userId) ||
                 (c.connected_user_id === currentUser.id && c.user_id === userId)
             );
-            const isOwnProfile = currentUser && currentUser.id === userId;
+            const isOwnProfile = false; // handled above
 
-            const initials = `${user.firstName[0] || ''}${user.lastName[0] || ''}`.toUpperCase();
-            const avatarHTML = user.profilePicture
-                ? `<img src="${user.profilePicture}" alt="${user.firstName}">`
-                : initials;
+            // ── Fetch all profile data in parallel ──
+            const [availRes, achRes, reviewRes, theirConnRes, theirGroupRes, theirProfileRes] = await Promise.all([
+                supabaseClient.from('availability').select('*').eq('user_id', userId).order('day_of_week'),
+                supabaseClient.from('achievements').select('*').eq('user_id', userId).order('display_order'),
+                supabaseClient.from('reviews').select('rating, comment, created_at').eq('reviewee_id', userId).order('created_at', { ascending: false }),
+                supabaseClient.from('connections').select('user_id, connected_user_id').or(`user_id.eq.${userId},connected_user_id.eq.${userId}`).eq('status', 'accepted'),
+                supabaseClient.from('group_members').select('group_id').eq('user_id', userId),
+                supabaseClient.from('profiles').select('avg_rating, bio, goals, interests, hobbies').eq('id', userId).single(),
+            ]);
 
-            // Build headline: prefer stored headline, fallback to role+company
-            const headline = user.headline ||
-                [user.role, user.company ? `@ ${user.company}` : ''].filter(Boolean).join(' ') ||
-                user.industry || '';
+            const _pvAvailRows = (availRes.data || []).filter(r => r.is_available);
+            const _pvAchs      = achRes.data || [];
+            const _pvReviews   = reviewRes.data || [];
+            const theirConns   = theirConnRes.data || [];
+            const theirGroupIds= new Set((theirGroupRes.data || []).map(r => r.group_id));
+            const theirProfile = theirProfileRes.data || {};
 
-            // Meta chips
-            const chips = [
-                user.gradYear ? `<span class="pv-chip">🎓 Class of ${user.gradYear}</span>` : '',
-                user.major    ? `<span class="pv-chip caramel">📚 ${user.major}</span>` : '',
-                user.industry ? `<span class="pv-chip caramel">💼 ${user.industry}</span>` : '',
-                user.status   ? `<span class="pv-chip">${user.status}</span>` : '',
-                `<span class="pv-chip open">✅ Open to chats</span>`
+            // Merge fresh profile fields (bio, interests etc.) onto local user object
+            if (theirProfile.bio)       user.bio       = theirProfile.bio;
+            if (theirProfile.goals)     user.goals     = theirProfile.goals;
+            if (Array.isArray(theirProfile.interests)) user.interests = theirProfile.interests;
+            if (Array.isArray(theirProfile.hobbies))   user.hobbies   = theirProfile.hobbies;
+            const theirAvgRating = theirProfile.avg_rating;
+
+            // ── Mutual connections ──
+            const myConnIds = new Set(connections.map(c =>
+                c.user_id === currentUser.id ? c.connected_user_id : c.user_id
+            ));
+            const theirConnIds = theirConns.map(c =>
+                c.user_id === userId ? c.connected_user_id : c.user_id
+            );
+            const mutualIds = theirConnIds.filter(id => myConnIds.has(id) && id !== currentUser.id);
+            const mutualUsers = mutualIds.slice(0, 4).map(id => users.find(u => u.id === id)).filter(Boolean);
+
+            // ── Shared communities ──
+            const sharedCommunityIds = [...theirGroupIds].filter(id => myGroupIds.has(id));
+            const sharedCommunities  = sharedCommunityIds.map(id => groups.find(g => g.id === id)).filter(Boolean).slice(0, 4);
+
+            // ── Match score ──
+            const myInterests = (currentUser.interests || []).map(i => i.toLowerCase());
+            const myHobbies   = (currentUser.hobbies   || []).map(h => h.toLowerCase());
+            const sharedInterests = (user.interests || []).filter(i => myInterests.includes(i.toLowerCase()));
+            const sharedHobbies   = (user.hobbies   || []).filter(h => myHobbies.includes(h.toLowerCase()));
+            const sameMajor    = !!(user.major    && currentUser.major    && user.major.toLowerCase()    === currentUser.major.toLowerCase());
+            const sameIndustry = !!(user.industry && currentUser.industry && user.industry.toLowerCase() === currentUser.industry.toLowerCase());
+
+            let matchScore = 30; // base
+            if (sameMajor)    matchScore += 22;
+            matchScore += Math.min(22, sharedInterests.length * 7);
+            matchScore += Math.min(12, sharedHobbies.length  * 4);
+            matchScore += Math.min(12, mutualUsers.length     * 6);
+            if (sameIndustry && !sameMajor) matchScore += 8;
+            matchScore += Math.min(8, sharedCommunities.length * 3);
+            matchScore = Math.min(98, matchScore);
+
+            const matchReasons = [
+                sameMajor    ? `Same major` : null,
+                sharedInterests.length ? `${sharedInterests.length} shared interest${sharedInterests.length > 1 ? 's' : ''}` : null,
+                mutualUsers.length     ? `${mutualUsers.length} mutual connection${mutualUsers.length > 1 ? 's' : ''}` : null,
+                sharedCommunities.length ? `${sharedCommunities.length} shared communit${sharedCommunities.length > 1 ? 'ies' : 'y'}` : null,
+            ].filter(Boolean);
+
+            // Shared all tags (interests + hobbies)
+            const sharedSet = new Set([...sharedInterests.map(s=>s.toLowerCase()), ...sharedHobbies.map(s=>s.toLowerCase())]);
+
+            // ── Helper functions ──
+            const fmt = t => { if (!t) return ''; const [h, m] = t.split(':'); const hr = parseInt(h); return `${hr>12?hr-12:(hr===0?12:hr)}:${m} ${hr>=12?'PM':'AM'}`; };
+            const dayFull = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const GRAD = ['linear-gradient(135deg,#D4894A,#B5651D)','linear-gradient(135deg,#7B9E87,#4A7C5E)','linear-gradient(135deg,#8B7BAB,#6B5B8E)','linear-gradient(135deg,#D4896A,#B56540)','linear-gradient(135deg,#6B9EC4,#4A7EA8)'];
+            const gradOf = id => GRAD[(id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % GRAD.length];
+
+            const initials   = `${(user.firstName||'?')[0]}${(user.lastName||'?')[0]}`.toUpperCase();
+            const avatarHTML = user.profilePicture ? `<img src="${user.profilePicture}" alt="${user.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : initials;
+            const headline   = user.headline || [user.role, user.company ? `@ ${user.company}` : ''].filter(Boolean).join(' ') || '';
+            const bannerStyle = user.bannerImage ? ` style="background-image:url('${user.bannerImage}');background-size:cover;background-position:center;"` : '';
+
+            // ── Stats ──
+            const theirConnCount = theirConns.length;
+            const theirRatingStr = theirAvgRating ? `${Number(theirAvgRating).toFixed(1)} ⭐` : '—';
+            const theirChatsCount = _pvReviews.length; // proxy: # reviews ≈ # completed chats
+
+            // ── Review stars ──
+            const starsHTML = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+
+            // ── Interests/hobbies with shared highlighting ──
+            const interestTagsHTML = (user.interests || []).map(t => {
+                const shared = sharedSet.has(t.toLowerCase());
+                return shared
+                    ? `<span class="pvp-tag pvp-tag-shared">✓ ${t}</span>`
+                    : `<span class="pvp-tag pvp-tag-interest">${t}</span>`;
+            }).join('');
+            const hobbyTagsHTML = (user.hobbies || []).map(t => {
+                const shared = sharedSet.has(t.toLowerCase());
+                return shared
+                    ? `<span class="pvp-tag pvp-tag-shared">✓ ${t}</span>`
+                    : `<span class="pvp-tag pvp-tag-hobby">${t}</span>`;
+            }).join('');
+            const sharedCount = sharedInterests.length + sharedHobbies.length;
+            const sharedSummaryLine = sharedCount
+                ? `<div class="pvp-shared-summary">✓ You both share ${[...sharedInterests, ...sharedHobbies].slice(0,3).join(', ')}${sharedCount > 3 ? ` and ${sharedCount-3} more` : ''}</div>`
+                : '';
+
+            // ── Goal lines ──
+            const goalLines = (user.goals || '').split('\n').map(l => l.trim()).filter(Boolean);
+            const goalsHTML = goalLines.length
+                ? goalLines.map(l => `<div class="pvp-goal-item"><div class="pvp-goal-dot"></div><div class="pvp-goal-text">${l}</div></div>`).join('')
+                : '';
+
+            // ── Achievements ──
+            const ACH_ICON_MAP = { internship:'💼', job:'💼', research:'🔬', club:'🏆', exam:'📜', award:'🏅', project:'🛠', other:'⭐' };
+            const achHTML = _pvAchs.length
+                ? _pvAchs.map(a => `<div class="pvp-exp-item"><div class="pvp-exp-logo">${ACH_ICON_MAP[a.type]||'⭐'}</div><div><div class="pvp-exp-role">${a.title||''}</div>${a.organization?`<div class="pvp-exp-company">${a.organization}</div>`:''}<div class="pvp-exp-date">${_fmtAchDate(a.start_date,a.end_date,a.is_current)}</div>${a.description?`<div class="pvp-exp-desc">${a.description}</div>`:''}</div></div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No experience listed yet.</p>`;
+
+            // ── Reviews HTML ──
+            const reviewsHTML = _pvReviews.length
+                ? _pvReviews.slice(0, 3).map(r => `
+                    <div class="pvp-review-item">
+                        <div class="pvp-review-header">
+                            <span class="pvp-stars">${starsHTML(r.rating)}</span>
+                            <span class="pvp-review-date">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
+                        </div>
+                        ${r.comment ? `<div class="pvp-review-text">"${r.comment}"</div>` : ''}
+                        <div class="pvp-review-anon">Anonymous review ✓</div>
+                    </div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No reviews yet.</p>`;
+
+            // ── Why you match ──
+            const whyMatchItems = [
+                sameMajor    ? `<div class="pvp-common-item"><div class="pvp-common-icon">🎓</div><div><div class="pvp-common-text">Same major</div><div class="pvp-common-sub">Both studying ${user.major}</div></div></div>` : '',
+                sharedInterests.length ? `<div class="pvp-common-item"><div class="pvp-common-icon">💡</div><div><div class="pvp-common-text">${sharedInterests.length} shared interest${sharedInterests.length>1?'s':''}</div><div class="pvp-common-sub">${sharedInterests.slice(0,2).join(', ')}${sharedInterests.length>2?' +more':''}</div></div></div>` : '',
+                sharedHobbies.length  ? `<div class="pvp-common-item"><div class="pvp-common-icon">☕</div><div><div class="pvp-common-text">${sharedHobbies.length} shared hobb${sharedHobbies.length>1?'ies':'y'}</div><div class="pvp-common-sub">${sharedHobbies.slice(0,2).join(', ')}</div></div></div>` : '',
+                mutualUsers.length    ? `<div class="pvp-common-item"><div class="pvp-common-icon">🤝</div><div><div class="pvp-common-text">${mutualUsers.length} mutual connection${mutualUsers.length>1?'s':''}</div><div class="pvp-common-sub">${mutualUsers.map(u=>u.firstName).slice(0,2).join(', ')}</div></div></div>` : '',
+                sameIndustry && !sameMajor ? `<div class="pvp-common-item"><div class="pvp-common-icon">💼</div><div><div class="pvp-common-text">Same industry</div><div class="pvp-common-sub">Both in ${user.industry}</div></div></div>` : '',
+                sharedCommunities.length ? `<div class="pvp-common-item"><div class="pvp-common-icon">👥</div><div><div class="pvp-common-text">${sharedCommunities.length} shared communit${sharedCommunities.length>1?'ies':'y'}</div><div class="pvp-common-sub">${sharedCommunities.map(g=>g.name).slice(0,2).join(', ')}</div></div></div>` : '',
             ].filter(Boolean).join('');
 
-            // Fetch availability
-            let _pvAvailRows = [];
-            try {
-                const { data: availData } = await supabaseClient
-                    .from('availability')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('day_of_week');
-                _pvAvailRows = (availData || []).filter(r => r.is_available);
-            } catch(e) { console.error('viewProfile availability:', e); }
-
-            // Fetch achievements from dedicated table
-            let _pvAchs = [];
-            try {
-                const { data: achData } = await supabaseClient
-                    .from('achievements')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('display_order');
-                _pvAchs = achData || [];
-            } catch(e) { console.error('viewProfile achievements:', e); }
-
-            // Fetch this user's posts from Supabase
-            let _pvPosts = [];
-            try {
-                const { data: pvPostData } = await supabaseClient
-                    .from('posts')
-                    .select('*')
-                    .eq('author_id', userId)
-                    .is('group_id', null)
-                    .order('created_at', { ascending: false });
-                _pvPosts = pvPostData || [];
-            } catch(e) { console.error('viewProfile posts:', e); }
-
-            // Fetch like counts for this user's posts
-            let _pvLikeMap = {};
-            let _pvMyLikedSet = new Set();
-            if (_pvPosts.length > 0) {
-                try {
-                    const pvPostIds = _pvPosts.map(p => p.id);
-                    const { data: pvLikes } = await supabaseClient
-                        .from('post_likes')
-                        .select('post_id, user_id')
-                        .in('post_id', pvPostIds);
-                    (pvLikes || []).forEach(l => {
-                        _pvLikeMap[l.post_id] = (_pvLikeMap[l.post_id] || 0) + 1;
-                        if (l.user_id === currentUser.id) _pvMyLikedSet.add(l.post_id);
-                    });
-                } catch(e) {}
-            }
-
-            // Stats
-            const achCount = _pvAchs.length;
-            const intCount = (user.interests || []).length + (user.hobbies || []).length;
-            const connCount = connections.filter(c =>
-                c.user_id === userId || c.connected_user_id === userId
-            ).length;
-
-            // Achievements
-            const achHTML = _pvAchs.length
-                ? _pvAchs.map(a => {
-                    const icon = ACH_TYPE_ICON[a.type] || '⭐';
-                    const dateStr = _fmtAchDate(a.start_date, a.end_date, a.is_current);
-                    return `
-                    <div class="pv-ach-row">
-                        <div class="pv-ach-icon">${icon}</div>
-                        <div>
-                            <div class="pv-ach-title">${_achEsc(a.title)}</div>
-                            ${a.organization ? `<div class="pv-ach-org">${_achEsc(a.organization)}</div>` : ''}
-                            ${dateStr ? `<div class="pv-ach-date">${dateStr}</div>` : ''}
-                            ${a.description ? `<div class="pv-ach-desc">${_achEsc(a.description)}</div>` : ''}
-                        </div>
-                    </div>`;
-                }).join('')
-                : `<p style="font-size:13px;color:var(--muted);opacity:.7;">No achievements listed yet.</p>`;
-
-            // Action card content based on connection state
-            const actionCardHTML = !isOwnProfile ? `
-                <div class="pv-action-card">
-                    <div class="pv-action-label">☕ Connect</div>
-                    <div class="pv-action-title">"Every great career starts with one good conversation."</div>
-                    ${isConnected ? `
-                        <button class="pv-action-btn" onclick="startMessage('${user.id}')">💬 Send Message</button>
-                        <button class="pv-action-btn secondary" onclick="scheduleWith('${user.id}')">📅 Schedule a Chat</button>
-                    ` : `
-                        <button class="pv-action-btn" id="pvConnectBtn" onclick="pvHandleConnect(this,'${user.id}')">☕ Request a Sip</button>
-                        <button class="pv-action-btn secondary" onclick="startMessage('${user.id}')">💬 Message first</button>
-                    `}
-                </div>` : `
-                <div class="pv-card">
-                    <div class="pv-card-eyebrow">Your Profile</div>
-                    <div class="pv-card-title">Badges &amp; <em>Milestones</em></div>
-                    <div class="badge-grid" id="profileBadges"></div>
-                </div>`;
+            const hasPendingRequest = sentRequests.find(r => r.connected_user_id === userId);
 
             const content = document.getElementById('profileDetailContent');
-            const bannerStyle = user.bannerImage
-                ? ` style="background-image:url('${user.bannerImage}')"` : '';
-            const bannerClass = user.bannerImage ? ' has-image' : '';
             content.innerHTML = `
-                <!-- Hero Banner -->
-                <div class="pv-banner${bannerClass}"${bannerStyle}>
-                    ${isOwnProfile ? `
-                    <button class="pv-banner-edit-btn" onclick="document.getElementById('pvBannerFile').click()">
-                        🖼 Edit Cover
-                        <input type="file" id="pvBannerFile" accept="image/*" style="display:none;" onchange="uploadPvBanner(this)">
-                    </button>` : ''}
+                <!-- Back breadcrumb -->
+                <div class="pvp-back-row">
+                    <button class="pvp-back-btn" onclick="history.back()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
                 </div>
 
-                <div class="pv-hero-inner">
-                    <!-- Avatar + top actions -->
-                    <div class="pv-avatar-row">
-                        <div class="pv-avatar-wrap">
-                            <div class="pv-avatar">${avatarHTML}</div>
-                        </div>
-                        ${!isOwnProfile ? `
-                        <div class="pv-hero-actions">
-                            ${isConnected
-                                ? `<button class="pv-cta-secondary connected" onclick="startMessage('${user.id}')">💬 Message</button>`
-                                : `<button class="pv-cta-secondary" onclick="startMessage('${user.id}')">💬 Message</button>`
-                            }
-                            ${isConnected
-                                ? `<button class="pv-cta-primary" onclick="scheduleWith('${user.id}')">📅 Schedule Chat</button>`
-                                : `<button class="pv-cta-primary" id="pvConnectBtnTop" onclick="pvHandleConnect(this,'${user.id}')">☕ Request a Sip</button>`
-                            }
-                        </div>` : `
-                        <div class="pv-hero-actions">
-                            <button class="pv-cta-secondary" onclick="switchView('settingsView')">✏️ Edit Profile</button>
-                        </div>`}
-                    </div>
+                <!-- Match pill -->
+                ${matchReasons.length ? `
+                <div class="pvp-match-pill">
+                    <div class="pvp-match-dot"></div>
+                    ${matchScore}% match · ${matchReasons.slice(0,2).join(', ')}
+                </div>` : ''}
 
-                    <!-- Identity -->
-                    <div class="pv-identity">
-                        <div class="pv-name">${user.firstName} ${user.lastName}</div>
-                        ${headline ? `<div class="pv-headline">${headline}</div>` : ''}
-                        <div class="pv-chips">${chips}</div>
-                        ${user.linkedinUrl ? `
-                        <a href="${/^https?:\/\//i.test(user.linkedinUrl) ? user.linkedinUrl : 'https://' + user.linkedinUrl}"
-                           target="_blank" rel="noopener noreferrer" class="pv-linkedin-link">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                            LinkedIn Profile
-                        </a>` : ''}
-                    </div>
-
-                    <!-- Stats Row -->
-                    <div class="pv-stat-row">
-                        <div class="pv-stat-item">
-                            <div class="pv-stat-num">${connCount || '—'}</div>
-                            <div class="pv-stat-lbl">Connections</div>
+                <!-- Hero card -->
+                <div class="pvp-hero-card">
+                    <div class="pvp-cover"${bannerStyle}></div>
+                    <div class="pvp-hero-body">
+                        <div class="pvp-hero-top">
+                            <div class="pvp-avatar" style="background:${user.profilePicture?'transparent':gradOf(userId)}">${avatarHTML}</div>
+                            <div class="pvp-cta-btns">
+                                <button class="pvp-btn-request" onclick="openChatInviteModal('${userId}')">☕ Request a chat</button>
+                                ${isConnected
+                                    ? `<button class="pvp-btn-connect connected" disabled>✓ Connected</button>`
+                                    : hasPendingRequest
+                                        ? `<button class="pvp-btn-connect" disabled style="opacity:.6;">Request sent</button>`
+                                        : `<button class="pvp-btn-connect" onclick="openConnectModal('${userId}')">+ Connect</button>`
+                                }
+                            </div>
                         </div>
-                        <div class="pv-stat-item">
-                            <div class="pv-stat-num">${achCount || '—'}</div>
-                            <div class="pv-stat-lbl">Achievements</div>
+                        <div class="pvp-name">${user.firstName} ${user.lastName}</div>
+                        ${headline ? `<div class="pvp-headline">${headline}</div>` : ''}
+                        <div class="pvp-meta-row">
+                            ${user.location  ? `<span class="pvp-meta-item">📍 ${user.location}</span>` : ''}
+                            ${user.schoolName||user.gradYear ? `<span class="pvp-meta-item">🎓 ${[user.schoolName||'Rowan University', user.gradYear?`Class of ${user.gradYear}`:''].filter(Boolean).join(' · ')}</span>` : ''}
+                            ${user.linkedinUrl ? `<span class="pvp-meta-item">🔗 <a href="${/^https?:\/\//i.test(user.linkedinUrl)?user.linkedinUrl:'https://'+user.linkedinUrl}" target="_blank" rel="noopener" style="color:var(--caramel);text-decoration:none;">LinkedIn</a></span>` : ''}
                         </div>
-                        <div class="pv-stat-item">
-                            <div class="pv-stat-num">${intCount || '—'}</div>
-                            <div class="pv-stat-lbl">Interests</div>
+                        <div class="pvp-stats-strip">
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${theirChatsCount||'—'}</div><div class="pvp-strip-lbl">Chats completed</div></div>
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${theirRatingStr}</div><div class="pvp-strip-lbl">Avg rating</div></div>
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${theirConnCount||'—'}</div><div class="pvp-strip-lbl">Connections</div></div>
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${theirGroupIds.size||'—'}</div><div class="pvp-strip-lbl">Communities</div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Body Grid -->
-                <div class="pv-body">
-                    <!-- Left column -->
+                <!-- Two-column body -->
+                <div class="pvp-two-col">
+
+                    <!-- Left: main content -->
                     <div>
+
                         ${user.bio ? `
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">About</div>
-                            <div class="pv-card-title">Who <em>${user.firstName}</em> is</div>
-                            <p class="pv-bio">${user.bio}</p>
-                            ${user.goals ? `
-                            <div class="pv-looking-for">
-                                <strong>Career Goals</strong>
-                                ${user.goals}
-                            </div>` : ''}
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">About</div></div>
+                            <div class="pvp-card-body"><div class="pvp-about-text">${user.bio}</div></div>
                         </div>` : ''}
 
-                        ${(user.interests || []).length || (user.hobbies || []).length ? `
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">Interests & Passions</div>
-                            <div class="pv-card-title">What <em>drives</em> them</div>
-                            <div class="pv-tags">
-                                ${[...(user.interests || []), ...(user.hobbies || [])].map(t => `<span class="pv-tag">${t}</span>`).join('')}
+                        ${goalsHTML ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">Career goals</div></div>
+                            <div class="pvp-card-body">${goalsHTML}</div>
+                        </div>` : ''}
+
+                        ${(user.interests||[]).length || (user.hobbies||[]).length ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header">
+                                <div class="pvp-card-title">Interests &amp; hobbies</div>
+                                ${sharedCount ? `<span class="pvp-shared-badge">${sharedCount} in common</span>` : ''}
+                            </div>
+                            <div class="pvp-card-body">
+                                ${interestTagsHTML ? `<div style="margin-bottom:12px;"><div class="pvp-tag-label">Interests</div><div class="pvp-tag-row">${interestTagsHTML}</div></div>` : ''}
+                                ${hobbyTagsHTML    ? `<div style="${interestTagsHTML?'border-top:1px solid var(--border);padding-top:12px;':''}"><div class="pvp-tag-label">Hobbies</div><div class="pvp-tag-row">${hobbyTagsHTML}</div></div>` : ''}
+                                ${sharedSummaryLine}
                             </div>
                         </div>` : ''}
 
-                        ${_pvAvailRows.length > 0 ? (() => {
-                            const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-                            const fmt = t => {
-                                if (!t) return '';
-                                const [h, m] = t.split(':');
-                                const hr = parseInt(h);
-                                return `${hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr)}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
-                            };
-                            return `<div class="pv-card">
-                                <div class="pv-card-eyebrow">Availability</div>
-                                <div class="pv-card-title">When they're <em>open</em></div>
-                                <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
-                                    ${_pvAvailRows.map(r => `
-                                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
-                                        <span style="font-weight:600;width:36px;color:var(--brown);">${dayNames[r.day_of_week]}</span>
-                                        <span style="color:var(--muted);">${fmt(r.start_time)} – ${fmt(r.end_time)}</span>
-                                        <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:#eaf4ee;color:#2d6a4f;">Open</span>
-                                    </div>`).join('')}
-                                </div>
-                            </div>`;
-                        })() : ''}
+                        ${_pvAchs.length ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">Experience</div></div>
+                            <div class="pvp-card-body">${achHTML}</div>
+                        </div>` : ''}
 
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">Achievements</div>
-                            <div class="pv-card-title">Their <em>journey</em> so far</div>
-                            ${achHTML}
+                        <div class="pvp-card">
+                            <div class="pvp-card-header">
+                                <div class="pvp-card-title">Chat reviews</div>
+                                ${_pvReviews.length ? `<span style="font-size:13px;color:var(--muted);">${theirRatingStr} · ${_pvReviews.length} review${_pvReviews.length>1?'s':''}</span>` : ''}
+                            </div>
+                            <div class="pvp-card-body">${reviewsHTML}</div>
                         </div>
 
-                        ${_pvPosts.length > 0 ? `
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">Posts</div>
-                            <div class="pv-card-title">${isOwnProfile ? 'Your' : `${user.firstName}'s`} <em>posts</em></div>
-                            ${_pvPosts.map(post => {
-                                const likeCount = _pvLikeMap[post.id] || 0;
-                                const liked = _pvMyLikedSet.has(post.id);
-                                const timeAgo = post.created_at ? getTimeAgo(post.created_at) : 'Recently';
-                                return `
-                                <div style="padding:12px 0;border-bottom:1px solid var(--border);">
-                                    <p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:8px;">${post.content}</p>
-                                    <div style="display:flex;align-items:center;gap:12px;">
-                                        <span style="font-size:11px;color:var(--muted);opacity:.7;">${timeAgo}</span>
-                                        <button class="post-action-btn${liked ? ' liked' : ''}" id="pvlike-${post.id}" onclick="likePost('${post.id}', this)" style="font-size:12px;padding:3px 8px;${liked ? 'color:var(--primary);font-weight:700;' : ''}">👍 <span id="pvlikecount-${post.id}">${likeCount}</span></button>
-                                    </div>
-                                </div>`;
-                            }).join('')}
-                        </div>` : isOwnProfile ? `
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">Posts</div>
-                            <div class="pv-card-title">Your <em>posts</em></div>
-                            <p style="font-size:13px;color:var(--muted);opacity:.7;">You haven't posted anything yet. Share your thoughts in the <span onclick="switchView('dashboardView')" style="color:var(--caramel);cursor:pointer;font-weight:600;">Feed →</span></p>
-                        </div>` : ''}
                     </div>
 
-                    <!-- Right column -->
-                    <div>
-                        ${actionCardHTML}
+                    <!-- Right: sidebar -->
+                    <div class="pvp-sidebar">
 
-                        ${user.resume ? `
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">Resume</div>
-                            <div class="pv-resume-pill" onclick="openResume('${user.resume}')">
-                                <div class="pv-resume-icon">📄</div>
-                                <div>
-                                    <div style="font-size:13.5px;font-weight:600;color:var(--espresso);">${user.firstName}'s Resume</div>
-                                    <div style="font-size:11.5px;color:var(--muted);">Click to view PDF</div>
-                                </div>
-                                <span style="margin-left:auto;color:var(--muted);font-size:13px;">↓</span>
+                        <!-- CTA -->
+                        <div class="pvp-cta-card">
+                            <div class="pvp-cta-icon">☕</div>
+                            <div class="pvp-cta-title">Grab a chat with ${user.firstName}</div>
+                            <div class="pvp-cta-sub">${user.firstName} is open to chats. Usually responds within a day.</div>
+                            <button class="pvp-btn-cta-full" onclick="openChatInviteModal('${userId}')">Request a coffee chat</button>
+                            ${isConnected
+                                ? `<button class="pvp-btn-cta-ghost" onclick="openConversationWith('${userId}')">💬 Send a message</button>`
+                                : hasPendingRequest
+                                    ? `<button class="pvp-btn-cta-ghost" disabled style="opacity:.5;">Request sent ✓</button>`
+                                    : `<button class="pvp-btn-cta-ghost" onclick="openConnectModal('${userId}')">+ Connect first</button>`
+                            }
+                        </div>
+
+                        <!-- Availability -->
+                        ${_pvAvailRows.length ? `
+                        <div class="pvp-sc">
+                            <div class="pvp-sc-header"><div class="pvp-sc-title">Availability</div></div>
+                            <div class="pvp-sc-body">
+                                ${_pvAvailRows.map(r => `<div class="pvp-avail-row"><span class="pvp-avail-day">${dayFull[r.day_of_week]}</span><span class="pvp-avail-time">${fmt(r.start_time)} – ${fmt(r.end_time)}</span></div>`).join('')}
                             </div>
                         </div>` : ''}
 
-                        ${user.location ? `
-                        <div class="pv-card">
-                            <div class="pv-card-eyebrow">Location</div>
-                            <p style="font-size:14px;color:var(--muted);">📍 ${user.location}</p>
+                        <!-- Why you match -->
+                        ${whyMatchItems ? `
+                        <div class="pvp-sc">
+                            <div class="pvp-sc-header"><div class="pvp-sc-title">Why you match</div></div>
+                            <div class="pvp-sc-body">${whyMatchItems}</div>
                         </div>` : ''}
+
+                        <!-- Mutual connections -->
+                        ${mutualUsers.length ? `
+                        <div class="pvp-sc">
+                            <div class="pvp-sc-header"><div class="pvp-sc-title">Mutual connections</div></div>
+                            <div class="pvp-sc-body">
+                                ${mutualUsers.map((u, i) => {
+                                    const ini = ((u.firstName||'?')[0]+(u.lastName||'')[0]).toUpperCase();
+                                    const av  = u.profilePicture ? `<img src="${u.profilePicture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : ini;
+                                    return `<div class="pvp-mutual-item" onclick="viewProfile('${u.id}')">
+                                        <div class="pvp-mutual-av" style="background:${u.profilePicture?'transparent':GRAD[i%GRAD.length]}">${av}</div>
+                                        <div><div class="pvp-mutual-name">${u.firstName} ${u.lastName}</div><div class="pvp-mutual-role">${u.major||u.industry||'Rowan University'}</div></div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        <!-- Shared communities -->
+                        ${sharedCommunities.length ? `
+                        <div class="pvp-sc">
+                            <div class="pvp-sc-header"><div class="pvp-sc-title">Shared communities</div></div>
+                            <div class="pvp-sc-body">
+                                ${sharedCommunities.map(g => `<div class="pvp-common-item" onclick="nwcOpenGroup('${g.id}')">
+                                    <div class="pvp-common-icon">${g.icon||'👥'}</div>
+                                    <div><div class="pvp-common-text">${g.name}</div><div class="pvp-common-sub">${g.member_count||0} members</div></div>
+                                </div>`).join('')}
+                            </div>
+                        </div>` : ''}
+
                     </div>
                 </div>
             `;
 
             switchView('profileDetailView');
 
-            if (isOwnProfile) {
-                setTimeout(() => renderBadges('profileBadges'), 50);
-            }
         }
 
         function pvHandleConnect(btn, userId) {

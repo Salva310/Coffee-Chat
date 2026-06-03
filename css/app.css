@@ -3829,6 +3829,125 @@
             .pv-hero-inner { padding: 0 16px; }
         }
 
+        /* ══════════════════════════════════
+           PUBLIC PROFILE VIEW  (pvp-*)
+           ══════════════════════════════════ */
+
+        .pvp-back-row { margin-bottom: 16px; }
+        .pvp-back-btn { display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'Sora',sans-serif;transition:color 0.15s;padding:0; }
+        .pvp-back-btn:hover { color:var(--caramel); }
+        .pvp-back-btn svg { width:15px;height:15px; }
+
+        /* Match pill */
+        .pvp-match-pill { display:inline-flex;align-items:center;gap:7px;padding:6px 14px;background:linear-gradient(135deg,#E8F5EE,#D4EDE2);border:1px solid rgba(29,158,117,0.2);border-radius:20px;font-size:13px;font-weight:500;color:#0F6E56;margin-bottom:16px; }
+        .pvp-match-dot { width:8px;height:8px;border-radius:50%;background:#1D9E75;flex-shrink:0; }
+
+        /* Hero card */
+        .pvp-hero-card { background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow); }
+        .pvp-cover { height:96px;background:linear-gradient(135deg,#EAD5BC 0%,#D4A574 50%,#C47B3A 100%);background-size:cover;background-position:center; }
+        .pvp-hero-body { padding:0 24px 0; }
+        .pvp-hero-top { display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px; }
+        .pvp-avatar { width:76px;height:76px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:400;color:#fff;margin-top:-38px;box-shadow:var(--shadow);overflow:hidden;flex-shrink:0; }
+        .pvp-cta-btns { display:flex;gap:8px;padding-top:12px;flex-wrap:wrap; }
+        .pvp-btn-request { display:flex;align-items:center;gap:7px;padding:9px 18px;background:var(--caramel);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s; }
+        .pvp-btn-request:hover { background:#9A5418;transform:translateY(-1px); }
+        .pvp-btn-connect { display:flex;align-items:center;gap:6px;padding:9px 16px;background:transparent;color:var(--caramel);border:1.5px solid var(--caramel);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s; }
+        .pvp-btn-connect:hover { background:#F5EDE3; }
+        .pvp-btn-connect.connected { background:#E1F5EE;color:#0F6E56;border-color:rgba(29,158,117,0.3);cursor:default; }
+
+        .pvp-name { font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:var(--espresso);letter-spacing:-0.02em;margin-bottom:4px; }
+        .pvp-headline { font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:10px; }
+        .pvp-meta-row { display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px; }
+        .pvp-meta-item { font-size:13px;color:var(--muted); }
+
+        /* Stats strip */
+        .pvp-stats-strip { display:flex;border-top:1px solid var(--border); }
+        .pvp-strip-stat { flex:1;padding:11px 14px;border-right:1px solid var(--border);text-align:center; }
+        .pvp-strip-stat:last-child { border-right:none; }
+        .pvp-strip-num { font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--caramel);letter-spacing:-0.02em; }
+        .pvp-strip-lbl { font-size:10px;color:var(--muted);margin-top:2px; }
+
+        /* Two-column body */
+        .pvp-two-col { display:grid;grid-template-columns:1fr 292px;gap:18px;align-items:start; }
+
+        /* Cards */
+        .pvp-card { background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden; }
+        .pvp-card-header { display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border); }
+        .pvp-card-title { font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:var(--espresso);letter-spacing:-0.01em; }
+        .pvp-card-body { padding:16px 18px; }
+        .pvp-about-text { font-size:14px;color:var(--espresso);line-height:1.8; }
+
+        /* Tags */
+        .pvp-tag-label { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px; }
+        .pvp-tag-row { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px; }
+        .pvp-tag { display:inline-flex;align-items:center;padding:5px 11px;border-radius:20px;font-size:13px; }
+        .pvp-tag-interest { background:#F5EDE3;border:1px solid rgba(181,101,29,0.15);color:var(--caramel); }
+        .pvp-tag-hobby { background:var(--latte-soft);border:1px solid var(--border);color:var(--brown); }
+        .pvp-tag-shared { background:#E1F5EE;border:1px solid rgba(29,158,117,0.2);color:#0F6E56;font-weight:500; }
+        .pvp-shared-badge { font-size:11px;font-weight:500;background:#E1F5EE;color:#0F6E56;padding:3px 9px;border-radius:10px; }
+        .pvp-shared-summary { margin-top:10px;padding:7px 10px;background:#E1F5EE;border-radius:8px;font-size:12px;color:#0F6E56; }
+
+        /* Goals */
+        .pvp-goal-item { display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--border); }
+        .pvp-goal-item:last-child { border-bottom:none; }
+        .pvp-goal-dot { width:7px;height:7px;border-radius:50%;background:var(--caramel);flex-shrink:0;margin-top:5px; }
+        .pvp-goal-text { font-size:14px;color:var(--espresso);line-height:1.5; }
+
+        /* Experience */
+        .pvp-exp-item { display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border); }
+        .pvp-exp-item:last-child { border-bottom:none; }
+        .pvp-exp-logo { width:38px;height:38px;border-radius:9px;background:var(--latte-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0; }
+        .pvp-exp-role { font-size:14px;font-weight:500;color:var(--espresso); }
+        .pvp-exp-company { font-size:13px;color:var(--muted);margin-top:2px; }
+        .pvp-exp-date { font-size:12px;color:var(--muted);margin-top:2px; }
+        .pvp-exp-desc { font-size:13px;color:var(--espresso);line-height:1.55;margin-top:6px; }
+
+        /* Reviews */
+        .pvp-review-item { padding:11px 0;border-bottom:1px solid var(--border); }
+        .pvp-review-item:last-child { border-bottom:none; }
+        .pvp-review-header { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
+        .pvp-stars { color:var(--caramel);font-size:13px;letter-spacing:1px; }
+        .pvp-review-date { font-size:11px;color:var(--muted); }
+        .pvp-review-text { font-size:13px;color:var(--espresso);line-height:1.55;font-style:italic; }
+        .pvp-review-anon { font-size:11px;color:var(--muted);margin-top:4px; }
+
+        /* Sidebar */
+        .pvp-sidebar { display:flex;flex-direction:column;gap:14px; }
+        .pvp-cta-card { background:linear-gradient(135deg,#F5EDE3 0%,#EAD5BC 100%);border:1px solid rgba(181,101,29,0.2);border-radius:14px;padding:18px 20px;text-align:center;box-shadow:var(--shadow); }
+        .pvp-cta-icon { font-size:28px;margin-bottom:8px; }
+        .pvp-cta-title { font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--espresso);letter-spacing:-0.01em;margin-bottom:5px; }
+        .pvp-cta-sub { font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:12px; }
+        .pvp-btn-cta-full { width:100%;padding:10px;background:var(--caramel);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:background 0.15s;margin-bottom:7px; }
+        .pvp-btn-cta-full:hover { background:#9A5418; }
+        .pvp-btn-cta-ghost { width:100%;padding:9px;background:transparent;color:var(--caramel);border:1px solid rgba(181,101,29,0.3);border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s; }
+        .pvp-btn-cta-ghost:hover { background:rgba(181,101,29,0.06); }
+        .pvp-sc { background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow); }
+        .pvp-sc-header { padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+        .pvp-sc-title { font-size:13px;font-weight:500;color:var(--espresso); }
+        .pvp-sc-body { padding:10px 14px; }
+        .pvp-avail-row { display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px; }
+        .pvp-avail-row:last-child { border-bottom:none; }
+        .pvp-avail-day { color:var(--muted); }
+        .pvp-avail-time { color:var(--espresso);font-weight:400; }
+        .pvp-common-item { display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.12s; }
+        .pvp-common-item:last-child { border-bottom:none; }
+        .pvp-common-icon { font-size:16px;width:26px;text-align:center;flex-shrink:0; }
+        .pvp-common-text { font-size:13px;color:var(--espresso);font-weight:500; }
+        .pvp-common-sub { font-size:11px;color:var(--muted);margin-top:1px; }
+        .pvp-common-item:hover .pvp-common-text { color:var(--caramel); }
+        .pvp-mutual-item { display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.12s; }
+        .pvp-mutual-item:last-child { border-bottom:none; }
+        .pvp-mutual-item:hover .pvp-mutual-name { color:var(--caramel); }
+        .pvp-mutual-av { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;overflow:hidden;flex-shrink:0; }
+        .pvp-mutual-name { font-size:13px;font-weight:500;color:var(--espresso); }
+        .pvp-mutual-role { font-size:11px;color:var(--muted); }
+
+        @media (max-width:700px) {
+            .pvp-two-col { grid-template-columns:1fr; }
+            .pvp-stats-strip .pvp-strip-stat:nth-child(3),
+            .pvp-stats-strip .pvp-strip-stat:nth-child(4) { display:none; }
+        }
+
         /* ─── ACHIEVEMENTS SETTINGS ─── */
         .ach-entry {
             background: var(--latte-soft); border: 1px solid var(--border);
