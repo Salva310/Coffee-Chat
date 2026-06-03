@@ -6661,12 +6661,12 @@
                   <div class="mpn-sidebar-card">
                     <div class="mpn-sidebar-header">
                       <div class="mpn-sidebar-title">Availability</div>
-                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="showSettingsSection('availability');switchView('settingsView')">Edit</span>
+                      <span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;" onclick="openSettingsTo('availability')">Edit</span>
                     </div>
                     <div class="mpn-sidebar-body">
                       ${availRows.length
                           ? availSidebarHTML
-                          : `<p class="mpn-empty-text" style="margin:0;">No availability set. <span onclick="showSettingsSection('availability');switchView('settingsView')" style="color:var(--caramel);cursor:pointer;">Set hours →</span></p>`}
+                          : `<p class="mpn-empty-text" style="margin:0;">No availability set. <span onclick="openSettingsTo('availability')" style="color:var(--caramel);cursor:pointer;">Set hours →</span></p>`}
                     </div>
                   </div>
 
@@ -8525,9 +8525,18 @@
             if (tab === 'privacy')       sLoadPrivacy();
         }
 
+        let _pendingSettingsSection = null;
+
+        function openSettingsTo(section) {
+            _pendingSettingsSection = section;
+            switchView('settingsView');
+        }
+
         function initSettingsPage() {
             sProfileLoaded = false;
-            showSettingsSection('profile');
+            const section = _pendingSettingsSection || 'profile';
+            _pendingSettingsSection = null;
+            showSettingsSection(section);
         }
 
         function showSettingsSection(name) {
@@ -8838,30 +8847,35 @@
 
         const S_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+        const S_DAY_ABBR = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
         function sRenderAvailDays() {
             const container = document.getElementById('s-avail-days');
             if (!container) return;
-            container.innerHTML = S_DAYS.map((day, i) => `
-                <div class="s-avail-day">
-                    <div class="s-avail-day-label">
-                        <label class="s-toggle" style="width:36px;height:20px;">
-                            <input type="checkbox" id="s-avail-day-${i}" onchange="sToggleAvailDay(${i})">
-                            <span class="s-toggle-slider"></span>
-                        </label>
-                        ${day}
+            container.innerHTML = `<div class="sa-days">${S_DAYS.map((day, i) => `
+                <div class="sa-day-row" id="sa-row-${i}">
+                    <div class="sa-day-abbr" id="sa-abbr-${i}">${S_DAY_ABBR[i]}</div>
+                    <span class="sa-day-name">${day}</span>
+                    <div class="sa-times" id="sa-times-${i}">
+                        <input type="time" id="sa-start-${i}" value="09:00" class="sa-time-input">
+                        <span class="sa-times-sep">→</span>
+                        <input type="time" id="sa-end-${i}" value="17:00" class="sa-time-input">
                     </div>
-                    <div class="s-avail-times" id="s-avail-times-${i}" style="display:none;">
-                        <input type="time" id="s-avail-start-${i}" value="09:00">
-                        <span>to</span>
-                        <input type="time" id="s-avail-end-${i}" value="17:00">
-                    </div>
-                </div>`).join('');
+                    <label class="sa-toggle">
+                        <input type="checkbox" id="sa-cb-${i}" onchange="sToggleAvailDay(${i})">
+                        <span class="sa-toggle-slider"></span>
+                    </label>
+                </div>`).join('')}
+            </div>`;
         }
 
         function sToggleAvailDay(i) {
-            const checked = document.getElementById('s-avail-day-' + i)?.checked;
-            const times   = document.getElementById('s-avail-times-' + i);
-            if (times) times.style.display = checked ? 'flex' : 'none';
+            const checked = document.getElementById('sa-cb-' + i)?.checked;
+            const row   = document.getElementById('sa-row-'   + i);
+            const times = document.getElementById('sa-times-' + i);
+            if (row)   row.classList.toggle('on', checked);
+            if (times) times.style.opacity = checked ? '1' : '0';
+            if (times) times.style.pointerEvents = checked ? 'all' : 'none';
         }
 
         async function sLoadAvailability() {
@@ -8870,16 +8884,16 @@
                 const { data } = await supabaseClient
                     .from('availability').select('*').eq('user_id', currentUser.id);
                 S_DAYS.forEach((_, i) => {
-                    const cb = document.getElementById('s-avail-day-' + i);
+                    const cb = document.getElementById('sa-cb-' + i);
                     if (cb) { cb.checked = false; sToggleAvailDay(i); }
                 });
                 (data || []).forEach(row => {
                     const i = row.day_of_week;
-                    const cb = document.getElementById('s-avail-day-' + i);
+                    const cb = document.getElementById('sa-cb-' + i);
                     if (cb) {
                         cb.checked = true; sToggleAvailDay(i);
-                        const s = document.getElementById('s-avail-start-' + i);
-                        const e = document.getElementById('s-avail-end-' + i);
+                        const s = document.getElementById('sa-start-' + i);
+                        const e = document.getElementById('sa-end-'   + i);
                         if (s && row.start_time) s.value = row.start_time.substring(0, 5);
                         if (e && row.end_time)   e.value = row.end_time.substring(0, 5);
                     }
@@ -8892,13 +8906,13 @@
             await supabaseClient.from('availability').delete().eq('user_id', currentUser.id);
             const rows = [];
             S_DAYS.forEach((_, i) => {
-                const cb = document.getElementById('s-avail-day-' + i);
+                const cb = document.getElementById('sa-cb-' + i);
                 if (cb?.checked) {
                     rows.push({
-                        user_id:     currentUser.id,
-                        day_of_week: i,
-                        start_time:  document.getElementById('s-avail-start-' + i)?.value || '09:00',
-                        end_time:    document.getElementById('s-avail-end-' + i)?.value   || '17:00',
+                        user_id:      currentUser.id,
+                        day_of_week:  i,
+                        start_time:   document.getElementById('sa-start-' + i)?.value || '09:00',
+                        end_time:     document.getElementById('sa-end-'   + i)?.value || '17:00',
                         is_available: true
                     });
                 }
