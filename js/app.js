@@ -4830,53 +4830,276 @@
         }
 
         // Groups
+        // ── Banner colour based on group name hash ──────────────────────
+        const NWC_BANNERS = ['nwc-banner-a','nwc-banner-b','nwc-banner-c','nwc-banner-d','nwc-banner-e'];
+        const NWC_AV_GRADS = [
+            'linear-gradient(135deg,#D4894A,#B5651D)',
+            'linear-gradient(135deg,#4A7C5E,#2D5C42)',
+            'linear-gradient(135deg,#6B5B8E,#4A3D6E)',
+            'linear-gradient(135deg,#4A7EA8,#2D5E88)',
+            'linear-gradient(135deg,#B56540,#8A4420)',
+        ];
+        function nwcColorIdx(id) {
+            return (id||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % NWC_BANNERS.length;
+        }
+
+        let _nwcSearchQ = '';
+        let _nwcChipFilter = '';
+
         function renderGroups() {
-            // Render into both groupsView and the nw-communities panel if present
-            const nwList    = document.getElementById('nwGroupsList');
-            const nwMyList  = document.getElementById('nwMyGroupsList');
+            // Render legacy groupsView (kept for other entry-points)
             const list = document.getElementById('groupsList');
-            list.innerHTML = groups.map(group => {
-                const joined = myGroupIds.has(group.id);
-                return `
-                <div class="group-card">
-                    <div class="group-header">
-                        <div>
-                            <h3 style="margin-bottom: 0.25rem;">${group.name}</h3>
-                            <span class="industry-pill">${group.industry || ''}</span>
+            if (list) {
+                list.innerHTML = groups.map(group => {
+                    const joined = myGroupIds.has(group.id);
+                    return `<div class="group-card">
+                        <div class="group-header"><div>
+                            <h3 style="margin-bottom:.25rem;">${group.name}</h3>
+                            <span class="industry-pill">${group.industry||''}</span>
+                        </div></div>
+                        <p style="font-size:13px;color:#666;margin:.5rem 0;">${group.description||''}</p>
+                        <div class="group-meta"><span>👥 ${group.member_count||0} members</span></div>
+                        ${joined
+                            ? `<button class="btn btn-accent" onclick="nwcOpenGroup('${group.id}')" style="width:100%;margin-top:.75rem;">View Group</button>`
+                            : `<button class="btn btn-primary" onclick="joinGroup('${group.id}')" style="width:100%;margin-top:.75rem;">Join Group</button>`
+                        }
+                    </div>`;
+                }).join('') || '<div class="empty-state"><p>No groups available yet</p></div>';
+            }
+            const myList = document.getElementById('myGroupsList');
+            if (myList) {
+                const myGroups = groups.filter(g => myGroupIds.has(g.id));
+                myList.innerHTML = myGroups.length ? myGroups.map(g => `
+                    <div class="group-card" onclick="nwcOpenGroup('${g.id}')" style="cursor:pointer;margin-bottom:.75rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <h3 style="color:var(--primary);margin-bottom:.25rem;">✓ ${g.name}</h3>
+                                <div class="group-meta" style="margin:0;"><span>👥 ${g.member_count||0} members</span></div>
+                            </div>
+                            <span style="color:var(--accent);font-size:18px;">→</span>
                         </div>
-                    </div>
-                    <p style="font-size: 13px; color: #666; margin: 0.5rem 0;">${group.description || ''}</p>
-                    <div class="group-meta">
-                        <span>&#128101; ${group.member_count || 0} members</span>
-                    </div>
-                    ${joined ?
-                        `<button class="btn btn-accent" onclick="viewGroup('${group.id}')" style="width: 100%; margin-top: 0.75rem;">View Group</button>` :
-                        `<button class="btn btn-primary" onclick="joinGroup('${group.id}')" style="width: 100%; margin-top: 0.75rem;">Join Group</button>`
-                    }
-                </div>`;
-            }).join('') || '<div class="empty-state"><p>No groups available yet</p></div>';
-            if (nwList) nwList.innerHTML = list.innerHTML;
+                    </div>`).join('')
+                    : '<div class="empty-state"><p>Join groups to connect with your community</p></div>';
+            }
+            // Render the redesigned nw-communities panel
+            nwcRenderList();
+        }
+
+        function nwcRenderList() {
+            const joinedRow = document.getElementById('nwcJoinedRow');
+            const grid      = document.getElementById('nwcGrid');
+            if (!joinedRow || !grid) return;
 
             const myGroups = groups.filter(g => myGroupIds.has(g.id));
-            const myList = document.getElementById('myGroupsList');
-            if (myGroups.length === 0) {
-                myList.innerHTML = '<div class="empty-state"><p>Join groups to connect with your community</p></div>';
-            } else {
-                myList.innerHTML = myGroups.map(group => `
-                    <div class="group-card" onclick="viewGroup('${group.id}')" style="cursor: pointer; margin-bottom: 0.75rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h3 style="color: var(--primary); margin-bottom: 0.25rem;">&#10003; ${group.name}</h3>
-                                <div class="group-meta" style="margin: 0;">
-                                    <span>&#128101; ${group.member_count || 0} members</span>
-                                </div>
+            const q    = _nwcSearchQ.toLowerCase();
+            const cat  = _nwcChipFilter.toLowerCase();
+
+            // Joined row
+            joinedRow.innerHTML = myGroups.length
+                ? myGroups.map(g => {
+                    const ci = nwcColorIdx(g.id);
+                    return `<div class="nwc-joined-card" onclick="nwcOpenGroup('${g.id}')">
+                        <div class="nwc-joined-icon">${g.icon||'👥'}</div>
+                        <div class="nwc-joined-name">${g.name}</div>
+                        <div class="nwc-joined-members">${g.member_count||0} members</div>
+                    </div>`;
+                }).join('')
+                : '<div class="nwc-joined-empty">You haven\'t joined any communities yet.</div>';
+
+            // Featured grid (all groups, filtered)
+            const filtered = groups.filter(g => {
+                const matchQ   = !q   || g.name.toLowerCase().includes(q) || (g.description||'').toLowerCase().includes(q);
+                const matchCat = !cat || (g.industry||'').toLowerCase().includes(cat) || (g.name||'').toLowerCase().includes(cat);
+                return matchQ && matchCat;
+            });
+
+            grid.innerHTML = filtered.length
+                ? filtered.map(g => {
+                    const ci     = nwcColorIdx(g.id);
+                    const joined = myGroupIds.has(g.id);
+                    return `<div class="nwc-card" onclick="nwcOpenGroup('${g.id}')">
+                        <div class="nwc-card-banner ${NWC_BANNERS[ci]}">${g.icon||'👥'}</div>
+                        <div class="nwc-card-body">
+                            <div class="nwc-card-name">${g.name}</div>
+                            <div class="nwc-card-desc">${g.description||''}</div>
+                            <div class="nwc-card-footer">
+                                <div class="nwc-card-meta">👥 ${g.member_count||0} members</div>
+                                ${joined
+                                    ? `<button class="nwc-btn-joined" onclick="event.stopPropagation()">✓ Joined</button>`
+                                    : `<button class="nwc-btn-join" onclick="event.stopPropagation();joinGroup('${g.id}')">Join</button>`
+                                }
                             </div>
-                            <span style="color: var(--accent); font-size: 18px;">&rarr;</span>
                         </div>
-                    </div>`
-                ).join('');
+                    </div>`;
+                }).join('')
+                : '<p style="font-size:13px;color:var(--muted);grid-column:1/-1;padding:8px 0;">No communities match your search.</p>';
+        }
+
+        function nwcFilter(q) { _nwcSearchQ = q; nwcRenderList(); }
+
+        function nwcSetChip(el, cat) {
+            document.querySelectorAll('#nwcChips .nwc-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            _nwcChipFilter = cat;
+            nwcRenderList();
+        }
+
+        async function nwcOpenGroup(groupId) {
+            // Switch to the communities panel if not already there
+            if (!document.getElementById('nw-communities')?.offsetParent) {
+                switchView('networkView');
+                switchNwTab(document.querySelector('[onclick*="nw-communities"]'), 'nw-communities');
             }
-            if (nwMyList) nwMyList.innerHTML = myList.innerHTML;
+            const listEl   = document.getElementById('nwc-list');
+            const detailEl = document.getElementById('nwc-detail');
+            if (!listEl || !detailEl) { viewGroup(groupId); return; }
+
+            listEl.style.display   = 'none';
+            detailEl.style.display = 'block';
+            detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const heroEl    = document.getElementById('nwcHero');
+            const feedEl    = document.getElementById('nwcFeed');
+            const sidebarEl = document.getElementById('nwcSidebar');
+            const group     = groups.find(g => g.id === groupId);
+
+            heroEl.innerHTML    = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>';
+            feedEl.innerHTML    = '';
+            sidebarEl.innerHTML = '';
+
+            try {
+                const [{ data: postsData }, { data: membersData }] = await Promise.all([
+                    supabaseClient.from('posts')
+                        .select('*, author:profiles!posts_author_id_fkey(id, first_name, last_name, industry, role)')
+                        .eq('group_id', groupId).order('created_at', { ascending: false }),
+                    supabaseClient.from('group_members')
+                        .select('role, profiles!group_members_user_id_fkey(id, first_name, last_name, industry, role, company)')
+                        .eq('group_id', groupId)
+                ]);
+
+                const ci = nwcColorIdx(groupId);
+                const icon = group?.icon || '👥';
+                const memberCount = group?.member_count || (membersData||[]).length;
+
+                // Hero
+                heroEl.innerHTML = `
+                    <div class="nwc-hero-banner ${NWC_BANNERS[ci]}">
+                        <div class="nwc-hero-icon">${icon}</div>
+                        <div>
+                            <div class="nwc-hero-name">${group?.name||'Community'}</div>
+                            <div class="nwc-hero-sub">${memberCount} members · Rowan University</div>
+                        </div>
+                    </div>
+                    <div class="nwc-hero-body">
+                        <div class="nwc-stats">
+                            <div><div class="nwc-stat-num">${memberCount}</div><div class="nwc-stat-label">Members</div></div>
+                            <div><div class="nwc-stat-num">${(postsData||[]).length}</div><div class="nwc-stat-label">Posts</div></div>
+                        </div>
+                        <div class="nwc-hero-actions">
+                            ${myGroupIds.has(groupId)
+                                ? `<button class="nwc-btn-ghost" onclick="leaveGroup('${groupId}')">Leave</button>
+                                   <button class="nwc-btn-post" onclick="nwcFocusComposer()">+ Post</button>`
+                                : `<button class="nwc-btn-post" onclick="joinGroup('${groupId}')">Join Community</button>`
+                            }
+                        </div>
+                    </div>`;
+
+                // Composer + posts
+                const initials = currentUser ? `${currentUser.firstName?.[0]||''}${currentUser.lastName?.[0]||''}` : '';
+                const postsHTML = (postsData||[]).map(post => {
+                    const a = post.author || {};
+                    const av = `${a.first_name?.[0]||'?'}${a.last_name?.[0]||''}`;
+                    const grad = NWC_AV_GRADS[nwcColorIdx(a.id||'')];
+                    return `<div class="nwc-post">
+                        <div class="nwc-post-header">
+                            <div class="nwc-post-av" style="background:${grad}">${av}</div>
+                            <div>
+                                <div class="nwc-post-name">${a.first_name||''} ${a.last_name||''}</div>
+                                <div class="nwc-post-meta">${a.role||a.industry||'Rowan University'}</div>
+                            </div>
+                            <div class="nwc-post-time">${getTimeAgo(post.created_at)}</div>
+                        </div>
+                        <div class="nwc-post-body">${post.content||''}</div>
+                        <div class="nwc-post-actions">
+                            <button class="nwc-post-btn" onclick="likeGroupPost('${post.id}','${groupId}')">♡ ${post.likes_count||0}</button>
+                            <button class="nwc-post-btn">💬 Comment</button>
+                        </div>
+                    </div>`;
+                }).join('') || '<p style="font-size:13px;color:var(--muted);padding:8px 0;">No posts yet — be the first!</p>';
+
+                feedEl.innerHTML = `
+                    <div class="nwc-composer">
+                        <div class="nwc-composer-av">${initials}</div>
+                        <textarea class="nwc-composer-input" id="nwcPostInput-${groupId}" placeholder="Share something with the community…" rows="1"></textarea>
+                        <button class="nwc-composer-post" onclick="nwcPostToGroup('${groupId}')">Post</button>
+                    </div>
+                    <div id="nwcPosts-${groupId}">${postsHTML}</div>`;
+
+                // Sidebar
+                const membersHTML = (membersData||[]).slice(0,5).map(m => {
+                    const p = m.profiles; if (!p) return '';
+                    const av = `${p.first_name?.[0]||'?'}${p.last_name?.[0]||''}`;
+                    const grad = NWC_AV_GRADS[nwcColorIdx(p.id||'')];
+                    return `<div class="nwc-member" onclick="viewProfile('${p.id}')">
+                        <div class="nwc-member-av" style="background:${grad}">${av}</div>
+                        <div>
+                            <div class="nwc-member-name">${p.first_name} ${p.last_name}</div>
+                            <div class="nwc-member-role">${p.role||p.industry||p.company||''}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                sidebarEl.innerHTML = `
+                    <div class="nwc-sidebar-card">
+                        <div class="nwc-sidebar-head">About</div>
+                        <div class="nwc-sidebar-body">
+                            <div class="nwc-about-text">${group?.description||'A community for Rowan University students and alumni.'}</div>
+                        </div>
+                    </div>
+                    ${membersHTML ? `
+                    <div class="nwc-sidebar-card">
+                        <div class="nwc-sidebar-head">Members</div>
+                        <div class="nwc-sidebar-body">${membersHTML}
+                            ${(membersData||[]).length > 5 ? `<div style="text-align:center;padding-top:8px;"><span style="font-size:12px;color:var(--caramel);cursor:pointer;font-weight:500;">See all ${memberCount} members →</span></div>` : ''}
+                        </div>
+                    </div>` : ''}`;
+
+            } catch(e) {
+                console.error('nwcOpenGroup:', e);
+                heroEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Failed to load community.</div>';
+            }
+        }
+
+        function nwcGoBack() {
+            const listEl   = document.getElementById('nwc-list');
+            const detailEl = document.getElementById('nwc-detail');
+            if (listEl)   listEl.style.display   = 'block';
+            if (detailEl) detailEl.style.display = 'none';
+            // Also handle when coming from legacy groupDetailView
+            if (document.getElementById('groupDetailView')?.classList.contains('active')) {
+                switchView('networkView');
+                setTimeout(() => switchNwTab(document.querySelector('[onclick*="nw-communities"]'), 'nw-communities'), 50);
+            }
+        }
+
+        function nwcFocusComposer() {
+            const el = document.querySelector('[id^="nwcPostInput-"]');
+            if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        }
+
+        async function nwcPostToGroup(groupId) {
+            const input = document.getElementById('nwcPostInput-' + groupId);
+            const text = (input?.value || '').trim();
+            if (!text || !currentUser) return;
+            try {
+                const { error } = await supabaseClient.from('posts').insert([{ author_id: currentUser.id, content: text, group_id: groupId }]);
+                if (error) throw error;
+                input.value = '';
+                await nwcOpenGroup(groupId);
+                showToast('Posted! ☕', 'success');
+            } catch(e) {
+                showToast('Failed to post: ' + e.message, 'error');
+            }
         }
 
         async function viewGroup(groupId) {
