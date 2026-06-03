@@ -6490,6 +6490,7 @@
                         schoolName:     profileData.school_name   ?? currentUser.schoolName ?? null,
                         isOnline:       profileData.is_online,
                         chatOpen:       profileData.chat_open,
+                        avg_rating:     profileData.avg_rating  ?? null,
                     };
                 }
             } catch(e) { console.error('renderMyProfile fetch profile:', e); }
