@@ -2613,6 +2613,28 @@
         </div>
     </div>
 
+    <!-- Share Profile Modal -->
+    <div id="shareProfileModal" class="modal" onclick="if(event.target===this)closeShareProfileModal()">
+        <div class="modal-content" style="max-width:420px;padding:0;overflow:hidden;">
+            <div class="modal-header" style="padding:18px 20px 16px;">
+                <h3 style="margin:0;font-size:16px;font-weight:600;color:var(--espresso);">Send this profile to a connection</h3>
+                <button class="modal-close" onclick="closeShareProfileModal()">×</button>
+            </div>
+            <div style="padding:0 20px 12px;">
+                <div style="position:relative;">
+                    <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--muted);stroke-width:2;fill:none;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="spSearchInput" placeholder="Search connections…" oninput="spFilter(this.value)"
+                        style="width:100%;padding:9px 12px 9px 32px;border:1px solid var(--border-strong);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;outline:none;background:#fff;color:var(--espresso);box-sizing:border-box;">
+                </div>
+            </div>
+            <div id="spConnectionList" style="max-height:300px;overflow-y:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);"></div>
+            <div style="display:flex;gap:10px;padding:14px 20px;">
+                <button onclick="closeShareProfileModal()" style="flex:1;padding:10px;border:1px solid var(--border-strong);border-radius:9px;font-size:14px;font-weight:500;color:var(--muted);background:none;cursor:pointer;font-family:'Sora',sans-serif;">Cancel</button>
+                <button onclick="spSend()" id="spSendBtn" style="flex:2;padding:10px;background:var(--caramel);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;">Send</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Preview Modal -->
     <div id="profilePreviewModal" class="modal" onclick="if(event.target===this)this.classList.remove('active')">
         <div class="modal-content" style="max-width:700px;width:92%;background:var(--warm-white);border-radius:18px;padding:0;overflow:hidden;">

@@ -2552,7 +2552,7 @@
                                         ? `<button class="pvp-btn-connect" disabled style="opacity:.6;">Request sent</button>`
                                         : `<button class="pvp-btn-connect" onclick="openConnectModal('${userId}')">+ Connect</button>`
                                 }
-                                <button class="pvp-btn-share" onclick="navigator.clipboard.writeText('https://coffee-chat-topaz.vercel.app/profile/${userId}').then(()=>showToast('Profile link copied!','success')).catch(()=>showToast('Could not copy','error'))" title="Share profile">
+                                <button class="pvp-btn-share" onclick="openShareProfileModal('${userId}','${user.firstName} ${user.lastName}')" title="Share profile">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                                 </button>
                             </div>
@@ -3984,6 +3984,113 @@
             document.getElementById('reviewModal').style.display = 'none';
             _reviewMeetingId = _reviewRevieweeId = null;
             _reviewRating = 0;
+        }
+
+        // ── Share Profile Modal ────────────────────────────────────────
+        let _spOwnerId   = null;
+        let _spOwnerName = '';
+        let _spSelected  = new Set();
+        let _spAllConns  = [];
+
+        function openShareProfileModal(ownerId, ownerName) {
+            _spOwnerId   = ownerId;
+            _spOwnerName = ownerName;
+            _spSelected  = new Set();
+
+            // Build connection list from local connections + users cache
+            const GRAD = ['linear-gradient(135deg,#D4894A,#B5651D)','linear-gradient(135deg,#7B9E87,#4A7C5E)','linear-gradient(135deg,#8B7BAB,#6B5B8E)','linear-gradient(135deg,#D4896A,#B56540)','linear-gradient(135deg,#6B9EC4,#4A7EA8)'];
+            _spAllConns = connections.map((c, i) => {
+                const uid = c.user_id === currentUser.id ? c.connected_user_id : c.user_id;
+                const u   = users.find(u => u.id === uid);
+                if (!u) return null;
+                return { id: uid, firstName: u.firstName||'', lastName: u.lastName||'',
+                         sub: u.major||u.headline||u.industry||'Rowan University',
+                         pic: u.profilePicture, grad: GRAD[i % GRAD.length] };
+            }).filter(Boolean);
+
+            const input = document.getElementById('spSearchInput');
+            if (input) input.value = '';
+            spRenderList(_spAllConns);
+
+            const btn = document.getElementById('spSendBtn');
+            if (btn) btn.textContent = 'Send';
+
+            openModal('shareProfileModal');
+        }
+
+        function closeShareProfileModal() {
+            closeModal('shareProfileModal');
+            _spOwnerId = null; _spOwnerName = ''; _spSelected.clear();
+        }
+
+        function spFilter(q) {
+            const lower = q.toLowerCase();
+            const filtered = lower
+                ? _spAllConns.filter(c => (c.firstName+' '+c.lastName).toLowerCase().includes(lower))
+                : _spAllConns;
+            spRenderList(filtered);
+        }
+
+        function spRenderList(list) {
+            const el = document.getElementById('spConnectionList');
+            if (!el) return;
+            if (!list.length) {
+                el.innerHTML = '<div style="padding:20px;text-align:center;font-size:13px;color:var(--muted);">No connections found.</div>';
+                return;
+            }
+            el.innerHTML = list.map(c => {
+                const ini = ((c.firstName[0]||'?')+(c.lastName[0]||'')).toUpperCase();
+                const av  = c.pic ? `<img src="${c.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : ini;
+                const sel = _spSelected.has(c.id);
+                return `<div class="sp-conn-row ${sel ? 'selected' : ''}" id="sp-row-${c.id}" onclick="spToggle('${c.id}')">
+                    <div class="sp-av" style="background:${c.pic?'transparent':c.grad}">${av}</div>
+                    <div class="sp-info">
+                        <div class="sp-name">${c.firstName} ${c.lastName}</div>
+                        <div class="sp-sub">${c.sub}</div>
+                    </div>
+                    <div class="sp-check" id="sp-chk-${c.id}">${sel ? '✓' : ''}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function spToggle(userId) {
+            if (_spSelected.has(userId)) {
+                _spSelected.delete(userId);
+            } else {
+                _spSelected.add(userId);
+            }
+            const row = document.getElementById('sp-row-' + userId);
+            const chk = document.getElementById('sp-chk-' + userId);
+            if (row) row.classList.toggle('selected', _spSelected.has(userId));
+            if (chk) chk.textContent = _spSelected.has(userId) ? '✓' : '';
+            const btn = document.getElementById('spSendBtn');
+            if (btn) btn.textContent = _spSelected.size > 0 ? `Send to ${_spSelected.size}` : 'Send';
+        }
+
+        async function spSend() {
+            if (!_spSelected.size) { showToast('Select at least one connection ☕', 'info'); return; }
+            if (!currentUser || !_spOwnerId) return;
+
+            const ownerProfile = users.find(u => u.id === _spOwnerId);
+            const ownerFirstName = ownerProfile?.firstName || _spOwnerName.split(' ')[0] || 'Someone';
+            const ownerFullName  = _spOwnerName || `${ownerProfile?.firstName||''} ${ownerProfile?.lastName||''}`.trim();
+
+            const rows = [..._spSelected].map(recipientId => ({
+                user_id: recipientId,
+                type:    'profile_recommendation',
+                title:   `${currentUser.firstName} thinks you should connect with ${ownerFullName}`,
+                read:    false,
+            }));
+
+            try {
+                const { error } = await supabaseClient.from('notifications').insert(rows);
+                if (error) throw error;
+                const count = _spSelected.size;
+                closeShareProfileModal();
+                showToast(`Profile sent to ${count} connection${count > 1 ? 's' : ''} ✓`, 'success');
+            } catch(e) {
+                showToast('Failed to send: ' + e.message, 'error');
+            }
         }
 
         // Handles /review/:meetingId deep-link. Returns true if the route was matched.
@@ -6816,7 +6923,7 @@
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       Preview
                     </button>
-                    <button class="mpn-btn-ghost" onclick="navigator.clipboard.writeText('https://coffee-chat-topaz.vercel.app/profile/${profile.id}').then(()=>showToast('Profile link copied!','success')).catch(()=>showToast('Could not copy link','error'))">
+                    <button class="mpn-btn-ghost" onclick="openShareProfileModal('${profile.id}','${profile.firstName} ${profile.lastName}')">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                       Share
                     </button>
