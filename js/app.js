@@ -7306,41 +7306,38 @@
                             <div class="mn2-sidebar-body">${activityHTML}</div>
                         </div>
 
-                    </div>
-                </div>
+                        <!-- Chat reviews -->
+                        ${reviews.length ? (() => {
+                            const starsHTML = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+                            const avgStr = avgRating ? Number(avgRating).toFixed(1) : null;
+                            const preview = reviews.slice(0, 3);
+                            const reviewCards = preview.map(r => `
+                                <div class="mn2-review-item">
+                                    <div class="mn2-review-header">
+                                        <span class="mn2-review-stars">${starsHTML(r.rating)}</span>
+                                        <span class="mn2-review-date">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
+                                    </div>
+                                    ${r.comment ? `<div class="mn2-review-text">"${r.comment}"</div>` : ''}
+                                    <div class="mn2-review-anon">🔒 Anonymous</div>
+                                </div>`).join('');
+                            return `
+                            <div class="mn2-sidebar-card">
+                                <div class="mn2-sidebar-header">
+                                    <div class="mn2-sidebar-title">Chat reviews ${avgStr ? `<span class="mn2-reviews-rating">${avgStr} ⭐</span>` : ''}</div>
+                                    <span class="mn2-reviews-count">${reviews.length}</span>
+                                </div>
+                                <div class="mn2-sidebar-body" style="padding-top:4px;padding-bottom:4px;">
+                                    ${reviewCards}
+                                    ${reviews.length > 3 ? `
+                                    <div class="mn2-reviews-see-all" onclick="mnToggleAllReviews(this, ${JSON.stringify(reviews)})">
+                                        See all ${reviews.length} reviews →
+                                    </div>` : ''}
+                                </div>
+                            </div>`;
+                        })() : ''}
 
-                <!-- Recent Reviews — full width below the two-col grid -->
-                ${reviews.length ? (() => {
-                    const starsHTML = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
-                    const preview = reviews.slice(0, 3);
-                    const reviewCards = preview.map(r => `
-                        <div class="mn2-review-item">
-                            <div class="mn2-review-header">
-                                <span class="mn2-review-stars">${starsHTML(r.rating)}</span>
-                                <span class="mn2-review-date">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
-                            </div>
-                            ${r.comment ? `<div class="mn2-review-text">"${r.comment}"</div>` : ''}
-                            <div class="mn2-review-anon">🔒 Anonymous review</div>
-                        </div>`).join('');
-                    const avgStr = avgRating ? Number(avgRating).toFixed(1) : null;
-                    return `
-                    <div class="mn2-reviews-card">
-                        <div class="mn2-reviews-header">
-                            <div class="mn2-reviews-title">
-                                Chat reviews
-                                ${avgStr ? `<span class="mn2-reviews-rating">${avgStr} ⭐</span>` : ''}
-                            </div>
-                            <span class="mn2-reviews-count">${reviews.length} review${reviews.length > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="mn2-reviews-body">
-                            ${reviewCards}
-                            ${reviews.length > 3 ? `
-                            <div class="mn2-reviews-see-all" onclick="mnToggleAllReviews(this, ${JSON.stringify(reviews)})">
-                                See all ${reviews.length} reviews →
-                            </div>` : ''}
-                        </div>
-                    </div>`;
-                })() : ''}`;
+                    </div>
+                </div>`;
 
             } catch(e) {
                 console.error('renderMyNetworkSection:', e);
