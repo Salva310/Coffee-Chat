@@ -256,18 +256,18 @@
                 await loadUserProfile(session.user.id);
                 recordLogin();
                 renderNav();
-                // Handle /review/:id deep-link before defaulting to dashboard
-                const wasReview = await handleReviewRoute();
-                if (!wasReview) switchView('dashboardView');
+                // Handle deep-links before defaulting to dashboard
+                const wasReview  = await handleReviewRoute();
+                const wasProfile = !wasReview && await handleProfileRoute();
+                if (!wasReview && !wasProfile) switchView('dashboardView');
                 await updateDashboard();
                 checkBadgesWithCelebration();
             } else {
-                // No session — check for review deep-link first, store it, then show login
-                const reviewMatch = window.location.pathname.match(/^\/review\/([0-9a-f-]+)$/i);
-                if (reviewMatch) {
-                    localStorage.setItem('_pendingReview', reviewMatch[1]);
-                    window.history.replaceState({}, '', '/');
-                }
+                // No session — store any deep-link, then show login
+                const reviewMatch  = window.location.pathname.match(/^\/review\/([0-9a-f-]+)$/i);
+                const profileMatch = window.location.pathname.match(/^\/profile\/([0-9a-f-]+)$/i);
+                if (reviewMatch)  { localStorage.setItem('_pendingReview',  reviewMatch[1]);  window.history.replaceState({}, '', '/'); }
+                if (profileMatch) { localStorage.setItem('_pendingProfile', profileMatch[1]); window.history.replaceState({}, '', '/'); }
                 document.querySelector('.app-container').classList.add('sidebar-hidden');
                 switchView('landingView');
             }
@@ -649,14 +649,14 @@
                 recordLogin();
                 renderNav();
                 showToast('Welcome back!', 'success');
-                // Check for pending review deep-link from before login
-                const pendingReview = localStorage.getItem('_pendingReview');
-                if (pendingReview) {
-                    localStorage.removeItem('_pendingReview');
-                    window.history.replaceState({}, '', `/review/${pendingReview}`);
-                }
-                const wasReview = await handleReviewRoute();
-                if (!wasReview) switchView('dashboardView');
+                // Restore any deep-link pending before login
+                const pendingReview   = localStorage.getItem('_pendingReview');
+                const pendingProfile  = localStorage.getItem('_pendingProfile');
+                if (pendingReview)  { localStorage.removeItem('_pendingReview');  window.history.replaceState({}, '', `/review/${pendingReview}`); }
+                if (pendingProfile) { localStorage.removeItem('_pendingProfile'); window.history.replaceState({}, '', `/profile/${pendingProfile}`); }
+                const wasReview  = await handleReviewRoute();
+                const wasProfile = !wasReview && await handleProfileRoute();
+                if (!wasReview && !wasProfile) switchView('dashboardView');
                 await updateDashboard();
                 checkBadgesWithCelebration();
             } catch (error) {
@@ -748,13 +748,13 @@
                 recordLogin();
                 renderNav();
                 showToast('Welcome to First Sip! ☕', 'success');
-                const pendingReviewSignup = localStorage.getItem('_pendingReview');
-                if (pendingReviewSignup) {
-                    localStorage.removeItem('_pendingReview');
-                    window.history.replaceState({}, '', `/review/${pendingReviewSignup}`);
-                }
-                const wasReviewSignup = await handleReviewRoute();
-                if (!wasReviewSignup) switchView('dashboardView');
+                const pendingReviewSignup  = localStorage.getItem('_pendingReview');
+                const pendingProfileSignup = localStorage.getItem('_pendingProfile');
+                if (pendingReviewSignup)  { localStorage.removeItem('_pendingReview');  window.history.replaceState({}, '', `/review/${pendingReviewSignup}`); }
+                if (pendingProfileSignup) { localStorage.removeItem('_pendingProfile'); window.history.replaceState({}, '', `/profile/${pendingProfileSignup}`); }
+                const wasReviewSignup  = await handleReviewRoute();
+                const wasProfileSignup = !wasReviewSignup && await handleProfileRoute();
+                if (!wasReviewSignup && !wasProfileSignup) switchView('dashboardView');
                 await updateDashboard();
             } catch (error) {
                 console.error('Signup error:', error);
@@ -2552,6 +2552,9 @@
                                         ? `<button class="pvp-btn-connect" disabled style="opacity:.6;">Request sent</button>`
                                         : `<button class="pvp-btn-connect" onclick="openConnectModal('${userId}')">+ Connect</button>`
                                 }
+                                <button class="pvp-btn-share" onclick="navigator.clipboard.writeText('https://coffee-chat-topaz.vercel.app/profile/${userId}').then(()=>showToast('Profile link copied!','success')).catch(()=>showToast('Could not copy','error'))" title="Share profile">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                </button>
                             </div>
                         </div>
                         <div class="pvp-name">${user.firstName} ${user.lastName}</div>
@@ -4049,6 +4052,71 @@
                 console.error('handleReviewRoute:', e);
                 showToast('Could not load review — please try again.', 'error');
             }
+            return true;
+        }
+
+        async function handleProfileRoute() {
+            const match = window.location.pathname.match(/^\/profile\/([0-9a-f-]+)$/i);
+            if (!match) return false;
+            const userId = match[1];
+            window.history.replaceState({}, '', '/');
+
+            if (!currentUser) {
+                localStorage.setItem('_pendingProfile', userId);
+                return true;
+            }
+
+            // Own profile
+            if (userId === currentUser.id) {
+                switchView('myProfileView');
+                return true;
+            }
+
+            // Another user — ensure they're in the local users cache
+            if (!users.find(u => u.id === userId)) {
+                try {
+                    const { data: p } = await supabaseClient
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', userId)
+                        .single();
+                    if (p) {
+                        users.push({
+                            id:             p.id,
+                            firstName:      p.first_name   || '',
+                            lastName:       p.last_name    || '',
+                            headline:       p.headline     || '',
+                            bio:            p.bio          || '',
+                            interests:      Array.isArray(p.interests) ? p.interests : [],
+                            hobbies:        Array.isArray(p.hobbies)   ? p.hobbies   : [],
+                            goals:          p.goals        || '',
+                            major:          p.major        || '',
+                            industry:       p.industry     || '',
+                            role:           p.role         || '',
+                            company:        p.company      || '',
+                            gradYear:       p.grad_year    || '',
+                            schoolName:     p.school_name  || '',
+                            location:       p.location     || '',
+                            linkedinUrl:    p.linkedin_url || '',
+                            profilePicture: p.profile_picture || null,
+                            bannerImage:    p.banner_image    || null,
+                            resume:         p.resume_url      || null,
+                            avatarColor:    p.avatar_color    || null,
+                            avg_rating:     p.avg_rating      || null,
+                        });
+                    }
+                } catch(e) {
+                    console.error('handleProfileRoute fetch:', e);
+                }
+            }
+
+            if (!users.find(u => u.id === userId)) {
+                showToast('Profile not found.', 'error');
+                switchView('dashboardView');
+                return true;
+            }
+
+            await viewProfile(userId);
             return true;
         }
 
@@ -6748,7 +6816,7 @@
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       Preview
                     </button>
-                    <button class="mpn-btn-ghost" onclick="navigator.clipboard.writeText(window.location.origin+'/profile/'+currentUser.id).then(()=>showToast('Profile link copied!','success')).catch(()=>showToast('Could not copy link','error'))">
+                    <button class="mpn-btn-ghost" onclick="navigator.clipboard.writeText('https://coffee-chat-topaz.vercel.app/profile/${profile.id}').then(()=>showToast('Profile link copied!','success')).catch(()=>showToast('Could not copy link','error'))">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                       Share
                     </button>

@@ -3854,6 +3854,8 @@
         .pvp-btn-connect { display:flex;align-items:center;gap:6px;padding:9px 16px;background:transparent;color:var(--caramel);border:1.5px solid var(--caramel);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s; }
         .pvp-btn-connect:hover { background:#F5EDE3; }
         .pvp-btn-connect.connected { background:#E1F5EE;color:#0F6E56;border-color:rgba(29,158,117,0.3);cursor:default; }
+        .pvp-btn-share { width:40px;height:40px;border-radius:10px;border:1px solid var(--border-strong);background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all 0.15s;margin-top:12px;flex-shrink:0;padding:0; }
+        .pvp-btn-share:hover { background:var(--latte-soft);color:var(--caramel);border-color:var(--caramel); }
 
         .pvp-name { font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:var(--espresso);letter-spacing:-0.02em;margin-bottom:4px; }
         .pvp-headline { font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:10px; }
