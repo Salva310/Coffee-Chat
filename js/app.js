@@ -4071,24 +4071,55 @@
             if (!_spSelected.size) { showToast('Select at least one connection ☕', 'info'); return; }
             if (!currentUser || !_spOwnerId) return;
 
-            const ownerProfile = users.find(u => u.id === _spOwnerId);
-            const ownerFirstName = ownerProfile?.firstName || _spOwnerName.split(' ')[0] || 'Someone';
-            const ownerFullName  = _spOwnerName || `${ownerProfile?.firstName||''} ${ownerProfile?.lastName||''}`.trim();
+            // Fetch fresh profile owner data so the card has accurate info
+            let ownerData = users.find(u => u.id === _spOwnerId);
+            if (!ownerData) {
+                const { data: p } = await supabaseClient.from('profiles')
+                    .select('id, first_name, last_name, headline, major').eq('id', _spOwnerId).single();
+                if (p) ownerData = { id: p.id, firstName: p.first_name, lastName: p.last_name, headline: p.headline, major: p.major };
+            }
+            const ownerFullName = ownerData
+                ? `${ownerData.firstName||''} ${ownerData.lastName||''}`.trim()
+                : _spOwnerName;
 
-            const rows = [..._spSelected].map(recipientId => ({
-                user_id: recipientId,
-                type:    'profile_recommendation',
-                title:   `${currentUser.firstName} thinks you should connect with ${ownerFullName}`,
-                read:    false,
-            }));
+            const metadata = {
+                type:              'profile_recommendation',
+                profile_id:        _spOwnerId,
+                profile_name:      ownerFullName,
+                profile_headline:  ownerData?.headline || '',
+                profile_major:     ownerData?.major    || '',
+            };
+
+            const recipients = [..._spSelected];
 
             try {
-                const { error } = await supabaseClient.from('notifications').insert(rows);
-                if (error) throw error;
-                const count = _spSelected.size;
+                // 1. Notifications
+                const notifRows = recipients.map(recipientId => ({
+                    user_id: recipientId,
+                    type:    'profile_recommendation',
+                    title:   `${currentUser.firstName} thinks you should connect with ${ownerFullName}`,
+                    read:    false,
+                }));
+                await supabaseClient.from('notifications').insert(notifRows);
+
+                // 2. In-chat messages — one per recipient
+                await Promise.all(recipients.map(async recipientId => {
+                    const convId = await getOrCreateConversation(recipientId);
+                    await supabaseClient.from('messages').insert([{
+                        sender_id:       currentUser.id,
+                        receiver_id:     recipientId,
+                        conversation_id: convId,
+                        content:         _spOwnerId,          // profile owner's ID as content
+                        message_type:    'profile_recommendation',
+                        metadata:        metadata,
+                    }]);
+                }));
+
+                const count = recipients.length;
                 closeShareProfileModal();
                 showToast(`Profile sent to ${count} connection${count > 1 ? 's' : ''} ✓`, 'success');
             } catch(e) {
+                console.error('spSend:', e);
                 showToast('Failed to send: ' + e.message, 'error');
             }
         }
@@ -4667,16 +4698,45 @@
                     lastSenderId = null;
                 }
 
-                const isMine = m.sender_id === currentUser.id;
-                const showAv = !isMine && m.sender_id !== lastSenderId;
+                const isMine  = m.sender_id === currentUser.id;
+                const showAv  = !isMine && m.sender_id !== lastSenderId;
                 const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const avInner = ibxAvatarInner(profile);
 
-                html += `<div class="ibx-msg-row ${isMine ? 'mine' : ''}">
-                    ${!isMine ? `<div class="ibx-msg-av ${showAv ? '' : 'hidden'}" style="background:${bg};">${avInner}</div>` : ''}
-                    <div class="ibx-bubble">${ibxEscape(m.content)}</div>
-                    <span class="ibx-msg-time">${timeStr}</span>
-                </div>`;
+                if (m.message_type === 'profile_recommendation') {
+                    // Parse metadata
+                    let meta = {};
+                    try { meta = typeof m.metadata === 'string' ? JSON.parse(m.metadata) : (m.metadata || {}); } catch(e) {}
+                    const pid   = meta.profile_id   || m.content;
+                    const pname = meta.profile_name || 'Someone';
+                    const psub  = meta.profile_headline || meta.profile_major || 'Rowan University';
+                    const pini  = pname.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+                    const senderLabel = isMine
+                        ? `You recommended a profile ☕`
+                        : `${partnerName.split(' ')[0]} thinks you two should connect ☕`;
+
+                    html += `<div class="ibx-msg-row ${isMine ? 'mine' : ''}" style="justify-content:${isMine?'flex-end':'flex-start'};">
+                        ${!isMine ? `<div class="ibx-msg-av ${showAv?'':'hidden'}" style="background:${bg};">${avInner}</div>` : ''}
+                        <div class="ibx-prof-card">
+                            <div class="ibx-prof-card-label">${senderLabel}</div>
+                            <div class="ibx-prof-card-body">
+                                <div class="ibx-prof-card-av">${pini}</div>
+                                <div class="ibx-prof-card-info">
+                                    <div class="ibx-prof-card-name">${ibxEscape(pname)}</div>
+                                    <div class="ibx-prof-card-sub">${ibxEscape(psub)}</div>
+                                </div>
+                            </div>
+                            <button class="ibx-prof-card-btn" onclick="viewProfile('${pid}')">View profile →</button>
+                        </div>
+                        <span class="ibx-msg-time">${timeStr}</span>
+                    </div>`;
+                } else {
+                    html += `<div class="ibx-msg-row ${isMine ? 'mine' : ''}">
+                        ${!isMine ? `<div class="ibx-msg-av ${showAv ? '' : 'hidden'}" style="background:${bg};">${avInner}</div>` : ''}
+                        <div class="ibx-bubble">${ibxEscape(m.content)}</div>
+                        <span class="ibx-msg-time">${timeStr}</span>
+                    </div>`;
+                }
                 lastSenderId = m.sender_id;
             });
             html += '</div>';
