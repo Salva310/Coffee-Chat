@@ -6810,6 +6810,17 @@
                 _myAchs = myAchData || [];
             } catch(e) { console.error('renderMyProfile achievements:', e); }
 
+            // Fetch own reviews (for preview)
+            let _myReviews = [];
+            try {
+                const { data: myReviewData } = await supabaseClient
+                    .from('reviews')
+                    .select('rating, comment, created_at')
+                    .eq('reviewee_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+                _myReviews = myReviewData || [];
+            } catch(e) { console.error('renderMyProfile reviews:', e); }
+
             // Fetch own posts
             let _myPosts = [];
             let _myPostLikeMap = {};
@@ -6853,7 +6864,14 @@
 
             // Cache data for preview modal (chips kept for preview modal compatibility)
             const _chips = [profile.schoolName, profile.gradYear ? `Class of ${profile.gradYear}` : null, profile.major].filter(Boolean);
-            _myProfilePreviewData = { profile, availRows, tagsHtml, chips: _chips };
+            _myProfilePreviewData = {
+                profile, availRows, tagsHtml, chips: _chips,
+                achievements: _myAchs,
+                reviews: _myReviews,
+                connCount: connections.length,
+                communityCount: myGroupIds.size,
+                chatsCompleted,
+            };
 
             // ── Build derived values for new template ──
             const school = profile.schoolName || (!profile.role && profile.company ? profile.company : null) || 'Rowan University';
@@ -7222,21 +7240,47 @@
             if (!modal || !body) return;
             if (!_myProfilePreviewData) { showToast('Profile not loaded yet.', 'info'); return; }
 
-            const { profile, availRows, tagsHtml, chips } = _myProfilePreviewData;
-            const initials   = `${(profile.firstName||'?')[0]}${(profile.lastName||'?')[0]}`.toUpperCase();
-            const avatarBg   = profile.profilePicture ? 'none' : (profile.avatarColor || 'linear-gradient(135deg,var(--caramel),var(--espresso))');
+            const { profile, availRows, achievements, reviews, connCount, communityCount, chatsCompleted } = _myProfilePreviewData;
+            const initials    = `${(profile.firstName||'?')[0]}${(profile.lastName||'?')[0]}`.toUpperCase();
+            const avatarBg    = profile.profilePicture ? 'transparent' : (profile.avatarColor || 'linear-gradient(135deg,var(--caramel),var(--espresso))');
             const avatarInner = profile.profilePicture
                 ? `<img src="${profile.profilePicture}" alt="${profile.firstName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
                 : initials;
+            const bannerStyle = profile.bannerImage ? ` style="background-image:url('${profile.bannerImage}');background-size:cover;background-position:center;"` : '';
 
-            const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const dayFull = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             const fmt = t => { if (!t) return ''; const [h,m]=t.split(':'); const hr=parseInt(h); return `${hr>12?hr-12:(hr===0?12:hr)}:${m} ${hr>=12?'PM':'AM'}`; };
-            const availHtml = availRows.map(r => `
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--latte-soft);font-size:13px;">
-                    <span style="font-weight:600;width:36px;color:var(--brown);">${dayNames[r.day_of_week]}</span>
-                    <span style="color:var(--muted);font-size:12.5px;">${fmt(r.start_time)} – ${fmt(r.end_time)}</span>
-                    <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#eaf4ee;color:#2d6a4f;">Open</span>
-                </div>`).join('');
+            const availHtml = availRows.map(r => `<div class="pvp-avail-row"><span class="pvp-avail-day">${dayFull[r.day_of_week]}</span><span class="pvp-avail-time">${fmt(r.start_time)} – ${fmt(r.end_time)}</span></div>`).join('');
+
+            const headline = profile.headline || [profile.role, profile.company ? `@ ${profile.company}` : ''].filter(Boolean).join(' ') || '';
+            const avgRating  = profile.avg_rating;
+            const avgStr     = avgRating ? `${Number(avgRating).toFixed(1)} ⭐` : '—';
+
+            const interestTagsHTML = (profile.interests||[]).map(t => `<span class="pvp-tag pvp-tag-interest">${t}</span>`).join('');
+            const hobbyTagsHTML    = (profile.hobbies||[]).map(t => `<span class="pvp-tag pvp-tag-hobby">${t}</span>`).join('');
+
+            const goalLines = (profile.goals || '').split('\n').map(l => l.trim()).filter(Boolean);
+            const goalsHTML = goalLines.length
+                ? goalLines.map(l => `<div class="pvp-goal-item"><div class="pvp-goal-dot"></div><div class="pvp-goal-text">${l}</div></div>`).join('')
+                : '';
+
+            const ACH_ICON_MAP = { internship:'💼', job:'💼', research:'🔬', club:'🏆', exam:'📜', award:'🏅', project:'🛠', other:'⭐' };
+            const achHTML = (achievements||[]).length
+                ? achievements.map(a => `<div class="pvp-exp-item"><div class="pvp-exp-logo">${ACH_ICON_MAP[a.type]||'⭐'}</div><div><div class="pvp-exp-role">${a.title||''}</div>${a.organization?`<div class="pvp-exp-company">${a.organization}</div>`:''}<div class="pvp-exp-date">${_fmtAchDate(a.start_date,a.end_date,a.is_current)}</div>${a.description?`<div class="pvp-exp-desc">${a.description}</div>`:''}</div></div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No experience listed yet.</p>`;
+
+            const starsHTML = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+            const reviewsHTML = (reviews||[]).length
+                ? reviews.slice(0, 3).map(r => `
+                    <div class="pvp-review-item">
+                        <div class="pvp-review-header">
+                            <span class="pvp-stars">${starsHTML(r.rating)}</span>
+                            <span class="pvp-review-date">${r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
+                        </div>
+                        ${r.comment ? `<div class="pvp-review-text">"${r.comment}"</div>` : ''}
+                        <div class="pvp-review-anon">Anonymous review ✓</div>
+                    </div>`).join('')
+                : `<p style="font-size:13px;color:var(--muted);font-style:italic;">No reviews yet.</p>`;
 
             body.innerHTML = `
                 <div style="background:rgba(192,124,58,0.1);border:1px solid var(--latte);border-radius:12px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
@@ -7247,48 +7291,89 @@
                     </div>
                 </div>
 
-                <div style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:16px;">
-                    <div style="height:80px;background:linear-gradient(135deg,var(--espresso) 0%,var(--caramel) 60%,#e8c49a 100%);"></div>
-                    <div style="padding:0 24px 22px;position:relative;">
-                        <div style="display:inline-block;margin-top:-32px;margin-bottom:10px;">
-                            <div style="width:64px;height:64px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;border:3px solid var(--card);box-shadow:0 2px 10px rgba(107,63,42,.22);overflow:hidden;">${avatarInner}</div>
+                <!-- Hero card -->
+                <div class="pvp-hero-card">
+                    <div class="pvp-cover"${bannerStyle}></div>
+                    <div class="pvp-hero-body">
+                        <div class="pvp-hero-top">
+                            <div class="pvp-avatar" style="background:${avatarBg}">${avatarInner}</div>
+                            <div class="pvp-cta-btns">
+                                <button class="pvp-btn-request" disabled style="opacity:.6;cursor:not-allowed;">☕ Request a chat</button>
+                                <button class="pvp-btn-connect" disabled style="opacity:.6;cursor:not-allowed;">+ Connect</button>
+                            </div>
                         </div>
-                        <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--espresso);line-height:1.2;margin-bottom:4px;">${profile.firstName} ${profile.lastName}</div>
-                        <div style="font-size:13.5px;color:var(--brown);font-weight:500;margin-bottom:10px;">${profile.headline || [profile.role,profile.industry].filter(Boolean).join(' · ') || ''}</div>
-                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
-                            ${chips.map(c => `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--latte-soft);border:1px solid var(--latte);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--brown);font-weight:500;">${c}</span>`).join('')}
-                            <span style="display:inline-flex;align-items:center;gap:4px;background:#eaf4ee;border:1px solid #b7dfc9;border-radius:99px;padding:3px 10px;font-size:12px;color:#2d6a4f;font-weight:500;">🟢 Open to chats</span>
+                        <div class="pvp-name">${profile.firstName} ${profile.lastName}</div>
+                        ${headline ? `<div class="pvp-headline">${headline}</div>` : ''}
+                        <div class="pvp-meta-row">
+                            ${profile.location  ? `<span class="pvp-meta-item">📍 ${profile.location}</span>` : ''}
+                            ${profile.schoolName||profile.gradYear ? `<span class="pvp-meta-item">🎓 ${[profile.schoolName||'Rowan University', profile.gradYear?`Class of ${profile.gradYear}`:''].filter(Boolean).join(' · ')}</span>` : ''}
+                            ${profile.linkedinUrl ? `<span class="pvp-meta-item">🔗 <a href="${/^https?:\/\//i.test(profile.linkedinUrl)?profile.linkedinUrl:'https://'+profile.linkedinUrl}" target="_blank" rel="noopener" style="color:var(--caramel);text-decoration:none;">LinkedIn</a></span>` : ''}
                         </div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <button disabled style="padding:9px 20px;background:var(--espresso);color:var(--cream);border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:not-allowed;font-family:'DM Sans',sans-serif;opacity:.6;">Add Connection</button>
-                            <button disabled style="padding:9px 20px;background:transparent;border:1.5px solid var(--latte);border-radius:10px;font-size:13px;font-weight:500;color:var(--muted);cursor:not-allowed;font-family:'DM Sans',sans-serif;opacity:.6;">Request Chat</button>
+                        <div class="pvp-stats-strip">
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${chatsCompleted||'—'}</div><div class="pvp-strip-lbl">Chats completed</div></div>
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${avgStr}</div><div class="pvp-strip-lbl">Avg rating</div></div>
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${connCount||'—'}</div><div class="pvp-strip-lbl">Connections</div></div>
+                            <div class="pvp-strip-stat"><div class="pvp-strip-num">${communityCount||'—'}</div><div class="pvp-strip-lbl">Communities</div></div>
                         </div>
                     </div>
                 </div>
 
-                ${profile.bio ? `
-                <div style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:16px;">
-                    <div style="padding:16px 22px 12px;border-bottom:1px solid var(--latte);"><h3 style="font-family:'Playfair Display',serif;font-size:15px;color:var(--espresso);margin:0;">About</h3></div>
-                    <div style="padding:18px 22px;"><p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;">${profile.bio}</p></div>
-                </div>` : ''}
+                <!-- Two-column body -->
+                <div class="pvp-two-col">
+                    <div>
+                        ${profile.bio ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">About</div></div>
+                            <div class="pvp-card-body"><div class="pvp-about-text">${profile.bio}</div></div>
+                        </div>` : ''}
 
-                ${(profile.interests||[]).length || (profile.hobbies||[]).length ? `
-                <div style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:16px;">
-                    <div style="padding:16px 22px 12px;border-bottom:1px solid var(--latte);"><h3 style="font-family:'Playfair Display',serif;font-size:15px;color:var(--espresso);margin:0;">Interests &amp; Passions</h3></div>
-                    <div style="padding:18px 22px;"><div style="display:flex;flex-wrap:wrap;gap:7px;">${tagsHtml}</div></div>
-                </div>` : ''}
+                        ${goalsHTML ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">Career goals</div></div>
+                            <div class="pvp-card-body">${goalsHTML}</div>
+                        </div>` : ''}
 
-                ${profile.goals ? `
-                <div style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;margin-bottom:16px;">
-                    <div style="padding:16px 22px 12px;border-bottom:1px solid var(--latte);"><h3 style="font-family:'Playfair Display',serif;font-size:15px;color:var(--espresso);margin:0;">Career Goals</h3></div>
-                    <div style="padding:18px 22px;"><p style="font-size:14px;color:var(--brown);line-height:1.7;margin:0;border-left:3px solid var(--caramel);padding-left:14px;">${profile.goals}</p></div>
-                </div>` : ''}
+                        ${(profile.interests||[]).length || (profile.hobbies||[]).length ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">Interests &amp; hobbies</div></div>
+                            <div class="pvp-card-body">
+                                ${interestTagsHTML ? `<div style="margin-bottom:12px;"><div class="pvp-tag-label">Interests</div><div class="pvp-tag-row">${interestTagsHTML}</div></div>` : ''}
+                                ${hobbyTagsHTML    ? `<div style="${interestTagsHTML?'border-top:1px solid var(--border);padding-top:12px;':''}"><div class="pvp-tag-label">Hobbies</div><div class="pvp-tag-row">${hobbyTagsHTML}</div></div>` : ''}
+                            </div>
+                        </div>` : ''}
 
-                ${availRows.length > 0 ? `
-                <div style="background:var(--card);border:1px solid var(--latte);border-radius:14px;box-shadow:0 2px 12px rgba(107,63,42,.09);overflow:hidden;">
-                    <div style="padding:16px 22px 12px;border-bottom:1px solid var(--latte);"><h3 style="font-family:'Playfair Display',serif;font-size:15px;color:var(--espresso);margin:0;">Availability</h3></div>
-                    <div style="padding:14px 22px 18px;">${availHtml}</div>
-                </div>` : ''}
+                        ${(achievements||[]).length ? `
+                        <div class="pvp-card">
+                            <div class="pvp-card-header"><div class="pvp-card-title">Experience</div></div>
+                            <div class="pvp-card-body">${achHTML}</div>
+                        </div>` : ''}
+
+                        <div class="pvp-card">
+                            <div class="pvp-card-header">
+                                <div class="pvp-card-title">Chat reviews</div>
+                                ${(reviews||[]).length ? `<span style="font-size:13px;color:var(--muted);">${avgStr} · ${reviews.length} review${reviews.length>1?'s':''}</span>` : ''}
+                            </div>
+                            <div class="pvp-card-body">${reviewsHTML}</div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="pvp-sidebar">
+                        <div class="pvp-cta-card">
+                            <div class="pvp-cta-icon">☕</div>
+                            <div class="pvp-cta-title">Grab a chat with ${profile.firstName}</div>
+                            <div class="pvp-cta-sub">${profile.firstName} is open to chats. Usually responds within a day.</div>
+                            <button class="pvp-btn-cta-full" disabled style="opacity:.6;cursor:not-allowed;">Request a coffee chat</button>
+                            <button class="pvp-btn-cta-ghost" disabled style="opacity:.5;cursor:not-allowed;">+ Connect first</button>
+                        </div>
+
+                        ${availRows.length > 0 ? `
+                        <div class="pvp-sc">
+                            <div class="pvp-sc-header"><div class="pvp-sc-title">Availability</div></div>
+                            <div class="pvp-sc-body">${availHtml}</div>
+                        </div>` : ''}
+                    </div>
+                </div>
             `;
             modal.classList.add('active');
         }
