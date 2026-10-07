@@ -258,7 +258,7 @@
                 renderNav();
                 // Handle deep-links before defaulting to dashboard
                 const wasReview  = await handleReviewRoute();
-                const wasProfile = !wasReview && await handleProfileRoute();
+                const wasProfile = !wasReview && (await handleProfileRoute() || await handleChatsRoute());
                 if (!wasReview && !wasProfile) switchView('dashboardView');
                 await updateDashboard();
                 checkBadgesWithCelebration();
@@ -268,6 +268,11 @@
                 const profileMatch = window.location.pathname.match(/^\/profile\/([0-9a-f-]+)$/i);
                 if (reviewMatch)  { localStorage.setItem('_pendingReview',  reviewMatch[1]);  window.history.replaceState({}, '', '/'); }
                 if (profileMatch) { localStorage.setItem('_pendingProfile', profileMatch[1]); window.history.replaceState({}, '', '/'); }
+                if (window.location.pathname.replace(/\/$/, '') === '/chats') {
+                    const pendingConv = new URLSearchParams(window.location.search).get('conversation');
+                    if (pendingConv) localStorage.setItem('_pendingConversation', pendingConv);
+                    window.history.replaceState({}, '', '/');
+                }
                 document.querySelector('.app-container').classList.add('sidebar-hidden');
                 switchView('landingView');
             }
@@ -655,7 +660,7 @@
                 if (pendingReview)  { localStorage.removeItem('_pendingReview');  window.history.replaceState({}, '', `/review/${pendingReview}`); }
                 if (pendingProfile) { localStorage.removeItem('_pendingProfile'); window.history.replaceState({}, '', `/profile/${pendingProfile}`); }
                 const wasReview  = await handleReviewRoute();
-                const wasProfile = !wasReview && await handleProfileRoute();
+                const wasProfile = !wasReview && (await handleProfileRoute() || await handleChatsRoute());
                 if (!wasReview && !wasProfile) switchView('dashboardView');
                 await updateDashboard();
                 checkBadgesWithCelebration();
@@ -753,7 +758,7 @@
                 if (pendingReviewSignup)  { localStorage.removeItem('_pendingReview');  window.history.replaceState({}, '', `/review/${pendingReviewSignup}`); }
                 if (pendingProfileSignup) { localStorage.removeItem('_pendingProfile'); window.history.replaceState({}, '', `/profile/${pendingProfileSignup}`); }
                 const wasReviewSignup  = await handleReviewRoute();
-                const wasProfileSignup = !wasReviewSignup && await handleProfileRoute();
+                const wasProfileSignup = !wasReviewSignup && (await handleProfileRoute() || await handleChatsRoute());
                 if (!wasReviewSignup && !wasProfileSignup) switchView('dashboardView');
                 await updateDashboard();
             } catch (error) {
@@ -1210,6 +1215,7 @@
             if (viewId === 'networkView') renderNetworkView();
             if (viewId === 'communitiesView') { nwcRenderList(); renderMyNetworkSection(); }
             if (viewId === 'inboxView') renderInboxView();
+            else if (window.location.pathname.startsWith('/chats')) window.history.replaceState({}, '', '/');
             if (viewId === 'landingView') setTimeout(initLandingReveal, 50);
 
             updateNavActive(viewId);
@@ -1923,8 +1929,7 @@
         }
 
         function openChatWith(userId) {
-            switchView('inboxView');
-            selectInboxConv(userId);
+            return openConversationWith(userId);
         }
 
         // ===== SCHEDULE CHAT MODAL =====
@@ -3274,8 +3279,7 @@
 
         // Messages
         async function startMessage(userId) {
-            switchView('inboxView');
-            await selectInboxConv(userId);
+            return openConversationWith(userId);
         }
 
         // ─── My Chats redesigned view ───────────────────────────────────
@@ -3660,6 +3664,22 @@
                     other_profile: profileMap[row.other_user_id] || null
                 }));
                 ibxRenderConvList(ibxAllConvs);
+                if (ibxPendingConvId) {
+                    const pendingId = ibxPendingConvId;
+                    ibxPendingConvId = null;
+                    let target = ibxAllConvs.find(c => c.conversation_id === pendingId);
+                    if (!target) {
+                        const { data: convRow } = await supabaseClient
+                            .from('conversations').select('id, participant_a, participant_b')
+                            .eq('id', pendingId).maybeSingle();
+                        if (convRow) target = {
+                            conversation_id: convRow.id,
+                            other_user_id: convRow.participant_a === currentUser.id ? convRow.participant_b : convRow.participant_a
+                        };
+                    }
+                    if (target) selectInboxConv(target.other_user_id, target.conversation_id);
+                    else showToast('That conversation could not be found', 'error');
+                }
                 ibxRenderStatsBar();
                 ibxRenderPendingInvites();
                 ibxRenderUpcomingPanel();
@@ -3684,13 +3704,17 @@
             list.innerHTML = convs.map(conv => {
                 const p = conv.other_profile;
                 const name = p ? `${p.first_name} ${p.last_name}` : 'User';
-                const isActive = selectedConversation === conv.other_user_id;
+                const isActive = selectedConversationId
+                    ? selectedConversationId === conv.conversation_id
+                    : selectedConversation === conv.other_user_id;
                 const hasUnread = (conv.unread_count || 0) > 0;
+                const isEmptyConv = !conv.last_message_preview;
                 const preview = ibxEscape((conv.last_message_preview || 'No messages yet').substring(0, 60));
-                const timeStr = ibxFormatTime(conv.last_message_at);
+                const timeStr = isEmptyConv ? '' : ibxFormatTime(conv.last_message_at);
                 const bg = ibxAvatarBg((p?.first_name || '') + (p?.last_name || '') + (conv.other_user_id || ''));
                 const avInner = ibxAvatarInner(p);
                 return `<div class="ibx-conv-row ${isActive ? 'active' : ''} ${hasUnread ? 'unread' : ''}"
+                             data-conv-id="${conv.conversation_id}" data-user-id="${conv.other_user_id}"
                              onclick="selectInboxConv('${conv.other_user_id}','${conv.conversation_id}')">
                     <div class="ibx-conv-av">
                         <div class="ibx-conv-av-inner" style="background:${bg};">${avInner}</div>
@@ -3701,7 +3725,7 @@
                             <span class="ibx-conv-time">${timeStr}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:4px;">
-                            <span class="ibx-conv-preview">${preview}</span>
+                            <span class="ibx-conv-preview" ${isEmptyConv ? 'style="font-style:italic;"' : ''}>${preview}</span>
                             ${hasUnread ? '<div class="ibx-unread-dot"></div>' : ''}
                         </div>
                     </div>
@@ -4579,7 +4603,8 @@
 
             // Update active state in list
             document.querySelectorAll('.ibx-conv-row').forEach(r => r.classList.remove('active'));
-            const activeRow = document.querySelector(`.ibx-conv-row[onclick*="'${userId}'"]`);
+            const activeRow = (conversationId && document.querySelector(`.ibx-conv-row[data-conv-id="${conversationId}"]`))
+                || document.querySelector(`.ibx-conv-row[data-user-id="${userId}"]`);
             if (activeRow) activeRow.classList.add('active');
 
             // Show chat area; on mobile switch to chat panel
@@ -4669,7 +4694,8 @@
                 const icebreakers = getConversationStarters(userId);
                 thread.innerHTML = `<div style="text-align:center;padding:32px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
                     <div style="font-size:28px;margin-bottom:12px;">👋</div>
-                    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Start your conversation with <strong>${ibxEscape(partnerName)}</strong>!</p>
+                    <p style="font-size:16px;font-weight:600;color:var(--espresso);margin-bottom:4px;">Say hi to ${ibxEscape((partnerName || 'them').split(' ')[0])} ☕</p>
+                    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">No messages yet. Send the first one below.</p>
                     ${icebreakers.length ? `<p style="font-size:12px;color:var(--caramel);font-weight:600;margin-bottom:10px;">Try an icebreaker:</p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:400px;">
                         ${icebreakers.map(s => `<button onclick="ibxUseIcebreaker(this)"
@@ -4818,10 +4844,10 @@
 
                 // Refresh only the message thread; update conv list preview inline (no round-trip)
                 await selectInboxConv(selectedConversation, selectedConversationId);
-                const _convRow = document.querySelector(`.ibx-conv-row[onclick*="'${selectedConversation}'"]`);
+                const _convRow = document.querySelector(`.ibx-conv-row[data-conv-id="${selectedConversationId}"]`);
                 if (_convRow) {
                     const _prev = _convRow.querySelector('.ibx-conv-preview');
-                    if (_prev) _prev.textContent = sentText.substring(0, 60);
+                    if (_prev) { _prev.textContent = sentText.substring(0, 60); _prev.style.fontStyle = ''; }
                     const _time = _convRow.querySelector('.ibx-conv-time');
                     if (_time) _time.textContent = ibxFormatTime(new Date().toISOString());
                     _convRow.classList.add('active');
@@ -7743,9 +7769,40 @@
             } catch(e) { console.warn('mnConnectSuggestion:', e); }
         }
 
-        function openConversationWith(userId) {
+        // Single entry point for every "Message" button: find or create the
+        // conversation first, then open the Chats page with it selected.
+        let ibxPendingConvId = null;
+        async function openConversationWith(userId) {
+            if (!currentUser || !userId || userId === currentUser.id) return;
+            let convId;
+            try {
+                convId = await getOrCreateConversation(userId);
+            } catch (err) {
+                console.error('openConversationWith:', err);
+                showToast('Could not open this conversation', 'error');
+                return;
+            }
+            ibxPendingConvId = convId;
+            window.history.replaceState({}, '', `/chats?conversation=${convId}`);
+            switchView('inboxView'); // renderInboxView() opens ibxPendingConvId once the list is loaded
+        }
+
+        // Deep link: /chats?conversation=<id>
+        async function handleChatsRoute() {
+            const onChats = window.location.pathname.replace(/\/$/, '') === '/chats';
+            const urlConv = onChats ? new URLSearchParams(window.location.search).get('conversation') : null;
+            const storedConv = localStorage.getItem('_pendingConversation');
+            if (!onChats && !storedConv) return false;
+            const convId = urlConv || storedConv;
+            if (!currentUser) {
+                if (convId) localStorage.setItem('_pendingConversation', convId);
+                return true;
+            }
+            localStorage.removeItem('_pendingConversation');
+            ibxPendingConvId = convId || null;
+            window.history.replaceState({}, '', convId ? `/chats?conversation=${convId}` : '/chats');
             switchView('inboxView');
-            setTimeout(() => selectConversation && selectConversation(userId), 300);
+            return true;
         }
 
         function mnToggleAllReviews(btn, allReviews) {
