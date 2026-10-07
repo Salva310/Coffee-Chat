@@ -1412,7 +1412,7 @@
             if (!container) return;
 
             const next = meetings
-                .filter(m => m.status !== 'completed' && new Date(m.start_time || m.date) >= new Date())
+                .filter(m => m.status === 'accepted' && new Date(m.start_time || m.date) >= new Date())
                 .sort((a, b) => new Date(a.start_time || a.date) - new Date(b.start_time || b.date))[0];
 
             if (!next) {
@@ -1995,24 +1995,16 @@
             openModal('scheduleChatModal');
         }
 
+        // All scheduling goes through chat invites: the receiver must accept
+        // before a meeting exists (see sendChatInvite / ibxAcceptInvite).
         function openScheduleForUser(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
-            // Show modal directly at step 2
-            document.getElementById('scheduleStep1').style.display = 'none';
-            document.getElementById('scheduleStep2').style.display = 'block';
-            selectedModalTime = null;
-            openModal('scheduleChatModal');
-            _populateScheduleStep2(user);
+            if (!userId) return openScheduleModal();
+            openChatInviteModal(userId);
         }
 
         function selectSchedulePerson(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
-            document.getElementById('scheduleStep1').style.display = 'none';
-            document.getElementById('scheduleStep2').style.display = 'block';
-            selectedModalTime = null;
-            _populateScheduleStep2(user);
+            closeModal('scheduleChatModal');
+            openChatInviteModal(userId);
         }
 
         function _populateScheduleStep2(user) {
@@ -3329,7 +3321,7 @@
             if (!upcomingEl || !pastEl || !pendingEl) return;
 
             const now = new Date();
-            const upcomingMtgs = meetings.filter(m => m.status !== 'completed' && m.status !== 'pending' && new Date(m.start_time || m.date) > now).sort((a,b)=>new Date(a.start_time||a.date)-new Date(b.start_time||b.date));
+            const upcomingMtgs = meetings.filter(m => m.status === 'accepted' && new Date(m.start_time || m.date) > now).sort((a,b)=>new Date(a.start_time||a.date)-new Date(b.start_time||b.date));
             const pastMtgs     = meetings.filter(m => m.status === 'completed' || (m.status !== 'pending' && new Date(m.start_time || m.date) <= now)).sort((a,b)=>new Date(b.start_time||b.date)-new Date(a.start_time||a.date));
             const pendingMtgs  = meetings.filter(m => m.status === 'pending');
 
@@ -4483,6 +4475,7 @@
                     .select()
                     .single();
                 if (mtgErr) throw mtgErr;
+                meetings.push(mtg); // track locally before realtime INSERT arrives
 
                 // Update to 'accepted' — this fires the on_meeting_accepted DB trigger
                 const { error: updErr } = await supabaseClient
@@ -4492,7 +4485,8 @@
                 if (updErr) throw updErr;
 
                 const acceptedMtg = { ...mtg, status: 'accepted' };
-                meetings.push(acceptedMtg);
+                const _mi = meetings.findIndex(m => m.id === mtg.id);
+                if (_mi >= 0) meetings[_mi] = acceptedMtg; else meetings.push(acceptedMtg);
 
                 // Remove card from UI
                 document.getElementById('ibx-inv-' + inviteId)?.remove();
@@ -5757,6 +5751,11 @@
 
         // Schedule Meeting
         function scheduleWith(userId) {
+            return openChatInviteModal(userId);
+        }
+
+        // Legacy full-page scheduler (no longer reachable; kept for reference)
+        function _legacyScheduleWith(userId) {
             const user = users.find(u => u.id === userId);
             selectedPerson = user;
             previousView = 'profileDetailView';
